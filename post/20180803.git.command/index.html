@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="piaohua" /><meta name="description" content="Git常用操作命令 Clone仓库 # 获取一个仓库，支持多种协议(http/git/ssh) $ git clone http://git.kernel.org/pub/scm/git/git.git $ git clone git://git.kernel.org/pub/scm/git/git.git $ git clone user@server:path/to/repo.git # GitHub创建仓库提示代" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="piaohua" /><meta name="description" content="Git常用操作命令 Clone仓库 # 获取一个仓库，支持多种协议(http/git/ssh) $ git clone https://git.kernel.org/pub/scm/git/git.git $ git clone git://git.kernel.org/pub/scm/git/git.git $ git clone user@server:path/to/repo.git # GitHub创建仓库提示代" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 
@@ -40,22 +40,22 @@
 
 
 <meta property="og:title" content="[Git] 指令集" />
-<meta property="og:description" content="Git常用操作命令 Clone仓库 # 获取一个仓库，支持多种协议(http/git/ssh) $ git clone http://git.kernel.org/pub/scm/git/git.git $ git clone git://git.kernel.org/pub/scm/git/git.git $ git clone user@server:path/to/repo.git # GitHub创建仓库提示代" />
+<meta property="og:description" content="Git常用操作命令 Clone仓库 # 获取一个仓库，支持多种协议(http/git/ssh) $ git clone https://git.kernel.org/pub/scm/git/git.git $ git clone git://git.kernel.org/pub/scm/git/git.git $ git clone user@server:path/to/repo.git # GitHub创建仓库提示代" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://piaohua.github.io/post/20180803.git.command/" />
 <meta property="article:published_time" content="2020-08-03T21:21:44+08:00" />
 <meta property="article:modified_time" content="2020-08-03T21:21:44+08:00" />
 <meta itemprop="name" content="[Git] 指令集">
-<meta itemprop="description" content="Git常用操作命令 Clone仓库 # 获取一个仓库，支持多种协议(http/git/ssh) $ git clone http://git.kernel.org/pub/scm/git/git.git $ git clone git://git.kernel.org/pub/scm/git/git.git $ git clone user@server:path/to/repo.git # GitHub创建仓库提示代">
+<meta itemprop="description" content="Git常用操作命令 Clone仓库 # 获取一个仓库，支持多种协议(http/git/ssh) $ git clone https://git.kernel.org/pub/scm/git/git.git $ git clone git://git.kernel.org/pub/scm/git/git.git $ git clone user@server:path/to/repo.git # GitHub创建仓库提示代">
 <meta itemprop="datePublished" content="2020-08-03T21:21:44&#43;08:00" />
 <meta itemprop="dateModified" content="2020-08-03T21:21:44&#43;08:00" />
-<meta itemprop="wordCount" content="1909">
+<meta itemprop="wordCount" content="2521">
 
 
 
 <meta itemprop="keywords" content="git," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="[Git] 指令集"/>
-<meta name="twitter:description" content="Git常用操作命令 Clone仓库 # 获取一个仓库，支持多种协议(http/git/ssh) $ git clone http://git.kernel.org/pub/scm/git/git.git $ git clone git://git.kernel.org/pub/scm/git/git.git $ git clone user@server:path/to/repo.git # GitHub创建仓库提示代"/>
+<meta name="twitter:description" content="Git常用操作命令 Clone仓库 # 获取一个仓库，支持多种协议(http/git/ssh) $ git clone https://git.kernel.org/pub/scm/git/git.git $ git clone git://git.kernel.org/pub/scm/git/git.git $ git clone user@server:path/to/repo.git # GitHub创建仓库提示代"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -148,7 +148,10 @@
     <li><a href="#标签tags">标签Tags</a></li>
     <li><a href="#查看信息">查看信息</a></li>
     <li><a href="#撤销">撤销</a></li>
+    <li><a href="#补丁管理方便在多台机器上开发同步时用">补丁管理(方便在多台机器上开发同步时用)</a></li>
+    <li><a href="#暂存管理">暂存管理</a></li>
     <li><a href="#其他">其他</a></li>
+    <li><a href="#忽略文件配置">忽略文件配置</a></li>
     <li><a href="#参考">参考</a></li>
   </ul>
 </nav>
@@ -160,7 +163,7 @@
 </blockquote>
 <h2 id="clone仓库">Clone仓库</h2>
 <pre><code># 获取一个仓库，支持多种协议(http/git/ssh)
-$ git clone http://git.kernel.org/pub/scm/git/git.git
+$ git clone https://git.kernel.org/pub/scm/git/git.git
 $ git clone git://git.kernel.org/pub/scm/git/git.git
 $ git clone user@server:path/to/repo.git
 
@@ -209,6 +212,16 @@ $ git config --global -l
 # 不加 --global 表示设置当前目录,查看方式
 $ cat ./git/config
 $ git config -l
+
+# 快捷设置
+$ git config --global color.ui true
+$ git config --global alias.co checkout
+$ git config --global alias.ci commit
+$ git config --global alias.st status
+$ git config --global alias.br branch
+
+# 设置Editor使用textmate
+$ git config --global core.editor &quot;mate -w&quot;
 </code></pre>
 <h2 id="提交">提交</h2>
 <pre><code># 提交暂存区到仓库区
@@ -254,6 +267,12 @@ $ git push [remote] --force
 
 # 推送所有分支到远程仓库
 $ git push [remote] --all
+
+# 设置远程仓库地址(用于修改远程仓库地址)
+git remote set-url [shortname] [url]
+
+# 删除远程仓库
+git remote rm [repository]
 </code></pre>
 <h2 id="分支">分支</h2>
 <pre><code># 列出所有本地分支
@@ -264,6 +283,15 @@ $ git branch -r
 
 # 列出所有本地分支和远程分支
 $ git branch -a
+
+# 查看各个分支最后提交信息
+$ git branch -v
+
+# 查看已经被合并到当前分支的分支
+$ git branch --merged
+
+# 查看尚未被合并到当前分支的分支
+$ git branch --no-merged
 
 # 新建一个分支，但依然停留在当前分支
 $ git branch [branch-name]
@@ -289,11 +317,21 @@ $ git branch --set-upstream [branch] [remote-branch]
 # 合并指定分支到当前分支
 $ git merge [branch]
 
+# 不要Fast-Foward合并，这样可以生成merge提交
+$ git merge origin/master --no-ff
+
+# 将master rebase到branch，相当于：
+# git checkout [branch] &amp;&amp; git rebase master &amp;&amp; git checkout master &amp;&amp; git merge [branch]
+git rebase master [branch]
+
 # 选择一个commit，合并进当前分支
 $ git cherry-pick [commit]
 
 # 删除分支
 $ git branch -d [branch-name]
+
+# 强制删除分支
+$ git branch -D [branch-name]
 
 # 删除远程分支
 $ git push origin --delete [branch-name]
@@ -374,6 +412,24 @@ $ git diff [first-branch]...[second-branch]
 # 显示今天你写了多少行代码
 $ git diff --shortstat &quot;@{0 day ago}&quot;
 
+# 比较当前文件和暂存区文件差异
+$ git diff [file]
+
+# 比较两次提交之间的差异
+git diff [$id1] [$id2]
+
+# 在两个分支之间比较 
+$ git diff [branch1]..[branch2]
+
+# 比较暂存区和版本库差异
+$ git diff --staged
+
+# 比较暂存区和版本库差异
+git diff --cached
+
+# 仅仅比较统计信息
+$ git diff --stat
+
 # 显示某次提交的元数据和内容变化
 $ git show [commit]
 
@@ -417,6 +473,12 @@ $ git reset --hard HEAD^
 # 退到/进到 指定 commit
 $ git reset --hard [commit]
 
+# 从版本库中删除文件
+$ git rm [file]
+
+# 从版本库中删除文件，但不删除文件
+$ git rm [file] --cached
+
 # 新建一个commit，用来撤销指定commit
 # 后者的所有变化都将被前者抵消，并且应用到当前分支
 $ git revert [commit]
@@ -425,15 +487,52 @@ $ git revert [commit]
 $ git stash
 $ git stash pop
 </code></pre>
+<h2 id="补丁管理方便在多台机器上开发同步时用">补丁管理(方便在多台机器上开发同步时用)</h2>
+<pre><code># 生成补丁
+$ git diff &gt; ../sync.patch
+
+# 打补丁
+$ git apply ../sync.patch
+
+# 测试补丁能否成功
+$ git apply --check ../sync.patch
+</code></pre>
+<h2 id="暂存管理">暂存管理</h2>
+<pre><code># 暂存
+$ git stash
+
+# 列所有stash
+$ git stash list
+
+# 恢复暂存的内容
+$ git stash apply
+
+# 删除暂存区
+$ git stash drop
+</code></pre>
 <h2 id="其他">其他</h2>
 <pre><code># 生成一个可供发布的压缩包
 $ git archives
+</code></pre>
+<h2 id="忽略文件配置">忽略文件配置</h2>
+<pre><code># .gitignore 是 Git 的忽略配置文件，放在项目根目录下;
+# .gitignore 配置文件列举的文件;
+# .gitignore 文件本身需要被 git 跟踪管理，不能被忽略;
+
+# 命令检查是否被忽略，如检查.git是否被忽略：
+$ git check-ignore .git
+
+# 强制提交一个被忽略的文件：
+$ git add -f &lt;FileName&gt;
 </code></pre>
 <h2 id="参考">参考</h2>
 <ul>
 <li><a href="https://git-scm.com/book/zh/v2">Git Book</a></li>
 <li><a href="http://gitbook.liuhui998.com/index.html">Git Community Book 中文版</a></li>
 <li><a href="http://www.fenby.com/courses/pro-git/">Pro Git</a></li>
+<li><a href="https://git-scm.com/docs/gitignore">忽略文件配置官网</a></li>
+<li><a href="https://github.com/github/gitignore">通用的忽略配置文件</a></li>
+<li><a href="https://github.com/github/gitignore/blob/master/Go.gitignore">golang通用忽略配置文件</a></li>
 </ul>
 
     </div>
