@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[MySQL] MySQL Sysbench - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="MySQL 基准测试 sysbench介绍 sysbench 是一个模块化的、跨平台、多线程基准测试工具，主要用于评估测试各种不同系统参数下的数据库负载情况。 它主要包括以" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/20200808-mysql-sysbench/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.78f8f17bab244b9ee62ad16480c9584d5fc2db06ae20681d1ca225cefd80767c.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[MySQL] MySQL Sysbench" />
+<meta property="og:description" content="MySQL 基准测试 sysbench介绍 sysbench 是一个模块化的、跨平台、多线程基准测试工具，主要用于评估测试各种不同系统参数下的数据库负载情况。 它主要包括以" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/20200808-mysql-sysbench/" />
+<meta property="article:published_time" content="2020-08-08T11:53:39+08:00" />
+<meta property="article:modified_time" content="2020-08-08T11:53:39+08:00" />
+<meta itemprop="name" content="[MySQL] MySQL Sysbench">
+<meta itemprop="description" content="MySQL 基准测试 sysbench介绍 sysbench 是一个模块化的、跨平台、多线程基准测试工具，主要用于评估测试各种不同系统参数下的数据库负载情况。 它主要包括以">
+<meta itemprop="datePublished" content="2020-08-08T11:53:39&#43;08:00" />
+<meta itemprop="dateModified" content="2020-08-08T11:53:39&#43;08:00" />
+<meta itemprop="wordCount" content="2390">
+
+
+
+<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[MySQL] MySQL Sysbench"/>
+<meta name="twitter:description" content="MySQL 基准测试 sysbench介绍 sysbench 是一个模块化的、跨平台、多线程基准测试工具，主要用于评估测试各种不同系统参数下的数据库负载情况。 它主要包括以"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[MySQL] MySQL Sysbench</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-08-08 </span>
+        <div class="post-category">
+            <a href="/categories/mysql/"> mysql </a>
+            </div>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#sysbench介绍">sysbench介绍</a></li>
+    <li><a href="#centos-二进制包安装">CentOS 二进制包安装</a></li>
+    <li><a href="#基准测试简介">基准测试简介</a></li>
+    <li><a href="#基准测试的指标">基准测试的指标：</a></li>
+    <li><a href="#压测实例以及结果解读">压测实例以及结果解读</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>MySQL 基准测试</p>
+</blockquote>
+<h2 id="sysbench介绍">sysbench介绍</h2>
+<p>sysbench 是一个模块化的、跨平台、多线程基准测试工具，主要用于评估测试各种不同系统参数下的数据库负载情况。
+它主要包括以下几种方式的测试：</p>
+<ol>
+<li>cpu性能</li>
+<li>磁盘io性能</li>
+<li>mutex性能</li>
+<li>内存分配及传输速度</li>
+<li>POSIX线程性能</li>
+<li>数据库性能(OLTP基准测试)
+目前sysbench主要支持 MySQL,pgsql,oracle 这3种数据库。</li>
+</ol>
+<h2 id="centos-二进制包安装">CentOS 二进制包安装</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.rpm.sh | bash 
+yum -y install sysbench
+sysbench --version  # 验证sysbench是否安装成功
+</code></pre></td></tr></table>
+</div>
+</div><ol>
+<li>性能指标 （吞吐量、延迟）
+<ol>
+<li>TPS ：Transactions Per Second ，即数据库每秒执行的事务数，以 commit 成功次数为准。</li>
+<li>QPS ：Queries Per Second ，即数据库每秒执行的 SQL 数（含 insert、select、update、delete 等）。</li>
+<li>RT ：Response Time ，响应时间。包括平均响应时间、最小响应时间、最大响应时间、每个响应时间的查询占比。
+比较需要重点关注的是，前 95-99% 的最大响应时间。因为它决定了大多数情况下的短板。</li>
+<li>Concurrency Threads ：并发量，每秒可处理的查询请求的数量。</li>
+</ol>
+</li>
+<li>测试步骤
+<ol>
+<li>准备数据 prepare</li>
+<li>执行测试 run</li>
+<li>清理数据 clean</li>
+</ol>
+</li>
+<li>CPU性能测试
+<ol>
+<li>sysbench cpu help  # 查看帮助信息</li>
+<li>测试命令: 最大质数发生器数量为2000，线程数为2
+sysbench cpu &ndash;cpu-max-prime=20000 &ndash;threads=2 run</li>
+</ol>
+</li>
+<li>内存分配及传输速度
+<ol>
+<li>sysbench memory help # 查看帮助信息</li>
+<li>测试命令：测试整个过程是在内存中传输 2G 的数据量，每个 block 大小为 8K
+sysbench memory &ndash;memory-block-size=8k &ndash;memory-total-size=2G run</li>
+</ol>
+</li>
+<li>磁盘IO性能测试
+<ol>
+<li>sysbench fileio help  # 查看帮助信息</li>
+<li>prepare阶段，生成需要的测试文件，完成后会在当前目录下生成很多小文件
+sysbench fileio &ndash;threads=2 &ndash;file-total-size=1G &ndash;file-test-mode=rndrw prepare</li>
+<li>run阶段
+sysbench  fileio &ndash;threads=2 &ndash;file-total-size=1G &ndash;file-test-mode=rndrw run</li>
+<li>清理测试时生成的文件
+sysbench  fileio &ndash;threads=2 &ndash;file-total-size=1G &ndash;file-test-mode=rndrw cleanup</li>
+</ol>
+</li>
+<li>mutex性能测试
+<ol>
+<li>sysbench mutex help  # 查看帮助信息</li>
+<li>命令测试：线程数为2，数组互斥的总大小4096，每个线程互斥锁的数量为50000，内部互斥锁的空循环数量为10000
+sysbench mutex &ndash;threads=2 &ndash;mutex-num=4096 &ndash;mutex-locks=50000 &ndash;mutex-loops=10000 run</li>
+</ol>
+</li>
+<li>POSXI线程性能
+<ol>
+<li>sysbench threads help  # 查看帮助信息</li>
+<li>命令测试：线程数为2，每个请求产生多少个线程为100，每个线程的锁的数量为4
+sysbench threads &ndash;threads=2 &ndash;thread-yields=100 &ndash;thread-locks=4 run</li>
+</ol>
+</li>
+<li>数据库性能（OLTP基准测试）（准备数据，压测数据，清理数据）</li>
+</ol>
+<p>8.1 准备数据</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">mysql -uroot -p               #进入数据库
+&gt; create database sbtest;     #创建测试数据库
+sysbench /usr/share/sysbench/oltp_read_write.lua  
+--mysql-host=localhost   #数据库的IP
+--mysql-port=3306    #数据库的端口
+--mysql-user=root    #数据库用户名
+--mysql-password=&#39;test&#39;  #用户密码
+--mysql-socket=/data/mysql/mysql.sock   #socket的路径
+--mysql-db=sbtest   #数据库名字，默认为sysbench，需要提前创建创好
+--db-driver=mysql  #用到的数据库类型 
+--tables=10    #生成10张表
+--table-size=50000   #每个表的行数
+--threads=4    #启动多少个线程，即模拟多少个用户
+prepare
+&gt; show tables; #查看表
+</code></pre></td></tr></table>
+</div>
+</div><p>8.2 查询测试</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">sysbench /usr/share/sysbench/oltp_read_write.lua  
+--mysql-host=localhost  
+--mysql-port=3306   
+--mysql-user=root  
+--mysql-password=&#39;test&#39;  
+--mysql-socket=/data/mysql/mysql.sock   
+--mysql-db=sbtest  
+--db-driver=mysql   
+--tables=10  
+--table-size=50000    
+--report-interval=10  
+--threads=128  
+--time=600  
+run
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>测试结果指标：</li>
+<li>QPS(Query per second) 每秒查询量</li>
+<li>TPS(Transaction per second)每秒事务量</li>
+</ul>
+<p>8.3 在每个查询的事物里面添加 INSERT/UPDATE/DELDETE 操作</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">sysbench /usr/local/sysbench/share/sysbench/oltp_read_write.lua  
+--mysql-host=localhost  
+--mysql-port=3306   
+--mysql-user=root  
+--mysql-password=&#39;test&#39;  
+--mysql-socket=/data/mysql/mysql.sock   
+--mysql-db=sbtest  
+--db-driver=mysql   
+--tables=10  
+--table-size=50000   
+--delete_inserts=10  
+--index_updates=10  
+--non_index_updates=10   
+--report-interval=10  
+--threads=4  
+--time=60  
+run 
+</code></pre></td></tr></table>
+</div>
+</div><p>8.4 删除测试数据</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">sysbench /usr/share/sysbench/oltp_read_write.lua  
+--mysql-host=localhost 
+--mysql-port=3306  
+--mysql-user=root 
+--mysql-password=&#39;test&#39; 
+--mysql-socket=/data/mysql/mysql.sock  
+--mysql-db=sbtest 
+--db-driver=mysql  
+--tables=10 
+--table-size=50000  
+--delete_inserts=10 
+--index_updates=10 
+--non_index_updates=10  
+--report-interval=10 
+--threads=4 
+--time=60  
+cleanup
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="基准测试简介">基准测试简介</h2>
+<ul>
+<li>什么是基准测试：数据库的基准测试是对数据库的性能指标进行定量的、可复现的、可对比的测试。</li>
+<li>基准测试与压力测试：基准测试可以理解为针对系统的一种压力测试。但基准测试不关心业务逻辑，更加简单、直接、易于测试，
+数据可以由工具生成，不要求真实；而压力测试一般考虑业务逻辑(如购物车业务)，要求真实的数据。</li>
+<li>基准测试的作用：对于多数Web应用，整个系统的瓶颈在于数据库；原因很简单：Web应用中的其他因素，
+例如网络带宽、负载均衡节点、应用服务器（包括CPU、内存、硬盘灯、连接数等）、缓存，
+都很容易通过水平的扩展（俗称加机器）来实现性能的提高。而对于MySQL，由于数据一致性的要求，
+无法通过增加机器来分散向数据库写数据带来的压力；虽然可以通过前置缓存（Redis等）、读写分离、分库分表来减轻压力，
+但是与系统其它组件的水平扩展相比，受到了太多的限制。而对数据库的基准测试的作用，
+就是分析在当前的配置下（包括硬件配置、OS、数据库设置等），数据库的性能表现，
+从而找出MySQL的性能阈值，并根据实际系统的要求调整配置。</li>
+</ul>
+<h2 id="基准测试的指标">基准测试的指标：</h2>
+<ul>
+<li>常见的数据库指标包括：
+<ul>
+<li>TPS/QPS：衡量吞吐量</li>
+<li>响应时间：包括平均响应时间、最小响应时间、最大响应时间、时间百分比等，其中时间百分比参考意义较大，如前95%的请求的最大响应时间</li>
+<li>并发量：同时处理的查询请求的数量</li>
+</ul>
+</li>
+</ul>
+<h2 id="压测实例以及结果解读">压测实例以及结果解读</h2>
+<ol>
+<li>
+<p>cpu测试</p>
+<ul>
+<li>sysbench &ndash;test=cpu &ndash;cpu-max-prime=2000000 run</li>
+<li>cpu测试主要是进行素数的加法运算，指定了最大的质数发生器数量为 2000000</li>
+</ul>
+</li>
+<li>
+<p>磁盘IO测试(磁盘的读写IOPS和fsync)</p>
+<ul>
+<li>sysbench &ndash;test=fileio &ndash;num-threads=16 &ndash;file-total-size=30G &ndash;file-test-mode=rndrw prepare</li>
+<li>sysbench &ndash;test=fileio &ndash;num-threads=16 &ndash;file-total-size=30G &ndash;file-test-mode=rndrw run</li>
+</ul>
+</li>
+<li>
+<p>线程测试</p>
+<ul>
+<li>sysbench &ndash;test=threads &ndash;num-threads=64 &ndash;thread-yields=100 &ndash;thread-locks=2 run</li>
+<li>发送64次/个测试线程请求，每次/个线程请求产生/生成100个数量，每个线程的锁数量为2</li>
+</ul>
+</li>
+<li>
+<p>内存测试(执行时间、每秒传输速度)</p>
+<ul>
+<li>sysbench &ndash;test=memory &ndash;memory-block-size=8k &ndash;memory-total-size=40G run</li>
+<li>指定在内存中传输 40G 的数据量，每个 block 大小为 8K</li>
+</ul>
+</li>
+</ol>
+<p>测试结果分析：</p>
+<pre><code>SQL statistics:
+##queries performed:  #性能统计
+read:1994860   #总 select 数量
+write: 0       #总update、insert、delete语句数量
+other: 284980  #commit、unlock tables以及其他mutex的数量
+total: 2279840 #总的执行语句数
+transactions:142490 (1186.20 per sec.)  #总的事物数（每秒处理事物数）|通常需要关注的数字(TPS)
+queries: 2279840 (18979.13 per sec.)    #读写请求次数（每秒的读写次数）|通常需要关注的数字(QPS)
+other operations: 9375 (156.13 per sec.)#其它操作的每秒执行数
+ignored errors:0(0.00 per sec.)         #忽略的错误数
+reconnects:0(0.00 per sec.)
+##General statistics:
+total time:120.1216s                    #即time指定的压测总时间
+total number of events:142490           #总的事件数,一般与transactions相同
+total time taken by event execution: 600.0783s　　 #所有事务耗时相加(不考虑并行因素)
+##response time:　　　　//应答时间
+min:8.52
+avg:107.84
+max:480.08
+95th percentile:170.48                  #95%的语句的平均响应时间
+sum:15365843.76
+##Threads fairness:
+events (avg/stddev): 1113.2031/14.76
+execution time (avg/stddev): 120.0457/0.04
+我们一般关注的指标主要有:
+response time avg: 平均响应时间。(后面的95%的大小可以通过–percentile=98的方式去更改)
+transactions: 精确的说是这一项后面的TPS 。但如果使用了-skip-trx=on,这项事务数恒为0,需要用total number of events 去除以总时间,得到tps(其实还可以分为读tps和写tps)
+queries: 用它除以总时间,得到吞吐量QPS
+</code></pre>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://github.com/akopytov/sysbench">sysbench</a></li>
+<li><a href="https://my.oschina.net/u/3420885/blog/1934664">基准测试之sysbench</a></li>
+<li><a href="https://www.cnblogs.com/kismetv/archive/2017/09/30/7615738.html">详解MySQL基准测试和sysbench工具</a></li>
+<li><a href="https://www.jianshu.com/p/9823b4aa445a">sysbench压测服务器及结果解读</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohub.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2020-08-08
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/mysql/">mysql</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/20200808-golang-context/">
+            <span class="next-text nav-default">[Go] Golang Context</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="http://localhost:1313" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="http://localhost:1313" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="http://localhost:1313" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="http://localhost:1313" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="http://localhost:1313" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="http://localhost:1313" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="http://localhost:1313" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="http://localhost:1313" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="http://localhost:1313" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="http://localhost:1313" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="http://localhost:1313" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohub.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
