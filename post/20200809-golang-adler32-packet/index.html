@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Go] Golang Adler32 Packet - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="打包解包协议中应用adler32校验和 adler32 介绍 Adler-32是Mark Adler发明的校验和算法，和32位CRC校验算法一样，都是保护数据防" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/20200809-golang-adler32-packet/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.78f8f17bab244b9ee62ad16480c9584d5fc2db06ae20681d1ca225cefd80767c.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Go] Golang Adler32 Packet" />
+<meta property="og:description" content="打包解包协议中应用adler32校验和 adler32 介绍 Adler-32是Mark Adler发明的校验和算法，和32位CRC校验算法一样，都是保护数据防" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/20200809-golang-adler32-packet/" />
+<meta property="article:published_time" content="2020-08-09T12:47:18+08:00" />
+<meta property="article:modified_time" content="2020-08-09T12:47:18+08:00" />
+<meta itemprop="name" content="[Go] Golang Adler32 Packet">
+<meta itemprop="description" content="打包解包协议中应用adler32校验和 adler32 介绍 Adler-32是Mark Adler发明的校验和算法，和32位CRC校验算法一样，都是保护数据防">
+<meta itemprop="datePublished" content="2020-08-09T12:47:18&#43;08:00" />
+<meta itemprop="dateModified" content="2020-08-09T12:47:18&#43;08:00" />
+<meta itemprop="wordCount" content="1044">
+
+
+
+<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Go] Golang Adler32 Packet"/>
+<meta name="twitter:description" content="打包解包协议中应用adler32校验和 adler32 介绍 Adler-32是Mark Adler发明的校验和算法，和32位CRC校验算法一样，都是保护数据防"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Go] Golang Adler32 Packet</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-08-09 </span>
+        <div class="post-category">
+            <a href="/categories/golang/"> golang </a>
+            </div>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#adler32-介绍">adler32 介绍</a></li>
+    <li><a href="#adler32-应用打包解包协议">adler32 应用打包解包协议</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>打包解包协议中应用adler32校验和</p>
+</blockquote>
+<h2 id="adler32-介绍">adler32 介绍</h2>
+<pre><code>Adler-32是Mark Adler发明的校验和算法，和32位CRC校验算法一样，都是保护数据防止意外更改的算法，
+和CRC一样不能完全可靠的校验数据,存在伪造风险，但是比CRC计算快。
+
+Adler-32通过求解两个16位的数值A、B实现，并将结果连结成一个32位整数;
+A是所有字节的和，B是A在相加时每一阶段值的和。两个累积值都取65521的余数;
+在Adler-32开始运行时，A初始化为1，B初始化为0，最后的校验和要模上65521(继216之后的最小素数);
+Afler-32校验和保存为A*65536 + B。（最高有效字节在前/大端在前）
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">A = 1 + D1 + D2 + ... + Dn (mod 65521)
+B = (1 + D1) + (1 + D1 + D2) + ... + (1 + D1 + D2 + ... + Dn) (mod 65521)
+   = n×D1 + (n-1)×D2 + (n-2)×D3 + ... + Dn + n (mod 65521)
+Adler-32(D) = B × 65536 + A
+其中D为字符串的字节，n是D的字节长度
+</code></pre></td></tr></table>
+</div>
+</div><p>举例使用Adler-32校验算法产生字符串&quot;Wikipedia&quot;的校验和：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">ASCII code          A                   B
+   W: 87           1 +  87 =  88        0 +  88 =   88
+   i: 105         88 + 105 = 193       88 + 193 =  281
+   k: 107        193 + 107 = 300      281 + 300 =  581
+   i: 105        300 + 105 = 405      581 + 405 =  986
+   p: 112        405 + 112 = 517      986 + 517 = 1503
+   e: 101        517 + 101 = 618     1503 + 618 = 2121
+   d: 100        618 + 100 = 718     2121 + 718 = 2839
+   i: 105        718 + 105 = 823     2839 + 823 = 3662
+   a: 97         823 +  97 = 920     3662 + 920 = 4582
+   A =  920 = 0x398  hex(base 16)
+   B = 4582 = 0x11E6 hex
+   Output = 0x11E6 &lt;&lt; 16 + 0x398 = 0x11E60398 hex
+</code></pre></td></tr></table>
+</div>
+</div><p>C语言实现</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="k">const</span> <span class="n">uint32_t</span> <span class="n">MOD_ADLER</span> <span class="o">=</span> <span class="mi">65521</span><span class="p">;</span>
+<span class="n">uint32_t</span> <span class="nf">adler32</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">data</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">len</span><span class="p">)</span> 
+<span class="cm">/*
+</span><span class="cm">    where data is the location of the data in physical memory and 
+</span><span class="cm">    len is the length of the data in bytes 
+</span><span class="cm">*/</span>
+<span class="p">{</span>
+    <span class="n">uint32_t</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">size_t</span> <span class="n">index</span><span class="p">;</span>
+
+    <span class="c1">// Process each byte of the data in order
+</span><span class="c1"></span>    <span class="k">for</span> <span class="p">(</span><span class="n">index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">len</span><span class="p">;</span> <span class="o">++</span><span class="n">index</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="n">index</span><span class="p">])</span> <span class="o">%</span> <span class="n">MOD_ADLER</span><span class="p">;</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">b</span> <span class="o">+</span> <span class="n">a</span><span class="p">)</span> <span class="o">%</span> <span class="n">MOD_ADLER</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">b</span> <span class="o">&lt;&lt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">|</span> <span class="n">a</span><span class="p">;</span>
+ <span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="adler32-应用打包解包协议">adler32 应用打包解包协议</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+    <span class="s">&#34;encoding/binary&#34;</span>
+    <span class="s">&#34;fmt&#34;</span>
+    <span class="s">&#34;hash/adler32&#34;</span>
+    <span class="s">&#34;io&#34;</span>
+<span class="p">)</span>
+
+<span class="kd">var</span> <span class="nx">RPC_MAGIC</span> <span class="p">=</span> <span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="kt">byte</span><span class="p">{</span><span class="sc">&#39;p&#39;</span><span class="p">,</span> <span class="sc">&#39;i&#39;</span><span class="p">,</span> <span class="sc">&#39;a&#39;</span><span class="p">,</span> <span class="sc">&#39;o&#39;</span><span class="p">}</span>
+
+<span class="c1">// | 32 bit length | 32 bit magic | length - 64 bit payload | 32 bit sum |
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Packet</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">TotalSize</span> <span class="kt">uint32</span>
+    <span class="nx">Magic</span>     <span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="kt">byte</span>
+    <span class="nx">Payload</span>   <span class="p">[]</span><span class="kt">byte</span>
+    <span class="nx">Checksum</span>  <span class="kt">uint32</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">EncodePacket</span><span class="p">(</span><span class="nx">w</span> <span class="nx">io</span><span class="p">.</span><span class="nx">Writer</span><span class="p">,</span> <span class="nx">payload</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="c1">// len(Magic) + len(Checksum) == 8
+</span><span class="c1"></span>    <span class="nx">totalsize</span> <span class="o">:=</span> <span class="nb">uint32</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">RPC_MAGIC</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="nx">payload</span><span class="p">)</span> <span class="o">+</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="c1">// write total size
+</span><span class="c1"></span>    <span class="nx">binary</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">BigEndian</span><span class="p">,</span> <span class="nx">totalsize</span><span class="p">)</span>
+
+    <span class="nx">sum</span> <span class="o">:=</span> <span class="nx">adler32</span><span class="p">.</span><span class="nf">New</span><span class="p">()</span>
+    <span class="nx">ww</span> <span class="o">:=</span> <span class="nx">io</span><span class="p">.</span><span class="nf">MultiWriter</span><span class="p">(</span><span class="nx">sum</span><span class="p">,</span> <span class="nx">w</span><span class="p">)</span>
+    <span class="c1">// write magic bytes
+</span><span class="c1"></span>    <span class="nx">binary</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">ww</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">BigEndian</span><span class="p">,</span> <span class="nx">RPC_MAGIC</span><span class="p">)</span>
+
+    <span class="c1">// write payload
+</span><span class="c1"></span>    <span class="nx">ww</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">payload</span><span class="p">)</span>
+
+    <span class="c1">// calculate checksum
+</span><span class="c1"></span>    <span class="nx">checksum</span> <span class="o">:=</span> <span class="nx">sum</span><span class="p">.</span><span class="nf">Sum32</span><span class="p">()</span>
+
+    <span class="c1">// write checksum
+</span><span class="c1"></span>    <span class="k">return</span> <span class="nx">binary</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">BigEndian</span><span class="p">,</span> <span class="nx">checksum</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">DecodePacket</span><span class="p">(</span><span class="nx">r</span> <span class="nx">io</span><span class="p">.</span><span class="nx">Reader</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">totalsize</span> <span class="kt">uint32</span>
+    <span class="nx">err</span> <span class="o">:=</span> <span class="nx">binary</span><span class="p">.</span><span class="nf">Read</span><span class="p">(</span><span class="nx">r</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">BigEndian</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">totalsize</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;read total size err %w&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="c1">// at least len(magic) + len(checksum)
+</span><span class="c1"></span>    <span class="k">if</span> <span class="nx">totalsize</span> <span class="p">&lt;</span> <span class="mi">8</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;bad packet. header:%d&#34;</span><span class="p">,</span> <span class="nx">totalsize</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="nx">sum</span> <span class="o">:=</span> <span class="nx">adler32</span><span class="p">.</span><span class="nf">New</span><span class="p">()</span>
+    <span class="nx">rr</span> <span class="o">:=</span> <span class="nx">io</span><span class="p">.</span><span class="nf">TeeReader</span><span class="p">(</span><span class="nx">r</span><span class="p">,</span> <span class="nx">sum</span><span class="p">)</span>
+
+    <span class="kd">var</span> <span class="nx">magic</span> <span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="kt">byte</span>
+    <span class="nx">err</span> <span class="p">=</span> <span class="nx">binary</span><span class="p">.</span><span class="nf">Read</span><span class="p">(</span><span class="nx">rr</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">BigEndian</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">magic</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;read magic err %w&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="nx">magic</span> <span class="o">!=</span> <span class="nx">RPC_MAGIC</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;bad rpc magic:%v&#34;</span><span class="p">,</span> <span class="nx">magic</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="nx">payload</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">totalsize</span><span class="o">-</span><span class="mi">8</span><span class="p">)</span>
+    <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">io</span><span class="p">.</span><span class="nf">ReadFull</span><span class="p">(</span><span class="nx">rr</span><span class="p">,</span> <span class="nx">payload</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;read payload err %w&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="kd">var</span> <span class="nx">checksum</span> <span class="kt">uint32</span>
+    <span class="nx">err</span> <span class="p">=</span> <span class="nx">binary</span><span class="p">.</span><span class="nf">Read</span><span class="p">(</span><span class="nx">r</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">BigEndian</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">checksum</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;read checksum err %w&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="nx">checksum</span> <span class="o">!=</span> <span class="nx">sum</span><span class="p">.</span><span class="nf">Sum32</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;checkSum error, %d(calc) %d(remote)&#34;</span><span class="p">,</span> <span class="nx">sum</span><span class="p">.</span><span class="nf">Sum32</span><span class="p">(),</span> <span class="nx">checksum</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">payload</span><span class="p">,</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="http://tools.ietf.org/html/rfc1950">RFC 1950</a></li>
+<li><a href="http://godoc.org/hash/adler32#New">adler32</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohub.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2020-08-09
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/golang/">golang</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/20200809-golang-crc32-packet/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[Go] Golang Crc32 Packet</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/20200809-mysql-show-connections/">
+            <span class="next-text nav-default">[MySQL] MySQL 连接数和状态查看</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="http://localhost:1313" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="http://localhost:1313" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="http://localhost:1313" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="http://localhost:1313" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="http://localhost:1313" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="http://localhost:1313" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="http://localhost:1313" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="http://localhost:1313" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="http://localhost:1313" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="http://localhost:1313" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="http://localhost:1313" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohub.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
