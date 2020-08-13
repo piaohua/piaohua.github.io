@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>[MySQL] MySQL autocommit - piaohua&#39;s blog</title>
+  <title>[MySQL] MySQL通过Sys库查看数据库运行情况 - piaohua&#39;s blog</title>
   <meta name="renderer" content="webkit" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 
@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="piaohua" /><meta name="description" content="MySQL autocommit 控制是否开启隐式事务 查看状态 mysql&amp;gt; show variables like &#39;%autocommit%&#39;; 开启自动提交 mysql&amp;gt; set autocommit=1; 关闭自动提交 使用commit提交事务操作，或者使用rollback回滚操作 配置文" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="piaohua" /><meta name="description" content="快捷的了解到MySQL的一些信息 sys库里面的表、视图、函数、存储过程可以使我们更方便、快捷的了解到MySQL的一些信息，比如哪些语句使用了" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 
@@ -26,7 +26,7 @@
 <meta name="generator" content="Hugo 0.67.0 with theme even" />
 
 
-<link rel="canonical" href="https://piaohua.github.io/post/20200812-mysql-autocommit/" />
+<link rel="canonical" href="https://piaohua.github.io/post/20200812-mysql-sys/" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -39,23 +39,23 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[MySQL] MySQL autocommit" />
-<meta property="og:description" content="MySQL autocommit 控制是否开启隐式事务 查看状态 mysql&gt; show variables like &#39;%autocommit%&#39;; 开启自动提交 mysql&gt; set autocommit=1; 关闭自动提交 使用commit提交事务操作，或者使用rollback回滚操作 配置文" />
+<meta property="og:title" content="[MySQL] MySQL通过Sys库查看数据库运行情况" />
+<meta property="og:description" content="快捷的了解到MySQL的一些信息 sys库里面的表、视图、函数、存储过程可以使我们更方便、快捷的了解到MySQL的一些信息，比如哪些语句使用了" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/20200812-mysql-autocommit/" />
-<meta property="article:published_time" content="2020-08-12T22:24:38+08:00" />
-<meta property="article:modified_time" content="2020-08-12T22:24:38+08:00" />
-<meta itemprop="name" content="[MySQL] MySQL autocommit">
-<meta itemprop="description" content="MySQL autocommit 控制是否开启隐式事务 查看状态 mysql&gt; show variables like &#39;%autocommit%&#39;; 开启自动提交 mysql&gt; set autocommit=1; 关闭自动提交 使用commit提交事务操作，或者使用rollback回滚操作 配置文">
-<meta itemprop="datePublished" content="2020-08-12T22:24:38&#43;08:00" />
-<meta itemprop="dateModified" content="2020-08-12T22:24:38&#43;08:00" />
-<meta itemprop="wordCount" content="308">
+<meta property="og:url" content="https://piaohua.github.io/post/20200812-mysql-sys/" />
+<meta property="article:published_time" content="2020-08-12T22:52:40+08:00" />
+<meta property="article:modified_time" content="2020-08-12T22:52:40+08:00" />
+<meta itemprop="name" content="[MySQL] MySQL通过Sys库查看数据库运行情况">
+<meta itemprop="description" content="快捷的了解到MySQL的一些信息 sys库里面的表、视图、函数、存储过程可以使我们更方便、快捷的了解到MySQL的一些信息，比如哪些语句使用了">
+<meta itemprop="datePublished" content="2020-08-12T22:52:40&#43;08:00" />
+<meta itemprop="dateModified" content="2020-08-12T22:52:40&#43;08:00" />
+<meta itemprop="wordCount" content="1379">
 
 
 
 <meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[MySQL] MySQL autocommit"/>
-<meta name="twitter:description" content="MySQL autocommit 控制是否开启隐式事务 查看状态 mysql&gt; show variables like &#39;%autocommit%&#39;; 开启自动提交 mysql&gt; set autocommit=1; 关闭自动提交 使用commit提交事务操作，或者使用rollback回滚操作 配置文"/>
+<meta name="twitter:title" content="[MySQL] MySQL通过Sys库查看数据库运行情况"/>
+<meta name="twitter:description" content="快捷的了解到MySQL的一些信息 sys库里面的表、视图、函数、存储过程可以使我们更方便、快捷的了解到MySQL的一些信息，比如哪些语句使用了"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -122,7 +122,7 @@
           <article class="post">
     
     <header class="post-header">
-      <h1 class="post-title">[MySQL] MySQL autocommit</h1>
+      <h1 class="post-title">[MySQL] MySQL通过Sys库查看数据库运行情况</h1>
 
       <div class="post-meta">
         <span class="post-time"> 2020-08-12 </span>
@@ -138,59 +138,86 @@
   <div class="post-toc-content">
     <nav id="TableOfContents">
   <ul>
-    <li><a href="#查看状态">查看状态</a></li>
-    <li><a href="#开启自动提交">开启自动提交</a></li>
-    <li><a href="#关闭自动提交">关闭自动提交</a></li>
-    <li><a href="#使用示例">使用示例</a></li>
+    <li><a href="#常用查询介绍">常用查询介绍</a></li>
   </ul>
 </nav>
   </div>
 </div>
     <div class="post-content">
       <blockquote>
-<p>MySQL autocommit 控制是否开启隐式事务</p>
+<p>快捷的了解到MySQL的一些信息</p>
 </blockquote>
-<h2 id="查看状态">查看状态</h2>
-<pre><code>mysql&gt; show variables like '%autocommit%';
+<p>sys库里面的表、视图、函数、存储过程可以使我们更方便、快捷的了解到MySQL的一些信息，比如哪些语句使用了临时表、哪个SQL没有使用索引、哪个schema中有冗余索引、查找使用全表扫描的SQL、查找用户占用的IO等，sys库里这些视图中的数据，大多是从performance_schema里面获得的。目标是把performance_schema的复杂度降低，让我们更快的了解DB的运行情况。</p>
+<p>以字母开头的52个视图：</p>
+<ul>
+<li>host_summary：这个是服务器层面的，以IP分组，比如里面的视图host_summary_by_file_io；</li>
+<li>user_summary：这个是用户层级的，以用户分组，比如里面的视图user_summary_by_file_io；</li>
+<li>innodb：这个是InnoDB层面的，比如视图innodb_buffer_stats_by_schema；</li>
+<li>io：这个是I/O层的统计，比如视图io_global_by_file_by_bytes；</li>
+<li>memory：关于内存的使用情况，比如视图memory_by_host_by_current_bytes；</li>
+<li>schema：关于schema级别的统计信息，比如schema_table_lock_waits；</li>
+<li>session：关于会话级别的，这类视图少一些，只有session和session_ssl_status；</li>
+<li>statement：关于语句级别的，比如statements_with_errors_or_warnings；</li>
+<li>wait：关于等待的，比如视图waits_by_host_by_latency。</li>
+</ul>
+<h2 id="常用查询介绍">常用查询介绍</h2>
+<p>查看每个客户端IP过来的连接消耗了多少资源。</p>
+<pre><code>mysql&gt; select * from host_summary;
 </code></pre>
-<h2 id="开启自动提交">开启自动提交</h2>
-<pre><code>mysql&gt; set autocommit=1;
+<p>查看某个数据文件上发生了多少IO请求。</p>
+<pre><code>mysql&gt; select * from io_global_by_file_by_bytes;
 </code></pre>
-<h2 id="关闭自动提交">关闭自动提交</h2>
-<p>使用commit提交事务操作，或者使用rollback回滚操作</p>
-<p>配置文件my.cnf添加:(默认为1)</p>
-<pre><code>[mysqld]
-autocommit=0
+<p>查看每个用户消耗了多少资源。</p>
+<pre><code>mysql&gt; select * from user_summary;
 </code></pre>
-<p>配置用户登录时关闭autocommit，为安全起见该设置root用户不受影响，普通用户会关闭</p>
-<pre><code>[mysqld]
-init_connect='set autocommit=0'
+<p>查看总共分配了多少内存。</p>
+<pre><code>mysql&gt; select * from memory_global_total;
 </code></pre>
-<p>当前session关闭autocommit</p>
-<pre><code>mysql&gt; set @@session.autocommit=0;
+<p>查看当前连接情况。</p>
+<pre><code>mysql&gt; select host, current_connections, statements from host_summary;
 </code></pre>
-<p>global级别关闭autocommit</p>
-<pre><code>mysql&gt; set @@global.autocommit=0;
+<p>查看当前正在执行的SQL和执行show full processlist的效果相当。</p>
+<pre><code>mysql&gt; select conn_id, user, current_statement, last_statement from session;
 </code></pre>
-<h2 id="使用示例">使用示例</h2>
-<p>创建普通用户：</p>
-<pre><code>mysql&gt; create user tom identified by 'tom';
-mysql&gt; grant all on prod.* to 'tom’@localhost' identified by 'tom';
-mysql&gt; flush privileges;
+<p>执行下面命令查询TOP 10最热/最频繁SQL。</p>
+<pre><code>mysql&gt; select db,exec_count,query from statement_analysis order by exec_count desc limit 10;
 </code></pre>
-<p>普通用户登录</p>
-<pre><code>&gt; mysql -utom -ptom
-mysql&gt; use mysql; #没有权限
-mysql&gt; use prod;
-mysql&gt; set autocommit=0;
-mysql&gt; show variables like '%commit%';
+<p>哪个文件产生了最多的IO，读多，还是写的多？</p>
+<pre><code>mysql&gt; select * from io_global_by_file_by_bytes limit 10;
 </code></pre>
-<p>创建测试表</p>
-<pre><code>mysql&gt; create table t1(id int,name varchar(10));
-mysql&gt; insert into t1 values(1,'tom');
-mysql&gt; select * from t1; #查询到一条数据
-mysql&gt; rollback; #事务回滚
-mysql&gt; select * from t1; #查询到0条数据
+<p>哪个表上的IO请求最多？</p>
+<pre><code>mysql&gt; select * from io_global_by_file_by_bytes where file like ‘%ibd’ order by total desc limit 10;
+</code></pre>
+<p>哪个表被访问的最多？先访问statement_analysis，根据热门SQL排序找到相应的数据表。</p>
+<pre><code>mysql&gt; select * from statement_analysis order by avg_latency desc limit 10;
+</code></pre>
+<p>哪些SQL执行了全表扫描或执行了排序操作？</p>
+<pre><code>mysql&gt; select * from statements_with_sorting;
+mysql&gt; select * from statements_with_full_table_scans;
+</code></pre>
+<p>哪些SQL语句使用了临时表，又有哪些用到了磁盘临时表？
+查看statement_analysis中哪个SQL的tmp_tables 、tmp_disk_tables值大于0即可。</p>
+<pre><code>mysql&gt; select db, query, tmp_tables, tmp_disk_tables from statement_analysis where tmp_tables&gt;0 or tmp_disk_tables &gt;0 order by (tmp_tables+tmp_disk_tables) desc limit 20;
+</code></pre>
+<p>哪个表占用了最多的buffer pool？</p>
+<pre><code>mysql&gt; select * from innodb_buffer_stats_by_table order by allocated desc limit 10;
+</code></pre>
+<p>每个库（database）占用多少buffer pool？</p>
+<pre><code>mysql&gt; select * from innodb_buffer_stats_by_schema order by allocated desc limit 10;
+</code></pre>
+<p>每个连接分配多少内存？
+利用session表和memory_by_thread_by_current_bytes分配表进行关联查询。</p>
+<pre><code>mysql&gt; select b.user, current_count_used, current_allocated, current_avg_alloc, current_max_alloc, total_allocated,current_statement from memory_by_thread_by_current_bytes a, session b where a.thread_id = b.thd_id;
+</code></pre>
+<p>MySQL自增长字段的最大值和当前已经使用到的值？</p>
+<pre><code>mysql&gt; select * from schema_auto_increment_columns;
+</code></pre>
+<p>MySQL有哪些冗余索引和无用索引？</p>
+<pre><code>mysql&gt; select * from schema_redundant_indexes;
+mysql&gt; select * from schema_unused_indexes;
+</code></pre>
+<p>查看事务等待情况</p>
+<pre><code>mysql&gt; select * from innodb_lock_waits；
 </code></pre>
 
     </div>
@@ -218,13 +245,13 @@ mysql&gt; select * from t1; #查询到0条数据
           <a href="/tags/mysql/">mysql</a>
           </div>
       <nav class="post-nav">
-        <a class="prev" href="/post/20200812-mysql-sys/">
+        <a class="prev" href="/post/20200813-phabricator/">
             <i class="iconfont icon-left"></i>
-            <span class="prev-text nav-default">[MySQL] MySQL通过Sys库查看数据库运行情况</span>
+            <span class="prev-text nav-default">[Phabricator] 代码审查工具</span>
             <span class="prev-text nav-mobile">Prev</span>
           </a>
-        <a class="next" href="/post/20200812-golang-benchyou/">
-            <span class="next-text nav-default">[Go] 一个Golang实现的MySQL基准测试工具</span>
+        <a class="next" href="/post/20200812-mysql-autocommit/">
+            <span class="next-text nav-default">[MySQL] MySQL autocommit</span>
             <span class="next-text nav-mobile">Next</span>
             <i class="iconfont icon-right"></i>
           </a>
