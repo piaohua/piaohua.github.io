@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>[MySQL] MySQL Affected Rows - piaohua&#39;s blog</title>
+  <title>[MySQL] MySQL 内连接、外连接、左连接、右连接示例介绍 - piaohua&#39;s blog</title>
   <meta name="renderer" content="webkit" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 
@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="piaohua" /><meta name="description" content="MySQL INSERT/INSERT &amp;hellip; ON DUPLICATE KEY UPDATE Affected Rows 问题 问题描述 在INSERT/INSERT ... ON DUPLICATE KEY UPDATE操作时, 会存在MySQL连接client_flag是否设置CL" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="piaohua" /><meta name="description" content="MySQL 内连接、左连接（左外连接）、右连接（右外连接） 创建示例表 1 2 3 4 5 6 7 8 9 10 11 CREATE TABLE `a_table` ( `a_id` int(11) DEFAULT NULL, `a_name` varchar(10) DEFAULT NULL, `a_part` varchar(10) DEFAULT NULL ) ENGINE=InnoDB DEFAULT CHARSET=utf8 CREATE TABLE `b_table` ( `b_id` int(11) DEFAULT NULL, `b_name` varchar(10)" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 
@@ -26,7 +26,7 @@
 <meta name="generator" content="Hugo 0.67.0 with theme even" />
 
 
-<link rel="canonical" href="https://piaohua.github.io/post/20200805-mysql-affected-rows/" />
+<link rel="canonical" href="https://piaohua.github.io/post/20200816-mysql-join/" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -39,23 +39,23 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[MySQL] MySQL Affected Rows" />
-<meta property="og:description" content="MySQL INSERT/INSERT &hellip; ON DUPLICATE KEY UPDATE Affected Rows 问题 问题描述 在INSERT/INSERT ... ON DUPLICATE KEY UPDATE操作时, 会存在MySQL连接client_flag是否设置CL" />
+<meta property="og:title" content="[MySQL] MySQL 内连接、外连接、左连接、右连接示例介绍" />
+<meta property="og:description" content="MySQL 内连接、左连接（左外连接）、右连接（右外连接） 创建示例表 1 2 3 4 5 6 7 8 9 10 11 CREATE TABLE `a_table` ( `a_id` int(11) DEFAULT NULL, `a_name` varchar(10) DEFAULT NULL, `a_part` varchar(10) DEFAULT NULL ) ENGINE=InnoDB DEFAULT CHARSET=utf8 CREATE TABLE `b_table` ( `b_id` int(11) DEFAULT NULL, `b_name` varchar(10)" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/20200805-mysql-affected-rows/" />
-<meta property="article:published_time" content="2020-08-05T21:27:39+08:00" />
-<meta property="article:modified_time" content="2020-08-05T21:27:39+08:00" />
-<meta itemprop="name" content="[MySQL] MySQL Affected Rows">
-<meta itemprop="description" content="MySQL INSERT/INSERT &hellip; ON DUPLICATE KEY UPDATE Affected Rows 问题 问题描述 在INSERT/INSERT ... ON DUPLICATE KEY UPDATE操作时, 会存在MySQL连接client_flag是否设置CL">
-<meta itemprop="datePublished" content="2020-08-05T21:27:39&#43;08:00" />
-<meta itemprop="dateModified" content="2020-08-05T21:27:39&#43;08:00" />
-<meta itemprop="wordCount" content="487">
+<meta property="og:url" content="https://piaohua.github.io/post/20200816-mysql-join/" />
+<meta property="article:published_time" content="2020-08-16T12:57:55+08:00" />
+<meta property="article:modified_time" content="2020-08-16T12:57:55+08:00" />
+<meta itemprop="name" content="[MySQL] MySQL 内连接、外连接、左连接、右连接示例介绍">
+<meta itemprop="description" content="MySQL 内连接、左连接（左外连接）、右连接（右外连接） 创建示例表 1 2 3 4 5 6 7 8 9 10 11 CREATE TABLE `a_table` ( `a_id` int(11) DEFAULT NULL, `a_name` varchar(10) DEFAULT NULL, `a_part` varchar(10) DEFAULT NULL ) ENGINE=InnoDB DEFAULT CHARSET=utf8 CREATE TABLE `b_table` ( `b_id` int(11) DEFAULT NULL, `b_name` varchar(10)">
+<meta itemprop="datePublished" content="2020-08-16T12:57:55&#43;08:00" />
+<meta itemprop="dateModified" content="2020-08-16T12:57:55&#43;08:00" />
+<meta itemprop="wordCount" content="396">
 
 
 
 <meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[MySQL] MySQL Affected Rows"/>
-<meta name="twitter:description" content="MySQL INSERT/INSERT &hellip; ON DUPLICATE KEY UPDATE Affected Rows 问题 问题描述 在INSERT/INSERT ... ON DUPLICATE KEY UPDATE操作时, 会存在MySQL连接client_flag是否设置CL"/>
+<meta name="twitter:title" content="[MySQL] MySQL 内连接、外连接、左连接、右连接示例介绍"/>
+<meta name="twitter:description" content="MySQL 内连接、左连接（左外连接）、右连接（右外连接） 创建示例表 1 2 3 4 5 6 7 8 9 10 11 CREATE TABLE `a_table` ( `a_id` int(11) DEFAULT NULL, `a_name` varchar(10) DEFAULT NULL, `a_part` varchar(10) DEFAULT NULL ) ENGINE=InnoDB DEFAULT CHARSET=utf8 CREATE TABLE `b_table` ( `b_id` int(11) DEFAULT NULL, `b_name` varchar(10)"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -126,14 +126,14 @@
           <article class="post">
     
     <header class="post-header">
-      <h1 class="post-title">[MySQL] MySQL Affected Rows</h1>
+      <h1 class="post-title">[MySQL] MySQL 内连接、外连接、左连接、右连接示例介绍</h1>
 
       <div class="post-meta">
-        <span class="post-time"> 2020-08-05 </span>
+        <span class="post-time"> 2020-08-16 </span>
         <div class="post-category">
             <a href="/categories/mysql/"> mysql </a>
             </div>
-          <span class="more-meta"> 487 words </span>
+          <span class="more-meta"> 396 words </span>
           <span class="more-meta"> 1 min read </span>
         
       </div>
@@ -144,11 +144,10 @@
   <div class="post-toc-content">
     <nav id="TableOfContents">
   <ul>
-    <li><a href="#问题描述">问题描述</a></li>
-    <li><a href="#默认连接">默认连接</a></li>
-    <li><a href="#设置连接">设置连接</a></li>
-    <li><a href="#官方描述">官方描述</a></li>
-    <li><a href="#总结">总结</a></li>
+    <li><a href="#创建示例表">创建示例表</a></li>
+    <li><a href="#内连接">内连接</a></li>
+    <li><a href="#左连接左外连接">左连接（左外连接）</a></li>
+    <li><a href="#右连接右外连接">右连接（右外连接）</a></li>
     <li><a href="#参考">参考</a></li>
   </ul>
 </nav>
@@ -156,83 +155,75 @@
 </div>
     <div class="post-content">
       <blockquote>
-<p>MySQL INSERT/INSERT &hellip; ON DUPLICATE KEY UPDATE Affected Rows 问题</p>
+<p>MySQL 内连接、左连接（左外连接）、右连接（右外连接）</p>
 </blockquote>
-<h2 id="问题描述">问题描述</h2>
-<p>在<code>INSERT/INSERT ... ON DUPLICATE KEY UPDATE</code>操作时, 会存在MySQL连接client_flag是否设置CLIENT_FOUND_ROWS问题；
-CLIENT_FOUND_ROWS 表示返回匹配到的行数，而不是更改的行数；</p>
-<h2 id="默认连接">默认连接</h2>
-<p>默认连接时没有设置的，比如MySQL客户端</p>
+<h2 id="创建示例表">创建示例表</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-mysql" data-lang="mysql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">test_table</span><span class="o">`</span> <span class="p">(</span>
-  <span class="o">`</span><span class="n">id</span><span class="o">`</span> <span class="kt">int</span> <span class="k">unsigned</span> <span class="k">NOT</span> <span class="no">NULL</span> <span class="kp">AUTO_INCREMENT</span> <span class="k">PRIMARY</span> <span class="k">KEY</span><span class="p">,</span>
-  <span class="o">`</span><span class="n">name</span><span class="o">`</span> <span class="kt">varchar</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="k">NOT</span> <span class="no">NULL</span>
- <span class="p">)</span> <span class="n">COMMENT</span><span class="o">=</span><span class="s1">&#39;test&#39;</span> <span class="kp">ENGINE</span><span class="o">=</span><span class="s1">&#39;InnoDB&#39;</span><span class="p">;</span>
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">a_table</span><span class="o">`</span> <span class="p">(</span>
+  <span class="o">`</span><span class="n">a_id</span><span class="o">`</span> <span class="nb">int</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">a_name</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">a_part</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="k">NULL</span>
+<span class="p">)</span> <span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span> <span class="k">DEFAULT</span> <span class="n">CHARSET</span><span class="o">=</span><span class="n">utf8</span>
 
-<span class="k">INSERT</span> <span class="k">INTO</span> <span class="o">`</span><span class="n">test_table</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">name</span><span class="o">`</span><span class="p">)</span> <span class="k">VALUES</span> <span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;Jane&#39;</span><span class="p">);</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">b_table</span><span class="o">`</span> <span class="p">(</span>
+  <span class="o">`</span><span class="n">b_id</span><span class="o">`</span> <span class="nb">int</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">b_name</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">b_part</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="k">NULL</span>
+<span class="p">)</span> <span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span> <span class="k">DEFAULT</span> <span class="n">CHARSET</span><span class="o">=</span><span class="n">utf8</span>
 </code></pre></td></tr></table>
 </div>
-</div><div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-mysql" data-lang="mysql"><span class="k">UPDATE</span> <span class="n">test_table</span> <span class="kt">SET</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Tom&#39;</span> <span class="k">WHERE</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>Query OK, 1 row affected (0.00 sec)</p>
-<p>Rows matched: 1  Changed: 1  Warnings: 0</p>
+</div><h2 id="内连接">内连接</h2>
+<p>组合两个表中的记录，返回两个表关联字段相交集的记录</p>
+<p>关键字：<code>INNER JOIN ON</code></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-mysql" data-lang="mysql"><span class="k">UPDATE</span> <span class="n">test_table</span> <span class="kt">SET</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Tom&#39;</span> <span class="k">WHERE</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">a_table</span> <span class="n">a</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">b_table</span> <span class="n">b</span> <span class="k">ON</span> <span class="n">a</span><span class="p">.</span><span class="n">a_id</span> <span class="o">=</span> <span class="n">b</span><span class="p">.</span><span class="n">b_id</span><span class="p">;</span>
 </code></pre></td></tr></table>
 </div>
-</div><p>Query OK, 0 rows affected (0.00 sec)</p>
-<p>Rows matched: 1  Changed: 0  Warnings: 0</p>
-<p>当重复更新返回结果中 affected rows 是0</p>
-<h2 id="设置连接">设置连接</h2>
+</div><h2 id="左连接左外连接">左连接（左外连接）</h2>
+<p><code>LEFT JOIN</code>是<code>LEFT OUTER JOIN</code>的简写，全称是左外连接，是外连接中的一种。
+左(外)连接,以左表为主,返回左表全部，右表返回符合条件的记录。右表记录不存在时显示NULL。</p>
+<p>关键字：<code>LEFT JOIN ON</code> / <code>LEFT OUTER JOIN ON</code></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-mysql" data-lang="mysql"><span class="k">UPDATE</span> <span class="n">test_table</span> <span class="kt">SET</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Tom&#39;</span> <span class="k">WHERE</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">a_table</span> <span class="n">a</span> <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">b_table</span> <span class="n">b</span> <span class="k">ON</span> <span class="n">a</span><span class="p">.</span><span class="n">a_id</span> <span class="o">=</span> <span class="n">b</span><span class="p">.</span><span class="n">b_id</span><span class="p">;</span>
 </code></pre></td></tr></table>
 </div>
-</div><p>Query OK, 1 rows affected (0.00 sec)</p>
-<p>Rows matched: 1  Changed: 0  Warnings: 0</p>
-<p>当连接时client_flag参数设置了CLIENT_FOUND_ROWS时重复更新返回结果中 affected rows 是1</p>
-<p>matched信息是通过info字段返回,和错误信息一样</p>
-<pre><code>affected_rows: 1
-last_insert_id: 0
-status_flag: 2
-warnings: 0
-info: '(Rows matched: 1  Changed: 0  Warnings: 0'
-</code></pre>
-<h2 id="官方描述">官方描述</h2>
-<p>For UPDATE statements, the affected-rows value by default is the number of rows actually changed.
-If you specify the CLIENT_FOUND_ROWS flag to mysql_real_connect() when connecting to mysqld,
-the affected-rows value is the number of rows “found”; that is, matched by the WHERE clause.</p>
-<p>CLIENT_FOUND_ROWS: Return the number of found (matched) rows, not the number of changed rows.</p>
-<h2 id="总结">总结</h2>
-<p>在使用客户端orm框架或者MySQL中间件时需要注意连接是否传递CLIENT_FOUND_ROWS;</p>
-<h2 id="参考">参考</h2>
+</div><h2 id="右连接右外连接">右连接（右外连接）</h2>
+<p><code>RIGHT JOIN</code>是<code>RIGHT OUTER JOIN</code>的简写，全称是右外连接，是外连接中的一种。
+右(外)连接,以右表为主,返回右表全部，左表返回符合条件的记录。左表记录不存在时显示NULL。</p>
+<p>关键字：<code>RIGHT JOIN ON</code> / <code>RIGHT OUTER JOIN ON</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">a_table</span> <span class="n">a</span> <span class="k">RIGHT</span> <span class="k">OUTER</span> <span class="k">JOIN</span> <span class="n">b_table</span> <span class="n">b</span> <span class="k">ON</span> <span class="n">a</span><span class="p">.</span><span class="n">a_id</span> <span class="o">=</span> <span class="n">b</span><span class="p">.</span><span class="n">b_id</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
 <ul>
-<li><a href="https://dev.mysql.com/doc/c-api/8.0/en/mysql-affected-rows.html">mysql_affected_rows()</a></li>
-<li><a href="https://dev.mysql.com/doc/c-api/8.0/en/mysql-real-connect.html">mysql_real_connect()</a></li>
-<li><a href="https://www.jianshu.com/p/3960b3b41a45">说说MySQL affected-rows</a></li>
+<li><a href="https://blog.csdn.net/plg17/article/details/78758593">MySQL 内连接、外连接、左连接、右连接</a></li>
 </ul>
 
     </div>
@@ -245,7 +236,7 @@ the affected-rows value is the number of rows “found”; that is, matched by t
   <p class="copyright-item">
     <span class="item-title">LastMod</span>
     <span class="item-content">
-        2020-08-05
+        2020-08-16
         
     </span>
   </p>
@@ -260,13 +251,9 @@ the affected-rows value is the number of rows “found”; that is, matched by t
           <a href="/tags/mysql/">mysql</a>
           </div>
       <nav class="post-nav">
-        <a class="prev" href="/post/20200805-my-config-vim/">
-            <i class="iconfont icon-left"></i>
-            <span class="prev-text nav-default">[VIM] 我的VIM配置</span>
-            <span class="prev-text nav-mobile">Prev</span>
-          </a>
-        <a class="next" href="/post/20200805-mac-osx-keyword-cmd/">
-            <span class="next-text nav-default">[Mac] Mac OSX Keyword Cmd</span>
+        
+        <a class="next" href="/post/20200816-mysql-transaction/">
+            <span class="next-text nav-default">[MySQL] MySQL事务详情</span>
             <span class="next-text nav-mobile">Next</span>
             <i class="iconfont icon-right"></i>
           </a>

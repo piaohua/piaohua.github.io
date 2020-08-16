@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Go] Golang 官方限流器time/rate使用 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="time/rate是基于Token Bucket(令牌桶)算法实现的限流 限流 限制某个服务每秒的调用本服务的频率 客户端请求太多，超出服务端的服务" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/20200815-golang-rate-limiter/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.78f8f17bab244b9ee62ad16480c9584d5fc2db06ae20681d1ca225cefd80767c.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Go] Golang 官方限流器time/rate使用" />
+<meta property="og:description" content="time/rate是基于Token Bucket(令牌桶)算法实现的限流 限流 限制某个服务每秒的调用本服务的频率 客户端请求太多，超出服务端的服务" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/20200815-golang-rate-limiter/" />
+<meta property="article:published_time" content="2020-08-15T21:36:37+08:00" />
+<meta property="article:modified_time" content="2020-08-15T21:36:37+08:00" />
+<meta itemprop="name" content="[Go] Golang 官方限流器time/rate使用">
+<meta itemprop="description" content="time/rate是基于Token Bucket(令牌桶)算法实现的限流 限流 限制某个服务每秒的调用本服务的频率 客户端请求太多，超出服务端的服务">
+<meta itemprop="datePublished" content="2020-08-15T21:36:37&#43;08:00" />
+<meta itemprop="dateModified" content="2020-08-15T21:36:37&#43;08:00" />
+<meta itemprop="wordCount" content="1039">
+
+
+
+<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Go] Golang 官方限流器time/rate使用"/>
+<meta name="twitter:description" content="time/rate是基于Token Bucket(令牌桶)算法实现的限流 限流 限制某个服务每秒的调用本服务的频率 客户端请求太多，超出服务端的服务"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Go] Golang 官方限流器time/rate使用</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-08-15 </span>
+        <div class="post-category">
+            <a href="/categories/golang/"> golang </a>
+            </div>
+          <span class="more-meta"> 1039 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#限流">限流</a></li>
+    <li><a href="#golang官方限流器使用">Golang官方限流器使用</a>
+      <ul>
+        <li><a href="#安装">安装</a></li>
+        <li><a href="#构造一个限流器">构造一个限流器</a></li>
+        <li><a href="#waitwaitn">Wait/WaitN</a></li>
+        <li><a href="#allowallown">Allow/AllowN</a></li>
+        <li><a href="#reservereserven">Reserve/ReserveN</a></li>
+        <li><a href="#调整速率和桶大小">调整速率和桶大小</a></li>
+        <li><a href="#获取速率和桶大小">获取速率和桶大小</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>time/rate是基于Token Bucket(令牌桶)算法实现的限流</p>
+</blockquote>
+<h2 id="限流">限流</h2>
+<p>限制某个服务每秒的调用本服务的频率
+客户端请求太多，超出服务端的服务能力，导致服务不可用。DoS攻击就是根据此原理，
+耗尽被攻击对象的资源，让目标系统无法响应甚至崩溃。解决方案：服务端对客户端限流，保护服务端的资源。
+限流通常在网关或网络层面实施。对各类请求设置最高的QPS阈值，当请求高于阈值时直接阻断。</p>
+<p>常用的限流算法有滑动计数，漏斗限流和令牌限流三种：</p>
+<ol>
+<li>滑动计数限流：按时间片（比如1秒）定义滑动窗口，计数器记录当前窗口的请求次数，
+达到阈值就限流，窗口滑动后计数器归零。可采用循环队列数据结构实现。</li>
+<li>漏斗限流：维护一个队列，所有请求进队列，按FIFO服务，队满溢出则丢弃请求。</li>
+<li>令牌桶限流：按固定速率往桶中存入令牌，服务前先从桶中取令牌，取到令牌才服务。</li>
+</ol>
+<h2 id="golang官方限流器使用">Golang官方限流器使用</h2>
+<h3 id="安装">安装</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">go get golang.org/x/time/rate
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="构造一个限流器">构造一个限流器</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// NewLimiter returns a new Limiter that allows events up to rate r and permits
+</span><span class="c1">// bursts of at most b tokens.
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">NewLimiter</span><span class="p">(</span><span class="nx">r</span> <span class="nx">Limit</span><span class="p">,</span> <span class="nx">b</span> <span class="kt">int</span><span class="p">)</span> <span class="o">*</span><span class="nx">Limiter</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">Limiter</span><span class="p">{</span>
+		<span class="nx">limit</span><span class="p">:</span> <span class="nx">r</span><span class="p">,</span>
+		<span class="nx">burst</span><span class="p">:</span> <span class="nx">b</span><span class="p">,</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>NewLimiter有两个参数</p>
+<p>第一个r Limit 表示每秒可以放入多少个token到桶中，Limit是float64的别名；</p>
+<p>第二个b int 表示桶容量大小,即同一时刻能取到的最大token数量；</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">limiter</span> <span class="o">:=</span> <span class="nf">NewLimiter</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>示例表示每秒放入10个token，桶容量大小为1</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">limit</span> <span class="o">:=</span> <span class="nf">Every</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">);</span>
+<span class="nx">limiter</span> <span class="o">:=</span> <span class="nf">NewLimiter</span><span class="p">(</span><span class="nx">limit</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Every表示放入token速率时间粒度;</p>
+<p>示例表示每100ms放入1个token,即1秒放入10个；</p>
+<h3 id="waitwaitn">Wait/WaitN</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">lim</span> <span class="o">*</span><span class="nx">Limiter</span><span class="p">)</span> <span class="nf">Wait</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span> <span class="p">(</span><span class="nx">err</span> <span class="kt">error</span><span class="p">)</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">lim</span> <span class="o">*</span><span class="nx">Limiter</span><span class="p">)</span> <span class="nf">WaitN</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="p">(</span><span class="nx">err</span> <span class="kt">error</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Wait获取Token时如果数组不足(小于N)，将会阻塞一段时间，直至Token满足条件, 如果充足则直接返回</p>
+<p>阻塞时间可以通过context参数设置Deadline或Timeout控制</p>
+<h3 id="allowallown">Allow/AllowN</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">lim</span> <span class="o">*</span><span class="nx">Limiter</span><span class="p">)</span> <span class="nf">Allow</span><span class="p">()</span> <span class="kt">bool</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">lim</span> <span class="o">*</span><span class="nx">Limiter</span><span class="p">)</span> <span class="nf">AllowN</span><span class="p">(</span><span class="nx">now</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Time</span><span class="p">,</span> <span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">bool</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Allow获取Token充足返回true，同时Token减少，否则返回false，不会阻塞</p>
+<h3 id="reservereserven">Reserve/ReserveN</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">lim</span> <span class="o">*</span><span class="nx">Limiter</span><span class="p">)</span> <span class="nf">Reserve</span><span class="p">()</span> <span class="o">*</span><span class="nx">Reservation</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">lim</span> <span class="o">*</span><span class="nx">Limiter</span><span class="p">)</span> <span class="nf">ReserveN</span><span class="p">(</span><span class="nx">now</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Time</span><span class="p">,</span> <span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="o">*</span><span class="nx">Reservation</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>返回Reservation对象，有如下对象方法：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">Reservation</span><span class="p">)</span> <span class="nf">OK</span><span class="p">()</span> <span class="kt">bool</span> <span class="c1">// 判断是否获取到token
+</span><span class="c1">// Delay is shorthand for DelayFrom(time.Now()).
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">Reservation</span><span class="p">)</span> <span class="nf">Delay</span><span class="p">()</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span> <span class="c1">// 获取延迟等待时间,此时Cancel不起作用
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">Reservation</span><span class="p">)</span> <span class="nf">DelayFrom</span><span class="p">(</span><span class="nx">now</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Time</span><span class="p">)</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span>
+<span class="c1">// Cancel is shorthand for CancelAt(time.Now()).
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">Reservation</span><span class="p">)</span> <span class="nf">Cancel</span><span class="p">()</span> <span class="c1">// 取消，将获取的Token重新放入桶中
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">Reservation</span><span class="p">)</span> <span class="nf">CancelAt</span><span class="p">(</span><span class="nx">now</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Time</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="调整速率和桶大小">调整速率和桶大小</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">lim</span> <span class="o">*</span><span class="nx">Limiter</span><span class="p">)</span> <span class="nf">SetLimit</span><span class="p">(</span><span class="nx">newLimit</span> <span class="nx">Limit</span><span class="p">)</span> <span class="c1">//改变放入Token的速率
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">lim</span> <span class="o">*</span><span class="nx">Limiter</span><span class="p">)</span> <span class="nf">SetLimitAt</span><span class="p">(</span><span class="nx">now</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Time</span><span class="p">,</span> <span class="nx">newLimit</span> <span class="nx">Limit</span><span class="p">)</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">lim</span> <span class="o">*</span><span class="nx">Limiter</span><span class="p">)</span> <span class="nf">SetBurst</span><span class="p">(</span><span class="nx">newBurst</span> <span class="kt">int</span><span class="p">)</span> <span class="c1">// 改变Token桶大小
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">lim</span> <span class="o">*</span><span class="nx">Limiter</span><span class="p">)</span> <span class="nf">SetBurstAt</span><span class="p">(</span><span class="nx">now</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Time</span><span class="p">,</span> <span class="nx">newBurst</span> <span class="kt">int</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="获取速率和桶大小">获取速率和桶大小</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">lim</span> <span class="o">*</span><span class="nx">Limiter</span><span class="p">)</span> <span class="nf">Limit</span><span class="p">()</span> <span class="nx">Limit</span> <span class="c1">// 获取速率
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">lim</span> <span class="o">*</span><span class="nx">Limiter</span><span class="p">)</span> <span class="nf">Burst</span><span class="p">()</span> <span class="kt">int</span> <span class="c1">//获取桶容量
+</span></code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://www.cyhone.com/articles/analisys-of-golang-rate/">Golang 标准库限流器 time/rate 实现剖析</a></li>
+<li><a href="https://www.cyhone.com/articles/usage-of-golang-rate/">Golang 标准库限流器 time/rate 使用介绍</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohub.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2020-08-15
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/golang/">golang</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/20200816-mysql-transaction/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[MySQL] MySQL事务详情</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/20200814-golang-connection-reset-by-peer/">
+            <span class="next-text nav-default">[Go] Golang http.Client请求程序遇到 Connection Reset by Peer 或 EOF 问题</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="http://localhost:1313" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="http://localhost:1313" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="http://localhost:1313" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="http://localhost:1313" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="http://localhost:1313" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="http://localhost:1313" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="http://localhost:1313" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="http://localhost:1313" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="http://localhost:1313" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="http://localhost:1313" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="http://localhost:1313" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohub.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
