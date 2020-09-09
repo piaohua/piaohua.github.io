@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Linux] Supervisor Event功能 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="Supervisor 是一个进程管理工具，在 3.0 版本之后，新增了 Event 的高级特性, 主要用做(进程启动、退出、失败等)事件告警服务 Event 特性是将监听的服务(listener" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/20200909-linux-supervisor-event/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Linux] Supervisor Event功能" />
+<meta property="og:description" content="Supervisor 是一个进程管理工具，在 3.0 版本之后，新增了 Event 的高级特性, 主要用做(进程启动、退出、失败等)事件告警服务 Event 特性是将监听的服务(listener" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/20200909-linux-supervisor-event/" />
+<meta property="article:published_time" content="2020-09-09T22:46:28+08:00" />
+<meta property="article:modified_time" content="2020-09-09T22:46:28+08:00" />
+<meta itemprop="name" content="[Linux] Supervisor Event功能">
+<meta itemprop="description" content="Supervisor 是一个进程管理工具，在 3.0 版本之后，新增了 Event 的高级特性, 主要用做(进程启动、退出、失败等)事件告警服务 Event 特性是将监听的服务(listener">
+<meta itemprop="datePublished" content="2020-09-09T22:46:28&#43;08:00" />
+<meta itemprop="dateModified" content="2020-09-09T22:46:28&#43;08:00" />
+<meta itemprop="wordCount" content="1092">
+
+
+
+<meta itemprop="keywords" content="linux,supervisor," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Linux] Supervisor Event功能"/>
+<meta name="twitter:description" content="Supervisor 是一个进程管理工具，在 3.0 版本之后，新增了 Event 的高级特性, 主要用做(进程启动、退出、失败等)事件告警服务 Event 特性是将监听的服务(listener"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Linux] Supervisor Event功能</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-09-09 </span>
+        <div class="post-category">
+            <a href="/categories/linux/"> linux </a>
+            </div>
+          <span class="more-meta"> 1092 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#事件类型">事件类型</a></li>
+    <li><a href="#listener-的实现">Listener 的实现</a></li>
+    <li><a href="#消息协议">消息协议</a></li>
+    <li><a href="#golang-实现listener">golang 实现listener</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>Supervisor 是一个进程管理工具，在 3.0 版本之后，新增了 Event 的高级特性, 主要用做(进程启动、退出、失败等)事件告警服务</p>
+</blockquote>
+<p>Event 特性是将监听的服务(listener)注册到supervisord中，当supervisord监听到相应事件时，将事件信息推送给监听对应事件的listener。</p>
+<h2 id="事件类型">事件类型</h2>
+<p>Event 可以设置 27 种事件类型，事件可以被单独监听，也可以一个listener 监听多种事件。具体可以分为如下几类：</p>
+<ol>
+<li>监控进程状态转移事件;</li>
+<li>监控进程状态日志变更事件;</li>
+<li>进程组中进程添加删除事件;</li>
+<li>supervisord 进程本身日志变更事件;</li>
+<li>supervisord 进程本身状态变更的事件;</li>
+<li>定时触发事件;</li>
+</ol>
+<h2 id="listener-的实现">Listener 的实现</h2>
+<ul>
+<li>与supervisord 的交互</li>
+</ul>
+<p>由于supervisord 是 listener的父进程，所以交互方式采用最简单的标准输入输出的方式交互。</p>
+<p>listener 通过stdin获取事件，通过stdout通知supervisord listener的事件处理结果和当前listener状态。</p>
+<ul>
+<li>listener 的状态</li>
+</ul>
+<p>listener 有三种状态：</p>
+<ul>
+<li>ACKNOWLEDGED: listener 未就绪的状态。（发送READY之前的状态）</li>
+<li>READY: 等待事件触发的状态。（发送READY 消息后，未收到消息的状态）</li>
+<li>BUSY: 事件处理中的状态。（即输出 OK, FAIL 之前处理Event消息时的状态）</li>
+</ul>
+<h2 id="消息协议">消息协议</h2>
+<p>消息包括supervisord 通知给listener 的事件消息和 listener 通知给supervisord 的状态变更消息。</p>
+<ul>
+<li>listener 的状态变更消息
+<ul>
+<li>状态OK的 “READY\n” 消息</li>
+<li>处理成功 “RESULT 2\nOK” 消息</li>
+<li>处理失败 “RESULT 4\nFAIL” 消息</li>
+</ul>
+</li>
+<li>supervisord 广播的事件消息:
+<ul>
+<li>事件消息分为 header 和 payload 两部分。header 中采用kv的方式发送，header 中包含了 payload 的长度。</li>
+</ul>
+</li>
+</ul>
+<p>官网header示例：</p>
+<pre><code>ver:3.0 server:supervisor serial:21 pool:listener poolserial:10 eventname:PROCESS_COMMUNICATION_STDOUT len:54
+</code></pre>
+<p>header 含义：</p>
+<ul>
+<li>serial 为事件的序列号</li>
+<li>pool 表示listener 的进程池名称(listener支持启动多个)</li>
+<li>poolserial 表示listener的进程池序列号</li>
+<li>eventname 事件名称</li>
+<li>len body 的长度</li>
+</ul>
+<h2 id="golang-实现listener">golang 实现listener</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+  <span class="s">&#34;bufio&#34;</span>
+  <span class="s">&#34;os&#34;</span>
+  <span class="s">&#34;strconv&#34;</span>
+  <span class="s">&#34;strings&#34;</span>
+<span class="p">)</span>
+
+<span class="kd">const</span> <span class="nx">RESP_OK</span> <span class="p">=</span> <span class="s">&#34;RESULT 2\nOK&#34;</span>
+<span class="kd">const</span> <span class="nx">RESP_FAIL</span> <span class="p">=</span> <span class="s">&#34;RESULT 4\nFAIL&#34;</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">stdin</span> <span class="o">:=</span> <span class="nx">bufio</span><span class="p">.</span><span class="nf">NewReader</span><span class="p">(</span><span class="nx">os</span><span class="p">.</span><span class="nx">Stdin</span><span class="p">)</span>
+  <span class="nx">stdout</span> <span class="o">:=</span> <span class="nx">bufio</span><span class="p">.</span><span class="nf">NewWriter</span><span class="p">(</span><span class="nx">os</span><span class="p">.</span><span class="nx">Stdout</span><span class="p">)</span>
+  <span class="nx">stderr</span> <span class="o">:=</span> <span class="nx">bufio</span><span class="p">.</span><span class="nf">NewWriter</span><span class="p">(</span><span class="nx">os</span><span class="p">.</span><span class="nx">Stderr</span><span class="p">)</span>
+
+  <span class="k">for</span> <span class="p">{</span>
+    <span class="c1">// 发送后等待接收event
+</span><span class="c1"></span>    <span class="nx">_</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">stdout</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="s">&#34;READY\n&#34;</span><span class="p">)</span>
+    <span class="nx">_</span> <span class="p">=</span> <span class="nx">stdout</span><span class="p">.</span><span class="nf">Flush</span><span class="p">()</span>
+    <span class="c1">// 接收header
+</span><span class="c1"></span>    <span class="nx">line</span><span class="p">,</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">stdin</span><span class="p">.</span><span class="nf">ReadLine</span><span class="p">()</span>
+    <span class="nx">stderr</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="s">&#34;read&#34;</span> <span class="o">+</span> <span class="nb">string</span><span class="p">(</span><span class="nx">line</span><span class="p">))</span>
+    <span class="nx">stderr</span><span class="p">.</span><span class="nf">Flush</span><span class="p">()</span>
+
+    <span class="nx">header</span><span class="p">,</span> <span class="nx">payloadSize</span> <span class="o">:=</span> <span class="nf">praseHeader</span><span class="p">(</span><span class="nx">line</span><span class="p">)</span>
+
+    <span class="c1">// 接收payload
+</span><span class="c1"></span>    <span class="nx">payload</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">payloadSize</span><span class="p">)</span>
+    <span class="nx">stdin</span><span class="p">.</span><span class="nf">Read</span><span class="p">(</span><span class="nx">payload</span><span class="p">)</span>
+    <span class="nx">stderr</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="s">&#34;read : &#34;</span> <span class="o">+</span> <span class="nb">string</span><span class="p">(</span><span class="nx">payload</span><span class="p">))</span>
+    <span class="nx">stderr</span><span class="p">.</span><span class="nf">Flush</span><span class="p">()</span>
+
+    <span class="nx">result</span> <span class="o">:=</span> <span class="nf">alarm</span><span class="p">(</span><span class="nx">header</span><span class="p">,</span> <span class="nx">payload</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nx">result</span> <span class="p">{</span> <span class="c1">// 发送处理结果
+</span><span class="c1"></span>      <span class="nx">stdout</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="nx">RESP_OK</span><span class="p">)</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="nx">stdout</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="nx">RESP_FAIL</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="nx">stdout</span><span class="p">.</span><span class="nf">Flush</span><span class="p">()</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">praseHeader</span><span class="p">(</span><span class="nx">data</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="p">(</span><span class="nx">header</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">,</span>
+  <span class="nx">payloadSize</span> <span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">pairs</span> <span class="o">:=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Split</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">data</span><span class="p">),</span> <span class="s">&#34; &#34;</span><span class="p">)</span>
+  <span class="nx">header</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="nx">pairs</span><span class="p">))</span>
+
+  <span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">pair</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">pairs</span> <span class="p">{</span>
+    <span class="nx">token</span> <span class="o">:=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Split</span><span class="p">(</span><span class="nx">pair</span><span class="p">,</span> <span class="s">&#34;:&#34;</span><span class="p">)</span>
+    <span class="nx">header</span><span class="p">[</span><span class="nx">token</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="p">=</span> <span class="nx">token</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+  <span class="p">}</span>
+
+  <span class="nx">payloadSize</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">strconv</span><span class="p">.</span><span class="nf">Atoi</span><span class="p">(</span><span class="nx">header</span><span class="p">[</span><span class="s">&#34;len&#34;</span><span class="p">])</span>
+  <span class="k">return</span> <span class="nx">header</span><span class="p">,</span> <span class="nx">payloadSize</span>
+<span class="p">}</span>
+
+<span class="c1">// 这里设置报警即可
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">alarm</span><span class="p">(</span><span class="nx">header</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">,</span> <span class="nx">payload</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
+  <span class="c1">// send mail
+</span><span class="c1"></span>  <span class="k">return</span> <span class="kc">true</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>在supervisor 中添加配置，监听服务:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">[eventlistener:listener]
+command=/root/listener
+events=PROCESS_STATE,TICK_5
+stderr_logfile=/var/log/tmp/listener_stderr.log
+</code></pre></td></tr></table>
+</div>
+</div><p>监听了服务的处理状态，以及每5s的心跳消息</p>
+<p>启动服务：</p>
+<pre><code>supervisorctl start listener
+</code></pre>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://www.cnblogs.com/-lee/p/12660067.html">Supervisor 使用和进阶4 （Event 的使用）</a></li>
+<li><a href="http://www.supervisord.org/events.html">events </a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2020-09-09
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/linux/">linux</a>
+          <a href="/tags/supervisor/">supervisor</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/20200908-linux-supervisor-launch-monitor/">
+            <span class="next-text nav-default">[Linux] 进程监控工具supervisor使用</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
