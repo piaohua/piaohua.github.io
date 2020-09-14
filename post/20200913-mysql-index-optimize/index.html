@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>[Git] Git cherry-pick用法 - piaohua&#39;s blog</title>
+  <title>[MySQL] MySQL索引优化总结 - piaohua&#39;s blog</title>
   <meta name="renderer" content="webkit" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 
@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="piaohua" /><meta name="description" content="Git cherry-pick可以选择指定的若干commit进行合并 cherry-pick与merge、bease之间的最大区别是，cherry-" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="piaohua" /><meta name="description" content="MySQL索引优化总结 什么是索引 索引（在MySQL中也叫“键key”）是存储引擎快速找到记录的一种数据结构。 - 《高性能MySQL》 索引类型 可" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 
@@ -26,7 +26,7 @@
 <meta name="generator" content="Hugo 0.67.0 with theme even" />
 
 
-<link rel="canonical" href="https://piaohua.github.io/post/20200913-git-cherry-pick/" />
+<link rel="canonical" href="https://piaohua.github.io/post/20200913-mysql-index-optimize/" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -39,23 +39,23 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Git] Git cherry-pick用法" />
-<meta property="og:description" content="Git cherry-pick可以选择指定的若干commit进行合并 cherry-pick与merge、bease之间的最大区别是，cherry-" />
+<meta property="og:title" content="[MySQL] MySQL索引优化总结" />
+<meta property="og:description" content="MySQL索引优化总结 什么是索引 索引（在MySQL中也叫“键key”）是存储引擎快速找到记录的一种数据结构。 - 《高性能MySQL》 索引类型 可" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/20200913-git-cherry-pick/" />
-<meta property="article:published_time" content="2020-09-13T15:08:19+08:00" />
-<meta property="article:modified_time" content="2020-09-13T15:08:19+08:00" />
-<meta itemprop="name" content="[Git] Git cherry-pick用法">
-<meta itemprop="description" content="Git cherry-pick可以选择指定的若干commit进行合并 cherry-pick与merge、bease之间的最大区别是，cherry-">
-<meta itemprop="datePublished" content="2020-09-13T15:08:19&#43;08:00" />
-<meta itemprop="dateModified" content="2020-09-13T15:08:19&#43;08:00" />
-<meta itemprop="wordCount" content="564">
+<meta property="og:url" content="https://piaohua.github.io/post/20200913-mysql-index-optimize/" />
+<meta property="article:published_time" content="2020-09-13T17:54:26+08:00" />
+<meta property="article:modified_time" content="2020-09-13T17:54:26+08:00" />
+<meta itemprop="name" content="[MySQL] MySQL索引优化总结">
+<meta itemprop="description" content="MySQL索引优化总结 什么是索引 索引（在MySQL中也叫“键key”）是存储引擎快速找到记录的一种数据结构。 - 《高性能MySQL》 索引类型 可">
+<meta itemprop="datePublished" content="2020-09-13T17:54:26&#43;08:00" />
+<meta itemprop="dateModified" content="2020-09-13T17:54:26&#43;08:00" />
+<meta itemprop="wordCount" content="734">
 
 
 
-<meta itemprop="keywords" content="git," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Git] Git cherry-pick用法"/>
-<meta name="twitter:description" content="Git cherry-pick可以选择指定的若干commit进行合并 cherry-pick与merge、bease之间的最大区别是，cherry-"/>
+<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[MySQL] MySQL索引优化总结"/>
+<meta name="twitter:description" content="MySQL索引优化总结 什么是索引 索引（在MySQL中也叫“键key”）是存储引擎快速找到记录的一种数据结构。 - 《高性能MySQL》 索引类型 可"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -126,14 +126,14 @@
           <article class="post">
     
     <header class="post-header">
-      <h1 class="post-title">[Git] Git cherry-pick用法</h1>
+      <h1 class="post-title">[MySQL] MySQL索引优化总结</h1>
 
       <div class="post-meta">
         <span class="post-time"> 2020-09-13 </span>
         <div class="post-category">
-            <a href="/categories/git/"> git </a>
+            <a href="/categories/mysql/"> mysql </a>
             </div>
-          <span class="more-meta"> 564 words </span>
+          <span class="more-meta"> 734 words </span>
           <span class="more-meta"> 2 mins read </span>
         
       </div>
@@ -144,63 +144,72 @@
   <div class="post-toc-content">
     <nav id="TableOfContents">
   <ul>
-    <li><a href="#用法">用法</a></li>
-    <li><a href="#配置项">配置项</a></li>
-    <li><a href="#代码冲突">代码冲突</a></li>
-    <li><a href="#参考">参考</a></li>
+    <li><a href="#什么是索引">什么是索引</a></li>
+    <li><a href="#索引类型">索引类型</a></li>
+    <li><a href="#索引设计的原则">索引设计的原则</a></li>
+    <li><a href="#原文">原文</a></li>
   </ul>
 </nav>
   </div>
 </div>
     <div class="post-content">
       <blockquote>
-<p>Git cherry-pick可以选择指定的若干commit进行合并</p>
+<p>MySQL索引优化总结</p>
 </blockquote>
-<p>cherry-pick与merge、bease之间的最大区别是，cherry-pick可以选择指定的若干commit进行合并，
-而merge，rebase则是一次性的将连续多个commit合并到目标分支上。</p>
-<h2 id="用法">用法</h2>
-<p>切到目标分支</p>
-<pre><code>git checkout branch-which-your-want-apply-commit
-</code></pre>
-<p>选择记录要合并的commit的Hash值，多个commit需要按照它们的创建提交的顺序排列，并用空格分割开来。</p>
-<pre><code>git cherry-pick &lt;commit-hash&gt;
-</code></pre>
-<p>选择合并多个连接的commit,比如合并commit A到commit B所有提交，A必须早于B提交,且不包含commit A。</p>
-<pre><code>git cherry-pick A..B
-</code></pre>
-<p>包含commit A的提交方式</p>
-<pre><code>git cherry-pick A^..B
-</code></pre>
-<h2 id="配置项">配置项</h2>
-<p>git cherry-pick常用配置项详解</p>
-<pre><code>-e, --edit 打开外部编辑器，编辑提交信息
-
--n, --no-commit 只更新工作区和暂存区，不产生新的提交
-
--x 在提交信息的末尾追加一行(cherry picked from commit ...)，方便以后查到这个提交是如何产生的
-
--s, --signoff 在提交信息的末尾追加一行操作者的签名，表示是谁进行了这个操作。
-
--m parent-number, --mainline parent-number 配置项告诉 Git，应该采用哪个分支的变动
-</code></pre>
-<h2 id="代码冲突">代码冲突</h2>
+<h2 id="什么是索引">什么是索引</h2>
+<blockquote>
+<p>索引（在MySQL中也叫“键key”）是存储引擎快速找到记录的一种数据结构。 - 《高性能MySQL》</p>
+</blockquote>
+<h2 id="索引类型">索引类型</h2>
+<p>可以使用<code>SHOW INDEX FROM table_name;</code>查看索引详情</p>
 <ol>
-<li><code>--continue</code></li>
+<li>主键索引 <code>PRIMARY KEY</code>
+它是一种特殊的唯一索引，不允许有空值。一般是在建表的时候同时创建主键索引。</li>
 </ol>
-<p>用户解决代码冲突后，第一步将修改的文件重新加入暂存区（git add .），第二步使用下面的命令，让 Cherry pick 过程继续执行。</p>
-<pre><code>$ git cherry-pick --continue
-</code></pre>
+<p>注意：一个表只能有一个主键</p>
 <ol start="2">
-<li><code>--abort</code></li>
+<li>唯一索引 <code>UNIQUE</code>
+唯一索引列的值必须唯一，但允许有空值。如果是组合索引，则列值的组合必须唯一。</li>
 </ol>
-<p>发生代码冲突后，放弃合并，回到操作前的样子。</p>
+<p>可以通过<code>ALTER TABLE table_name ADD UNIQUE (column);</code>创建唯一索引</p>
+<p>可以通过<code>ALTER TABLE table_name ADD UNIQUE (column1,column2);</code>创建唯一组合索引</p>
 <ol start="3">
-<li><code>--quit</code></li>
+<li>普通索引 <code>INDEX</code>
+最基本的索引，它没有任何限制。</li>
 </ol>
-<p>发生代码冲突后，退出 Cherry pick，但是不回到操作前的样子。</p>
-<h2 id="参考">参考</h2>
+<p>可以通过<code>ALTER TABLE table_name ADD INDEX index_name (column);</code>创建普通索引</p>
+<ol start="4">
+<li>组合索引 <code>INDEX</code>
+组合索引，即一个索引包含多个列。多用于避免回表查询。</li>
+</ol>
+<p>可以通过<code>ALTER TABLE table_name ADD INDEX index_name(column1, column2, column3);</code>创建组合索引</p>
+<ol start="5">
+<li>全文索引 <code>FULLTEXT</code>
+全文索引（也称全文检索）是目前搜索引擎使用的一种关键技术。</li>
+</ol>
+<p>可以通过<code>ALTER TABLE table_name ADD FULLTEXT (column);</code>创建全文索引</p>
+<p>索引一经创建不能修改，如果要修改索引，只能删除重建。可以使用<code>DROP INDEX index_name ON table_name;</code>删除索引。</p>
+<h2 id="索引设计的原则">索引设计的原则</h2>
 <ul>
-<li><a href="http://www.ruanyifeng.com/blog/2020/04/git-cherry-pick.html">git cherry-pick 教程</a></li>
+<li>
+<p>适合索引的列是出现在where子句中的列，或者连接子句中指定的列</p>
+</li>
+<li>
+<p>基数较小的类，索引效果较差，没有必要在此列建立索引</p>
+</li>
+<li>
+<p>使用短索引，如果对长字符串列进行索引，应该指定一个前缀长度，这样能够节省大量索引空间</p>
+</li>
+<li>
+<p>不要过度索引。索引需要额外的磁盘空间，并降低写操作的性能。在修改表内容的时候，索引会进行更新甚至重构，索引列越多，这个时间就会越长。所以只保持需要的索引有利于查询即可。</p>
+</li>
+</ul>
+<h2 id="原文">原文</h2>
+<ul>
+<li><a href="https://www.cnblogs.com/songwenjie/p/9410009.html">MySQL——索引基础</a></li>
+<li><a href="https://www.cnblogs.com/songwenjie/p/9402295.html">MySQL——索引优化实战</a></li>
+<li><a href="https://www.cnblogs.com/songwenjie/p/9414960.html">数据库索引背后的数据结构</a></li>
+<li><a href="http://blog.codinglabs.org/articles/theory-of-mysql-index.html">MySQL索引背后的数据结构及算法原理</a></li>
 </ul>
 
     </div>
@@ -225,16 +234,12 @@
 </div>
 <footer class="post-footer">
       <div class="post-tags">
-          <a href="/tags/git/">git</a>
+          <a href="/tags/mysql/">mysql</a>
           </div>
       <nav class="post-nav">
-        <a class="prev" href="/post/20200913-mysql-large-table-scheme/">
-            <i class="iconfont icon-left"></i>
-            <span class="prev-text nav-default">[MySQL] MySQL大表优化方案</span>
-            <span class="prev-text nav-mobile">Prev</span>
-          </a>
-        <a class="next" href="/post/20200911-go-mod-usage/">
-            <span class="next-text nav-default">[Go] Golang 官方包管理工具 mod 使用</span>
+        
+        <a class="next" href="/post/20200913-mysql-large-table-scheme/">
+            <span class="next-text nav-default">[MySQL] MySQL大表优化方案</span>
             <span class="next-text nav-mobile">Next</span>
             <i class="iconfont icon-right"></i>
           </a>
