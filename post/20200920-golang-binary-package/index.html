@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>[Go] golang new和make的区别 - piaohua&#39;s blog</title>
+  <title>[Go] 使用二进制形式发布go package - piaohua&#39;s blog</title>
   <meta name="renderer" content="webkit" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 
@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="piaohua" /><meta name="description" content="new 和 make 都可以用来分配空间，初始化类型 new和make的区别 new 用来分配内存，作用值类型和用户定义的类型，并初始化零值，返回零值指针 make 用来分配内" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="piaohua" /><meta name="description" content="golang可以使用二进制形式发布包提供给第三方使用 提供一个编译好的库，同时为这个package提供一个源文件。这个源文件不用包含任何代码逻" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 
@@ -26,7 +26,7 @@
 <meta name="generator" content="Hugo 0.67.0 with theme even" />
 
 
-<link rel="canonical" href="https://piaohua.github.io/post/20200919-golang-new-make/" />
+<link rel="canonical" href="https://piaohua.github.io/post/20200920-golang-binary-package/" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -39,23 +39,23 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Go] golang new和make的区别" />
-<meta property="og:description" content="new 和 make 都可以用来分配空间，初始化类型 new和make的区别 new 用来分配内存，作用值类型和用户定义的类型，并初始化零值，返回零值指针 make 用来分配内" />
+<meta property="og:title" content="[Go] 使用二进制形式发布go package" />
+<meta property="og:description" content="golang可以使用二进制形式发布包提供给第三方使用 提供一个编译好的库，同时为这个package提供一个源文件。这个源文件不用包含任何代码逻" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/20200919-golang-new-make/" />
-<meta property="article:published_time" content="2020-09-19T11:08:08+08:00" />
-<meta property="article:modified_time" content="2020-09-19T11:08:08+08:00" />
-<meta itemprop="name" content="[Go] golang new和make的区别">
-<meta itemprop="description" content="new 和 make 都可以用来分配空间，初始化类型 new和make的区别 new 用来分配内存，作用值类型和用户定义的类型，并初始化零值，返回零值指针 make 用来分配内">
-<meta itemprop="datePublished" content="2020-09-19T11:08:08&#43;08:00" />
-<meta itemprop="dateModified" content="2020-09-19T11:08:08&#43;08:00" />
-<meta itemprop="wordCount" content="519">
+<meta property="og:url" content="https://piaohua.github.io/post/20200920-golang-binary-package/" />
+<meta property="article:published_time" content="2020-09-20T10:32:33+08:00" />
+<meta property="article:modified_time" content="2020-09-20T10:32:33+08:00" />
+<meta itemprop="name" content="[Go] 使用二进制形式发布go package">
+<meta itemprop="description" content="golang可以使用二进制形式发布包提供给第三方使用 提供一个编译好的库，同时为这个package提供一个源文件。这个源文件不用包含任何代码逻">
+<meta itemprop="datePublished" content="2020-09-20T10:32:33&#43;08:00" />
+<meta itemprop="dateModified" content="2020-09-20T10:32:33&#43;08:00" />
+<meta itemprop="wordCount" content="234">
 
 
 
 <meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Go] golang new和make的区别"/>
-<meta name="twitter:description" content="new 和 make 都可以用来分配空间，初始化类型 new和make的区别 new 用来分配内存，作用值类型和用户定义的类型，并初始化零值，返回零值指针 make 用来分配内"/>
+<meta name="twitter:title" content="[Go] 使用二进制形式发布go package"/>
+<meta name="twitter:description" content="golang可以使用二进制形式发布包提供给第三方使用 提供一个编译好的库，同时为这个package提供一个源文件。这个源文件不用包含任何代码逻"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -126,15 +126,15 @@
           <article class="post">
     
     <header class="post-header">
-      <h1 class="post-title">[Go] golang new和make的区别</h1>
+      <h1 class="post-title">[Go] 使用二进制形式发布go package</h1>
 
       <div class="post-meta">
-        <span class="post-time"> 2020-09-19 </span>
+        <span class="post-time"> 2020-09-20 </span>
         <div class="post-category">
             <a href="/categories/golang/"> golang </a>
             </div>
-          <span class="more-meta"> 519 words </span>
-          <span class="more-meta"> 2 mins read </span>
+          <span class="more-meta"> 234 words </span>
+          <span class="more-meta"> 1 min read </span>
         
       </div>
     </header>
@@ -144,7 +144,6 @@
   <div class="post-toc-content">
     <nav id="TableOfContents">
   <ul>
-    <li><a href="#new和make的区别">new和make的区别</a></li>
     <li><a href="#示例">示例</a></li>
     <li><a href="#参考">参考</a></li>
   </ul>
@@ -153,35 +152,13 @@
 </div>
     <div class="post-content">
       <blockquote>
-<p>new 和 make 都可以用来分配空间，初始化类型</p>
+<p>golang可以使用二进制形式发布包提供给第三方使用</p>
 </blockquote>
-<h2 id="new和make的区别">new和make的区别</h2>
-<p><code>new</code> 用来分配内存，作用值类型和用户定义的类型，并初始化零值，返回零值指针</p>
-<p><code>make</code> 用来分配内存，作用内置引用类型（map, slice, channel)，并初始化零值，返回返回引用类型本身</p>
-<p>源码返回区别</p>
-<p>make(T) 返回的初始化的 T，只能用于 slice，map，channel</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// $GOROOT/1.11.5/libexec/src/builtin/builtin.go
-</span><span class="c1"></span><span class="kd">func</span> <span class="nb">make</span><span class="p">(</span><span class="nx">t</span> <span class="nx">Type</span><span class="p">,</span> <span class="nx">size</span> <span class="o">...</span><span class="nx">IntegerType</span><span class="p">)</span> <span class="nx">Type</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>new(T) 返回 T 的指针 *T 并指向 T 的零值</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nb">new</span><span class="p">(</span><span class="nx">Type</span><span class="p">)</span> <span class="o">*</span><span class="nx">Type</span>
-</code></pre></td></tr></table>
-</div>
-</div><p><img src="/golang/new-make" alt="Local Picture" title="Local Picture"></p>
+<p>提供一个编译好的库，同时为这个package提供一个源文件。这个源文件不用包含任何代码逻辑，
+只需增加<code>//go:binary-only-package</code>指令即可(注意//后面没有空格)。
+这样第三方在使用的时候，就可以直接使用这个二进制的库。</p>
 <h2 id="示例">示例</h2>
-<p>new(T) 为一个 T 类型新值分配空间并将此空间初始化为 T 的零值，返回的是新值的地址，也就是 T 类型的指针 *T，该指针指向 T 的新分配的零值。</p>
+<p><a href="https://github.com/tcnksm/go-binary-only-package">Sample Binary-Only Packages</a></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code><span class="lnt">1
@@ -194,18 +171,39 @@
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">p1</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span>
-<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;p1 --&gt; %#v \n &#34;</span><span class="p">,</span> <span class="nx">p1</span><span class="p">)</span>           <span class="c1">//(*int)(0xc0000160d8)
-</span><span class="c1"></span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;p1 point to --&gt; %#v \n &#34;</span><span class="p">,</span> <span class="o">*</span><span class="nx">p1</span><span class="p">)</span> <span class="c1">//0
-</span><span class="c1"></span><span class="kd">var</span> <span class="nx">p2</span> <span class="o">*</span><span class="kt">int</span>
-<span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span>
-<span class="nx">p2</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">i</span>
-<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;p2 --&gt; %#v \n &#34;</span><span class="p">,</span> <span class="nx">p2</span><span class="p">)</span>           <span class="c1">//(*int)(0xc0000160e0)
-</span><span class="c1"></span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;p2 point to --&gt; %#v \n &#34;</span><span class="p">,</span> <span class="o">*</span><span class="nx">p2</span><span class="p">)</span> <span class="c1">//0
-</span></code></pre></td></tr></table>
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="p">&gt;</span> <span class="nx">cat</span> <span class="err">$</span><span class="nx">GOPATH</span><span class="o">/</span><span class="nx">src</span><span class="o">/</span><span class="nx">github</span><span class="p">.</span><span class="nx">com</span><span class="o">/</span><span class="nx">tcnksm</span><span class="o">/</span><span class="nx">say</span><span class="o">/</span><span class="nx">hello</span><span class="p">.</span><span class="k">go</span>
+<span class="kn">package</span> <span class="nx">say</span>
+
+<span class="kn">import</span> <span class="s">&#34;fmt&#34;</span>
+
+<span class="kd">func</span> <span class="nf">Hello</span><span class="p">(</span><span class="nx">name</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;Hello, %s!&#34;</span><span class="p">,</span> <span class="nx">name</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
 </div>
-</div><p>make 只能用于 slice，map，channel 三种类型，make(T, args) 返回的是初始化之后的 T 类型的值，这个新值并不是 T 类型的零值，也不是指针 *T，是经过初始化之后的 T 的引用。</p>
-<div class="highlight"><div class="chroma">
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; go build -o <span class="nv">$GOPATH</span>/pkg/darwin_amd64/github.com/tcnksm/say.a -x
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="p">&gt;</span> <span class="nx">cat</span> <span class="err">$</span><span class="nx">GOPATH</span><span class="o">/</span><span class="nx">src</span><span class="o">/</span><span class="nx">github</span><span class="p">.</span><span class="nx">com</span><span class="o">/</span><span class="nx">tcnksm</span><span class="o">/</span><span class="nx">say</span><span class="o">/</span><span class="nx">hello</span><span class="p">.</span><span class="k">go</span>
+<span class="c1">//go:binary-only-package
+</span><span class="c1"></span>
+<span class="kn">package</span> <span class="nx">say</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
@@ -217,28 +215,28 @@
 </span><span class="lnt"> 8
 </span><span class="lnt"> 9
 </span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">var</span> <span class="nx">s1</span> <span class="p">[]</span><span class="kt">int</span>
-<span class="k">if</span> <span class="nx">s1</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;s1 is nil --&gt; %#v \n &#34;</span><span class="p">,</span> <span class="nx">s1</span><span class="p">)</span> <span class="c1">// []int(nil)
-</span><span class="c1"></span><span class="p">}</span>
-<span class="nx">s2</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-<span class="k">if</span> <span class="nx">s2</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;s2 is nil --&gt; %#v \n &#34;</span><span class="p">,</span> <span class="nx">s2</span><span class="p">)</span>
-<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;s2 is not nil --&gt; %#v \n &#34;</span><span class="p">,</span> <span class="nx">s2</span><span class="p">)</span> <span class="c1">// []int{0, 0, 0}
-</span><span class="c1"></span><span class="p">}</span>
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="p">&gt;</span> <span class="nx">cat</span> <span class="err">$</span><span class="nx">GOPATH</span><span class="o">/</span><span class="nx">src</span><span class="o">/</span><span class="nx">hello</span><span class="p">.</span><span class="k">go</span>
+<span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+    <span class="s">&#34;fmt&#34;</span>
+
+    <span class="s">&#34;github.com/tcnksm/say&#34;</span>
+<span class="p">)</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">say</span><span class="p">.</span><span class="nf">Hello</span><span class="p">(</span><span class="s">&#34;Joe&#34;</span><span class="p">)</span>
+<span class="p">}</span>
 </code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
-<li><a href="https://juejin.im/post/6859145664316571661">go new和make的区别</a></li>
-<li><a href="https://juejin.im/post/6844903702256418830">go new和make的区别</a></li>
-<li><a href="https://draveness.me/golang/docs/part2-foundation/ch05-keyword/golang-make-and-new/">make和new</a></li>
-<li><a href="https://mp.weixin.qq.com/s/2CDpE5wfoiNXm1agMAq4wA">深度解密Go语言之map</a></li>
-<li><a href="https://mp.weixin.qq.com/s/MTZ0C9zYsNrb8wyIm2D8BA">深度解密Go语言之Slice</a></li>
-<li><a href="https://mp.weixin.qq.com/s/MTZ0C9zYsNrb8wyIm2D8BA">深度解密Go语言之Slice</a></li>
+<li><a href="https://tip.golang.org/pkg/go/build/#hdr-Binary_Only_Packages">Binary-Only Packages</a></li>
+<li><a href="https://colobu.com/2018/01/10/use-binary-package-in-go/">使用二进制形式发布go package</a></li>
 </ul>
 
     </div>
@@ -251,7 +249,7 @@
   <p class="copyright-item">
     <span class="item-title">LastMod</span>
     <span class="item-content">
-        2020-09-19
+        2020-09-20
         
     </span>
   </p>
@@ -266,13 +264,9 @@
           <a href="/tags/golang/">golang</a>
           </div>
       <nav class="post-nav">
-        <a class="prev" href="/post/20200920-golang-binary-package/">
-            <i class="iconfont icon-left"></i>
-            <span class="prev-text nav-default">[Go] 使用二进制形式发布go package</span>
-            <span class="prev-text nav-mobile">Prev</span>
-          </a>
-        <a class="next" href="/post/20200916-golang-build-flags/">
-            <span class="next-text nav-default">[Go] golang build 编译文件</span>
+        
+        <a class="next" href="/post/20200919-golang-new-make/">
+            <span class="next-text nav-default">[Go] golang new和make的区别</span>
             <span class="next-text nav-mobile">Next</span>
             <i class="iconfont icon-right"></i>
           </a>
