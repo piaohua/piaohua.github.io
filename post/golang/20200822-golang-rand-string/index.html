@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Go] 如何一步步提升Go生成随机字符串的效率 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="逐步优化实现一个高效的随机字符串算法 来自stackoverflow上的一个问题:How to generate a random string of a fixed length in Go? 问题描述是：我想要一个随机的字符" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/golang/20200822-golang-rand-string/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Go] 如何一步步提升Go生成随机字符串的效率" />
+<meta property="og:description" content="逐步优化实现一个高效的随机字符串算法 来自stackoverflow上的一个问题:How to generate a random string of a fixed length in Go? 问题描述是：我想要一个随机的字符" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20200822-golang-rand-string/" />
+<meta property="article:published_time" content="2020-08-22T17:58:18+08:00" />
+<meta property="article:modified_time" content="2020-08-22T17:58:18+08:00" />
+<meta itemprop="name" content="[Go] 如何一步步提升Go生成随机字符串的效率">
+<meta itemprop="description" content="逐步优化实现一个高效的随机字符串算法 来自stackoverflow上的一个问题:How to generate a random string of a fixed length in Go? 问题描述是：我想要一个随机的字符">
+<meta itemprop="datePublished" content="2020-08-22T17:58:18&#43;08:00" />
+<meta itemprop="dateModified" content="2020-08-22T17:58:18&#43;08:00" />
+<meta itemprop="wordCount" content="2025">
+
+
+
+<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Go] 如何一步步提升Go生成随机字符串的效率"/>
+<meta name="twitter:description" content="逐步优化实现一个高效的随机字符串算法 来自stackoverflow上的一个问题:How to generate a random string of a fixed length in Go? 问题描述是：我想要一个随机的字符"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Go] 如何一步步提升Go生成随机字符串的效率</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-08-22 </span>
+        <div class="post-category">
+            <a href="/categories/golang/"> golang </a>
+            </div>
+          <span class="more-meta"> 2025 words </span>
+          <span class="more-meta"> 5 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#常见做法runes">常见做法(Runes)</a></li>
+    <li><a href="#bytes改进">Bytes改进</a></li>
+    <li><a href="#余数改进">余数改进</a></li>
+    <li><a href="#masking-掩码">Masking 掩码</a></li>
+    <li><a href="#masking-掩码改进">Masking 掩码改进</a></li>
+    <li><a href="#rand-source-优化">rand Source 优化</a></li>
+    <li><a href="#stringsbuilder-改进">strings.Builder 改进</a></li>
+    <li><a href="#使用unsafe包模拟-stringsbuilder">使用unsafe包模拟 strings.Builder</a></li>
+    <li><a href="#benchmark-性能测试">Benchmark 性能测试</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>逐步优化实现一个高效的随机字符串算法</p>
+</blockquote>
+<p>来自stackoverflow上的一个问题:<a href="https://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-go">How to generate a random string of a fixed length in Go?</a></p>
+<p>问题描述是：我想要一个随机的字符串(大写或小写，没有数字)，用Go实现, 哪种方法最快最简单？</p>
+<p>下面内容来自<a href="https://stackoverflow.com/a/22892986/1114274">Paul&rsquo;s solution</a>回答</p>
+<h2 id="常见做法runes">常见做法(Runes)</h2>
+<p>随机获取字符串</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">init</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">rand</span><span class="p">.</span><span class="nf">Seed</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">UnixNano</span><span class="p">())</span>
+<span class="p">}</span>
+
+<span class="kd">var</span> <span class="nx">letterRunes</span> <span class="p">=</span> <span class="p">[]</span><span class="nb">rune</span><span class="p">(</span><span class="s">&#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span><span class="p">)</span>
+
+<span class="kd">func</span> <span class="nf">RandStringRunes</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">rune</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">b</span> <span class="p">{</span>
+        <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterRunes</span><span class="p">[</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Intn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">letterRunes</span><span class="p">))]</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="bytes改进">Bytes改进</h2>
+<p>因为随机字符串只包含大小写字母, 在<code>Golang UTF-8</code>编码中,英文字母和<code>byte</code>字节是一对一的。
+<code>byte</code>的本质是<code>uint8</code>类型,<code>rune</code>本质是<code>int32</code>类型,没有必要使用<code>rune</code>类型存储。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">const</span> <span class="nx">letterBytes</span> <span class="p">=</span> <span class="s">&#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span>
+
+<span class="kd">func</span> <span class="nf">RandStringBytes</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">b</span> <span class="p">{</span>
+        <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Intn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">))]</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="余数改进">余数改进</h2>
+<p><code>rand.Intn()</code>相比直接调用<code>rand.Int63()</code>要慢很多,
+把<code>rand.Intn()</code>换成<code>rand.Int63()</code>来提高效率。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">RandStringBytesRmndr</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">b</span> <span class="p">{</span>
+        <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">()</span> <span class="o">%</span> <span class="nb">int64</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">))]</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="masking-掩码">Masking 掩码</h2>
+<p>使用随机数的最低位保证字母的均等分配，也就是掩码的方式。现有52个字母，52用二进制表示就是<code>52==110100b</code>，
+所以我们可以只使用<code>rand.Int63()</code>返回最低的6位数就可以。为了保证平均分配，如果返回的值大于<code>len(letterBytes)-1</code>，则舍弃不用</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">const</span> <span class="nx">letterBytes</span> <span class="p">=</span> <span class="s">&#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span>
+<span class="kd">const</span> <span class="p">(</span>
+    <span class="nx">letterIdxBits</span> <span class="p">=</span> <span class="mi">6</span>                    <span class="c1">// 6 bits to represent a letter index
+</span><span class="c1"></span>    <span class="nx">letterIdxMask</span> <span class="p">=</span> <span class="mi">1</span><span class="o">&lt;&lt;</span><span class="nx">letterIdxBits</span> <span class="o">-</span> <span class="mi">1</span> <span class="c1">// All 1-bits, as many as letterIdxBits
+</span><span class="c1"></span><span class="p">)</span>
+
+<span class="kd">func</span> <span class="nf">RandStringBytesMask</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">n</span><span class="p">;</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">()</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span>
+            <span class="nx">i</span><span class="o">++</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="masking-掩码改进">Masking 掩码改进</h2>
+<p>使用<code>rand.Int63()</code>可以生成63个随机位的数，把63分为10份(63/6=10)充分利用，<code>rand.Int63()</code>次数将大大降低，进而提升效率。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">const</span> <span class="nx">letterBytes</span> <span class="p">=</span> <span class="s">&#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span>
+<span class="kd">const</span> <span class="p">(</span>
+    <span class="nx">letterIdxBits</span> <span class="p">=</span> <span class="mi">6</span>                    <span class="c1">// 6 bits to represent a letter index
+</span><span class="c1"></span>    <span class="nx">letterIdxMask</span> <span class="p">=</span> <span class="mi">1</span><span class="o">&lt;&lt;</span><span class="nx">letterIdxBits</span> <span class="o">-</span> <span class="mi">1</span> <span class="c1">// All 1-bits, as many as letterIdxBits
+</span><span class="c1"></span>    <span class="nx">letterIdxMax</span>  <span class="p">=</span> <span class="mi">63</span> <span class="o">/</span> <span class="nx">letterIdxBits</span>   <span class="c1">// # of letter indices fitting in 63 bits
+</span><span class="c1"></span><span class="p">)</span>
+
+<span class="kd">func</span> <span class="nf">RandStringBytesMaskImpr</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+    <span class="c1">// A rand.Int63() generates 63 random bits, enough for letterIdxMax letters!
+</span><span class="c1"></span>    <span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="o">:=</span> <span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="nx">remain</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+            <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="p">=</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">cache</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span>
+            <span class="nx">i</span><span class="o">--</span>
+        <span class="p">}</span>
+        <span class="nx">cache</span> <span class="o">&gt;&gt;=</span> <span class="nx">letterIdxBits</span>
+        <span class="nx">remain</span><span class="o">--</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="rand-source-优化">rand Source 优化</h2>
+<p>原来的<code>rand.Int63()</code>是整个<code>rand</code>包全局的，而且支持安全高并发，所以速度比较慢。
+使用<code>rand.Source</code>替换全局rand来提高效率。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">var</span> <span class="nx">src</span> <span class="p">=</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">NewSource</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">UnixNano</span><span class="p">())</span>
+
+<span class="kd">func</span> <span class="nf">RandStringBytesMaskImprSrc</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+    <span class="c1">// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
+</span><span class="c1"></span>    <span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="o">:=</span> <span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="nx">remain</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+            <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="p">=</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">cache</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span>
+            <span class="nx">i</span><span class="o">--</span>
+        <span class="p">}</span>
+        <span class="nx">cache</span> <span class="o">&gt;&gt;=</span> <span class="nx">letterIdxBits</span>
+        <span class="nx">remain</span><span class="o">--</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="stringsbuilder-改进">strings.Builder 改进</h2>
+<p>使用<code>G0 1.10</code>新增的功能<code>strings.Builder</code>，提升字符串拼接的效率。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">RandStringBytesMaskImprSrcSB</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="nx">sb</span> <span class="o">:=</span> <span class="nx">strings</span><span class="p">.</span><span class="nx">Builder</span><span class="p">{}</span>
+    <span class="nx">sb</span><span class="p">.</span><span class="nf">Grow</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
+    <span class="c1">// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
+</span><span class="c1"></span>    <span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="o">:=</span> <span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="nx">remain</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+            <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="p">=</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">cache</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">sb</span><span class="p">.</span><span class="nf">WriteByte</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">])</span>
+            <span class="nx">i</span><span class="o">--</span>
+        <span class="p">}</span>
+        <span class="nx">cache</span> <span class="o">&gt;&gt;=</span> <span class="nx">letterIdxBits</span>
+        <span class="nx">remain</span><span class="o">--</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">sb</span><span class="p">.</span><span class="nf">String</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="使用unsafe包模拟-stringsbuilder">使用unsafe包模拟 strings.Builder</h2>
+<p><code>strings.Builder</code>内置了一个<code>[]byte</code>存储字符，最终转换为<code>string</code>的时候为了避免拷贝，使用了<code>unsafe</code>包。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// String returns the accumulated string.
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">Builder</span><span class="p">)</span> <span class="nf">String</span><span class="p">()</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="kt">string</span><span class="p">)(</span><span class="nx">unsafe</span><span class="p">.</span><span class="nf">Pointer</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">b</span><span class="p">.</span><span class="nx">buf</span><span class="p">))</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>直接替换<code>strings.Builder()</code>更简洁</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">RandStringBytesMaskImprSrcUnsafe</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+    <span class="c1">// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
+</span><span class="c1"></span>    <span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="o">:=</span> <span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="nx">remain</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+            <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="p">=</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">cache</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span>
+            <span class="nx">i</span><span class="o">--</span>
+        <span class="p">}</span>
+        <span class="nx">cache</span> <span class="o">&gt;&gt;=</span> <span class="nx">letterIdxBits</span>
+        <span class="nx">remain</span><span class="o">--</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="kt">string</span><span class="p">)(</span><span class="nx">unsafe</span><span class="p">.</span><span class="nf">Pointer</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">b</span><span class="p">))</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="benchmark-性能测试">Benchmark 性能测试</h2>
+<p>Benchmark测试这些方法的效果:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">BenchmarkRunes-4                     2000000    723 ns/op   96 B/op   2 allocs/op
+BenchmarkBytes-4                     3000000    550 ns/op   32 B/op   2 allocs/op
+BenchmarkBytesRmndr-4                3000000    438 ns/op   32 B/op   2 allocs/op
+BenchmarkBytesMask-4                 3000000    534 ns/op   32 B/op   2 allocs/op
+BenchmarkBytesMaskImpr-4            10000000    176 ns/op   32 B/op   2 allocs/op
+BenchmarkBytesMaskImprSrc-4         10000000    139 ns/op   32 B/op   2 allocs/op
+BenchmarkBytesMaskImprSrcSB-4       10000000    134 ns/op   16 B/op   1 allocs/op
+BenchmarkBytesMaskImprSrcUnsafe-4   10000000    115 ns/op   16 B/op   1 allocs/op
+</code></pre></td></tr></table>
+</div>
+</div><p>Benchmark代码</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+<span class="kn">import</span> <span class="p">(</span>
+    <span class="s">&#34;math/rand&#34;</span>
+    <span class="s">&#34;testing&#34;</span>
+    <span class="s">&#34;time&#34;</span>
+<span class="p">)</span>
+<span class="c1">// Implementations
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">init</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">rand</span><span class="p">.</span><span class="nf">Seed</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">UnixNano</span><span class="p">())</span>
+<span class="p">}</span>
+<span class="kd">var</span> <span class="nx">letterRunes</span> <span class="p">=</span> <span class="p">[]</span><span class="nb">rune</span><span class="p">(</span><span class="s">&#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span><span class="p">)</span>
+<span class="kd">func</span> <span class="nf">RandStringRunes</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">rune</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">b</span> <span class="p">{</span>
+        <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterRunes</span><span class="p">[</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Intn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">letterRunes</span><span class="p">))]</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="kd">const</span> <span class="nx">letterBytes</span> <span class="p">=</span> <span class="s">&#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span>
+<span class="kd">const</span> <span class="p">(</span>
+    <span class="nx">letterIdxBits</span> <span class="p">=</span> <span class="mi">6</span>                    <span class="c1">// 6 bits to represent a letter index
+</span><span class="c1"></span>    <span class="nx">letterIdxMask</span> <span class="p">=</span> <span class="mi">1</span><span class="o">&lt;&lt;</span><span class="nx">letterIdxBits</span> <span class="o">-</span> <span class="mi">1</span> <span class="c1">// All 1-bits, as many as letterIdxBits
+</span><span class="c1"></span>    <span class="nx">letterIdxMax</span>  <span class="p">=</span> <span class="mi">63</span> <span class="o">/</span> <span class="nx">letterIdxBits</span>   <span class="c1">// # of letter indices fitting in 63 bits
+</span><span class="c1"></span><span class="p">)</span>
+<span class="kd">func</span> <span class="nf">RandStringBytes</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">b</span> <span class="p">{</span>
+        <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Intn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">))]</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="nf">RandStringBytesRmndr</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">b</span> <span class="p">{</span>
+        <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">()</span><span class="o">%</span><span class="nb">int64</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">))]</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="nf">RandStringBytesMask</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">n</span><span class="p">;</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">()</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span>
+            <span class="nx">i</span><span class="o">++</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="nf">RandStringBytesMaskImpr</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+    <span class="c1">// A rand.Int63() generates 63 random bits, enough for letterIdxMax letters!
+</span><span class="c1"></span>    <span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="o">:=</span> <span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="nx">remain</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+            <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="p">=</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">cache</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span>
+            <span class="nx">i</span><span class="o">--</span>
+        <span class="p">}</span>
+        <span class="nx">cache</span> <span class="o">&gt;&gt;=</span> <span class="nx">letterIdxBits</span>
+        <span class="nx">remain</span><span class="o">--</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="kd">var</span> <span class="nx">src</span> <span class="p">=</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">NewSource</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">UnixNano</span><span class="p">())</span>
+<span class="kd">func</span> <span class="nf">RandStringBytesMaskImprSrc</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+    <span class="c1">// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
+</span><span class="c1"></span>    <span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="o">:=</span> <span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="nx">remain</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+            <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="p">=</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">cache</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span>
+            <span class="nx">i</span><span class="o">--</span>
+        <span class="p">}</span>
+        <span class="nx">cache</span> <span class="o">&gt;&gt;=</span> <span class="nx">letterIdxBits</span>
+        <span class="nx">remain</span><span class="o">--</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// Benchmark functions
+</span><span class="c1"></span><span class="kd">const</span> <span class="nx">n</span> <span class="p">=</span> <span class="mi">16</span>
+<span class="kd">func</span> <span class="nf">BenchmarkRunes</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+        <span class="nf">RandStringRunes</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="nf">BenchmarkBytes</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+        <span class="nf">RandStringBytes</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="nf">BenchmarkBytesRmndr</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+        <span class="nf">RandStringBytesRmndr</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="nf">BenchmarkBytesMask</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+        <span class="nf">RandStringBytesMask</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="nf">BenchmarkBytesMaskImpr</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+        <span class="nf">RandStringBytesMaskImpr</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="nf">BenchmarkBytesMaskImprSrc</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+        <span class="nf">RandStringBytesMaskImprSrc</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://mp.weixin.qq.com/s/YPVhTVq_tA9pF79kUKh6Xw">Stackoverflow高赞问答：如何一步步提升Go生成随机字符串的效率</a></li>
+<li><a href="https://colobu.com/2018/09/02/generate-random-string-in-Go/">快速产生一个随机字符串</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2020-08-22
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/golang/">golang</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/golang/20200822-golang-go-mysqlstack/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[Go] 一个Golang实现的MySQL协议库介绍</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/learn/20200822-tcp-rst/">
+            <span class="next-text nav-default">[TCP] TCP协议RST包介绍</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

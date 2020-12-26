@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Linux] Linux使用/dev/urandom生成随机数 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="Linux使用/dev/urandom生成随机数 介绍 /dev/random和/dev/urandom是Linux系统中提供的随机伪设备，这两" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/linux/20200825-linux-dev-urandom/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Linux] Linux使用/dev/urandom生成随机数" />
+<meta property="og:description" content="Linux使用/dev/urandom生成随机数 介绍 /dev/random和/dev/urandom是Linux系统中提供的随机伪设备，这两" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/linux/20200825-linux-dev-urandom/" />
+<meta property="article:published_time" content="2020-08-25T23:22:22+08:00" />
+<meta property="article:modified_time" content="2020-08-25T23:22:22+08:00" />
+<meta itemprop="name" content="[Linux] Linux使用/dev/urandom生成随机数">
+<meta itemprop="description" content="Linux使用/dev/urandom生成随机数 介绍 /dev/random和/dev/urandom是Linux系统中提供的随机伪设备，这两">
+<meta itemprop="datePublished" content="2020-08-25T23:22:22&#43;08:00" />
+<meta itemprop="dateModified" content="2020-08-25T23:22:22&#43;08:00" />
+<meta itemprop="wordCount" content="1039">
+
+
+
+<meta itemprop="keywords" content="linux," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Linux] Linux使用/dev/urandom生成随机数"/>
+<meta name="twitter:description" content="Linux使用/dev/urandom生成随机数 介绍 /dev/random和/dev/urandom是Linux系统中提供的随机伪设备，这两"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Linux] Linux使用/dev/urandom生成随机数</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-08-25 </span>
+        <div class="post-category">
+            <a href="/categories/linux/"> linux </a>
+            </div>
+          <span class="more-meta"> 1039 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#介绍">介绍</a></li>
+    <li><a href="#区别">区别</a></li>
+    <li><a href="#示例">示例</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>Linux使用/dev/urandom生成随机数</p>
+</blockquote>
+<h2 id="介绍">介绍</h2>
+<p>/dev/random和/dev/urandom是Linux系统中提供的随机伪设备，这两个设备的任务，是提供永不为空的随机字节数据流。很多解密程序与安全应用程序（如SSH Keys,SSL Keys等）需要它们提供的随机数据流。</p>
+<h2 id="区别">区别</h2>
+<p>/dev/random依赖于系统中断，在系统的中断数不足时，/dev/random设备会一直封锁，尝试读取的进程就会进入等待状态，直到系统的中断数充分够用, /dev/random设备可以保证数据的随机性。</p>
+<p>/dev/urandom不依赖系统的中断，不会造成进程忙等待，但是数据的随机性也不高。</p>
+<h2 id="示例">示例</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh"><span class="c1">#/bin/sh -</span>
+cat /dev/urandom <span class="p">|</span>
+od -x <span class="p">|</span>
+head -n 1<span class="p">|</span>
+cut -d <span class="s1">&#39; &#39;</span> -f 2- <span class="p">|</span>
+awk -v <span class="nv">ORS</span><span class="o">=</span><span class="s2">&#34;:&#34;</span>
+<span class="s1">&#39;{
+</span><span class="s1">    for(i=1; i&lt;=NF; i++){
+</span><span class="s1">        if(i == NF){
+</span><span class="s1">            ORS = &#34;\n&#34;;
+</span><span class="s1">        }
+</span><span class="s1">        print substr($i,1,2) &#34;:&#34; substr($i,3,2);
+</span><span class="s1">    }
+</span><span class="s1">}&#39;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>od -x表示读取一行数据流转换为16进制,cut -d表示数据截取</p>
+<p>随机转换为md5（20位）：</p>
+<pre><code>head /dev/urandom | md5sum | head -c 20
+</code></pre>
+<p>随机纯数字（20位）：</p>
+<pre><code>head /dev/urandom | tr -dc 0-9 | head -c 20
+</code></pre>
+<p>随机小写字母+数字（20位）：</p>
+<pre><code>head /dev/urandom | tr -dc a-z0-9 | head -c 20
+</code></pre>
+<p>随机大小写字母+数字（20位）：</p>
+<pre><code>head /dev/urandom | tr -dc A-Za-z0-9 | head -c 20
+</code></pre>
+<p>go程序中应用</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">c</span> <span class="o">:=</span> <span class="s">&#34;cat /dev/urandom | od -x | tr -d &#39; &#39; | head -n 1&#34;</span>
+<span class="nx">cmd</span> <span class="o">:=</span> <span class="nx">exec</span><span class="p">.</span><span class="nf">Command</span><span class="p">(</span><span class="s">&#34;sh&#34;</span><span class="p">,</span> <span class="s">&#34;-c&#34;</span><span class="p">,</span> <span class="nx">c</span><span class="p">)</span>
+<span class="nx">out</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">cmd</span><span class="p">.</span><span class="nf">Output</span><span class="p">()</span>
+<span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;out %s, err %v\n&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">out</span><span class="p">),</span> <span class="nx">err</span><span class="p">)</span>
+
+<span class="nx">c</span> <span class="p">=</span> <span class="s">`cat /dev/urandom | od -x | head -n 1| cut -d &#39; &#39; -f 2- | awk -v ORS=&#34;:&#34; &#39;{ for(i=1; i&lt;=NF; i++){ if(i == NF){ ORS = &#34;\n&#34;; } print substr($i,1,2) &#34;:&#34; substr($i,3,2); } }&#39;`</span>
+<span class="nx">cmd</span> <span class="p">=</span> <span class="nx">exec</span><span class="p">.</span><span class="nf">Command</span><span class="p">(</span><span class="s">&#34;sh&#34;</span><span class="p">,</span> <span class="s">&#34;-c&#34;</span><span class="p">,</span> <span class="nx">c</span><span class="p">)</span>
+<span class="nx">out</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">cmd</span><span class="p">.</span><span class="nf">Output</span><span class="p">()</span>
+<span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;out %s, err %v\n&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">out</span><span class="p">),</span> <span class="nx">err</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>c程序中使用</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;sys/types.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;sys/stat.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;fcntl.h&gt;</span><span class="cp">
+</span><span class="cp"></span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">fd</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">buff</span><span class="o">=</span><span class="nb">NULL</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">ulTest</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="n">fd</span><span class="o">=</span><span class="n">open</span><span class="p">(</span><span class="s">&#34;/dev/urandom&#34;</span><span class="p">,</span><span class="n">O_RDONLY</span><span class="p">);</span>
+
+    <span class="n">read</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="o">&amp;</span><span class="n">ulSeed</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">ulTest</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;%ul&#34;</span><span class="p">,</span><span class="n">ulTest</span><span class="p">);</span>
+
+    <span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>其它生成随机数方式</p>
+<pre><code>head -c 32 /dev/random | base64
+</code></pre>
+<p>使用/dev/urandom和chksum生成随机数</p>
+<pre><code>head /dev/urandom | cksum
+</code></pre>
+<p>使用系统环境变量($RANDOM)生成随机数</p>
+<pre><code>echo $RANDOM
+echo $RANDOM | md5sum | cut -c 5-11
+</code></pre>
+<p>使用openssl生成随机数</p>
+<pre><code>openssl rand -base64 30
+openssl rand -hex 10
+</code></pre>
+<p>使用data时间生成随机数</p>
+<pre><code>date +%s%N
+</code></pre>
+<p>使用Linux UUID生成随机数</p>
+<pre><code>cat /proc/sys/kernel/random/uuid
+cat /proc/sys/kernel/random/uuid | cksum | cut -f1 -d ' '
+</code></pre>
+<p>SHA+date+base64，密码长度32</p>
+<pre><code>date +%s | sha256sum | base64 | head -c 32 ; echo
+</code></pre>
+<p>使用/dev/urandom并过滤掉那些日常不怎么使用的字符,输出结果的前32个字符</p>
+<pre><code>&lt; /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32};echo;
+</code></pre>
+<p>类似于之前的/dev/urandom，但它是反向工作的</p>
+<pre><code>tr -cd '[:alnum:]' &lt; /dev/urandom | fold -w30 | head -n1
+</code></pre>
+<p>使用string命令，它从一个文件中输出可打印的字符串</p>
+<pre><code>strings /dev/urandom | grep -o '[[:alnum:]]' | head -n 30 | tr -d '\n'; echo
+</code></pre>
+<p>使用/dev/urandom的一个更简单的版本</p>
+<pre><code>&lt; /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c6
+</code></pre>
+<p>使用非常有用的dd命令</p>
+<pre><code>dd if=/dev/urandom bs=1 count=32 2&gt;/dev/null | base64 -w 0 | rev | cut -b 2- | rev
+</code></pre>
+<p>可以生成一个只用左手便可以输入的密码</p>
+<pre><code>&lt;/dev/urandom tr -dc '12345!@#$%qwertQWERTasdfgASDFGzxcvbZXCVB' | head -c8; echo &quot;&quot;
+</code></pre>
+<p>保存为函数randpw生成随机密码</p>
+<pre><code>randpw(){ &lt; /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-16};echo;}
+</code></pre>
+<p>最简单的</p>
+<pre><code>date | md5sum
+date | base64
+ifconfig | md5sum
+ifconfig | base64
+</code></pre>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://www.commandlinefu.com/commands/matching/random-password/cmFuZG9tIHBhc3N3b3Jk/sort-by-votes">random-password</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2020-08-25
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/linux/">linux</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/linux/20200826-linux-common-cmd/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[Linux] 常用日志文件和系统命令</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/linux/20200824-linux-iptables-examples/">
+            <span class="next-text nav-default">[Linux] iptables常用示例</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

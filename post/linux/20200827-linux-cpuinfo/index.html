@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Linux] Linux查看物理CPU个数、核数、逻辑CPU个数、CPU信息 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="Linux查看物理CPU个数、核数、逻辑CPU个数、CPU信息、内存信息 CPU信息 Linux系统中的CPU信息存在于/proc/cpuinf" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/linux/20200827-linux-cpuinfo/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Linux] Linux查看物理CPU个数、核数、逻辑CPU个数、CPU信息" />
+<meta property="og:description" content="Linux查看物理CPU个数、核数、逻辑CPU个数、CPU信息、内存信息 CPU信息 Linux系统中的CPU信息存在于/proc/cpuinf" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/linux/20200827-linux-cpuinfo/" />
+<meta property="article:published_time" content="2020-08-27T22:37:31+08:00" />
+<meta property="article:modified_time" content="2020-08-27T22:37:31+08:00" />
+<meta itemprop="name" content="[Linux] Linux查看物理CPU个数、核数、逻辑CPU个数、CPU信息">
+<meta itemprop="description" content="Linux查看物理CPU个数、核数、逻辑CPU个数、CPU信息、内存信息 CPU信息 Linux系统中的CPU信息存在于/proc/cpuinf">
+<meta itemprop="datePublished" content="2020-08-27T22:37:31&#43;08:00" />
+<meta itemprop="dateModified" content="2020-08-27T22:37:31&#43;08:00" />
+<meta itemprop="wordCount" content="675">
+
+
+
+<meta itemprop="keywords" content="linux," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Linux] Linux查看物理CPU个数、核数、逻辑CPU个数、CPU信息"/>
+<meta name="twitter:description" content="Linux查看物理CPU个数、核数、逻辑CPU个数、CPU信息、内存信息 CPU信息 Linux系统中的CPU信息存在于/proc/cpuinf"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Linux] Linux查看物理CPU个数、核数、逻辑CPU个数、CPU信息</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-08-27 </span>
+        <div class="post-category">
+            <a href="/categories/linux/"> linux </a>
+            </div>
+          <span class="more-meta"> 675 words </span>
+          <span class="more-meta"> 2 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#cpu信息">CPU信息</a></li>
+    <li><a href="#内存信息">内存信息</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>Linux查看物理CPU个数、核数、逻辑CPU个数、CPU信息、内存信息</p>
+</blockquote>
+<h2 id="cpu信息">CPU信息</h2>
+<p>Linux系统中的CPU信息存在于/proc/cpuinfo文件中，如果想了解全部的信息，可以直接查看这个文件。</p>
+<p>通过<code>top</code>指令查看每个CPU的使用情况，然后按1就可以看到CPU的使用情况。</p>
+<p>总核数 = 物理CPU个数 X 每颗物理CPU的核数</p>
+<p>总逻辑CPU数 = 物理CPU个数 X 每颗物理CPU的核数 X 超线程数</p>
+<p>查看物理CPU个数</p>
+<pre><code>cat /proc/cpuinfo| grep &quot;physical id&quot;| sort| uniq| wc -l
+</code></pre>
+<p>查看每个物理CPU中core的个数(即核数)</p>
+<pre><code>cat /proc/cpuinfo| grep &quot;cpu cores&quot;| uniq
+</code></pre>
+<p>查看逻辑CPU的个数</p>
+<pre><code>cat /proc/cpuinfo| grep &quot;processor&quot;| wc -l
+</code></pre>
+<p>查看CPU信息（型号）</p>
+<pre><code>cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c
+</code></pre>
+<p>查看有多少个虚拟CPU</p>
+<pre><code>cat /proc/cpuinfo | grep ^processor | sort | uniq |wc -l
+</code></pre>
+<p>查看CPU是几个核心的</p>
+<pre><code>cat /proc/cpuinfo | grep 'cpu cores' | uniq
+</code></pre>
+<p>查看内存信息</p>
+<pre><code>cat /proc/meminfo
+</code></pre>
+<p>查看系统内核</p>
+<pre><code>$ uname -a
+Linux pc32 2.6.32-279.el6.x86_64 #1 SMP Fri Jun 22 12:19:21 UTC 2012 x86_64 x86_64 x86_64 GNU/Linux
+</code></pre>
+<h2 id="内存信息">内存信息</h2>
+<p>使用free查看内存信息：</p>
+<pre><code>$ free -m
+             total       used       free     shared    buffers     cached
+Mem:         32085      12094      19991          0        217       6312
+-/+ buffers/cache:       5563      26521
+Swap:         2047        366       1681
+</code></pre>
+<ul>
+<li>total：总共的内存大小(total1=32085M)</li>
+<li>used：已经被使用的内存(used1=12094M)</li>
+<li>free：空闲的内存(free1=19991M)</li>
+<li>shared：共享的内存大小</li>
+<li>buffers：用来做缓冲的内存(buffers1=217M)</li>
+<li>cached：用来做cache的内存(cached1=6312M)</li>
+<li>buffers Buffer Cache和cached Page Cache 磁盘缓存的大小</li>
+<li>-buffers/cache (已用)的内存数:used - buffers - cached</li>
+<li>+buffers/cache(可用)的内存数:free + buffers + cached</li>
+<li>可用的memory=free memory+buffers+cached</li>
+<li>Swap是交换区的使用情况。</li>
+<li>used = used1 – buffers1 – shared1 = 12094 - 217 - 6312 ~= 5563</li>
+<li>free = free1 + buffers1 + shared1 = 19991 + 217 + 6312 ~= 26521</li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2020-08-27
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/linux/">linux</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/golang/20200828-golang-how-to-efficiently-concatenate-strings-in-go/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[Go] How to Efficiently Concatenate Strings in Go</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/linux/20200826-linux-big-file/">
+            <span class="next-text nav-default">[Linux] Linux大文件查找和清空</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Linux] Socket 统计工具ss命令 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="ss 命令用来统计系统 Socket 网络信息 ss是Socket Statistics的缩写。 ss命令可以用来获取socket统计信息，它可以显示和netsta" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/linux/20200905-linux-ss/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Linux] Socket 统计工具ss命令" />
+<meta property="og:description" content="ss 命令用来统计系统 Socket 网络信息 ss是Socket Statistics的缩写。 ss命令可以用来获取socket统计信息，它可以显示和netsta" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/linux/20200905-linux-ss/" />
+<meta property="article:published_time" content="2020-09-05T12:07:42+08:00" />
+<meta property="article:modified_time" content="2020-09-05T12:07:42+08:00" />
+<meta itemprop="name" content="[Linux] Socket 统计工具ss命令">
+<meta itemprop="description" content="ss 命令用来统计系统 Socket 网络信息 ss是Socket Statistics的缩写。 ss命令可以用来获取socket统计信息，它可以显示和netsta">
+<meta itemprop="datePublished" content="2020-09-05T12:07:42&#43;08:00" />
+<meta itemprop="dateModified" content="2020-09-05T12:07:42&#43;08:00" />
+<meta itemprop="wordCount" content="1127">
+
+
+
+<meta itemprop="keywords" content="linux," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Linux] Socket 统计工具ss命令"/>
+<meta name="twitter:description" content="ss 命令用来统计系统 Socket 网络信息 ss是Socket Statistics的缩写。 ss命令可以用来获取socket统计信息，它可以显示和netsta"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Linux] Socket 统计工具ss命令</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-09-05 </span>
+        <div class="post-category">
+            <a href="/categories/linux/"> linux </a>
+            </div>
+          <span class="more-meta"> 1127 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#命令格式">命令格式</a></li>
+    <li><a href="#命令参数">命令参数</a></li>
+    <li><a href="#示例">示例</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>ss 命令用来统计系统 Socket 网络信息</p>
+</blockquote>
+<p>ss是Socket Statistics的缩写。 ss命令可以用来获取socket统计信息，它可以显示和netstat类似的内容。
+但ss的优势在于它能够显示更多更详细的有关TCP和连接状态的信息，而且比netstat更快速更高效。</p>
+<h2 id="命令格式">命令格式</h2>
+<pre><code>ss [参数]
+ss [参数] [过滤]
+</code></pre>
+<h2 id="命令参数">命令参数</h2>
+<pre><code>-h, --help          帮助信息
+-V, —version        程序版本信息
+-n, —numeric        不解析服务名称
+-r, —resolve        解析主机名
+-a, —all            显示所有套接字(sockets)
+-l, —listening      显示监听状态的套接字(sockets)
+-o, —options        显示计时器信息
+-e, —extended       显示详细的套接字(sockets)信息
+-m, —memory         显示套接字(socket)的内存使用情况
+-p, —processes      显示使用套接字(socket)的进程
+-i, —info           显示 TCP 内部信息
+-s, —summary        显示套接字(socket)使用概况
+
+-4, —ipv4           仅显示 IPv4 的套接字(sockets)
+-6, —ipv6           仅显示 IPv6 的套接字(sockets)
+-0, —packet         显示 PACKET 套接字(socket)
+-t, —tcp            仅显示 TCP 套接字(sockets)
+-u, —udp            仅显示 UCP 套接字(sockets)
+-d, —dccp           仅显示 DCCP 套接字(sockets)
+-w, —raw            仅显示 RAW 套接字(sockets)
+-x, —unix           仅显示 Unix 套接字(sockets)
+-f, —family=FAMILY  显示 FAMILY 类型的套接字(sockets)
+        FAMILY 可选，支持 unix, inet, inet6, link, netlink
+
+-A, —query=QUERY, —socket=QUERY
+        QUERY := {all|inet|tcp|udp|raw|unix|packet|netlink}[,QUERY]
+
+-D, —diag=FILE      将原始 TCP 套接字(sockets)信息转储到文件
+-F, —filter=FILE    从文件中都去过滤器信息
+        FILTER := [ state TCP-STATE ] [ EXPRESSION ]
+</code></pre>
+<h2 id="示例">示例</h2>
+<p>显示 Sockets 摘要</p>
+<pre><code>ss -s
+</code></pre>
+<p>显示TCP连接</p>
+<pre><code>ss -t -a
+</code></pre>
+<p>列出所有打开的网络连接端口</p>
+<pre><code>ss -l
+</code></pre>
+<p>查看进程使用的socket</p>
+<pre><code>ss -pl
+</code></pre>
+<p>找出打开套接字/端口应用程序</p>
+<pre><code>ss -pl|grep 23
+</code></pre>
+<p>显示所有UDP Sockets</p>
+<pre><code>ss -u -a
+</code></pre>
+<p>显示所有状态为established的SMTP连接</p>
+<pre><code>ss -o state established '( dport = :ssh or sport = :ssh )'
+</code></pre>
+<p>显示所有状态为Established的ssh连接</p>
+<pre><code>ss -o state established '( dport = :ssh or sport = :ssh )'
+</code></pre>
+<p>列举出处于 FIN-WAIT-1状态的源端口为 80或者 443，目标网络为 193.233.7/24所有 tcp套接字</p>
+<pre><code>ss -o state fin-wait-1 '( sport = :http or sport = :http )' dst 193.233.7/24
+</code></pre>
+<p>用TCP 状态过滤Sockets</p>
+<pre><code>ss -4 state FILTER-NAME-HERE 
+ss -6 state FILTER-NAME-HERE
+
+ss -4 state closing
+</code></pre>
+<p>FILTER-NAME-HERE</p>
+<ul>
+<li>established</li>
+<li>syn-sent</li>
+<li>syn-recv</li>
+<li>fin-wait-1</li>
+<li>fin-wait-2</li>
+<li>time-wait</li>
+<li>closed</li>
+<li>close-wait</li>
+<li>last-ack</li>
+<li>listen</li>
+<li>closing</li>
+<li>all : 所有以上状态</li>
+<li>connected : 除了listen and closed的所有状态</li>
+<li>synchronized :所有已连接的状态除了</li>
+<li>syn-sentbucket : 显示状态为maintained as minisockets,如：time-wait和syn-recv.</li>
+<li>big : 和bucket相反.</li>
+</ul>
+<p>匹配远程地址和端口号</p>
+<pre><code>ss dst 192.168.0.5
+ss dst 192.168.0.113:http
+ss dst 192.168.0.113:smtp 
+ss dst 192.168.0.113:443
+</code></pre>
+<p>匹配本地地址和端口号</p>
+<pre><code>ss src 192.168.0.197
+ss src 192.168.0.197:http
+ss src 192.168.0.197:80
+ss src 192.168.0.197:smtp
+ss src 192.168.0.197:25
+</code></pre>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://www.yiibai.com/linux/ss.html">ss命令</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2020-09-05
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/linux/">linux</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/golang/20200906-golang-zookeeper/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[Go] Golang Zookeeper 客户端操作</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/git/20200905-git-rebase/">
+            <span class="next-text nav-default">[Git] git rebase 合并多个commit</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

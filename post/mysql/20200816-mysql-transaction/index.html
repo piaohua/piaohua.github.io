@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[MySQL] MySQL事务详情 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="数据库中的事务是指对数据库执行一批操作，这些操作最终要么全部执行成功，要么全部失败，不会存在部分成功的情况。 事务的特性(ACID) 原子性（A" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/mysql/20200816-mysql-transaction/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[MySQL] MySQL事务详情" />
+<meta property="og:description" content="数据库中的事务是指对数据库执行一批操作，这些操作最终要么全部执行成功，要么全部失败，不会存在部分成功的情况。 事务的特性(ACID) 原子性（A" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20200816-mysql-transaction/" />
+<meta property="article:published_time" content="2020-08-16T00:09:58+08:00" />
+<meta property="article:modified_time" content="2020-08-16T00:09:58+08:00" />
+<meta itemprop="name" content="[MySQL] MySQL事务详情">
+<meta itemprop="description" content="数据库中的事务是指对数据库执行一批操作，这些操作最终要么全部执行成功，要么全部失败，不会存在部分成功的情况。 事务的特性(ACID) 原子性（A">
+<meta itemprop="datePublished" content="2020-08-16T00:09:58&#43;08:00" />
+<meta itemprop="dateModified" content="2020-08-16T00:09:58&#43;08:00" />
+<meta itemprop="wordCount" content="1493">
+
+
+
+<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[MySQL] MySQL事务详情"/>
+<meta name="twitter:description" content="数据库中的事务是指对数据库执行一批操作，这些操作最终要么全部执行成功，要么全部失败，不会存在部分成功的情况。 事务的特性(ACID) 原子性（A"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[MySQL] MySQL事务详情</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-08-16 </span>
+        <div class="post-category">
+            <a href="/categories/mysql/"> mysql </a>
+            </div>
+          <span class="more-meta"> 1493 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#事务的特性acid">事务的特性(ACID)</a></li>
+    <li><a href="#事务的并发问题">事务的并发问题</a></li>
+    <li><a href="#mysql事务隔离级别">MySQL事务隔离级别</a></li>
+    <li><a href="#设置事务隔离级别">设置事务隔离级别</a></li>
+    <li><a href="#查看事务隔离级别">查看事务隔离级别</a></li>
+    <li><a href="#事务操作">事务操作</a>
+      <ul>
+        <li><a href="#隐式事务">隐式事务</a></li>
+        <li><a href="#显示事务">显示事务</a></li>
+        <li><a href="#savepoint">savepoint</a></li>
+        <li><a href="#只读事务">只读事务</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>数据库中的事务是指对数据库执行一批操作，这些操作最终要么全部执行成功，要么全部失败，不会存在部分成功的情况。</p>
+</blockquote>
+<h2 id="事务的特性acid">事务的特性(ACID)</h2>
+<ul>
+<li>原子性（Atomicity）：一组事务，要么成功，要么撤回，事务是一个不可分割的整体, 不可能停滞在中间环节。
+事务执行过程中出错，会回滚到事务开始前的状态，所有的操作就像没有发生一样。</li>
+<li>一致性（Consistency）：事务开始前和结束后，数据库的完整性约束没有被破坏 。
+事务开始之前、执行中、执行完毕，这些时间点，多个人去观察事务操作的数据的时候，看到的数据都是一致的</li>
+<li>隔离性（Isolation）：同一时间，只允许一个事务请求同一数据，不同的事务之间彼此没有任何干扰。
+比如A正在从一张银行卡中取钱，在A取钱的过程结束前，B不能向这张卡转账。</li>
+<li>持久性（Durability）：事务提交成功后，事务对数据库的所有更新将被保存到数据库，不能回滚。</li>
+</ul>
+<h2 id="事务的并发问题">事务的并发问题</h2>
+<ol>
+<li>脏读：一个事务在执行的过程中读取到了其他事务还没有提交的数据。事务A读取了事务B更新的数据，然后B回滚操作，那么A读取到的数据是脏数据</li>
+<li>不可重复读：事务 A 多次读取同一数据，事务 B 在事务A多次读取的过程中，对数据作了更新并提交，导致事务A多次读取同一数据时，结果 不一致。</li>
+<li>幻读： 在一个事务的两次查询中数据笔数不一致，例如事务A查询了几列(Row)数据，而事务B却在此时插入了新的几列数据，
+事务A在接下来的查询中，就会发现有几列数据是它先前所没有的</li>
+</ol>
+<p>不可重复读的和幻读很容易混淆，不可重复读侧重于修改，幻读侧重于新增或删除。解决不可重复读的问题只需锁住满足条件的行，解决幻读需要锁表</p>
+<h2 id="mysql事务隔离级别">MySQL事务隔离级别</h2>
+<table>
+<thead>
+<tr>
+<th>事务隔离级别</th>
+<th align="center">脏读</th>
+<th align="center">不可重复读</th>
+<th align="right">幻读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>读未提交(read-uncommitted)</td>
+<td align="center">是</td>
+<td align="center">是</td>
+<td align="right">是</td>
+</tr>
+<tr>
+<td>读已提交(read-committed)</td>
+<td align="center">否</td>
+<td align="center">是</td>
+<td align="right">是</td>
+</tr>
+<tr>
+<td>可重复读(repeatable-read)</td>
+<td align="center">否</td>
+<td align="center">否</td>
+<td align="right">是</td>
+</tr>
+<tr>
+<td>串行化(serializable)</td>
+<td align="center">否</td>
+<td align="center">否</td>
+<td align="right">否</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>读未提交：一个事务可以读取到，另外一个事务尚未提交的变更。</li>
+<li>已提交读：一个事务提交后，其变更才会被另一个事务读取到。</li>
+<li>可重复读：在一个事务执行的过程中所读取到的数据，和事务启动时所看到的一致。</li>
+<li>串行化：当操作一行数据时，读写分别都会加锁。当出现读写锁互斥时，会排队串行执行。</li>
+</ol>
+<p>MySQL默认的事务隔离级别为可重复读(repeatable-read)</p>
+<p>4种隔离级别越来越强，会导致数据库的并发性也越来越低。</p>
+<h2 id="设置事务隔离级别">设置事务隔离级别</h2>
+<ol>
+<li>配置文件my.cnf [mysqld]段中设置</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">transaction-isolation = {READ-UNCOMMITTED | READ-COMMITTED | REPEATABLE-READ | SERIALIZABLE}
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>命令行选项&ndash;transaction-isolation设置</li>
+<li>SET TRANSACTION语句改变单个session</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span> <span class="p">[</span><span class="k">SESSION</span> <span class="o">|</span> <span class="k">GLOBAL</span><span class="p">]</span> <span class="k">TRANSACTION</span> <span class="k">ISOLATION</span> <span class="k">LEVEL</span> <span class="err">{</span><span class="k">READ</span> <span class="k">UNCOMMITTED</span> <span class="o">|</span> <span class="k">READ</span> <span class="k">COMMITTED</span> <span class="o">|</span> <span class="k">REPEATABLE</span> <span class="k">READ</span> <span class="o">|</span> <span class="k">SERIALIZABLE</span><span class="err">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="查看事务隔离级别">查看事务隔离级别</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> <span class="o">@@</span><span class="k">global</span><span class="p">.</span><span class="n">tx_isolation</span><span class="p">;</span>
+<span class="k">SELECT</span> <span class="o">@@</span><span class="k">session</span><span class="p">.</span><span class="n">tx_isolation</span><span class="p">;</span>
+<span class="k">SELECT</span> <span class="o">@@</span><span class="n">tx_isolation</span><span class="p">;</span>
+<span class="k">SHOW</span> <span class="n">VARIABLES</span> <span class="k">LIKE</span> <span class="s1">&#39;transaction_isolation&#39;</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="事务操作">事务操作</h2>
+<p>MySQL中事务默认是隐式事务,由变量autocommit控制，开启隐式事务操作自动提交；</p>
+<h3 id="隐式事务">隐式事务</h3>
+<ol>
+<li>配置文件[mysqld]设置autocommit=1或者命令行设置</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">set</span> <span class="o">@@</span><span class="k">global</span><span class="p">.</span><span class="n">autocommit</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+<span class="k">set</span> <span class="o">@@</span><span class="k">session</span><span class="p">.</span><span class="n">autocommit</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="显示事务">显示事务</h3>
+<p>显示事务需要手动开启、提交、回滚</p>
+<ol>
+<li>set autocommit=0; // 设置不自动提交事务</li>
+<li>begin; // 开启事务</li>
+<li>start transaction; // 存储过程中begin关键字有冲突,使用这个开启事务</li>
+<li>commit; // 提交操作</li>
+<li>rollback; // 回滚操作</li>
+</ol>
+<h3 id="savepoint">savepoint</h3>
+<p>在事务中设置保存点，可以将事务分为几个部分，这样能实现回滚指定部分事务</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">SAVEPOINT</span> <span class="n">identifier</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>设置保存点，id重复设置会覆盖</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">RELEASE</span> <span class="n">SAVEPOINT</span> <span class="n">identifier</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>释放已经设置的保存点，保存点不存在时报错，重复释放同一个保存点会报错</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">ROLLBACK</span> <span class="p">[</span><span class="k">WORK</span><span class="p">]</span> <span class="k">TO</span> <span class="p">[</span><span class="n">SAVEPOINT</span><span class="p">]</span> <span class="n">identifier</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>回滚到指定的保存点，在保存点到当前的所有操作会回滚，保存点之前的操作依然可以提交，保存点不存在会报错</p>
+<h3 id="只读事务">只读事务</h3>
+<p>只读事务过程中只能做只读操作，不能做DML等操作，否则报错；</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">start</span> <span class="k">transaction</span> <span class="k">read</span> <span class="k">only</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://www.cnblogs.com/itsoku123/p/11595970.html">详解事务</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2020-08-16
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/mysql/">mysql</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/mysql/20200816-mysql-join/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[MySQL] MySQL 内连接、外连接、左连接、右连接示例介绍</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/golang/20200815-golang-rate-limiter/">
+            <span class="next-text nav-default">[Go] Golang 官方限流器time/rate使用</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

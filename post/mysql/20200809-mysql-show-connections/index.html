@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[MySQL] MySQL 连接数和状态查看 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="MySQL 连接数和状态查看 mysql的最大连接数默认是100, 最大可以达到16384 查看mysql服务器最大连接数 1 2 mysql&amp;gt; show variables like &amp;#39;%max_connections%&amp;#39;; mysql&amp;gt; select @@max_connections; 设置mysql" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/mysql/20200809-mysql-show-connections/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[MySQL] MySQL 连接数和状态查看" />
+<meta property="og:description" content="MySQL 连接数和状态查看 mysql的最大连接数默认是100, 最大可以达到16384 查看mysql服务器最大连接数 1 2 mysql&gt; show variables like &#39;%max_connections%&#39;; mysql&gt; select @@max_connections; 设置mysql" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20200809-mysql-show-connections/" />
+<meta property="article:published_time" content="2020-08-09T00:09:40+08:00" />
+<meta property="article:modified_time" content="2020-08-09T00:09:40+08:00" />
+<meta itemprop="name" content="[MySQL] MySQL 连接数和状态查看">
+<meta itemprop="description" content="MySQL 连接数和状态查看 mysql的最大连接数默认是100, 最大可以达到16384 查看mysql服务器最大连接数 1 2 mysql&gt; show variables like &#39;%max_connections%&#39;; mysql&gt; select @@max_connections; 设置mysql">
+<meta itemprop="datePublished" content="2020-08-09T00:09:40&#43;08:00" />
+<meta itemprop="dateModified" content="2020-08-09T00:09:40&#43;08:00" />
+<meta itemprop="wordCount" content="955">
+
+
+
+<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[MySQL] MySQL 连接数和状态查看"/>
+<meta name="twitter:description" content="MySQL 连接数和状态查看 mysql的最大连接数默认是100, 最大可以达到16384 查看mysql服务器最大连接数 1 2 mysql&gt; show variables like &#39;%max_connections%&#39;; mysql&gt; select @@max_connections; 设置mysql"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[MySQL] MySQL 连接数和状态查看</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-08-09 </span>
+        <div class="post-category">
+            <a href="/categories/mysql/"> mysql </a>
+            </div>
+          <span class="more-meta"> 955 words </span>
+          <span class="more-meta"> 2 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>MySQL 连接数和状态查看</p>
+</blockquote>
+<ol>
+<li>
+<p>mysql的最大连接数默认是100, 最大可以达到16384</p>
+</li>
+<li>
+<p>查看mysql服务器最大连接数</p>
+</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">mysql&gt; show variables like <span class="s1">&#39;%max_connections%&#39;</span><span class="p">;</span>
+mysql&gt; <span class="k">select</span> @@max_connections<span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="3">
+<li>设置mysql服务器最大连接数（当前服务进程生效，重启恢复初始配置）</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">msyql&gt; <span class="nb">set</span> global <span class="nv">max_connections</span><span class="o">=</span>1000<span class="p">;</span>
+msyql&gt; <span class="nb">set</span> @@global.max_connections<span class="o">=</span>1000<span class="p">;</span>
+mysql&gt; <span class="nb">set</span> GLOBAL <span class="nv">max_connections</span><span class="o">=</span>1000<span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="4">
+<li>每个用户最大连接数量</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">mysql&gt; show variables like <span class="s1">&#39;%max_user_connections%&#39;</span><span class="p">;</span>
+mysql&gt; <span class="nb">set</span> @@global.max_user_connections<span class="o">=</span>100<span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="5">
+<li>关闭一个非交互的连接之前要等待的秒数，默认是28800s</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">mysql&gt; show global variables like <span class="s1">&#39;wait_timeout&#39;</span><span class="p">;</span>
+mysql&gt; <span class="nb">set</span> global <span class="nv">wait_timeout</span><span class="o">=</span>300<span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="6">
+<li>查看当前用户占用的连接信息，root用户所有用户连接</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># show processlist命令只列出前100条，</span>
+<span class="c1"># show full processlist;列出所有（包含空闲连接与活跃连接）</span>
+mysql&gt; show processlist<span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="7">
+<li>查看权限</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">mysql&gt; show grants<span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="8">
+<li>查看server_id</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">mysql&gt; <span class="k">select</span> @@server_id<span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="9">
+<li>查看master节点状态</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">mysql&gt; show master status<span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="10">
+<li>查看slave节点状态</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">mysql&gt; show slave status<span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="11">
+<li>查看slave节点host信息</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">mysql&gt; show slave hosts<span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="12">
+<li>查看锁记录</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">mysql&gt; show egnine innodb<span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="13">
+<li>查看状态</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">mysql&gt; status<span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="14">
+<li>当前连接数量</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">mysql&gt; show global status like <span class="s1">&#39;%Threads_connected%&#39;</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="15">
+<li>查看事务状态</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">mysql&gt; show variables like <span class="s1">&#39;%tx%&#39;</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="16">
+<li>查看状态参数列表</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">mysql&gt; show status<span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>部分状态参数变量名：</p>
+<pre><code>Aborted_clients 由于客户没有正确关闭连接已经死掉，已经放弃的连接数量。
+Aborted_connects 尝试已经失败的MySQL服务器的连接的次数。
+Connections 试图连接MySQL服务器的次数。
+Created_tmp_tables 当执行语句时，已经被创造了的隐含临时表的数量。
+Delayed_insert_threads 正在使用的延迟插入处理器线程的数量。
+Delayed_writes 用INSERT DELAYED写入的行数。
+Delayed_errors 用INSERT DELAYED写入的发生某些错误(可能重复键值)的行数。
+Flush_commands 执行FLUSH命令的次数。
+Handler_delete 请求从一张表中删除行的次数。
+Handler_read_first 请求读入表中第一行的次数。
+Handler_read_key 请求数字基于键读行。
+Handler_read_next 请求读入基于一个键的一行的次数。
+Handler_read_rnd 请求读入基于一个固定位置的一行的次数。
+Handler_update 请求更新表中一行的次数。
+Handler_write 请求向表中插入一行的次数。
+Key_blocks_used 用于关键字缓存的块的数量。
+Key_read_requests 请求从缓存读入一个键值的次数。
+Key_reads 从磁盘物理读入一个键值的次数。
+Key_write_requests 请求将一个关键字块写入缓存次数。
+Key_writes 将一个键值块物理写入磁盘的次数。
+Max_used_connections 同时使用的连接的最大数目。
+Not_flushed_key_blocks 在键缓存中已经改变但是还没被清空到磁盘上的键块。
+Not_flushed_delayed_rows 在INSERT DELAY队列中等待写入的行的数量。
+Open_tables 打开表的数量。
+Open_files 打开文件的数量。
+Open_streams 打开流的数量(主要用于日志记载）
+Opened_tables 已经打开的表的数量。
+Questions 发往服务器的查询的数量。
+Slow_queries 要花超过long_query_time时间的查询数量。
+Threads_connected 当前打开的连接的数量。
+Threads_running 不在睡眠的线程数量。
+Uptime 服务器工作了多长时间，单位秒。
+</code></pre>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2020-08-09
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/mysql/">mysql</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/golang/20200809-golang-adler32-packet/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[Go] Golang Adler32 Packet</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/mysql/20200808-mysql-sysbench/">
+            <span class="next-text nav-default">[MySQL] MySQL Sysbench</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
