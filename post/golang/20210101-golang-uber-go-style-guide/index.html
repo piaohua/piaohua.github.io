@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Go] Uber Go Style Guide - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="Uber Go 语言编程规范 不必要的else 如果在if的两个分支中都设置了变量，则可以将其替换为单个if。 Bad 1 2 3 4 5 6 var a int if b { a = 100 } else { a = 10 }" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/golang/20210101-golang-uber-go-style-guide/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Go] Uber Go Style Guide" />
+<meta property="og:description" content="Uber Go 语言编程规范 不必要的else 如果在if的两个分支中都设置了变量，则可以将其替换为单个if。 Bad 1 2 3 4 5 6 var a int if b { a = 100 } else { a = 10 }" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20210101-golang-uber-go-style-guide/" />
+<meta property="article:published_time" content="2021-01-01T14:57:44+08:00" />
+<meta property="article:modified_time" content="2021-01-01T14:57:44+08:00" />
+<meta itemprop="name" content="[Go] Uber Go Style Guide">
+<meta itemprop="description" content="Uber Go 语言编程规范 不必要的else 如果在if的两个分支中都设置了变量，则可以将其替换为单个if。 Bad 1 2 3 4 5 6 var a int if b { a = 100 } else { a = 10 }">
+<meta itemprop="datePublished" content="2021-01-01T14:57:44&#43;08:00" />
+<meta itemprop="dateModified" content="2021-01-01T14:57:44&#43;08:00" />
+<meta itemprop="wordCount" content="2617">
+
+
+
+<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Go] Uber Go Style Guide"/>
+<meta name="twitter:description" content="Uber Go 语言编程规范 不必要的else 如果在if的两个分支中都设置了变量，则可以将其替换为单个if。 Bad 1 2 3 4 5 6 var a int if b { a = 100 } else { a = 10 }"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Go] Uber Go Style Guide</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2021-01-01 </span>
+        <div class="post-category">
+            <a href="/categories/golang/"> golang </a>
+            </div>
+          <span class="more-meta"> 2617 words </span>
+          <span class="more-meta"> 6 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#不必要的else"><em><strong>不必要的else</strong></em></a></li>
+    <li><a href="#减少嵌套"><em><strong>减少嵌套</strong></em></a></li>
+    <li><a href="#start-enums-at-one"><em><strong>Start Enums at One</strong></em></a></li>
+    <li><a href="#defer-to-clean-up"><em><strong>Defer to Clean Up</strong></em></a></li>
+    <li><a href="#优先使用strconv而不是fmt"><em><strong>优先使用strconv而不是fmt</strong></em></a></li>
+    <li><a href="#相似的声明放在一组"><em><strong>相似的声明放在一组</strong></em></a></li>
+    <li><a href="#import组内的包导入顺序"><em><strong>import组内的包导入顺序</strong></em></a></li>
+    <li><a href="#函数分组与顺序"><em><strong>函数分组与顺序</strong></em></a></li>
+    <li><a href="#顶层变量声明"><em><strong>顶层变量声明</strong></em></a></li>
+    <li><a href="#prefix-unexported-globals-with-_"><em><strong>Prefix Unexported Globals with _</strong></em></a></li>
+    <li><a href="#embedding-in-structs"><em><strong>Embedding in Structs</strong></em></a></li>
+    <li><a href="#使用字段名初始化结构体"><em><strong>使用字段名初始化结构体</strong></em></a></li>
+    <li><a href="#本地变量声明"><em><strong>本地变量声明</strong></em></a></li>
+    <li><a href="#nil是一个有效的slice"><em><strong>nil是一个有效的slice</strong></em></a></li>
+    <li><a href="#缩小变量作用域"><em><strong>缩小变量作用域</strong></em></a></li>
+    <li><a href="#避免裸参数"><em><strong>避免裸参数</strong></em></a></li>
+    <li><a href="#初始化结构体引用"><em><strong>初始化结构体引用</strong></em></a></li>
+    <li><a href="#格式化字符串放在printf外部"><em><strong>格式化字符串放在Printf外部</strong></em></a></li>
+    <li><a href="#initializing-maps"><em><strong>Initializing Maps</strong></em></a></li>
+    <li><a href="#测试表"><em><strong>测试表</strong></em></a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>Uber Go 语言编程规范</p>
+</blockquote>
+<h2 id="不必要的else"><em><strong>不必要的else</strong></em></h2>
+<pre><code>如果在if的两个分支中都设置了变量，则可以将其替换为单个if。
+</code></pre>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">var</span> <span class="nx">a</span> <span class="kt">int</span>
+<span class="k">if</span> <span class="nx">b</span> <span class="p">{</span>
+    <span class="nx">a</span> <span class="p">=</span> <span class="mi">100</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">a</span> <span class="p">=</span> <span class="mi">10</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">a</span> <span class="o">:=</span> <span class="mi">10</span>
+<span class="k">if</span> <span class="nx">b</span> <span class="p">{</span>
+    <span class="nx">a</span> <span class="p">=</span> <span class="mi">100</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="减少嵌套"><em><strong>减少嵌套</strong></em></h2>
+<pre><code>代码应通过尽可能先处理错误情况/特殊情况并尽早返回或继续循环来减少嵌套。减少嵌套多个级别的代码的代码量。
+</code></pre>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">v</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">data</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="nx">v</span><span class="p">.</span><span class="nx">F1</span> <span class="o">==</span> <span class="mi">1</span> <span class="p">{</span>
+    <span class="nx">v</span> <span class="p">=</span> <span class="nf">process</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">v</span><span class="p">.</span><span class="nf">Call</span><span class="p">();</span> <span class="nx">err</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+      <span class="nx">v</span><span class="p">.</span><span class="nf">Send</span><span class="p">()</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">err</span>
+    <span class="p">}</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Invalid v: %v&#34;</span><span class="p">,</span> <span class="nx">v</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">v</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">data</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="nx">v</span><span class="p">.</span><span class="nx">F1</span> <span class="o">!=</span> <span class="mi">1</span> <span class="p">{</span>
+    <span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Invalid v: %v&#34;</span><span class="p">,</span> <span class="nx">v</span><span class="p">)</span>
+    <span class="k">continue</span>
+  <span class="p">}</span>
+
+  <span class="nx">v</span> <span class="p">=</span> <span class="nf">process</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span>
+  <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">v</span><span class="p">.</span><span class="nf">Call</span><span class="p">();</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">err</span>
+  <span class="p">}</span>
+  <span class="nx">v</span><span class="p">.</span><span class="nf">Send</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="start-enums-at-one"><em><strong>Start Enums at One</strong></em></h2>
+<pre><code>The standard way of introducing enumerations in Go is to declare a custom type and a const group with iota.
+Since variables have a 0 default value, you should usually start your enums on a non-zero value.
+</code></pre>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Operation</span> <span class="kt">int</span>
+
+<span class="kd">const</span> <span class="p">(</span>
+  <span class="nx">Add</span> <span class="nx">Operation</span> <span class="p">=</span> <span class="kc">iota</span>
+  <span class="nx">Subtract</span>
+  <span class="nx">Multiply</span>
+<span class="p">)</span>
+
+<span class="c1">// Add=0, Subtract=1, Multiply=2
+</span></code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Operation</span> <span class="kt">int</span>
+
+<span class="kd">const</span> <span class="p">(</span>
+  <span class="nx">Add</span> <span class="nx">Operation</span> <span class="p">=</span> <span class="kc">iota</span> <span class="o">+</span> <span class="mi">1</span>
+  <span class="nx">Subtract</span>
+  <span class="nx">Multiply</span>
+<span class="p">)</span>
+
+<span class="c1">// Add=1, Subtract=2, Multiply=3
+</span></code></pre></td></tr></table>
+</div>
+</div><h2 id="defer-to-clean-up"><em><strong>Defer to Clean Up</strong></em></h2>
+<pre><code>Use defer to clean up resources such as files and locks.
+</code></pre>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">p</span><span class="p">.</span><span class="nf">Lock</span><span class="p">()</span>
+<span class="k">if</span> <span class="nx">p</span><span class="p">.</span><span class="nx">count</span> <span class="p">&lt;</span> <span class="mi">10</span> <span class="p">{</span>
+  <span class="nx">p</span><span class="p">.</span><span class="nf">Unlock</span><span class="p">()</span>
+  <span class="k">return</span> <span class="nx">p</span><span class="p">.</span><span class="nx">count</span>
+<span class="p">}</span>
+
+<span class="nx">p</span><span class="p">.</span><span class="nx">count</span><span class="o">++</span>
+<span class="nx">newCount</span> <span class="o">:=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">count</span>
+<span class="nx">p</span><span class="p">.</span><span class="nf">Unlock</span><span class="p">()</span>
+
+<span class="k">return</span> <span class="nx">newCount</span>
+
+<span class="c1">// easy to miss unlocks due to multiple returns
+</span></code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">p</span><span class="p">.</span><span class="nf">Lock</span><span class="p">()</span>
+<span class="k">defer</span> <span class="nx">p</span><span class="p">.</span><span class="nf">Unlock</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="nx">p</span><span class="p">.</span><span class="nx">count</span> <span class="p">&lt;</span> <span class="mi">10</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">p</span><span class="p">.</span><span class="nx">count</span>
+<span class="p">}</span>
+
+<span class="nx">p</span><span class="p">.</span><span class="nx">count</span><span class="o">++</span>
+<span class="k">return</span> <span class="nx">p</span><span class="p">.</span><span class="nx">count</span>
+
+<span class="c1">// more readable
+</span></code></pre></td></tr></table>
+</div>
+</div><h2 id="优先使用strconv而不是fmt"><em><strong>优先使用strconv而不是fmt</strong></em></h2>
+<pre><code>将原语转换为字符串或从字符串转换时，strconv速度比fmt快。
+</code></pre>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+  <span class="nx">s</span> <span class="o">:=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprint</span><span class="p">(</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Int</span><span class="p">())</span>
+<span class="p">}</span>
+
+<span class="nx">BenchmarkFmtSprint</span><span class="o">-</span><span class="mi">4</span>    <span class="mi">143</span> <span class="nx">ns</span><span class="o">/</span><span class="nx">op</span>    <span class="mi">2</span> <span class="nx">allocs</span><span class="o">/</span><span class="nx">op</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+  <span class="nx">s</span> <span class="o">:=</span> <span class="nx">strconv</span><span class="p">.</span><span class="nf">Itoa</span><span class="p">(</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Int</span><span class="p">())</span>
+<span class="p">}</span>
+
+<span class="nx">BenchmarkStrconv</span><span class="o">-</span><span class="mi">4</span>    <span class="mf">64.2</span> <span class="nx">ns</span><span class="o">/</span><span class="nx">op</span>    <span class="mi">1</span> <span class="nx">allocs</span><span class="o">/</span><span class="nx">op</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="相似的声明放在一组"><em><strong>相似的声明放在一组</strong></em></h2>
+<pre><code>Go语言支持将相似的声明放在一个组内
+</code></pre>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">import</span> <span class="s">&#34;a&#34;</span>
+<span class="kn">import</span> <span class="s">&#34;b&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">import</span> <span class="p">(</span>
+  <span class="s">&#34;a&#34;</span>
+  <span class="s">&#34;b&#34;</span>
+<span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这同样适用于常量、变量和类型声明</p>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">const</span> <span class="nx">a</span> <span class="p">=</span> <span class="mi">1</span>
+<span class="kd">const</span> <span class="nx">b</span> <span class="p">=</span> <span class="mi">2</span>
+
+<span class="kd">var</span> <span class="nx">a</span> <span class="p">=</span> <span class="mi">1</span>
+<span class="kd">var</span> <span class="nx">b</span> <span class="p">=</span> <span class="mi">2</span>
+
+<span class="kd">type</span> <span class="nx">Area</span> <span class="kt">float64</span>
+<span class="kd">type</span> <span class="nx">Volume</span> <span class="kt">float64</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">const</span> <span class="p">(</span>
+  <span class="nx">a</span> <span class="p">=</span> <span class="mi">1</span>
+  <span class="nx">b</span> <span class="p">=</span> <span class="mi">2</span>
+<span class="p">)</span>
+
+<span class="kd">var</span> <span class="p">(</span>
+  <span class="nx">a</span> <span class="p">=</span> <span class="mi">1</span>
+  <span class="nx">b</span> <span class="p">=</span> <span class="mi">2</span>
+<span class="p">)</span>
+
+<span class="kd">type</span> <span class="p">(</span>
+  <span class="nx">Area</span> <span class="kt">float64</span>
+  <span class="nx">Volume</span> <span class="kt">float64</span>
+<span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>仅将相关的声明放在一组。不要将不相关的声明放在一组。</p>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Operation</span> <span class="kt">int</span>
+
+<span class="kd">const</span> <span class="p">(</span>
+  <span class="nx">Add</span> <span class="nx">Operation</span> <span class="p">=</span> <span class="kc">iota</span> <span class="o">+</span> <span class="mi">1</span>
+  <span class="nx">Subtract</span>
+  <span class="nx">Multiply</span>
+  <span class="nx">ENV_VAR</span> <span class="p">=</span> <span class="s">&#34;MY_ENV&#34;</span>
+<span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Operation</span> <span class="kt">int</span>
+
+<span class="kd">const</span> <span class="p">(</span>
+  <span class="nx">Add</span> <span class="nx">Operation</span> <span class="p">=</span> <span class="kc">iota</span> <span class="o">+</span> <span class="mi">1</span>
+  <span class="nx">Subtract</span>
+  <span class="nx">Multiply</span>
+<span class="p">)</span>
+
+<span class="kd">const</span> <span class="nx">ENV_VAR</span> <span class="p">=</span> <span class="s">&#34;MY_ENV&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>分组使用的位置没有限制，例如：你可以在函数内部使用它们</p>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">f</span><span class="p">()</span> <span class="kt">string</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">red</span> <span class="p">=</span> <span class="nx">color</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="mh">0xff0000</span><span class="p">)</span>
+  <span class="kd">var</span> <span class="nx">green</span> <span class="p">=</span> <span class="nx">color</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="mh">0x00ff00</span><span class="p">)</span>
+  <span class="kd">var</span> <span class="nx">blue</span> <span class="p">=</span> <span class="nx">color</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="mh">0x0000ff</span><span class="p">)</span>
+
+  <span class="o">...</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">f</span><span class="p">()</span> <span class="kt">string</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="p">(</span>
+    <span class="nx">red</span>   <span class="p">=</span> <span class="nx">color</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="mh">0xff0000</span><span class="p">)</span>
+    <span class="nx">green</span> <span class="p">=</span> <span class="nx">color</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="mh">0x00ff00</span><span class="p">)</span>
+    <span class="nx">blue</span>  <span class="p">=</span> <span class="nx">color</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="mh">0x0000ff</span><span class="p">)</span>
+  <span class="p">)</span>
+
+  <span class="o">...</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="import组内的包导入顺序"><em><strong>import组内的包导入顺序</strong></em></h2>
+<pre><code>There should be two import groups:
+  Standard library
+  Everything else
+This is the grouping applied by goimports by default.
+</code></pre>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">import</span> <span class="p">(</span>
+  <span class="s">&#34;fmt&#34;</span>
+  <span class="s">&#34;os&#34;</span>
+  <span class="s">&#34;go.uber.org/atomic&#34;</span>
+  <span class="s">&#34;golang.org/x/sync/errgroup&#34;</span>
+<span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">import</span> <span class="p">(</span>
+  <span class="s">&#34;fmt&#34;</span>
+  <span class="s">&#34;os&#34;</span>
+
+  <span class="s">&#34;go.uber.org/atomic&#34;</span>
+  <span class="s">&#34;golang.org/x/sync/errgroup&#34;</span>
+<span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="函数分组与顺序"><em><strong>函数分组与顺序</strong></em></h2>
+<ul>
+<li>函数应按粗略的调用顺序排序。</li>
+<li>同一文件中的函数应按接收者分组。</li>
+</ul>
+<p>因此，导出的函数应先出现在文件中，放在struct、const和var定义的后面。</p>
+<p>在定义类型之后，但在接收者的其余方法之前，可能会出现一个newXYZ()/ NewXYZ()。</p>
+<p>由于函数是按接收者分组的，因此普通工具函数应在文件末尾出现。</p>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">something</span><span class="p">)</span> <span class="nf">Cost</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nf">calcCost</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">weights</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">something</span> <span class="kd">struct</span><span class="p">{</span> <span class="o">...</span> <span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">calcCost</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">[])</span> <span class="kt">int</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">something</span><span class="p">)</span> <span class="nf">Stop</span><span class="p">()</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">newSomething</span><span class="p">()</span> <span class="o">*</span><span class="nx">something</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="o">&amp;</span><span class="nx">something</span><span class="p">{}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">something</span> <span class="kd">struct</span><span class="p">{</span> <span class="o">...</span> <span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">newSomething</span><span class="p">()</span> <span class="o">*</span><span class="nx">something</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="o">&amp;</span><span class="nx">something</span><span class="p">{}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">something</span><span class="p">)</span> <span class="nf">Cost</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nf">calcCost</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">weights</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">something</span><span class="p">)</span> <span class="nf">Stop</span><span class="p">()</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">calcCost</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">[])</span> <span class="kt">int</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="顶层变量声明"><em><strong>顶层变量声明</strong></em></h2>
+<pre><code>在顶层，使用标准var关键字。请勿指定类型，除非它与表达式的类型不同。
+</code></pre>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">var</span> <span class="nx">_s</span> <span class="kt">string</span> <span class="p">=</span> <span class="nf">F</span><span class="p">()</span>
+
+<span class="kd">func</span> <span class="nf">F</span><span class="p">()</span> <span class="kt">string</span> <span class="p">{</span> <span class="k">return</span> <span class="s">&#34;A&#34;</span> <span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">var</span> <span class="nx">_s</span> <span class="p">=</span> <span class="nf">F</span><span class="p">()</span>
+<span class="c1">// 由于F已经明确了返回一个字符串类型，因此我们没有必要显式指定_s的类型
+</span><span class="c1"></span>
+<span class="kd">func</span> <span class="nf">F</span><span class="p">()</span> <span class="kt">string</span> <span class="p">{</span> <span class="k">return</span> <span class="s">&#34;A&#34;</span> <span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="prefix-unexported-globals-with-_"><em><strong>Prefix Unexported Globals with _</strong></em></h2>
+<p>Prefix unexported top-level vars and consts with _ to make it clear when they are used that they are global symbols.</p>
+<p>Exception: Unexported error values, which should be prefixed with err.</p>
+<p>Rationale: Top-level variables and constants have a package scope. Using a generic name makes it easy to accidentally use the wrong value in a different file.</p>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">const</span> <span class="p">(</span>
+  <span class="nx">defaultPort</span> <span class="p">=</span> <span class="mi">8080</span>
+  <span class="nx">defaultUser</span> <span class="p">=</span> <span class="s">&#34;user&#34;</span>
+<span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">const</span> <span class="p">(</span>
+  <span class="nx">_defaultPort</span> <span class="p">=</span> <span class="mi">8080</span>
+  <span class="nx">_defaultUser</span> <span class="p">=</span> <span class="s">&#34;user&#34;</span>
+<span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="embedding-in-structs"><em><strong>Embedding in Structs</strong></em></h2>
+<p>Embedded types (such as mutexes) should be at the top of the field list of a struct, and there must be an empty line separating embedded fields from regular fields.</p>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Client</span> <span class="kd">struct</span> <span class="p">{</span>
+  <span class="nx">version</span> <span class="kt">int</span>
+  <span class="nx">http</span><span class="p">.</span><span class="nx">Client</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Client</span> <span class="kd">struct</span> <span class="p">{</span>
+  <span class="nx">http</span><span class="p">.</span><span class="nx">Client</span>
+
+  <span class="nx">version</span> <span class="kt">int</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="使用字段名初始化结构体"><em><strong>使用字段名初始化结构体</strong></em></h2>
+<pre><code>初始化结构体时，几乎始终应该指定字段名称。现在由go vet强制执行。
+</code></pre>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">k</span> <span class="o">:=</span> <span class="nx">User</span><span class="p">{</span><span class="s">&#34;John&#34;</span><span class="p">,</span> <span class="s">&#34;Doe&#34;</span><span class="p">,</span> <span class="kc">true</span><span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">k</span> <span class="o">:=</span> <span class="nx">User</span><span class="p">{</span>
+    <span class="nx">FirstName</span><span class="p">:</span> <span class="s">&#34;John&#34;</span><span class="p">,</span>
+    <span class="nx">LastName</span><span class="p">:</span> <span class="s">&#34;Doe&#34;</span><span class="p">,</span>
+    <span class="nx">Admin</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>例外：如果有3个或更少的字段，则可以在测试表中省略字段名称。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">tests</span> <span class="o">:=</span> <span class="p">[]</span><span class="kd">struct</span><span class="p">{</span>
+<span class="p">}{</span>
+  <span class="nx">op</span> <span class="nx">Operation</span>
+  <span class="nx">want</span> <span class="kt">string</span>
+<span class="p">}{</span>
+  <span class="p">{</span><span class="nx">Add</span><span class="p">,</span> <span class="s">&#34;add&#34;</span><span class="p">},</span>
+  <span class="p">{</span><span class="nx">Subtract</span><span class="p">,</span> <span class="s">&#34;subtract&#34;</span><span class="p">},</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="本地变量声明"><em><strong>本地变量声明</strong></em></h2>
+<pre><code>如果将变量明确设置为某个值，则应使用短变量声明形式（:=）。
+</code></pre>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">var</span> <span class="nx">s</span> <span class="p">=</span> <span class="s">&#34;foo&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">s</span> <span class="o">:=</span> <span class="s">&#34;foo&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>但是，在某些情况下，var 使用关键字时默认值会更清晰。例如，声明空切片。</p>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">f</span><span class="p">(</span><span class="nx">list</span> <span class="p">[]</span><span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">filtered</span> <span class="o">:=</span> <span class="p">[]</span><span class="kt">int</span><span class="p">{}</span>
+  <span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">v</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">list</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="nx">v</span> <span class="p">&gt;</span> <span class="mi">10</span> <span class="p">{</span>
+      <span class="nx">filtered</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">filtered</span><span class="p">,</span> <span class="nx">v</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">f</span><span class="p">(</span><span class="nx">list</span> <span class="p">[]</span><span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">filtered</span> <span class="p">[]</span><span class="kt">int</span>
+  <span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">v</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">list</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="nx">v</span> <span class="p">&gt;</span> <span class="mi">10</span> <span class="p">{</span>
+      <span class="nx">filtered</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">filtered</span><span class="p">,</span> <span class="nx">v</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="nil是一个有效的slice"><em><strong>nil是一个有效的slice</strong></em></h2>
+<pre><code>nil是一个有效的长度为0的slice，这意味着：
+</code></pre>
+<ul>
+<li>您不应明确返回长度为零的切片。返回nil 来代替。</li>
+</ul>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="k">if</span> <span class="nx">x</span> <span class="o">==</span> <span class="s">&#34;&#34;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">[]</span><span class="kt">int</span><span class="p">{}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="k">if</span> <span class="nx">x</span> <span class="o">==</span> <span class="s">&#34;&#34;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>要检查切片是否为空，请始终使用len(s) == 0。不要检查 nil。</li>
+</ul>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">isEmpty</span><span class="p">(</span><span class="nx">s</span> <span class="p">[]</span><span class="kt">string</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">s</span> <span class="o">==</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">isEmpty</span><span class="p">(</span><span class="nx">s</span> <span class="p">[]</span><span class="kt">string</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nx">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>零值切片可立即使用，无需调用make创建。</li>
+</ul>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">nums</span> <span class="o">:=</span> <span class="p">[]</span><span class="kt">int</span><span class="p">{}</span>
+<span class="c1">// or, nums := make([]int)
+</span><span class="c1"></span>
+<span class="k">if</span> <span class="nx">add1</span> <span class="p">{</span>
+  <span class="nx">nums</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">nums</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="nx">add2</span> <span class="p">{</span>
+  <span class="nx">nums</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">nums</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">var</span> <span class="nx">nums</span> <span class="p">[]</span><span class="kt">int</span>
+
+<span class="k">if</span> <span class="nx">add1</span> <span class="p">{</span>
+  <span class="nx">nums</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">nums</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="nx">add2</span> <span class="p">{</span>
+  <span class="nx">nums</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">nums</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="缩小变量作用域"><em><strong>缩小变量作用域</strong></em></h2>
+<pre><code>如果有可能，尽量缩小变量作用范围。除非它与减少嵌套的规则冲突。
+</code></pre>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">err</span> <span class="o">:=</span> <span class="nx">ioutil</span><span class="p">.</span><span class="nf">WriteFile</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="mo">0644</span><span class="p">)</span>
+<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">err</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">ioutil</span><span class="p">.</span><span class="nf">WriteFile</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="mo">0644</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">err</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>如果需要在if之外使用函数调用的结果，则不应尝试缩小范围。</p>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="k">if</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">ioutil</span><span class="p">.</span><span class="nf">ReadFile</span><span class="p">(</span><span class="nx">name</span><span class="p">);</span> <span class="nx">err</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+  <span class="nx">err</span> <span class="p">=</span> <span class="nx">cfg</span><span class="p">.</span><span class="nf">Decode</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+  <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">err</span>
+  <span class="p">}</span>
+
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span>
+  <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">err</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">data</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">ioutil</span><span class="p">.</span><span class="nf">ReadFile</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span>
+<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+   <span class="k">return</span> <span class="nx">err</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">cfg</span><span class="p">.</span><span class="nf">Decode</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">err</span>
+<span class="p">}</span>
+
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span>
+<span class="k">return</span> <span class="kc">nil</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="避免裸参数"><em><strong>避免裸参数</strong></em></h2>
+<pre><code>函数调用中的裸参数可能会损害可读性。当参数名称的含义不明显时，请为参数添加C样式注释（/* … */）。
+</code></pre>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// func printInfo(name string, isLocal, done bool)
+</span><span class="c1"></span>
+<span class="nf">printInfo</span><span class="p">(</span><span class="s">&#34;foo&#34;</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// func printInfo(name string, isLocal, done bool)
+</span><span class="c1"></span>
+<span class="nf">printInfo</span><span class="p">(</span><span class="s">&#34;foo&#34;</span><span class="p">,</span> <span class="kc">true</span> <span class="cm">/* isLocal */</span><span class="p">,</span> <span class="kc">true</span> <span class="cm">/* done */</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="初始化结构体引用"><em><strong>初始化结构体引用</strong></em></h2>
+<pre><code>在初始化结构引用时，请使用&amp;T{}代替new(T)，以使其与结构体初始化一致。
+</code></pre>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">sval</span> <span class="o">:=</span> <span class="nx">T</span><span class="p">{</span><span class="nx">Name</span><span class="p">:</span> <span class="s">&#34;foo&#34;</span><span class="p">}</span>
+
+<span class="c1">// 不一致
+</span><span class="c1"></span><span class="nx">sptr</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">T</span><span class="p">)</span>
+<span class="nx">sptr</span><span class="p">.</span><span class="nx">Name</span> <span class="p">=</span> <span class="s">&#34;bar&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">sval</span> <span class="o">:=</span> <span class="nx">T</span><span class="p">{</span><span class="nx">Name</span><span class="p">:</span> <span class="s">&#34;foo&#34;</span><span class="p">}</span>
+
+<span class="nx">sptr</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">T</span><span class="p">{</span><span class="nx">Name</span><span class="p">:</span> <span class="s">&#34;bar&#34;</span><span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="格式化字符串放在printf外部"><em><strong>格式化字符串放在Printf外部</strong></em></h2>
+<pre><code>如果你为Printf-style函数声明格式字符串，请将格式化字符串放在外面，并将其设置为const常量。
+</code></pre>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">msg</span> <span class="o">:=</span> <span class="s">&#34;unexpected values %v, %v\n&#34;</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="nx">msg</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">const</span> <span class="nx">msg</span> <span class="p">=</span> <span class="s">&#34;unexpected values %v, %v\n&#34;</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="nx">msg</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="initializing-maps"><em><strong>Initializing Maps</strong></em></h2>
+<pre><code>if the map holds a fixed list of elements, use map literals to initialize the map.
+</code></pre>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">m</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="nx">T1</span><span class="p">]</span><span class="nx">T2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="nx">m</span><span class="p">[</span><span class="nx">k1</span><span class="p">]</span> <span class="p">=</span> <span class="nx">v1</span>
+<span class="nx">m</span><span class="p">[</span><span class="nx">k2</span><span class="p">]</span> <span class="p">=</span> <span class="nx">v2</span>
+<span class="nx">m</span><span class="p">[</span><span class="nx">k3</span><span class="p">]</span> <span class="p">=</span> <span class="nx">v3</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">m</span> <span class="o">:=</span> <span class="kd">map</span><span class="p">[</span><span class="nx">T1</span><span class="p">]</span><span class="nx">T2</span><span class="p">{</span>
+  <span class="nx">k1</span><span class="p">:</span> <span class="nx">v1</span><span class="p">,</span>
+  <span class="nx">k2</span><span class="p">:</span> <span class="nx">v2</span><span class="p">,</span>
+  <span class="nx">k3</span><span class="p">:</span> <span class="nx">v3</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="测试表"><em><strong>测试表</strong></em></h2>
+<pre><code>在核心测试逻辑重复时，将表驱动测试与子测试一起使用，以避免重复代码。
+</code></pre>
+<p><em><strong>Bad</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// func TestSplitHostPort(t *testing.T)
+</span><span class="c1"></span>
+<span class="nx">host</span><span class="p">,</span> <span class="nx">port</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">net</span><span class="p">.</span><span class="nf">SplitHostPort</span><span class="p">(</span><span class="s">&#34;192.0.2.0:8000&#34;</span><span class="p">)</span>
+<span class="nx">require</span><span class="p">.</span><span class="nf">NoError</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+<span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="s">&#34;192.0.2.0&#34;</span><span class="p">,</span> <span class="nx">host</span><span class="p">)</span>
+<span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="s">&#34;8000&#34;</span><span class="p">,</span> <span class="nx">port</span><span class="p">)</span>
+
+<span class="nx">host</span><span class="p">,</span> <span class="nx">port</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">net</span><span class="p">.</span><span class="nf">SplitHostPort</span><span class="p">(</span><span class="s">&#34;192.0.2.0:http&#34;</span><span class="p">)</span>
+<span class="nx">require</span><span class="p">.</span><span class="nf">NoError</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+<span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="s">&#34;192.0.2.0&#34;</span><span class="p">,</span> <span class="nx">host</span><span class="p">)</span>
+<span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="s">&#34;http&#34;</span><span class="p">,</span> <span class="nx">port</span><span class="p">)</span>
+
+<span class="nx">host</span><span class="p">,</span> <span class="nx">port</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">net</span><span class="p">.</span><span class="nf">SplitHostPort</span><span class="p">(</span><span class="s">&#34;:8000&#34;</span><span class="p">)</span>
+<span class="nx">require</span><span class="p">.</span><span class="nf">NoError</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+<span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">host</span><span class="p">)</span>
+<span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="s">&#34;8000&#34;</span><span class="p">,</span> <span class="nx">port</span><span class="p">)</span>
+
+<span class="nx">host</span><span class="p">,</span> <span class="nx">port</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">net</span><span class="p">.</span><span class="nf">SplitHostPort</span><span class="p">(</span><span class="s">&#34;1:8&#34;</span><span class="p">)</span>
+<span class="nx">require</span><span class="p">.</span><span class="nf">NoError</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+<span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="s">&#34;1&#34;</span><span class="p">,</span> <span class="nx">host</span><span class="p">)</span>
+<span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="s">&#34;8&#34;</span><span class="p">,</span> <span class="nx">port</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><em><strong>Good</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// func TestSplitHostPort(t *testing.T)
+</span><span class="c1"></span>
+<span class="nx">tests</span> <span class="o">:=</span> <span class="p">[]</span><span class="kd">struct</span><span class="p">{</span>
+  <span class="nx">give</span>     <span class="kt">string</span>
+  <span class="nx">wantHost</span> <span class="kt">string</span>
+  <span class="nx">wantPort</span> <span class="kt">string</span>
+<span class="p">}{</span>
+  <span class="p">{</span>
+    <span class="nx">give</span><span class="p">:</span>     <span class="s">&#34;192.0.2.0:8000&#34;</span><span class="p">,</span>
+    <span class="nx">wantHost</span><span class="p">:</span> <span class="s">&#34;192.0.2.0&#34;</span><span class="p">,</span>
+    <span class="nx">wantPort</span><span class="p">:</span> <span class="s">&#34;8000&#34;</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="nx">give</span><span class="p">:</span>     <span class="s">&#34;192.0.2.0:http&#34;</span><span class="p">,</span>
+    <span class="nx">wantHost</span><span class="p">:</span> <span class="s">&#34;192.0.2.0&#34;</span><span class="p">,</span>
+    <span class="nx">wantPort</span><span class="p">:</span> <span class="s">&#34;http&#34;</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="nx">give</span><span class="p">:</span>     <span class="s">&#34;:8000&#34;</span><span class="p">,</span>
+    <span class="nx">wantHost</span><span class="p">:</span> <span class="s">&#34;&#34;</span><span class="p">,</span>
+    <span class="nx">wantPort</span><span class="p">:</span> <span class="s">&#34;8000&#34;</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="nx">give</span><span class="p">:</span>     <span class="s">&#34;1:8&#34;</span><span class="p">,</span>
+    <span class="nx">wantHost</span><span class="p">:</span> <span class="s">&#34;1&#34;</span><span class="p">,</span>
+    <span class="nx">wantPort</span><span class="p">:</span> <span class="s">&#34;8&#34;</span><span class="p">,</span>
+  <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">tt</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">tests</span> <span class="p">{</span>
+  <span class="nx">t</span><span class="p">.</span><span class="nf">Run</span><span class="p">(</span><span class="nx">tt</span><span class="p">.</span><span class="nx">give</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">host</span><span class="p">,</span> <span class="nx">port</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">net</span><span class="p">.</span><span class="nf">SplitHostPort</span><span class="p">(</span><span class="nx">tt</span><span class="p">.</span><span class="nx">give</span><span class="p">)</span>
+    <span class="nx">require</span><span class="p">.</span><span class="nf">NoError</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">tt</span><span class="p">.</span><span class="nx">wantHost</span><span class="p">,</span> <span class="nx">host</span><span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">tt</span><span class="p">.</span><span class="nx">wantPort</span><span class="p">,</span> <span class="nx">port</span><span class="p">)</span>
+  <span class="p">})</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://github.com/uber-go/guide/blob/master/style.md">Uber Go Style Guide</a></li>
+<li><a href="https://tonybai.com/2019/10/12/uber-go-style-guide/">Uber Go语言编码规范</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2021-01-01
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/golang/">golang</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/chinese/20210101-poetry-tang-liuyuxi/">
+            <span class="next-text nav-default">[唐诗] 《元日感怀》</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2021
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
