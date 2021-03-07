@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="piaohua" /><meta name="description" content="MySQL 8.0 身份验证插件(caching_sha2_password) How caching_sha2_password works? Plugin caching_sha2_password works in two phases. 1. Fast authentication 2. Complete authentication If server has cached hash entry for given user in memory, it uses scramble sent by client to perform fast authentication. If it is" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="piaohua" /><meta name="description" content="MySQL 8.0 身份验证插件(caching_sha2_password) MySQL 5.6/5.7 默认身份验证插件是 mysql_native_password, 依赖于 SHA1 算法 MySQL 5.6 开始支持 sha256_password 身份验证插件。它使用加盐密码" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 
@@ -40,22 +40,22 @@
 
 
 <meta property="og:title" content="[MySQL] MySQL 8.0 身份验证插件(caching_sha2_password)" />
-<meta property="og:description" content="MySQL 8.0 身份验证插件(caching_sha2_password) How caching_sha2_password works? Plugin caching_sha2_password works in two phases. 1. Fast authentication 2. Complete authentication If server has cached hash entry for given user in memory, it uses scramble sent by client to perform fast authentication. If it is" />
+<meta property="og:description" content="MySQL 8.0 身份验证插件(caching_sha2_password) MySQL 5.6/5.7 默认身份验证插件是 mysql_native_password, 依赖于 SHA1 算法 MySQL 5.6 开始支持 sha256_password 身份验证插件。它使用加盐密码" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://piaohua.github.io/post/mysql/20210305-mysql-connecton/" />
 <meta property="article:published_time" content="2021-03-05T23:16:17+08:00" />
 <meta property="article:modified_time" content="2021-03-05T23:16:17+08:00" />
 <meta itemprop="name" content="[MySQL] MySQL 8.0 身份验证插件(caching_sha2_password)">
-<meta itemprop="description" content="MySQL 8.0 身份验证插件(caching_sha2_password) How caching_sha2_password works? Plugin caching_sha2_password works in two phases. 1. Fast authentication 2. Complete authentication If server has cached hash entry for given user in memory, it uses scramble sent by client to perform fast authentication. If it is">
+<meta itemprop="description" content="MySQL 8.0 身份验证插件(caching_sha2_password) MySQL 5.6/5.7 默认身份验证插件是 mysql_native_password, 依赖于 SHA1 算法 MySQL 5.6 开始支持 sha256_password 身份验证插件。它使用加盐密码">
 <meta itemprop="datePublished" content="2021-03-05T23:16:17&#43;08:00" />
 <meta itemprop="dateModified" content="2021-03-05T23:16:17&#43;08:00" />
-<meta itemprop="wordCount" content="223">
+<meta itemprop="wordCount" content="847">
 
 
 
 <meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="[MySQL] MySQL 8.0 身份验证插件(caching_sha2_password)"/>
-<meta name="twitter:description" content="MySQL 8.0 身份验证插件(caching_sha2_password) How caching_sha2_password works? Plugin caching_sha2_password works in two phases. 1. Fast authentication 2. Complete authentication If server has cached hash entry for given user in memory, it uses scramble sent by client to perform fast authentication. If it is"/>
+<meta name="twitter:description" content="MySQL 8.0 身份验证插件(caching_sha2_password) MySQL 5.6/5.7 默认身份验证插件是 mysql_native_password, 依赖于 SHA1 算法 MySQL 5.6 开始支持 sha256_password 身份验证插件。它使用加盐密码"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -133,8 +133,8 @@
         <div class="post-category">
             <a href="/categories/mysql/"> mysql </a>
             </div>
-          <span class="more-meta"> 223 words </span>
-          <span class="more-meta"> 1 min read </span>
+          <span class="more-meta"> 847 words </span>
+          <span class="more-meta"> 2 mins read </span>
         
       </div>
     </header>
@@ -144,6 +144,8 @@
   <div class="post-toc-content">
     <nav id="TableOfContents">
   <ul>
+    <li><a href="#fast-authentication">Fast authentication</a></li>
+    <li><a href="#complete-authentication">Complete authentication</a></li>
     <li><a href="#how-caching_sha2_password-works">How caching_sha2_password works?</a></li>
     <li><a href="#参考">参考</a></li>
   </ul>
@@ -154,6 +156,47 @@
       <blockquote>
 <p>MySQL 8.0 身份验证插件(caching_sha2_password)</p>
 </blockquote>
+<p><code>MySQL 5.6/5.7</code> 默认身份验证插件是 <code>mysql_native_password</code>, 依赖于 <code>SHA1</code> 算法</p>
+<p><code>MySQL 5.6</code> 开始支持 <code>sha256_password</code> 身份验证插件。它使用加盐密码（salted password）进行多轮 <code>SHA256</code>
+哈希，确保哈希值转换更安全。并且需要在安全连接(ssl)或密码使用 RSA 秘钥对加密传输</p>
+<p>从 <code>MySQL 8.0.3</code> 开始，引入了一个新的身份验证插件 <code>caching_sha2_password</code>。</p>
+<p>从 <code>MySQL 8.0.4</code> 开始，<code>caching_sha2_password</code> 插件成为 MySQL 服务器的新默认身份验证插件。</p>
+<p><code>caching_sha2_password</code> 尝试一个两全其美的结合，既解决SHA1安全性问题又解决多轮哈希性能问题。</p>
+<h2 id="fast-authentication">Fast authentication</h2>
+<ol>
+<li>客户端连接服务端</li>
+<li>服务端给客户端发送 Nonce（20 字节长的随机数据）</li>
+<li>客户端使用 XOR(SHA256(password), SHA256(SHA256(SHA256(password)), nonce)) 生成 Scramble 发送给服务端</li>
+<li>服务端检查 username/SHA256(SHA256(user_password)) 是否在内存缓存条目中存在，存在则证明合法；发送 fast_auth_success 包到客户端</li>
+<li>服务端发送 OK 包到客户端</li>
+<li>进入命令阶段</li>
+</ol>
+<h2 id="complete-authentication">Complete authentication</h2>
+<ol>
+<li>
+<p>客户端连接服务端</p>
+</li>
+<li>
+<p>服务端给客户端发送 Nonce（20 字节长的随机数据）</p>
+</li>
+<li>
+<p>客户端使用 XOR(SHA256(password), SHA256(SHA256(SHA256(password)), nonce)) 生成 Scramble 发送给服务端</p>
+</li>
+<li>
+<p>服务端检查 username/SHA256(SHA256(user_password)) 是否在内存缓存条目中存在，不存在则发送 perform_full_authentication 包到客户端继续认证</p>
+</li>
+<li>
+<p>客户端收到 perform_full_authentication 包，可以进行如下处理</p>
+<p>5.1 如果连接已经建立基于 SSL 的安全通道，则可以直接发送明文密码到服务端</p>
+<p>5.2 向服务端发起获取公钥的请求（或者指定服务端公钥文件），使用公钥+Nonce加密密码，发送加密后的密码到服务端</p>
+</li>
+<li>
+<p>服务器通过 SHA256 算法计算得到哈希值，判断是否用户认证通过，通过则发送 OK 包到客户端</p>
+</li>
+<li>
+<p>进入命令阶段</p>
+</li>
+</ol>
 <h2 id="how-caching_sha2_password-works">How caching_sha2_password works?</h2>
 <p>Plugin caching_sha2_password works in two phases.</p>
 <pre><code>1. Fast authentication
@@ -180,6 +223,9 @@ are not covered in the diagram below.</p>
 <li><a href="https://dev.mysql.com/doc/internals/en/public-key-retrieval-example.html">Public Key Retrieval Example</a></li>
 <li><a href="https://dev.mysql.com/doc/internals/en/auth-method-switch.html">Auth Method Switch</a></li>
 <li><a href="https://dev.mysql.com/doc/refman/8.0/en/creating-ssl-rsa-files.html">Creating SSL and RSA Certificates and Keys</a></li>
+<li><a href="https://mp.weixin.qq.com/s/jfoH6D8NfoaNN7eexbzKGA">MySQL 8.0密码认证机制</a></li>
+<li><a href="https://mp.weixin.qq.com/s/HBgSWEdRiuY3d3H0U_mh9A">MySQL 8.0：新的身份验证插件（caching_sha2_password）</a></li>
+<li><a href="https://mp.weixin.qq.com/s/7Dy4BadXl3hHPCbaOHfHTw">MySQL 8.0新的默认鉴权方式</a></li>
 </ul>
 
     </div>
