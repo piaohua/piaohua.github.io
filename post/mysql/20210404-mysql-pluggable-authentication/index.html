@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[MySQL] MySQL身份验证插件 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="MySQL身份验证插件(mysql_old_password、mysql_native_password、sha256_password、c" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/mysql/20210404-mysql-pluggable-authentication/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[MySQL] MySQL身份验证插件" />
+<meta property="og:description" content="MySQL身份验证插件(mysql_old_password、mysql_native_password、sha256_password、c" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20210404-mysql-pluggable-authentication/" />
+<meta property="article:published_time" content="2021-04-04T21:38:33+08:00" />
+<meta property="article:modified_time" content="2021-04-04T21:38:33+08:00" />
+<meta itemprop="name" content="[MySQL] MySQL身份验证插件">
+<meta itemprop="description" content="MySQL身份验证插件(mysql_old_password、mysql_native_password、sha256_password、c">
+<meta itemprop="datePublished" content="2021-04-04T21:38:33&#43;08:00" />
+<meta itemprop="dateModified" content="2021-04-04T21:38:33&#43;08:00" />
+<meta itemprop="wordCount" content="1920">
+
+
+
+<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[MySQL] MySQL身份验证插件"/>
+<meta name="twitter:description" content="MySQL身份验证插件(mysql_old_password、mysql_native_password、sha256_password、c"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[MySQL] MySQL身份验证插件</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2021-04-04 </span>
+        <div class="post-category">
+            <a href="/categories/mysql/"> mysql </a>
+            </div>
+          <span class="more-meta"> 1920 words </span>
+          <span class="more-meta"> 4 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#mysql_old_password">mysql_old_password</a></li>
+    <li><a href="#mysql_native_password">mysql_native_password</a></li>
+    <li><a href="#sha256_password">sha256_password</a></li>
+    <li><a href="#caching_sha2_password">caching_sha2_password</a></li>
+    <li><a href="#auth-switch">auth-switch</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>MySQL身份验证插件(mysql_old_password、mysql_native_password、sha256_password、caching_sha2_password)</p>
+</blockquote>
+<p>配置文件加密选项：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">[mysqld]
+default-authentication-plugin=mysql_native_password
+default-authentication-plugin=mysql_old_password
+default-authentication-plugin=sha256_password
+</code></pre></td></tr></table>
+</div>
+</div><p>命令行配置：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-mysql" data-lang="mysql"><span class="kt">set</span> <span class="n">old_password</span><span class="o">=</span><span class="mi">0</span> <span class="cm">/* mysql_native_password*/</span>
+<span class="kt">set</span> <span class="n">old_password</span><span class="o">=</span><span class="mi">1</span> <span class="cm">/* mysql_old_password */</span>
+<span class="kt">set</span> <span class="n">old_password</span><span class="o">=</span><span class="mi">2</span> <span class="cm">/* sha256_password */</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>创建用户并指定插件<code>sha256_password</code>给该用户</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-mysql" data-lang="mysql"><span class="k">CREATE</span> <span class="k">USER</span> <span class="s1">&#39;sha256user&#39;</span><span class="o">@</span><span class="s1">&#39;localhost&#39;</span> <span class="k">IDENTIFIED</span> <span class="k">BY</span> <span class="s1">&#39;password&#39;</span><span class="p">;</span>
+<span class="c1">#set old_password=2 /* sha256_password */
+</span><span class="c1"></span><span class="kt">SET</span> <span class="n">PASSWORD</span> <span class="k">FOR</span> <span class="s1">&#39;sha256user&#39;</span><span class="o">@</span><span class="s1">&#39;localhost&#39;</span> <span class="o">=</span> <span class="nf">PASSWORD</span><span class="p">(</span><span class="s1">&#39;password&#39;</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>如果要设置为非默认插件<code>mysql_native_password</code>,必须显示指定插件名称，
+且在设置密码前要设置<code>old_password</code>为相应的值。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-mysql" data-lang="mysql"><span class="k">CREATE</span> <span class="k">USER</span> <span class="s1">&#39;nativeuser&#39;</span><span class="o">@</span><span class="s1">&#39;localhost&#39;</span> <span class="k">IDENTIFIED</span> <span class="k">WITH</span> <span class="n">mysql_native_password</span><span class="p">;</span>
+<span class="kt">SET</span> <span class="n">old_password</span><span class="o">=</span><span class="mi">0</span> <span class="cm">/* mysql_native_password*/</span>
+<span class="kt">SET</span> <span class="n">PASSWORD</span> <span class="k">FOR</span> <span class="s1">&#39;nativeuser&#39;</span><span class="o">@</span><span class="s1">&#39;localhost&#39;</span> <span class="o">=</span> <span class="nf">PASSWORD</span><span class="p">(</span><span class="s1">&#39;N@tivePa33&#39;</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>如果<code>old_password</code>设置和插件不一致，修改密码时就会报错</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-mysql" data-lang="mysql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="kt">SET</span> <span class="n">old_passwords</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="kt">SET</span> <span class="n">PASSWORD</span> <span class="k">FOR</span> <span class="s1">&#39;sha256user&#39;</span><span class="o">@</span><span class="s1">&#39;localhost&#39;</span> <span class="o">=</span> <span class="nf">PASSWORD</span><span class="p">(</span><span class="s1">&#39;password&#39;</span><span class="p">);</span>
+<span class="n">ERROR</span> <span class="mi">1827</span> <span class="p">(</span><span class="n">HY000</span><span class="p">):</span> <span class="n">The</span> <span class="n">password</span> <span class="n">hash</span> <span class="n">doesn</span><span class="s1">&#39;t have the expected format.
+</span><span class="s1">Check if the correct password algorithm is being used with the
+</span><span class="s1">PASSWORD() function.
+</span></code></pre></td></tr></table>
+</div>
+</div><p>客户端通过<code>--default-auth</code>选项指定插件,<code>--secure-auth</code>选项开启可禁用旧格式的密码</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">mysql --default-auth<span class="o">=</span>mysql_native_password --secure-auth<span class="o">=</span>ON
+</code></pre></td></tr></table>
+</div>
+</div><p><code>PASSWORD</code>在MySQL 4.1以前的哈希方法生成一个16字节的字符串，4.1之后生成是41字节的哈希值
+4.1格式的密码散列始终以*字符开头，而4.1之前的格式的密码则永远不会以字符开头。
+4.1之前的密码散列和mysql_old_password插件在MySQL 5.6中已弃用，而对它们的支持在MySQL 5.7中已删除。</p>
+<h2 id="mysql_old_password">mysql_old_password</h2>
+<p>4.1之前版本</p>
+<ol>
+<li>服务器发送随机字符串 (scramble) 给客户端。</li>
+<li>客户端把用户明文密码加密一下，再将其与服务器发送的随机字符串加密一下，发送给服务端。</li>
+<li>服务端将 mysql.user.password 中的值加上原始随机字符串(scramble)进行加密，如果加密后的值和客户端发送过来的内容一样，则验证成功。</li>
+</ol>
+<p>mysql.user.password是明文密码的加密 hash 值; 如果有人知道了这个用户的 password 哈希值，而不用知道原始明文密码，实际上他就能直接登录服务器。</p>
+<h2 id="mysql_native_password">mysql_native_password</h2>
+<p>4.1 以后版本
+数据库中保存的密码是用 SHA1(SHA1(password)) 加密的，其流程为：</p>
+<ol>
+<li>服务器发送随机字符串 (scramble) 给客户端。</li>
+<li>客户端作如下计算，然后客户端将 token 发送给服务端。</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">    stage1_hash = SHA1(password)
+
+    token = SHA1(scramble + SHA1(stage1_hash)) XOR stage1_hash
+          = SHA1(scramble + SHA1(SHA1(password))) XOR SHA1(password)
+          = PASSWORD XOR SHA1(password)
+</code></pre></td></tr></table>
+</div>
+</div><ol start="3">
+<li>服务端作如下计算，校验时比对 SHA1(stage1_hash) 和 mysql.user.password 是否相同。</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">    stage1_hash = token XOR SHA1(scramble + mysql.user.password)
+                = token XOR PASSWORD
+                = [PASSWORD XOR SHA1(password)] XOR PASSWORD
+                = SHA1(password)
+</code></pre></td></tr></table>
+</div>
+</div><p>这里实际用到了异或的自反性： A XOR B XOR B = A ，对于给定的数 A，用同样的运算因子 B 作两次异或运算后仍得到 A 本身</p>
+<p>优点是响应机制非常快速，且不需要加密连接。 但是依赖SHA1算法，SHA1已经被证明不太安全。
+而且当两个账号密码相同时，mysql_native_password在mysql.user表中转换存储的信息是相同的。</p>
+<h2 id="sha256_password">sha256_password</h2>
+<p>从<code>MySQL 5.6</code>开始，支持<code>sha256_password</code>身份验证插件。 在加盐密码上使用了多轮SHA256哈希，以确保哈希转换更加安全。
+但是，它需要加密连接或支持RSA密钥对。因此，虽然密码安全性更高，但是安全连接和多轮哈希转换需要在身份验证过程中花费更多时间。</p>
+<h2 id="caching_sha2_password">caching_sha2_password</h2>
+<p>从 MySQL 8.0.3 开始，引入了一个新的身份验证插件<code>caching_sha2_password</code>。
+从<code>MySQL 8.0.4</code>开始，MySQL服务器的默认身份验证插件从<code>mysql_native_password</code>更改为<code>caching_sha2_password</code>。
+caching_sha2_password 尝试一个两全其美的结合，既解决SHA1安全性问题又解决多轮哈希性能问题。
+1、完整验证方式
+<img src="/mysql/full.jpeg" alt="" title="full"></p>
+<ol>
+<li>客户端连接服务端</li>
+<li>服务端给客户端发送 Nonce（20 字节长的随机数据）</li>
+<li>客户端使用 XOR(SHA256(password), SHA256(SHA256(SHA256(password)), nonce)) 生成 Scramble 发送给服务端</li>
+<li>服务端检查 username/SHA256(SHA256(user_password)) 是否在内存缓存条目中存在，不存在则发送 perform_full_authentication 包到客户端继续认证</li>
+<li>客户端收到 perform_full_authentication 包，可以进行如下处理
+5.1 如果连接已经建立基于 SSL 的安全通道，则可以直接发送明文密码到服务端
+5.2 向服务端发起获取公钥的请求（或者指定服务端公钥文件），使用公钥+Nonce加密密码，发送加密后的密码到服务端</li>
+<li>服务器通过 SHA256 算法计算得到哈希值，判断是否用户认证通过，通过则发送 OK 包到客户端</li>
+<li>进入命令阶段</li>
+</ol>
+<p>2、快速验证方式
+<img src="/mysql/fast.jpeg" alt="" title="fast"></p>
+<ol>
+<li>客户端连接服务端</li>
+<li>服务端给客户端发送 Nonce（20 字节长的随机数据）</li>
+<li>客户端使用 XOR(SHA256(password), SHA256(SHA256(SHA256(password)), nonce)) 生成 Scramble 发送给服务端</li>
+<li>服务端检查 username/SHA256(SHA256(user_password)) 是否在内存缓存条目中存在，存在则证明合法；发送 fast_auth_success 包到客户端</li>
+<li>服务端发送 OK 包到客户端</li>
+<li>进入命令阶段</li>
+</ol>
+<p>当用户密码变更或者重命名时将删除缓存的密码</p>
+<ol>
+<li>更改用户密码后，将删除所有此类用户的缓存密码哈希。可以通过ALTER USER / SET PASSWORD / GRANT更改密码。</li>
+<li>当使用RENAME USER重命名用户时，其密码哈希的缓存条目将从内存中删除。</li>
+<li>当执行FLUSH PRIVILEGES时，将删除所有缓存的密码哈希。</li>
+</ol>
+<h2 id="auth-switch">auth-switch</h2>
+<p>MySQL的默认身份验证插件修改，但是旧的验证方式依然可用，MySQL会通过auth-switch协议通知客户端切换至当前账号所需要的身份验证插件。</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://dev.mysql.com/doc/refman/8.0/en/authentication-plugins.html">Authentication Plugins</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/5.6/en/sha256-pluggable-authentication.html">sha256_password</a></li>
+<li><a href="https://www.cnblogs.com/qiumingcheng/p/10655142.html">MySQL 通讯协议</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2021-04-04
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/mysql/">mysql</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/linux/20210307-linux-ssh-proxy/">
+            <span class="next-text nav-default">[Linux] ssh端口转发</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2021
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
