@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[MySQL] MySQL 存储引擎的比较 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="转载自 MySql 存储引擎的比较 InnoDB 存储引擎 InnoDB 是事务性数据库的首选引擎，支持事务安全表（ACID），支持行锁定和外键。MySQL5.5.5 之后，Inno" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/mysql/20210523-mysql-engines-compare/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[MySQL] MySQL 存储引擎的比较" />
+<meta property="og:description" content="转载自 MySql 存储引擎的比较 InnoDB 存储引擎 InnoDB 是事务性数据库的首选引擎，支持事务安全表（ACID），支持行锁定和外键。MySQL5.5.5 之后，Inno" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20210523-mysql-engines-compare/" />
+<meta property="article:published_time" content="2021-05-23T12:33:14+08:00" />
+<meta property="article:modified_time" content="2021-05-23T12:33:14+08:00" />
+<meta itemprop="name" content="[MySQL] MySQL 存储引擎的比较">
+<meta itemprop="description" content="转载自 MySql 存储引擎的比较 InnoDB 存储引擎 InnoDB 是事务性数据库的首选引擎，支持事务安全表（ACID），支持行锁定和外键。MySQL5.5.5 之后，Inno">
+<meta itemprop="datePublished" content="2021-05-23T12:33:14&#43;08:00" />
+<meta itemprop="dateModified" content="2021-05-23T12:33:14&#43;08:00" />
+<meta itemprop="wordCount" content="1468">
+
+
+
+<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[MySQL] MySQL 存储引擎的比较"/>
+<meta name="twitter:description" content="转载自 MySql 存储引擎的比较 InnoDB 存储引擎 InnoDB 是事务性数据库的首选引擎，支持事务安全表（ACID），支持行锁定和外键。MySQL5.5.5 之后，Inno"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[MySQL] MySQL 存储引擎的比较</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2021-05-23 </span>
+        <div class="post-category">
+            <a href="/categories/mysql/"> mysql </a>
+            </div>
+          <span class="more-meta"> 1468 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#innodb-存储引擎">InnoDB 存储引擎</a></li>
+    <li><a href="#myisam-存储引擎">MyISAM 存储引擎</a></li>
+    <li><a href="#memory-存储引擎">MEMORY 存储引擎</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>转载自 <a href="https://www.purewhite.io/2017/05/20/mysql-engines-compare/">MySql 存储引擎的比较</a></p>
+</blockquote>
+<h2 id="innodb-存储引擎">InnoDB 存储引擎</h2>
+<p>InnoDB 是事务性数据库的首选引擎，支持事务安全表（ACID），支持行锁定和外键。MySQL5.5.5 之后，InnoDB 作为默认存储引擎。InnoDB 主要特性有：</p>
+<ul>
+<li>InnoDB 给 MySQL 提供了具有提交、回滚和崩溃恢复能力的事务安全（ACID 兼容）存储引擎。InnoDB 锁定在行级并且也在 SELECT 语句中提供一个类似 Oracle 的非锁定读。这些功能增加了多用户部署和性能。在 SQL 查询中，可以自由地将 InnoDB 类型的表与其他 MySQL 的表的类型混合起来，甚至在同一个查询中也可以混合。</li>
+<li>InnoDB 是为处理巨大数据量所设计的性能为重的，它的 CPU 效率可能是任何其他基于磁盘的关系数据库引擎所不能匹敌的。</li>
+<li>InnoDB 存储引擎完全与 MySQL 服务器整合，InnoDB 存储引擎在主内存中维持了自己的缓冲池来缓存数据和索引。InnoDB 将它的表和索引存在一个逻辑表空间中，表空间可以包含数个文件（或原始磁盘分区）。这与 MyISAM 表不同，比如在 MyISAM 表中每个表被存在分离的文件中。InnoDB 表可以是任何尺寸，即使在文件尺寸被限制在 2GB 的操作系统上。</li>
+<li>InnoDB 支持外键完整性约束（FOREIGN KEY）。存储表中的数据时，每张表的存储都按主键顺序存放，如果没有显式在表定义时制定主键，InnoDB 会为每一行生成一个 6B 的 ROWID，并以此作为主键。</li>
+<li>InnoDB 被用在众多需要高性能的大型数据库站点上。</li>
+<li>InnoDB 不创建目录，使用 InnoDB 时，MySQL 将在 MySQL 数据目录下创建一个名为 ibdata1 的 10MB 大小的自动扩展数据文件，以及两个名为 ib_logfile0 和 ib_logfile1 的 5MB 大小的日志文件。</li>
+</ul>
+<h2 id="myisam-存储引擎">MyISAM 存储引擎</h2>
+<p>MyISAM 是基于 ISAM 的存储引擎，并对其进行扩展。它是在 Web、数据存储和其他应用环境下最常使用的存储引擎之一。MyISAM 拥有较高的插入、查询速度，但不支持事务。在 MySQL5.5.5 之前的版本中，MyISAM 是默认存储引擎。MyISAM 主要特性有：</p>
+<ul>
+<li>大文件（达 63 位文件长度）在支持大文件的文件系统和操作系统上被支持。</li>
+<li>当把删除、更新及插入操作混合使用的时候，动态尺寸的行产生更少碎片。这要通过合并相邻被删除的块，以及若下一个块被删除，就扩展到下一块来自动完成。</li>
+<li>每个 MyISAM 表最大索引数是 64，这可以通过重新编译来改变。每个索引最大的列数是 16 个。</li>
+<li>最大的键长度是 1000B，这也可以通过编译来改变。对于键长度超过 250B 的情况，一个超过 1024B 的键将被用上。</li>
+<li>BLOB 和 TEXT 列可以被索引。</li>
+<li>NULL 值被允许在索引的列中。这个值占每个键的 0-1 个字节。</li>
+<li>所有数字键值以高字节优先被存储以允许一个更高的索引压缩。</li>
+<li>每表一个 AUTO_INCREMENT 列的内部处理。MyISAM 为 INSERT 和 UPDATE 操作自动更新这一列。这使得 AUTO_INCREMENT 列更快（至少 10%）。在序列项的值被删除之后就不能再利用。</li>
+<li>可以把数据文件和索引文件放在不同目录。</li>
+<li>每个字符列可以有不同的字符集。</li>
+<li>有 VARCHAR 的表可以固定或动态记录长度。</li>
+<li>VARCHAR 和 CHAR 列可以多达 64KB。</li>
+<li>使用 MyISAM 引擎创建数据库，将产生 3 个文件。文件的名字以表的名字开始，扩展名代表了文件的类型：frm 文件存储表定义，myd 代表数据文件，myi 代表索引文件。</li>
+</ul>
+<h2 id="memory-存储引擎">MEMORY 存储引擎</h2>
+<p>MEMORY 存储引擎将表中的数据存储到内存中，为查询和引用其他表数据提供快速访问。MEMORY 主要特性有：</p>
+<ul>
+<li>MEMORY 表的每个表可以有多达 32 个索引，每个索引 16 列，以及 500B 的最大键长度。</li>
+<li>MEMORY 存储引擎执行 HASH 和 BTREE 索引。</li>
+<li>可以在一个 MEMORY 表中有非唯一键。</li>
+<li>MEMORY 表使用一个固定的记录长度格式。</li>
+<li>MEMORY 不支持 BLOG 或 TEXT 列。</li>
+<li>MEMORY 支持 AUTO_INCREMENT 列和对可包含 NULL 值的列的索引。</li>
+<li>MEMORY 表在所有客户端之间共享（就像其他任何非 TEMPORARY 表）。</li>
+<li>MEMORY 表内容被存在内存中，内存是 MEMORY 表和服务器在查询处理时的空闲中创建的内部表共享的。</li>
+<li>当不再需要 MEMORY 表的内容时，要释放被 MEMORY 表使用的内存，应该执行 DELETE FROM 或 TRUNCATE TABLE，或者删除整个表（用 DROP TABLE）。</li>
+</ul>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://www.purewhite.io/2017/05/20/mysql-engines-compare/">MySql 存储引擎的比较</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2021-05-23
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/mysql/">mysql</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/mysql/20210523-mysql-master-slaves/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[MySQL] 用Docker搭建MySQL主从多节点集群</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/mysql/20210523-mysql-cluster/">
+            <span class="next-text nav-default">[MySQL] MySQL Cluster on docker-compose</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2021
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

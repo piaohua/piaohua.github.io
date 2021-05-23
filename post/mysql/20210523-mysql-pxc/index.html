@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[MySQL] Percona XtraDB Cluster on docker-compose - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="Percona XtraDB Cluster on docker-compose 选择percona/percona-xtradb-cluster:5.7版本，搭建一个3节点的集群; 使用haproxy做反向代理负" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/mysql/20210523-mysql-pxc/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[MySQL] Percona XtraDB Cluster on docker-compose" />
+<meta property="og:description" content="Percona XtraDB Cluster on docker-compose 选择percona/percona-xtradb-cluster:5.7版本，搭建一个3节点的集群; 使用haproxy做反向代理负" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20210523-mysql-pxc/" />
+<meta property="article:published_time" content="2021-05-23T11:40:17+08:00" />
+<meta property="article:modified_time" content="2021-05-23T11:40:17+08:00" />
+<meta itemprop="name" content="[MySQL] Percona XtraDB Cluster on docker-compose">
+<meta itemprop="description" content="Percona XtraDB Cluster on docker-compose 选择percona/percona-xtradb-cluster:5.7版本，搭建一个3节点的集群; 使用haproxy做反向代理负">
+<meta itemprop="datePublished" content="2021-05-23T11:40:17&#43;08:00" />
+<meta itemprop="dateModified" content="2021-05-23T11:40:17&#43;08:00" />
+<meta itemprop="wordCount" content="857">
+
+
+
+<meta itemprop="keywords" content="mysql,docker," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[MySQL] Percona XtraDB Cluster on docker-compose"/>
+<meta name="twitter:description" content="Percona XtraDB Cluster on docker-compose 选择percona/percona-xtradb-cluster:5.7版本，搭建一个3节点的集群; 使用haproxy做反向代理负"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[MySQL] Percona XtraDB Cluster on docker-compose</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2021-05-23 </span>
+        <div class="post-category">
+            <a href="/categories/mysql/"> mysql </a>
+            <a href="/categories/docker/"> docker </a>
+            </div>
+          <span class="more-meta"> 857 words </span>
+          <span class="more-meta"> 2 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#docker-composeyaml">docker-compose.yaml</a></li>
+    <li><a href="#haproxycfg">haproxy.cfg</a></li>
+    <li><a href="#keepalivedcfg">keepalived.cfg</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>Percona XtraDB Cluster on docker-compose</p>
+</blockquote>
+<p>选择<code>percona/percona-xtradb-cluster:5.7</code>版本，搭建一个3节点的集群;</p>
+<p>使用<code>haproxy</code>做反向代理负载均衡，用<code>keepalived</code>实现<code>haproxy</code>的高可用</p>
+<p>启动脚本见<a href="https://github.com/piaohua/mysql-pxc">mysql-pxc</a></p>
+<h2 id="docker-composeyaml">docker-compose.yaml</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="k">version</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;3&#39;</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="k">services</span><span class="p">:</span><span class="w">
+</span><span class="w"> </span><span class="k">mysql-node-1</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">image</span><span class="p">:</span><span class="w"> </span>percona/percona-xtradb-cluster<span class="p">:</span><span class="m">5.7</span><span class="w">
+</span><span class="w">  </span><span class="k">container_name</span><span class="p">:</span><span class="w"> </span>mysql-node<span class="m">-1</span><span class="w">
+</span><span class="w">  </span><span class="k">hostname</span><span class="p">:</span><span class="w"> </span>mysql-node<span class="m">-1</span><span class="w">
+</span><span class="w">  </span><span class="k">privileged</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="w">  </span><span class="k">networks</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span><span class="k">cluster-network</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">ipv4_address</span><span class="p">:</span><span class="w"> </span><span class="m">172.18.0.2</span><span class="w">
+</span><span class="w">  </span><span class="k">expose</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span>- <span class="m">3306</span><span class="w">
+</span><span class="w">  </span><span class="k">volumes</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span>- node1-data<span class="p">:</span>/var/lib/mysql<span class="w">
+</span><span class="w">  </span><span class="k">environment</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span>- CLUSTER_NAME=mysql-cluster-test<span class="w">
+</span><span class="w">   </span>- MYSQL_ROOT_PASSWORD=a123456<span class="w">
+</span><span class="w">   </span>- XTRABACKUP_PASSWORD=a123456<span class="w">  
+</span><span class="w">   </span>- MYSQL_DATABASE=appdb<span class="w">
+</span><span class="w">   </span>- MYSQL_USER=RoyBatty<span class="w">
+</span><span class="w">   </span>- MYSQL_PASSWORD=RoyBatty2019<span class="w">
+</span><span class="w">  
+</span><span class="w"> </span><span class="k">mysql-node-2</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">image</span><span class="p">:</span><span class="w"> </span>percona/percona-xtradb-cluster<span class="p">:</span><span class="m">5.7</span><span class="w">
+</span><span class="w">  </span><span class="k">container_name</span><span class="p">:</span><span class="w"> </span>mysql-node<span class="m">-2</span><span class="w">
+</span><span class="w">  </span><span class="k">hostname</span><span class="p">:</span><span class="w"> </span>mysql-node<span class="m">-2</span><span class="w">
+</span><span class="w">  </span><span class="k">privileged</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="w">  </span><span class="k">networks</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span><span class="k">cluster-network</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">ipv4_address</span><span class="p">:</span><span class="w"> </span><span class="m">172.18.0.3</span><span class="w">
+</span><span class="w">  </span><span class="k">expose</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span>- <span class="m">3306</span><span class="w">
+</span><span class="w">  </span><span class="k">volumes</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span>- node2-data<span class="p">:</span>/var/lib/mysql<span class="w">
+</span><span class="w">  </span><span class="k">environment</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span>- CLUSTER_NAME=mysql-cluster-test<span class="w">
+</span><span class="w">   </span>- MYSQL_ROOT_PASSWORD=a123456<span class="w">
+</span><span class="w">   </span>- XTRABACKUP_PASSWORD=a123456<span class="w">  
+</span><span class="w">   </span>- CLUSTER_JOIN=mysql-node<span class="m">-1</span><span class="w">
+</span><span class="w">  </span><span class="k">depends_on</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span>- mysql-node<span class="m">-1</span><span class="w">
+</span><span class="w">
+</span><span class="w"> </span><span class="k">mysql-node-3</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">image</span><span class="p">:</span><span class="w"> </span>percona/percona-xtradb-cluster<span class="p">:</span><span class="m">5.7</span><span class="w">
+</span><span class="w">  </span><span class="k">container_name</span><span class="p">:</span><span class="w"> </span>mysql-node<span class="m">-3</span><span class="w">
+</span><span class="w">  </span><span class="k">hostname</span><span class="p">:</span><span class="w"> </span>mysql-node<span class="m">-3</span><span class="w">
+</span><span class="w">  </span><span class="k">privileged</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="w">  </span><span class="k">networks</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span><span class="k">cluster-network</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">ipv4_address</span><span class="p">:</span><span class="w"> </span><span class="m">172.18.0.4</span><span class="w">
+</span><span class="w">  </span><span class="k">expose</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span>- <span class="m">3306</span><span class="w">
+</span><span class="w">  </span><span class="k">volumes</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span>- node3-data<span class="p">:</span>/var/lib/mysql<span class="w">
+</span><span class="w">  </span><span class="k">environment</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span>- CLUSTER_NAME=mysql-cluster-test<span class="w">
+</span><span class="w">   </span>- MYSQL_ROOT_PASSWORD=a123456<span class="w">
+</span><span class="w">   </span>- XTRABACKUP_PASSWORD=a123456<span class="w">  
+</span><span class="w">   </span>- CLUSTER_JOIN=mysql-node<span class="m">-1</span><span class="w">
+</span><span class="w">  </span><span class="k">depends_on</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span>- mysql-node<span class="m">-1</span><span class="w">
+</span><span class="w">   </span>- mysql-node<span class="m">-2</span><span class="w">
+</span><span class="w">
+</span><span class="w"> </span><span class="k">mysql-shell</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">image</span><span class="p">:</span><span class="w"> </span>neumayer/mysql-shell-batch<span class="w">
+</span><span class="w">  </span><span class="k">container_name</span><span class="p">:</span><span class="w"> </span>mysql-shell-batch<span class="m">-1</span><span class="w">
+</span><span class="w">  </span><span class="k">networks</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span><span class="k">cluster-network</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">ipv4_address</span><span class="p">:</span><span class="w"> </span><span class="m">172.18.0.20</span><span class="w">
+</span><span class="w">  </span><span class="k">volumes</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span>- ./scripts/<span class="p">:</span>/scripts/<span class="w">
+</span><span class="w">  </span><span class="k">environment</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span>- MYSQL_USER=root<span class="w">
+</span><span class="w">   </span>- MYSQL_HOST=mysql-node<span class="m">-1</span><span class="w">
+</span><span class="w">   </span>- MYSQL_PORT=<span class="m">3306</span><span class="w">
+</span><span class="w">   </span>- MYSQL_PASSWORD=a123456<span class="w">
+</span><span class="w">   </span>- MYSQL_SCRIPT=/scripts/db.sql<span class="w">
+</span><span class="w">  </span><span class="k">depends_on</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span>- mysql-node<span class="m">-1</span><span class="w">
+</span><span class="w">   </span>- mysql-node<span class="m">-2</span><span class="w">
+</span><span class="w">   </span>- mysql-node<span class="m">-3</span><span class="w">
+</span><span class="w">
+</span><span class="w"> </span><span class="k">haproxy-keepalived1</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">image</span><span class="p">:</span><span class="w"> </span>pelin/haproxy-keepalived<span class="w">
+</span><span class="w">  </span><span class="k">container_name</span><span class="p">:</span><span class="w"> </span>haproxy-keepalived<span class="m">-1</span><span class="w">
+</span><span class="w">  </span><span class="k">volumes</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span>- ./haproxy.cfg<span class="p">:</span>/usr/local/etc/haproxy/haproxy.cfg<span class="w">
+</span><span class="w">   </span>- ./keepalived.cfg<span class="p">:</span>/etc/keepalived/keepalived.conf<span class="w">
+</span><span class="w">  </span><span class="k">networks</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span><span class="k">cluster-network</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">ipv4_address</span><span class="p">:</span><span class="w"> </span><span class="m">172.18.0.7</span><span class="w">
+</span><span class="w">  </span><span class="k">ports</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span>- <span class="s2">&#34;4001:8888&#34;</span><span class="w">
+</span><span class="w">   </span>- <span class="s2">&#34;4002:3306&#34;</span><span class="w">
+</span><span class="w">  </span><span class="k">depends_on</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span>- mysql-node<span class="m">-1</span><span class="w">
+</span><span class="w">   </span>- mysql-node<span class="m">-2</span><span class="w">
+</span><span class="w">   </span>- mysql-node<span class="m">-3</span><span class="w">
+</span><span class="w">
+</span><span class="w"> </span><span class="k">haproxy-keepalived2</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">image</span><span class="p">:</span><span class="w"> </span>pelin/haproxy-keepalived<span class="w">
+</span><span class="w">  </span><span class="k">container_name</span><span class="p">:</span><span class="w"> </span>haproxy-keepalived<span class="m">-2</span><span class="w">
+</span><span class="w">  </span><span class="k">volumes</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span>- ./haproxy.cfg<span class="p">:</span>/usr/local/etc/haproxy/haproxy.cfg<span class="w">
+</span><span class="w">   </span>- ./keepalived.cfg<span class="p">:</span>/etc/keepalived/keepalived.conf<span class="w">
+</span><span class="w">  </span><span class="k">networks</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span><span class="k">cluster-network</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">ipv4_address</span><span class="p">:</span><span class="w"> </span><span class="m">172.18.0.8</span><span class="w">
+</span><span class="w">  </span><span class="k">ports</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span>- <span class="s2">&#34;4003:8888&#34;</span><span class="w">
+</span><span class="w">   </span>- <span class="s2">&#34;4004:3306&#34;</span><span class="w">
+</span><span class="w">  </span><span class="k">depends_on</span><span class="p">:</span><span class="w">
+</span><span class="w">   </span>- mysql-node<span class="m">-1</span><span class="w">
+</span><span class="w">   </span>- mysql-node<span class="m">-2</span><span class="w">
+</span><span class="w">   </span>- mysql-node<span class="m">-3</span><span class="w">
+</span><span class="w">   </span>- haproxy-keepalived1<span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="k">volumes</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">node1-data</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">node2-data</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">node3-data</span><span class="p">:</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="k">networks</span><span class="p">:</span><span class="w">
+</span><span class="w"> </span><span class="k">cluster-network</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">driver</span><span class="p">:</span><span class="w"> </span>bridge<span class="w">
+</span><span class="w">  </span><span class="k">ipam</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">driver</span><span class="p">:</span><span class="w"> </span>default<span class="w">
+</span><span class="w">    </span><span class="k">config</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span>- <span class="k">subnet</span><span class="p">:</span><span class="w"> </span><span class="m">172.18.0.0</span>/<span class="m">24</span><span class="w">
+</span></code></pre></td></tr></table>
+</div>
+</div><h2 id="haproxycfg">haproxy.cfg</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-cfg" data-lang="cfg"><span class="na">global</span>
+    <span class="c1">#工作目录</span>
+    <span class="na">chroot /usr/local/etc/haproxy</span>
+    <span class="c1">#日志文件，使用rsyslog服务中local5日志设备（/var/log/local5），等级info</span>
+    <span class="na">log 127.0.0.1 local5 info</span>
+    <span class="c1">#守护进程运行</span>
+    <span class="na">daemon</span>
+
+<span class="na">defaults</span>
+    <span class="na">log global</span>
+    <span class="na">mode    http</span>
+    <span class="c1">#日志格式</span>
+    <span class="na">option  httplog</span>
+    <span class="c1">#日志中不记录负载均衡的心跳检测记录</span>
+    <span class="na">option  dontlognull</span>
+    <span class="c1">#连接超时（毫秒）</span>
+    <span class="na">timeout connect 5000</span>
+    <span class="c1">#客户端超时（毫秒）</span>
+    <span class="na">timeout client  50000</span>
+    <span class="c1">#服务器超时（毫秒）</span>
+    <span class="na">timeout server  50000</span>
+
+<span class="c1">#监控界面   </span>
+<span class="na">listen  admin_stats</span>
+    <span class="c1">#监控界面的访问的IP和端口</span>
+    <span class="na">bind  0.0.0.0:8888</span>
+    <span class="c1">#访问协议</span>
+    <span class="na">mode        http</span>
+    <span class="c1">#URI相对地址</span>
+    <span class="na">stats uri   /dbs</span>
+    <span class="c1">#统计报告格式</span>
+    <span class="na">stats realm     Global\ statistics</span>
+    <span class="c1">#登陆帐户信息</span>
+    <span class="na">stats auth  admin:abc123456</span>
+<span class="c1">#数据库负载均衡</span>
+<span class="na">listen  proxy-mysql</span>
+    <span class="c1">#访问的IP和端口</span>
+    <span class="na">bind  0.0.0.0:3306  </span>
+    <span class="c1">#网络协议</span>
+    <span class="na">mode  tcp</span>
+    <span class="c1">#负载均衡算法（轮询算法）</span>
+    <span class="c1">#轮询算法：roundrobin</span>
+    <span class="c1">#权重算法：static-rr</span>
+    <span class="c1">#最少连接算法：leastconn</span>
+    <span class="c1">#请求源IP算法：source </span>
+    <span class="na">balance  roundrobin</span>
+    <span class="c1">#日志格式</span>
+    <span class="na">option  tcplog</span>
+    <span class="c1">#在MySQL中创建一个没有权限的haproxy用户，密码为空。Haproxy使用这个账户对MySQL数据库心跳检测</span>
+    <span class="c1">#CREATE USER IF NOT EXISTS &#39;haproxy&#39;@&#39;%&#39; IDENTIFIED BY &#39;&#39;;FLUSH PRIVILEGES;</span>
+    <span class="na">option  mysql-check user haproxy</span>
+    <span class="na">server  Mysql-1 mysql-node-1:3306 check weight 1 maxconn 2000  </span>
+    <span class="na">server  Mysql-2 mysql-node-2:3306 check weight 1 maxconn 2000  </span>
+    <span class="na">server  Mysql-3 mysql-node-3:3306 check weight 1 maxconn 2000 </span>
+    <span class="c1">#使用keepalive检测死链</span>
+    <span class="na">option  tcpka</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="keepalivedcfg">keepalived.cfg</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-cfg" data-lang="cfg"><span class="na">vrrp_instance  VI_1 {</span>
+    <span class="na">state  MASTER</span>
+    <span class="na">interface  eth0</span>
+    <span class="na">virtual_router_id  51</span>
+    <span class="na">priority  100</span>
+    <span class="na">advert_int  1</span>
+    <span class="na">authentication {</span>
+        <span class="na">auth_type  PASS</span>
+        <span class="na">auth_pass  aaa123456</span>
+    <span class="na">}</span>
+    <span class="na">virtual_ipaddress {</span>
+        <span class="na">172.18.0.201</span>
+    <span class="na">}</span>
+<span class="na">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://github.com/piaohua/mysql-pxc">mysql-pxc</a></li>
+<li><a href="https://github.com/percona/percona-xtradb-cluster">A High Scalability Solution for MySQL Clustering and High Availability</a></li>
+<li><a href="https://www.percona.com/blog/2016/06/10/percona-xtradb-cluster-in-a-multi-host-docker-network/">Running Percona XtraDB Cluster in a multi-host Docker network</a></li>
+<li><a href="https://github.com/Percona-Lab/percona-xtradb-cluster-docker">Percona XtraDB Cluster docker image</a></li>
+<li><a href="https://www.percona.com/blog/2014/01/17/keepalived-reader-writer-vip-percona-xtradb-cluster/">keepalived with reader and writer VIPs for Percona XtraDB Cluster</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2021-05-23
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/mysql/">mysql</a>
+          <a href="/tags/docker/">docker</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/mysql/20210523-mysql-cluster/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[MySQL] MySQL Cluster on docker-compose</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/golang/20210518-golang-unicode/">
+            <span class="next-text nav-default">[Go] Golang Unicode</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2021
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
