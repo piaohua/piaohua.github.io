@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[MySQL] MySQL redolog undolog binlog - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="MySQL redolog undolog binlog ySQL中有六种日志文件，分别是： 重做日志（redo log）、回滚日志（undo log）、二进制日志（binlog）、错误日志（er" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/mysql/20210529-mysql-log/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[MySQL] MySQL redolog undolog binlog" />
+<meta property="og:description" content="MySQL redolog undolog binlog ySQL中有六种日志文件，分别是： 重做日志（redo log）、回滚日志（undo log）、二进制日志（binlog）、错误日志（er" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20210529-mysql-log/" />
+<meta property="article:published_time" content="2021-05-29T10:04:33+08:00" />
+<meta property="article:modified_time" content="2021-05-29T10:04:33+08:00" />
+<meta itemprop="name" content="[MySQL] MySQL redolog undolog binlog">
+<meta itemprop="description" content="MySQL redolog undolog binlog ySQL中有六种日志文件，分别是： 重做日志（redo log）、回滚日志（undo log）、二进制日志（binlog）、错误日志（er">
+<meta itemprop="datePublished" content="2021-05-29T10:04:33&#43;08:00" />
+<meta itemprop="dateModified" content="2021-05-29T10:04:33&#43;08:00" />
+<meta itemprop="wordCount" content="2879">
+
+
+
+<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[MySQL] MySQL redolog undolog binlog"/>
+<meta name="twitter:description" content="MySQL redolog undolog binlog ySQL中有六种日志文件，分别是： 重做日志（redo log）、回滚日志（undo log）、二进制日志（binlog）、错误日志（er"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[MySQL] MySQL redolog undolog binlog</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2021-05-29 </span>
+        <div class="post-category">
+            <a href="/categories/mysql/"> mysql </a>
+            </div>
+          <span class="more-meta"> 2879 words </span>
+          <span class="more-meta"> 6 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#redo-log">redo log</a></li>
+    <li><a href="#undo-log">undo log</a></li>
+    <li><a href="#binlog">binlog</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>MySQL redolog undolog binlog</p>
+</blockquote>
+<p>ySQL中有六种日志文件，分别是：
+重做日志（redo log）、回滚日志（undo log）、二进制日志（binlog）、错误日志（errorlog）、慢查询日志（slow query log）、
+一般查询日志（general log），中继日志（relay log）</p>
+<p>MySQL更新数据的基础流程
+<img src="/mysql/mysql-log.image" alt="mysql-log" title="mysql log">
+图片来源：(<a href="https://juejin.cn/post/6914930251663409159">https://juejin.cn/post/6914930251663409159</a>)</p>
+<h2 id="redo-log">redo log</h2>
+<p>确保事务的持久性。
+防止在发生故障的时间点，尚有脏页未写入磁盘，在重启mysql服务的时候，根据redo log进行重做，从而达到事务的持久性这一特性。
+redo log是InnoDB引擎层实现的，让InnoDB具备carsh-safe的能力。</p>
+<p>redo log是物理格式的日志，记录的是物理数据页面的修改的信息，其是顺序写入redo log file的物理文件中去的。
+相对于直接把数据写磁盘来说性能更高，因为直接写数据是随机写入， redo log是固定大小的，当写到结尾时会覆盖从头循环写入。</p>
+<p>事务开始之后就产生redo log，redo log的落盘并不是随着事务的提交才写入的，而是在事务的执行过程中，便开始写入redo log文件中。</p>
+<p>当对应事务的脏页写入到磁盘之后，redo log的使命也就完成了，重做日志占用的空间就可以重用（被覆盖）。</p>
+<p>默认情况下，对应的物理文件位于数据库的data目录下的ib_logfile1&amp;ib_logfile2</p>
+<p>innodb_log_group_home_dir 指定日志文件组所在的路径，默认./ ，表示在数据库的数据目录下。</p>
+<p>innodb_log_files_in_group 指定重做日志文件组中文件的数量，默认2</p>
+<p>innodb_log_file_size 重做日志文件的大小。</p>
+<p>innodb_mirrored_log_groups 指定了日志镜像文件组的数量，默认1</p>
+<p><img src="/mysql/redo-log.png" alt="redo log" title="redo-log"></p>
+<p>redolog的两阶段提交</p>
+<ul>
+<li>
+<p>先读取数据，并更新然后将新行数据保存在内存中</p>
+</li>
+<li>
+<p>将物理更新记录写入redo-log，并标记这条记录为prepare状态（第一步）</p>
+</li>
+<li>
+<p>InnoDB将操作提交到执行器，执行器再将逻辑更新记录写入bin-log，同时调用引擎的写入和更新接口将磁盘文件更新</p>
+</li>
+<li>
+<p>上一步操作完成后再提交事物，将redo-log中对应的记录状态改为commit状态（第二步）</p>
+</li>
+<li>
+<p>返回更新结果</p>
+</li>
+</ul>
+<p><img src="/mysql/redo-log-commit.webp" alt="redo log" title="redo-log"></p>
+<h2 id="undo-log">undo log</h2>
+<p>保存事务发生之前的数据的一个版本，可以用于回滚，实现事务的原子性，同时可以提供多版本并发控制下的读（MVCC），也即非锁定读。</p>
+<p>逻辑格式的日志，在执行undo的时候，仅仅是将数据从逻辑上恢复至事务之前的状态，而不是从物理页面上操作实现的，这一点是不同于redo log。</p>
+<p>事务开始之前，将当前是的版本生成undo log，undo 也会产生 redo 来保证undo log的可靠性</p>
+<p>当事务提交之后，undo log并不能立马被删除，而是放入待清理的链表，由purge线程判断是否由其他事务
+在使用undo段中表的上一个事务之前的版本信息，决定是否可以清理undo log的日志空间。</p>
+<p>对应的物理文件：MySQL5.6之前，undo表空间位于共享表空间的回滚段中，共享表空间的默认的名称是ibdata，位于数据文件目录中。</p>
+<p>MySQL5.6之后，undo表空间可以配置成独立的文件，但是提前需要在配置文件中配置，完成数据库初始化后生效且不可改变undo log文件的个数，如果初始化数据库之前没有进行相关配置，那么就无法配置成独立的表空间了。</p>
+<p>MySQL5.7之后的独立undo表空间配置参数如下:</p>
+<p>innodb_undo_directory = /data/undospace/ &ndash;undo独立表空间的存放目录</p>
+<p>innodb_undo_logs = 128 &ndash;回滚段为128KB</p>
+<p>innodb_undo_tablespaces = 4 &ndash;指定有4个undo log文件</p>
+<p>如果undo使用的共享表空间，这个共享表空间中又不仅仅是存储了undo的信息，
+共享表空间的默认为与MySQL的数据目录下面，其属性由参数innodb_data_file_path配置。</p>
+<h2 id="binlog">binlog</h2>
+<p>redo log适用于崩溃恢复(crash-safe)，binlog则适用于主从复制和数据恢复。
+用于复制，在主从复制中，从库利用主库上的binlog进行重播，实现主从同步。
+用于数据库的基于时间点的还原。 binlog是Server层实现的，所有引擎都可以使用 binlog日志。</p>
+<p>逻辑格式的日志，和物理日志不同，逻辑日志记录的记录具体数据是怎么变动的，其记录的是一个过程。
+undo log、binlog、relay log都属于逻辑日志，记录数据的变动过程或SQL语句的逻辑。</p>
+<p>比如sql语句（增删改）操作：</p>
+<p>delete 对应记录 delete本身和其反向的insert</p>
+<p>update 对应记录 update执行前后的版本的信息</p>
+<p>insert 对应记录 delete和insert本身的信息</p>
+<p>binlog的默认是保持时间由参数expire_logs_days配置，在生成时间超过expire_logs_days配置的天数之后，会被自动删除。</p>
+<p>配置文件的路径为log_bin_basename，binlog日志文件通过max_binlog_size参数指定每个binlog文件大小，</p>
+<p>binlog 通过追加的方式记录，当文件大小大于给定值后 ，进行滚动更新，生成新的日志文件。</p>
+<p>对于每个binlog日志文件，通过一个统一的index文件来组织。</p>
+<p>mysql通过sync_binlog参数控制biglog的刷盘时机，取值范围是0-N：</p>
+<ul>
+<li>0：不去强制要求，由系统自行判断何时写入磁盘；</li>
+<li>1：每次commit的时候都要将binlog写入磁盘；</li>
+<li>N：每N个事务，才会将binlog写入磁盘。
+sync_binlog最安全的是设置是1，这也是MySQL 5.7.7之后版本的默认值</li>
+</ul>
+<p>binlog 日志有三种格式, STATEMENT, ROW 和 MIXED.</p>
+<p>在 MySQL 5.7.7之前，默认的格式是STATEMENT，MySQL 5.7.7之后，默认值是ROW。日志格式通过binlog-format指定。</p>
+<ul>
+<li>
+<p>STATMENT : 基于SQL语句的复制(statement-based replication, SBR)，每一条会修改数据的sql语句会记录到binlog中。</p>
+<ul>
+<li>优点：不需要记录每一行的变化，减少了binlog日志量，节约了IO, 从而提高了性能；</li>
+<li>缺点：在某些情况下会导致主从数据不一致，比如执行sysdate()、slepp()等。</li>
+</ul>
+</li>
+<li>
+<p>ROW : 基于行的复制(row-based replication, RBR)，不记录每条sql语句的上下文信息，仅需记录哪条数据被修改了。</p>
+<ul>
+<li>
+<p>优点：不会出现某些特定情况下的存储过程、或function、或trigger的调用和触发无法被正确复制的问题；</p>
+</li>
+<li>
+<p>缺点：会产生大量的日志，尤其是alter table的时候会让日志暴涨</p>
+</li>
+</ul>
+</li>
+<li>
+<p>MIXED : 基于STATMENT和ROW两种模式的混合复制(mixed-based replication, MBR)，
+一般的复制使用STATEMENT模式保存binlog，对于STATEMENT模式无法复制的操作使用ROW模式保存binlog.</p>
+</li>
+</ul>
+<p>MySQL主从复制原理图</p>
+<p><img src="/mysql/mysql-master-slave-relaylog.image" alt="binlog" title="binlog"></p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://mp.weixin.qq.com/s/5i9wmJs4_Er7RaYfNnETyA">MySQL 的 crash-safe 原理解析</a></li>
+<li><a href="https://juejin.cn/post/6914930251663409159">MySQL不会丢失数据的秘密，就藏在它的 7种日志里</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/56188735">InnoDB源码分析 Redo log</a></li>
+<li><a href="http://kernelmaker.github.io/InnoDB_redo_log">InnoDB源码分析 Redo log</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/109417488">庖丁解InnoDB之REDO LOG</a></li>
+<li><a href="http://mysql.taobao.org/monthly/2019/08/03/">MySQL · 引擎特性 · 8.0 Innodb redo log record 源码分析</a></li>
+<li><a href="http://mysql.taobao.org/monthly/2015/05/01/">MySQL · 引擎特性 · InnoDB redo log漫游</a></li>
+<li><a href="http://liuyangming.tech/08-2019/MySQL-8-flush-opt.html">MySQL8——REDO无锁重构剖析</a></li>
+<li><a href="http://liuyangming.tech/05-2019/InnoDB-Mtr.html">InnoDB——Btree与MTR的牵扯</a></li>
+<li><a href="http://liuyangming.tech/06-2019/MySQL-binlog.html">MySQL5.7——不得不了解的Binlog</a></li>
+<li><a href="https://mysqlserverteam.com/mysql-8-0-new-lock-free-scalable-wal-design/">MySQL 8.0: New Lock free, scalable WAL design</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/101360871">MYSQL无锁化WAL系统</a></li>
+<li><a href="http://mysql.taobao.org/monthly/2018/06/01/">MySQL · 特性分析 · 8.0 对WAL的设计修改</a></li>
+<li><a href="http://mysql.taobao.org/monthly/2019/03/03/">MySQL · InnoDB · Redo log</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2021-05-29
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/mysql/">mysql</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/mysql/20210523-mysql-master-slaves/">
+            <span class="next-text nav-default">[MySQL] 用Docker搭建MySQL主从多节点集群</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2021
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
