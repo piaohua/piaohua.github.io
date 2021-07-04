@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[MySQL] MySQL Binlog 初识 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="原文 Mysql日志 MySQL 的日志包括错误日志（ErrorLog），更新日志（Update Log），二进制日志（Binlog），查询日志（Query" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/mysql/20210612-mysql-binlog/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[MySQL] MySQL Binlog 初识" />
+<meta property="og:description" content="原文 Mysql日志 MySQL 的日志包括错误日志（ErrorLog），更新日志（Update Log），二进制日志（Binlog），查询日志（Query" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20210612-mysql-binlog/" />
+<meta property="article:published_time" content="2021-06-12T15:39:42+08:00" />
+<meta property="article:modified_time" content="2021-06-12T15:39:42+08:00" />
+<meta itemprop="name" content="[MySQL] MySQL Binlog 初识">
+<meta itemprop="description" content="原文 Mysql日志 MySQL 的日志包括错误日志（ErrorLog），更新日志（Update Log），二进制日志（Binlog），查询日志（Query">
+<meta itemprop="datePublished" content="2021-06-12T15:39:42&#43;08:00" />
+<meta itemprop="dateModified" content="2021-06-12T15:39:42&#43;08:00" />
+<meta itemprop="wordCount" content="5504">
+
+
+
+<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[MySQL] MySQL Binlog 初识"/>
+<meta name="twitter:description" content="原文 Mysql日志 MySQL 的日志包括错误日志（ErrorLog），更新日志（Update Log），二进制日志（Binlog），查询日志（Query"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[MySQL] MySQL Binlog 初识</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2021-06-12 </span>
+        <div class="post-category">
+            <a href="/categories/mysql/"> mysql </a>
+            </div>
+          <span class="more-meta"> 5504 words </span>
+          <span class="more-meta"> 11 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p><a href="https://segmentfault.com/a/1190000012171617">原文</a></p>
+</blockquote>
+<p>Mysql日志</p>
+<p>MySQL 的日志包括错误日志（ErrorLog），更新日志（Update Log），二进制日志（Binlog），查询日志（Query Log），慢查询日志（Slow Query Log）等；
+更新日志是老版本的MySQL 才有的，目前已经被二进制日志替代；在默认情况下，系统仅仅打开错误日志，关闭了其他所有日志，以达到尽可能减少IO损耗提高系统，
+性能的目的，但是在一般稍微重要一点的实际应用场景中，都至少需要打开二进制日志，因为这是MySQL很多存储引擎进行增量备份的基础，也是MySQL实现复制的基本条件；</p>
+<p>下面介绍的就是二进制日志–Binlog。</p>
+<p>Binlog开启</p>
+<p>默认Binlog是关闭的，首先要开启才能记录日志；</p>
+<p>1.查看是否开启log_bin</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-mysql" data-lang="mysql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="n">variables</span> <span class="k">like</span> <span class="s1">&#39;log_bin&#39;</span><span class="p">;</span>
+<span class="o">+---------------+-------+</span>
+<span class="o">|</span> <span class="n">Variable_name</span> <span class="o">|</span> <span class="n">Value</span> <span class="o">|</span>
+<span class="o">+---------------+-------+</span>
+<span class="o">|</span> <span class="n">log_bin</span>       <span class="o">|</span> <span class="n">OFF</span>   <span class="o">|</span>
+<span class="o">+---------------+-------+</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>2.开启log_bin</p>
+<p>在my.ini中添加配置：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">log_bin=D:/mysql/bin-log.log
+</code></pre></td></tr></table>
+</div>
+</div><p>3.重启mysql，再次查看</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-mysql" data-lang="mysql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="n">variables</span> <span class="k">like</span> <span class="s1">&#39;log_bin&#39;</span><span class="p">;</span>
+<span class="o">+---------------+-------+</span>
+<span class="o">|</span> <span class="n">Variable_name</span> <span class="o">|</span> <span class="n">Value</span> <span class="o">|</span>
+<span class="o">+---------------+-------+</span>
+<span class="o">|</span> <span class="n">log_bin</span>       <span class="o">|</span> <span class="k">ON</span>    <span class="o">|</span>
+<span class="o">+---------------+-------+</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>4.查看Binlog</p>
+<p>4.1显示binlog的名称和大小</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-mysql" data-lang="mysql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="k">binary</span> <span class="n">logs</span><span class="p">;</span>
+<span class="o">+----------------+-----------+</span>
+<span class="o">|</span> <span class="n">Log_name</span>       <span class="o">|</span> <span class="n">File_size</span> <span class="o">|</span>
+<span class="o">+----------------+-----------+</span>
+<span class="o">|</span> <span class="n">bin</span><span class="o">-</span><span class="n">log</span><span class="p">.</span><span class="mi">000001</span> <span class="o">|</span>       <span class="mi">107</span> <span class="o">|</span>
+<span class="o">+----------------+-----------+</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>4.2查看生成的binlog</p>
+<p>想用查看到binlog可以往数据库中更新数据库(包括：插入，更新和删除操作)，查询sql是无法生成binlog的</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">mysql&gt; show binlog events;
++----------------+------+-------------+-----------+-------------+---------------------------------------------------------------+
+| Log_name       | Pos  | Event_type  | Server_id | End_log_pos | Info |
++----------------+------+-------------+-----------+-------------+---------------------------------------------------------------+
+| bin-log.000001 |    4 | Format_desc |         1 |         107 | Server ver: 5.  5.29-log, Binlog ver: 4                         |
+| bin-log.000001 |  107 | Query       |         1 |         175 | BEGIN |
+| bin-log.000001 |  175 | Intvar      |         1 |         203 | INSERT_ID=9 |
+| bin-log.000001 |  203 | Query       |         1 |         315 | use `test`; in sert into user (age,name) values(100,&#34;zhaohui&#34;) |
+| bin-log.000001 |  315 | Xid         |         1 |         342 | COMMIT /* xid= 41 */                                           |
++----------------+------+-------------+-----------+-------------+--------------- ------------------------------------------------+
+</code></pre></td></tr></table>
+</div>
+</div><p>Binlog相关参数
+通过执行如下命令可以获得关于Binlog 的相关参数：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">mysql&gt; show variables like &#39;%binlog%&#39;;
++-----------------------------------------+----------------------+
+| Variable_name                           | Value                |
++-----------------------------------------+----------------------+
+| binlog_cache_size                       | 32768                |
+| binlog_direct_non_transactional_updates | OFF                  |
+| binlog_format                           | STATEMENT            |
+| binlog_stmt_cache_size                  | 32768                |
+| innodb_locks_unsafe_for_binlog          | OFF                  |
+| max_binlog_cache_size                   | 18446744073709547520 |
+| max_binlog_size                         | 1073741824           |
+| max_binlog_stmt_cache_size              | 18446744073709547520 |
+| sync_binlog                             | 0                    |
++-----------------------------------------+----------------------+
+</code></pre></td></tr></table>
+</div>
+</div><p>1.binlog_cache_size</p>
+<p>在事务过程中容纳binlog SQL语句的缓存大小；binlog缓存是服务器支持事务存储引擎并且服务器启用了二进制日志(—log-bin选项)的前提下为每个Session分配的内存；
+主要是用来提高binlog的写速度；可以通过MySQL的以下个状态变量来判断当前的binlog_cache_size的状况：Binlog_cache_use和Binlog_cache_disk_use</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">mysql&gt; show status like &#39;Binlog_cache%&#39;;
++-----------------------+-------+
+| Variable_name         | Value |
++-----------------------+-------+
+| Binlog_cache_disk_use | 0     |
+| Binlog_cache_use      | 4     |
++-----------------------+-------+
+</code></pre></td></tr></table>
+</div>
+</div><p>Binlog_cache_use：使用缓冲区存放binlog的次数
+Binlog_cache_disk_use：使用临时文件存放binlog的次数</p>
+<p>2.binlog_stmt_cache_size</p>
+<p>发生事务时非事务语句的缓存的大小，可以通过MySQL 的以下个状态变量来判断当前的binlog_stmt_cache_size的状况：Binlog_stmt_cache_use和Binlog_stmt_cache_disk_use</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">mysql&gt; show status like &#39;binlog_stmt_cache%&#39;;
++----------------------------+-------+
+| Variable_name              | Value |
++----------------------------+-------+
+| Binlog_stmt_cache_disk_use | 0     |
+| Binlog_stmt_cache_use      | 1     |
++----------------------------+-------+
+</code></pre></td></tr></table>
+</div>
+</div><p>Binlog_stmt_cache_use：缓冲区存放binlog的次数
+Binlog_stmt_cache_disk_use：临时文件存放binlog的次数</p>
+<p>3.max_binlog_cache_size</p>
+<p>和binlog_cache_size相对应，但是所代表的是binlog能够使用的最大cache内存大小；binlog_cache_size对应的每个Session，max_binlog_cache_size对应所有Session；
+当我们执行多语句事务的时候，所有Session的使用的内存超过max_binlog_cache_size的值时，系统可能会报出”Multi-statement transaction required more than ‘max_binlog_cache_size’ bytes of storage”的错误。</p>
+<p>4.max_binlog_stmt_cache_size</p>
+<p>同max_binlog_cache_size类似，非事务语句binlog能够使用的最大cache内存大小。</p>
+<p>5.max_binlog_size</p>
+<p>Binlog日志最大值，默认1G，。该大小并不能非常严格控制Binlog大小，尤其是当到达Binlog比较靠近尾部而又遇到一个较大事务的时候，系统为了保证事务的完整性，不可能做切换日志的动作，只能将该事务的所有SQL都记录进入当前日志，直到该事务结束。</p>
+<p>6.sync_binlog</p>
+<p>同步binlog缓存中数据到磁盘的方式：
+sync_binlog=0
+当事务提交之后，MySQL不做fsync之类的磁盘同步指令刷新binlog_cache中的信息到磁盘，而让Filesystem自行决定什么时候来做同步，或者cache满了之后才同步到磁盘；
+sync_binlog=n（区间0-4294967295）
+当每进行n次事务提交之后，MySQL将进行一次fsync之类的磁盘同步指令来将binlog_cache中的数据强制写入磁盘；</p>
+<p>系统默认设置为0，这种情况下性能最好，风险最大，可能导致binlog_cache中的数据丢失；sync_binlog=1性能最差，风险最小。</p>
+<p>7.binlog_format</p>
+<p>设置binlog的格式，可选值：STATEMENT, ROW, or MIXED；默认是：STATEMENT</p>
+<p>7.1 ROW模式</p>
+<p>日志中记录成每一行数据被修改的形式，然后在slave端再对相同的数据进行修改；
+在ROW模式下bin-log中可以不记录执行的SQL语句的上下文相关的信息，只需要记录哪条数据被修改成什么样了，不会因为某些语法复制出现问题（比如function，trigger等）；
+缺点是每行数据的修改都会记录，最明显的就是update语句，导致更新多少条数据就会产生多少事件，使bin-log文件很大，而复制要网络传输，影响性能。</p>
+<p>7.2 STATEMENT模式</p>
+<p>每一条修改数据的sql都会被记录到bin-log中，slave端再根据sql语句重现，解决了ROW模式的缺点，不会产生大量是bin-log数据；
+缺点是为了让sql能在slave端正确重现，需要记录sql在执行的上下文信息，另外一个问题就是在复制某些特殊的函数或者功能的时候会出现问题，比如sleep()函数。</p>
+<p>7.3 MIXED模式</p>
+<p>前面两种模式的结合，根据不同的情况分别使用ROW模式和STATEMENT模式。</p>
+<p>更多参数详见：https://dev.mysql.com/doc/refman/5.7/en/replication-options-binary-log.html</p>
+<p>Binlog结构和内容
+日志由一组二进制日志文件（Binlog）,加上一个索引文件（index）；Binlog是一个二进制文件集合，每个Binlog以一个4字节的魔数开头，接着是一组Events；
+1.魔数：0xfe62696e对应的是0xfe’b”i”n’；
+2.Event：每个Event包含header和data两个部分；header提供了Event的创建时间，哪个服务器等信息，data部分提供的是针对该Event的具体信息，如具体数据的修改；
+3.第一个Event用于描述binlog文件的格式版本，这个格式就是event写入binlog文件的格式；
+4.其余的Event按照第一个Event的格式版本写入；
+5.最后一个Event用于说明下一个binlog文件；
+6.Binlog的索引文件是一个文本文件，其中内容为当前的binlog文件列表，比如：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">D:\mysql\bin-log.000001
+</code></pre></td></tr></table>
+</div>
+</div><p>参考：https://dev.mysql.com/doc/internals/en/binary-log-structure-and-contents.html</p>
+<p>Binlog的Event类型
+官方提供的可能Event类型有36种，具体看下面的枚举：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">enum Log_event_type { 
+  UNKNOWN_EVENT= 0, 
+  START_EVENT_V3= 1, 
+  QUERY_EVENT= 2, 
+  STOP_EVENT= 3, 
+  ROTATE_EVENT= 4, 
+  INTVAR_EVENT= 5, 
+  LOAD_EVENT= 6, 
+  SLAVE_EVENT= 7, 
+  CREATE_FILE_EVENT= 8, 
+  APPEND_BLOCK_EVENT= 9, 
+  EXEC_LOAD_EVENT= 10, 
+  DELETE_FILE_EVENT= 11, 
+  NEW_LOAD_EVENT= 12, 
+  RAND_EVENT= 13, 
+  USER_VAR_EVENT= 14, 
+  FORMAT_DESCRIPTION_EVENT= 15, 
+  XID_EVENT= 16, 
+  BEGIN_LOAD_QUERY_EVENT= 17, 
+  EXECUTE_LOAD_QUERY_EVENT= 18, 
+  TABLE_MAP_EVENT = 19, 
+  PRE_GA_WRITE_ROWS_EVENT = 20, 
+  PRE_GA_UPDATE_ROWS_EVENT = 21, 
+  PRE_GA_DELETE_ROWS_EVENT = 22, 
+  WRITE_ROWS_EVENT = 23, 
+  UPDATE_ROWS_EVENT = 24, 
+  DELETE_ROWS_EVENT = 25, 
+  INCIDENT_EVENT= 26, 
+  HEARTBEAT_LOG_EVENT= 27, 
+  IGNORABLE_LOG_EVENT= 28,
+  ROWS_QUERY_LOG_EVENT= 29,
+  WRITE_ROWS_EVENT = 30,
+  UPDATE_ROWS_EVENT = 31,
+  DELETE_ROWS_EVENT = 32,
+  GTID_LOG_EVENT= 33,
+  ANONYMOUS_GTID_LOG_EVENT= 34,
+  PREVIOUS_GTIDS_LOG_EVENT= 35, 
+  ENUM_END_EVENT 
+  /* end marker */
+};
+</code></pre></td></tr></table>
+</div>
+</div><p>参考：https://dev.mysql.com/doc/internals/en/event-classes-and-types.html</p>
+<p>Event结构官网提供了3个版本，分别是v1，v3，v4：</p>
+<p>v1：用在MySQL 3.23</p>
+<p>v3：用在MySQL 4.0.2-4.1</p>
+<p>v4：用在MySQL 5.0之后</p>
+<p>现在MySQL的版本基本都使用5.0之后的版本，可以直接看v4，具体如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">+=====================================+
+| event  | timestamp         0 : 4    |
+| header +----------------------------+
+|        | type_code         4 : 1    |
+|        +----------------------------+
+|        | server_id         5 : 4    |
+|        +----------------------------+
+|        | event_length      9 : 4    |
+|        +----------------------------+
+|        | next_position    13 : 4    |
+|        +----------------------------+
+|        | flags            17 : 2    |
+|        +----------------------------+
+|        | extra_headers    19 : x-19 |
++=====================================+
+| event  | fixed part        x : y    |
+| data   +----------------------------+
+|        | variable part              |
++=====================================+
+</code></pre></td></tr></table>
+</div>
+</div><p>名字后面的两个数字表示：offset : length即从第几个字节开始，后面多少个字节用来存放数据
+比如：timestamp(0 : 4)表示从第0个字节开始，往后四个字节用来存放timestamp
+目前来说x=19，所有extra_headers是空的，y是fixed part的长度，不同的Event长度不一样。</p>
+<p>参考：https://dev.mysql.com/doc/internals/en/event-structure.html</p>
+<p>Event简要分析</p>
+<p>1.从一个最简单的实例来分析其中的Event，包括创建表，插入数据，更新数据，删除数据；binlog_format使用的是默认的STATEMENT；</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-mysql" data-lang="mysql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">btest</span><span class="o">`</span> <span class="p">(</span>
+  <span class="o">`</span><span class="n">id</span><span class="o">`</span> <span class="kt">bigint</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="k">NOT</span> <span class="no">NULL</span> <span class="kp">AUTO_INCREMENT</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">age</span><span class="o">`</span> <span class="kt">int</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="no">NULL</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">name</span><span class="o">`</span> <span class="kt">varchar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="no">NULL</span><span class="p">,</span>
+  <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">)</span>
+<span class="p">)</span> <span class="kp">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span> <span class="k">DEFAULT</span> <span class="kp">CHARSET</span><span class="o">=</span><span class="n">utf8</span>
+ 
+<span class="k">insert</span> <span class="k">into</span> <span class="n">btest</span> <span class="k">values</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="s1">&#39;zhaohui&#39;</span><span class="p">);</span>
+ 
+<span class="k">update</span> <span class="n">btest</span> <span class="kt">set</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;zhaohui_new&#39;</span> <span class="k">where</span> <span class="n">id</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+ 
+<span class="k">delete</span> <span class="k">from</span> <span class="n">btest</span> <span class="k">where</span> <span class="n">id</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>2.查看所有的Events</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-mysql" data-lang="mysql"><span class="k">show</span> <span class="n">binlog</span> <span class="n">events</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="/mysql/mysql-binlog01.jpeg" alt="mysql-binlog" title="mysql binlog"></p>
+<p>上图中一共出现了3中类型的Event，分别是Format_desc，Query和Xid，下面进行简单的分析</p>
+<p>2.1 Format_desc_Event</p>
+<p>官网格式如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">+=====================================+
+| event  | timestamp         0 : 4    |
+| header +----------------------------+
+|        | type_code         4 : 1    | = FORMAT_DESCRIPTION_EVENT = 15
+|        +----------------------------+
+|        | server_id         5 : 4    |
+|        +----------------------------+
+|        | event_length      9 : 4    | &gt;= 91
+|        +----------------------------+
+|        | next_position    13 : 4    |
+|        +----------------------------+
+|        | flags            17 : 2    |
++=====================================+
+| event  | binlog_version   19 : 2    | = 4
+| data   +----------------------------+
+|        | server_version   21 : 50   |
+|        +----------------------------+
+|        | create_timestamp 71 : 4    |
+|        +----------------------------+
+|        | header_length    75 : 1    |
+|        +----------------------------+
+|        | post-header      76 : n    | = array of n bytes, one byte per event
+|        | lengths for all            |   type that the server knows about
+|        | event types                |
++=====================================+
+</code></pre></td></tr></table>
+</div>
+</div><p>使用十六进制方式打开文件bin-log.000001：</p>
+<p><img src="/mysql/mysql-binlog02.jpeg" alt="mysql-binlog" title="mysql binlog"></p>
+<p>可以先看前面的4+103=107个字节，4字节是binlog的魔数，103字节是Format_desc_Event，其中有19字节是header；
+注:Binlog日志是小端字节顺序
+0x5A0504AA四个字节是timestamp；0x0F一个字节表示type_code；0x00000001四个字节为server_id；0x00000067四个字节是event_length，对应的十进制就是103；
+0x0000006b四个字节是next_position，即下一个Event的开始位置为107；ox0001两个字节是flags；header总计19字节。
+data总字节数=103-19即84字节，排除掉前面的57个字节，剩余27字节表示post-header lengths for all event types；
+post-header lengths：从START_EVENT_V3开始到第27个Event，每个Event的fixed part lengths；
+Format_desc_Event位置是15，可以在图中找到15的位置是0x54，对应十进制是84，即fixed part lengths=84，而这个值刚好是57+27=84，所以Format_desc_Event不存在variable part；</p>
+<p>参考：https://dev.mysql.com/doc/internals/en/binary-log-versions.html</p>
+<p>2.2 Query_Event</p>
+<p><img src="/mysql/mysql-binlog03.png" alt="mysql-binlog" title="mysql binlog"></p>
+<p>header共19字节，0x02一个字节表示type_code（Query_Event=2）;0x00000101四个字节是event_length，对应的十进制就是257（pos=107，End_log_pos=364）;
+Query_Event在post-header的第二个位置0x0d，所有fix part lengths=13；
+variable part=257-19-13=225字节
+具体fix data和variable data：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">+==============================================================+
+| fix    | The ID of the thread                      19 : 4    | 
+| data   +-----------------------------------------------------+
+|        | The time in seconds                       23 : 4    |
+|        +-----------------------------------------------------+
+|        | The length of the name of the database    27 : 1    |
+|        +-----------------------------------------------------+
+|        | The error code                            28 : 2    |
+|        +-----------------------------------------------------+
+|        | The length of the status variable block   30 : 2    | 
++==============================================================+
+</code></pre></td></tr></table>
+</div>
+</div><p>在创建表产生一个Query_Event，insert、update以及delete执行之后分别产生了2个Query_Event和一个Xid_Event。</p>
+<p>更多详细：https://dev.mysql.com/doc/internals/en/event-data-for-specific-event-types.html</p>
+<p>2.3 Xid_Event</p>
+<p><img src="/mysql/mysql-binlog04.jpeg" alt="mysql-binlog" title="mysql binlog"></p>
+<p>header共19字节，0x10一个字节表示type_code（XID_EVENT=16）;0x0000001b四个字节是event_length，对应的十进制就是27（pos=536，End_log_pos=563）;
+2Xid_Event在post-header的第十六个位置0x00，所有fix part lengths=0；
+variable part=27-19=8字节
+8字节：The XID transaction number。</p>
+<p>insert、update以及delete执行之后分别产生了Xid_Event，事务提交产生的事件。</p>
+<p>更多详细：https://dev.mysql.com/doc/internals/en/event-data-for-specific-event-types.html</p>
+<p>总结</p>
+<p>本文主要对Mysql Binlog做了一个大体的介绍，包括：Binlog的参数，格式以及最重要的事件；事件数量比较多，从最简单的增删改查入手，介绍了几个比较常见的事件；
+后续会继续学习其他事件，对Binlog有更加详细的了解。</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2021-06-12
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/mysql/">mysql</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/mysql/20210612-mysql-insert-id/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[MySQL] MySQL Insert Id</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/mysql/20210529-mysql-log/">
+            <span class="next-text nav-default">[MySQL] MySQL redolog undolog binlog</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2021
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
