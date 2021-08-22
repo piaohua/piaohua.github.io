@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Docker] Etcd Cluster - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="Docker 部署 Etcd 集群 拉取镜像 选择一个镜像拉取 1 2 3 4 5 6 7 docker pull gcr.io/etcd-development/etcd:v3.5.0 docker pull quay.io/coreos/etcd:v3.5.0 docker pull bitnami/etcd:latest docker pull k8s.gcr.io/etcd:3.4.13-0 运行容器 使用gcr.io/etcd-development/etc" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/docker/20210822-docker-etcd-cluster/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Docker] Etcd Cluster" />
+<meta property="og:description" content="Docker 部署 Etcd 集群 拉取镜像 选择一个镜像拉取 1 2 3 4 5 6 7 docker pull gcr.io/etcd-development/etcd:v3.5.0 docker pull quay.io/coreos/etcd:v3.5.0 docker pull bitnami/etcd:latest docker pull k8s.gcr.io/etcd:3.4.13-0 运行容器 使用gcr.io/etcd-development/etc" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/docker/20210822-docker-etcd-cluster/" />
+<meta property="article:published_time" content="2021-08-22T15:33:44+08:00" />
+<meta property="article:modified_time" content="2021-08-22T15:33:44+08:00" />
+<meta itemprop="name" content="[Docker] Etcd Cluster">
+<meta itemprop="description" content="Docker 部署 Etcd 集群 拉取镜像 选择一个镜像拉取 1 2 3 4 5 6 7 docker pull gcr.io/etcd-development/etcd:v3.5.0 docker pull quay.io/coreos/etcd:v3.5.0 docker pull bitnami/etcd:latest docker pull k8s.gcr.io/etcd:3.4.13-0 运行容器 使用gcr.io/etcd-development/etc">
+<meta itemprop="datePublished" content="2021-08-22T15:33:44&#43;08:00" />
+<meta itemprop="dateModified" content="2021-08-22T15:33:44&#43;08:00" />
+<meta itemprop="wordCount" content="996">
+
+
+
+<meta itemprop="keywords" content="docker," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Docker] Etcd Cluster"/>
+<meta name="twitter:description" content="Docker 部署 Etcd 集群 拉取镜像 选择一个镜像拉取 1 2 3 4 5 6 7 docker pull gcr.io/etcd-development/etcd:v3.5.0 docker pull quay.io/coreos/etcd:v3.5.0 docker pull bitnami/etcd:latest docker pull k8s.gcr.io/etcd:3.4.13-0 运行容器 使用gcr.io/etcd-development/etc"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Docker] Etcd Cluster</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2021-08-22 </span>
+        <div class="post-category">
+            <a href="/categories/docker/"> docker </a>
+            </div>
+          <span class="more-meta"> 996 words </span>
+          <span class="more-meta"> 2 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#拉取镜像">拉取镜像</a></li>
+    <li><a href="#运行容器">运行容器</a></li>
+    <li><a href="#创建etcd集群">创建etcd集群</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>Docker 部署 Etcd 集群</p>
+</blockquote>
+<h2 id="拉取镜像">拉取镜像</h2>
+<p>选择一个镜像拉取</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">docker pull gcr.io/etcd-development/etcd:v3.5.0
+
+docker pull quay.io/coreos/etcd:v3.5.0
+
+docker pull bitnami/etcd:latest
+
+docker pull k8s.gcr.io/etcd:3.4.13-0
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="运行容器">运行容器</h2>
+<p>使用gcr.io/etcd-development/etcd:v3.5.0镜像启动容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">rm -rf /tmp/etcd-data.tmp <span class="o">&amp;&amp;</span> mkdir -p /tmp/etcd-data.tmp <span class="o">&amp;&amp;</span> <span class="se">\
+</span><span class="se"></span>  docker rmi gcr.io/etcd-development/etcd:v3.5.0 <span class="o">||</span> <span class="nb">true</span> <span class="o">&amp;&amp;</span> <span class="se">\
+</span><span class="se"></span>  docker run <span class="se">\
+</span><span class="se"></span>  -p 2379:2379 <span class="se">\
+</span><span class="se"></span>  -p 2380:2380 <span class="se">\
+</span><span class="se"></span>  --mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/tmp/etcd-data.tmp,destination<span class="o">=</span>/etcd-data <span class="se">\
+</span><span class="se"></span>  --name etcd-gcr-v3.5.0 <span class="se">\
+</span><span class="se"></span>  gcr.io/etcd-development/etcd:v3.5.0 <span class="se">\
+</span><span class="se"></span>  /usr/local/bin/etcd <span class="se">\
+</span><span class="se"></span>  --name s1 <span class="se">\
+</span><span class="se"></span>  --data-dir /etcd-data <span class="se">\
+</span><span class="se"></span>  --listen-client-urls http://0.0.0.0:2379 <span class="se">\
+</span><span class="se"></span>  --advertise-client-urls http://0.0.0.0:2379 <span class="se">\
+</span><span class="se"></span>  --listen-peer-urls http://0.0.0.0:2380 <span class="se">\
+</span><span class="se"></span>  --initial-advertise-peer-urls http://0.0.0.0:2380 <span class="se">\
+</span><span class="se"></span>  --initial-cluster <span class="nv">s1</span><span class="o">=</span>http://0.0.0.0:2380 <span class="se">\
+</span><span class="se"></span>  --initial-cluster-token tkn <span class="se">\
+</span><span class="se"></span>  --initial-cluster-state new <span class="se">\
+</span><span class="se"></span>  --log-level info <span class="se">\
+</span><span class="se"></span>  --logger zap <span class="se">\
+</span><span class="se"></span>  --log-outputs stderr
+
+<span class="c1"># 进入容器执行指令</span>
+docker <span class="nb">exec</span> etcd-gcr-v3.5.0 /bin/sh -c <span class="s2">&#34;/usr/local/bin/etcd --version&#34;</span>
+docker <span class="nb">exec</span> etcd-gcr-v3.5.0 /bin/sh -c <span class="s2">&#34;/usr/local/bin/etcdctl version&#34;</span>
+docker <span class="nb">exec</span> etcd-gcr-v3.5.0 /bin/sh -c <span class="s2">&#34;/usr/local/bin/etcdctl endpoint health&#34;</span>
+docker <span class="nb">exec</span> etcd-gcr-v3.5.0 /bin/sh -c <span class="s2">&#34;/usr/local/bin/etcdctl put foo bar&#34;</span>
+docker <span class="nb">exec</span> etcd-gcr-v3.5.0 /bin/sh -c <span class="s2">&#34;/usr/local/bin/etcdctl get foo&#34;</span>
+docker <span class="nb">exec</span> etcd-gcr-v3.5.0 /bin/sh -c <span class="s2">&#34;/usr/local/bin/etcdutl version&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>使用bitnami/etcd:latest镜像启动容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh"><span class="c1"># Create a network</span>
+$ docker network create app-tier --driver bridge
+
+<span class="c1"># Launch the etcd server instance</span>
+$ docker run -d --name etcd-server <span class="se">\
+</span><span class="se"></span>    --network app-tier <span class="se">\
+</span><span class="se"></span>    --publish 2379:2379 <span class="se">\
+</span><span class="se"></span>    --publish 2380:2380 <span class="se">\
+</span><span class="se"></span>    --env <span class="nv">ALLOW_NONE_AUTHENTICATION</span><span class="o">=</span>yes <span class="se">\
+</span><span class="se"></span>    --env <span class="nv">ETCD_ADVERTISE_CLIENT_URLS</span><span class="o">=</span>http://etcd-server:2379 <span class="se">\
+</span><span class="se"></span>    bitnami/etcd:latest
+
+
+<span class="c1"># Launch your etcd client instance</span>
+$ docker run -it --rm <span class="se">\
+</span><span class="se"></span>    --network app-tier <span class="se">\
+</span><span class="se"></span>    --env <span class="nv">ALLOW_NONE_AUTHENTICATION</span><span class="o">=</span>yes <span class="se">\
+</span><span class="se"></span>    bitnami/etcd:latest etcdctl --endpoints http://etcd-server:2379 put /message Hello
+etcd 07:54:56.33
+etcd 07:54:56.33 Welcome to the Bitnami etcd container
+etcd 07:54:56.34 Subscribe to project updates by watching https://github.com/bitnami/bitnami-docker-etcd
+etcd 07:54:56.34 Submit issues and feature requests at https://github.com/bitnami/bitnami-docker-etcd/issues
+etcd 07:54:56.34
+
+OK
+
+$ docker run -it --rm <span class="se">\
+</span><span class="se"></span>    --network app-tier <span class="se">\
+</span><span class="se"></span>    --env <span class="nv">ALLOW_NONE_AUTHENTICATION</span><span class="o">=</span>yes <span class="se">\
+</span><span class="se"></span>    bitnami/etcd:latest etcdctl --endpoints http://etcd-server:2379 get /message
+etcd 07:55:08.47
+etcd 07:55:08.47 Welcome to the Bitnami etcd container
+etcd 07:55:08.48 Subscribe to project updates by watching https://github.com/bitnami/bitnami-docker-etcd
+etcd 07:55:08.48 Submit issues and feature requests at https://github.com/bitnami/bitnami-docker-etcd/issues
+etcd 07:55:08.48
+
+/message
+Hello
+
+<span class="c1"># stop the etcd server</span>
+$ docker stop etcd-server
+$ docker rm etcd-server
+$ docker network rm app-tier
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="创建etcd集群">创建etcd集群</h2>
+<p>创建<code>myapp/docker-compose.yaml</code>文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="k">version</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;2&#39;</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="k">services</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">etcd1</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">image</span><span class="p">:</span><span class="w"> </span>bitnami/etcd<span class="p">:</span>latest<span class="w">
+</span><span class="w">    </span><span class="k">environment</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- ALLOW_NONE_AUTHENTICATION=yes<span class="w">
+</span><span class="w">      </span>- ETCD_NAME=etcd1<span class="w">
+</span><span class="w">      </span>- ETCD_INITIAL_ADVERTISE_PEER_URLS=http<span class="p">:</span>//etcd1<span class="p">:</span><span class="m">2380</span><span class="w">
+</span><span class="w">      </span>- ETCD_LISTEN_PEER_URLS=http<span class="p">:</span>//<span class="m">0.0.0.0</span><span class="p">:</span><span class="m">2380</span><span class="w">
+</span><span class="w">      </span>- ETCD_LISTEN_CLIENT_URLS=http<span class="p">:</span>//<span class="m">0.0.0.0</span><span class="p">:</span><span class="m">2379</span><span class="w">
+</span><span class="w">      </span>- ETCD_ADVERTISE_CLIENT_URLS=http<span class="p">:</span>//etcd1<span class="p">:</span><span class="m">2379</span><span class="w">
+</span><span class="w">      </span>- ETCD_INITIAL_CLUSTER_TOKEN=etcd-cluster<span class="w">
+</span><span class="w">      </span>- ETCD_INITIAL_CLUSTER=etcd1=http<span class="p">:</span>//etcd1<span class="p">:</span><span class="m">2380</span><span class="p">,</span>etcd2=http<span class="p">:</span>//etcd2<span class="p">:</span><span class="m">2380</span><span class="p">,</span>etcd3=http<span class="p">:</span>//etcd3<span class="p">:</span><span class="m">2380</span><span class="w">
+</span><span class="w">      </span>- ETCD_INITIAL_CLUSTER_STATE=new<span class="w">
+</span><span class="w">  </span><span class="k">etcd2</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">image</span><span class="p">:</span><span class="w"> </span>bitnami/etcd<span class="p">:</span>latest<span class="w">
+</span><span class="w">    </span><span class="k">environment</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- ALLOW_NONE_AUTHENTICATION=yes<span class="w">
+</span><span class="w">      </span>- ETCD_NAME=etcd2<span class="w">
+</span><span class="w">      </span>- ETCD_INITIAL_ADVERTISE_PEER_URLS=http<span class="p">:</span>//etcd2<span class="p">:</span><span class="m">2380</span><span class="w">
+</span><span class="w">      </span>- ETCD_LISTEN_PEER_URLS=http<span class="p">:</span>//<span class="m">0.0.0.0</span><span class="p">:</span><span class="m">2380</span><span class="w">
+</span><span class="w">      </span>- ETCD_LISTEN_CLIENT_URLS=http<span class="p">:</span>//<span class="m">0.0.0.0</span><span class="p">:</span><span class="m">2379</span><span class="w">
+</span><span class="w">      </span>- ETCD_ADVERTISE_CLIENT_URLS=http<span class="p">:</span>//etcd2<span class="p">:</span><span class="m">2379</span><span class="w">
+</span><span class="w">      </span>- ETCD_INITIAL_CLUSTER_TOKEN=etcd-cluster<span class="w">
+</span><span class="w">      </span>- ETCD_INITIAL_CLUSTER=etcd1=http<span class="p">:</span>//etcd1<span class="p">:</span><span class="m">2380</span><span class="p">,</span>etcd2=http<span class="p">:</span>//etcd2<span class="p">:</span><span class="m">2380</span><span class="p">,</span>etcd3=http<span class="p">:</span>//etcd3<span class="p">:</span><span class="m">2380</span><span class="w">
+</span><span class="w">      </span>- ETCD_INITIAL_CLUSTER_STATE=new<span class="w">
+</span><span class="w">  </span><span class="k">etcd3</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">image</span><span class="p">:</span><span class="w"> </span>bitnami/etcd<span class="p">:</span>latest<span class="w">
+</span><span class="w">    </span><span class="k">environment</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- ALLOW_NONE_AUTHENTICATION=yes<span class="w">
+</span><span class="w">      </span>- ETCD_NAME=etcd3<span class="w">
+</span><span class="w">      </span>- ETCD_INITIAL_ADVERTISE_PEER_URLS=http<span class="p">:</span>//etcd3<span class="p">:</span><span class="m">2380</span><span class="w">
+</span><span class="w">      </span>- ETCD_LISTEN_PEER_URLS=http<span class="p">:</span>//<span class="m">0.0.0.0</span><span class="p">:</span><span class="m">2380</span><span class="w">
+</span><span class="w">      </span>- ETCD_LISTEN_CLIENT_URLS=http<span class="p">:</span>//<span class="m">0.0.0.0</span><span class="p">:</span><span class="m">2379</span><span class="w">
+</span><span class="w">      </span>- ETCD_ADVERTISE_CLIENT_URLS=http<span class="p">:</span>//etcd3<span class="p">:</span><span class="m">2379</span><span class="w">
+</span><span class="w">      </span>- ETCD_INITIAL_CLUSTER_TOKEN=etcd-cluster<span class="w">
+</span><span class="w">      </span>- ETCD_INITIAL_CLUSTER=etcd1=http<span class="p">:</span>//etcd1<span class="p">:</span><span class="m">2380</span><span class="p">,</span>etcd2=http<span class="p">:</span>//etcd2<span class="p">:</span><span class="m">2380</span><span class="p">,</span>etcd3=http<span class="p">:</span>//etcd3<span class="p">:</span><span class="m">2380</span><span class="w">
+</span><span class="w">      </span>- ETCD_INITIAL_CLUSTER_STATE=new<span class="w">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>启动etcd集群</p>
+<p>在<code>docker-compose.yaml</code>目录下使用<code>docker-compose up</code>命令创建集群</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; docker-compose -f docker-compose.yaml up -d
+Creating network <span class="s2">&#34;myapp_default&#34;</span> with the default driver
+Creating myapp_etcd1_1 ... <span class="k">done</span>
+Creating myapp_etcd3_1 ... <span class="k">done</span>
+Creating myapp_etcd2_1 ... <span class="k">done</span>
+
+&gt; docker-compose ps
+    Name                   Command               State         Ports
+---------------------------------------------------------------------------
+myapp_etcd1_1   /opt/bitnami/scripts/etcd/ ...   Up      2379/tcp, 2380/tcp
+myapp_etcd2_1   /opt/bitnami/scripts/etcd/ ...   Up      2379/tcp, 2380/tcp
+myapp_etcd3_1   /opt/bitnami/scripts/etcd/ ...   Up      2379/tcp, 2380/tcp
+</code></pre></td></tr></table>
+</div>
+</div><p>停止etcd集群</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; docker-compose down
+Stopping myapp_etcd2_1 ... <span class="k">done</span>
+Stopping myapp_etcd3_1 ... <span class="k">done</span>
+Stopping myapp_etcd1_1 ... <span class="k">done</span>
+Removing myapp_etcd2_1 ... <span class="k">done</span>
+Removing myapp_etcd3_1 ... <span class="k">done</span>
+Removing myapp_etcd1_1 ... <span class="k">done</span>
+Removing network myapp_default
+</code></pre></td></tr></table>
+</div>
+</div><p>使用<code>quay.io/coreos/etcd:v3.5.0</code>镜像创建</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="k">version</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;3&#34;</span><span class="w">
+</span><span class="w"></span><span class="k">services</span><span class="p">:</span><span class="w">
+</span><span class="w">
+</span><span class="w">  </span><span class="k">node1</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">image</span><span class="p">:</span><span class="w"> </span>quay.io/coreos/etcd<span class="w">
+</span><span class="w">    </span><span class="k">volumes</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- /var/local/etcd-data/node1-data<span class="p">:</span>/etcd-data<span class="w">
+</span><span class="w">    </span><span class="k">expose</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- <span class="m">2379</span><span class="w">
+</span><span class="w">      </span>- <span class="m">2380</span><span class="w">
+</span><span class="w">    </span><span class="k">ports</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- <span class="s2">&#34;22379:2379&#34;</span><span class="w">
+</span><span class="w">      </span>- <span class="s2">&#34;22380:2380&#34;</span><span class="w">     
+</span><span class="w">    </span><span class="k">networks</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="k">cluster_net</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span><span class="k">ipv4_address</span><span class="p">:</span><span class="w"> </span><span class="m">172.16.238.100</span><span class="w">
+</span><span class="w">    </span><span class="k">environment</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- ETCDCTL_API=<span class="m">3</span><span class="w">
+</span><span class="w">    </span><span class="k">command</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- /usr/local/bin/etcd<span class="w">
+</span><span class="w">      </span>- --data-dir=/etcd-data<span class="w">
+</span><span class="w">      </span>- --name<span class="w">
+</span><span class="w">      </span>- node1<span class="w">
+</span><span class="w">      </span>- --initial-advertise-peer-urls<span class="w">
+</span><span class="w">      </span>- http<span class="p">:</span>//<span class="m">172.16.238.100</span><span class="p">:</span><span class="m">2380</span><span class="w">
+</span><span class="w">      </span>- --listen-peer-urls<span class="w">
+</span><span class="w">      </span>- http<span class="p">:</span>//<span class="m">0.0.0.0</span><span class="p">:</span><span class="m">2380</span><span class="w">
+</span><span class="w">      </span>- --advertise-client-urls<span class="w">
+</span><span class="w">      </span>- http<span class="p">:</span>//<span class="m">172.16.238.100</span><span class="p">:</span><span class="m">2379</span><span class="w">
+</span><span class="w">      </span>- --listen-client-urls<span class="w">
+</span><span class="w">      </span>- http<span class="p">:</span>//<span class="m">0.0.0.0</span><span class="p">:</span><span class="m">2379</span><span class="w">
+</span><span class="w">      </span>- --initial-cluster<span class="w">
+</span><span class="w">      </span>- node1=http<span class="p">:</span>//<span class="m">172.16.238.100</span><span class="p">:</span><span class="m">2380</span><span class="p">,</span>node2=http<span class="p">:</span>//<span class="m">172.16.238.101</span><span class="p">:</span><span class="m">2380</span><span class="p">,</span>node3=http<span class="p">:</span>//<span class="m">172.16.238.102</span><span class="p">:</span><span class="m">2380</span><span class="w">
+</span><span class="w">      </span>- --initial-cluster-state<span class="w">
+</span><span class="w">      </span>- new<span class="w">
+</span><span class="w">      </span>- --initial-cluster-token<span class="w">
+</span><span class="w">      </span>- docker-etcd<span class="w">
+</span><span class="w">    </span><span class="k">privileged</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="w">
+</span><span class="w">  </span><span class="k">node2</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">image</span><span class="p">:</span><span class="w"> </span>quay.io/coreos/etcd<span class="w">
+</span><span class="w">    </span><span class="k">volumes</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- /var/local/etcd-data/node2-data<span class="p">:</span>/etcd-data<span class="w">
+</span><span class="w">    </span><span class="k">networks</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="k">cluster_net</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span><span class="k">ipv4_address</span><span class="p">:</span><span class="w"> </span><span class="m">172.16.238.101</span><span class="w">
+</span><span class="w">    </span><span class="k">environment</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- ETCDCTL_API=<span class="m">3</span><span class="w">
+</span><span class="w">    </span><span class="k">expose</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- <span class="m">2379</span><span class="w">
+</span><span class="w">      </span>- <span class="m">2380</span><span class="w">
+</span><span class="w">    </span><span class="k">ports</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- <span class="s2">&#34;22381:2379&#34;</span><span class="w">
+</span><span class="w">      </span>- <span class="s2">&#34;22382:2380&#34;</span><span class="w">
+</span><span class="w">    </span><span class="k">command</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- /usr/local/bin/etcd<span class="w">
+</span><span class="w">      </span>- --data-dir=/etcd-data<span class="w">
+</span><span class="w">      </span>- --name<span class="w">
+</span><span class="w">      </span>- node2<span class="w">
+</span><span class="w">      </span>- --initial-advertise-peer-urls<span class="w">
+</span><span class="w">      </span>- http<span class="p">:</span>//<span class="m">172.16.238.101</span><span class="p">:</span><span class="m">2380</span><span class="w">
+</span><span class="w">      </span>- --listen-peer-urls<span class="w">
+</span><span class="w">      </span>- http<span class="p">:</span>//<span class="m">0.0.0.0</span><span class="p">:</span><span class="m">2380</span><span class="w">
+</span><span class="w">      </span>- --advertise-client-urls<span class="w">
+</span><span class="w">      </span>- http<span class="p">:</span>//<span class="m">172.16.238.101</span><span class="p">:</span><span class="m">2379</span><span class="w">
+</span><span class="w">      </span>- --listen-client-urls<span class="w">
+</span><span class="w">      </span>- http<span class="p">:</span>//<span class="m">0.0.0.0</span><span class="p">:</span><span class="m">2379</span><span class="w">
+</span><span class="w">      </span>- --initial-cluster<span class="w">
+</span><span class="w">      </span>- node1=http<span class="p">:</span>//<span class="m">172.16.238.100</span><span class="p">:</span><span class="m">2380</span><span class="p">,</span>node2=http<span class="p">:</span>//<span class="m">172.16.238.101</span><span class="p">:</span><span class="m">2380</span><span class="p">,</span>node3=http<span class="p">:</span>//<span class="m">172.16.238.102</span><span class="p">:</span><span class="m">2380</span><span class="w">
+</span><span class="w">      </span>- --initial-cluster-state<span class="w">
+</span><span class="w">      </span>- new<span class="w">
+</span><span class="w">      </span>- --initial-cluster-token<span class="w">
+</span><span class="w">      </span>- docker-etcd<span class="w">
+</span><span class="w">    </span><span class="k">privileged</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="w">
+</span><span class="w">  </span><span class="k">node3</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">image</span><span class="p">:</span><span class="w"> </span>quay.io/coreos/etcd<span class="w">
+</span><span class="w">    </span><span class="k">volumes</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- /var/local/etcd-data/node3-data<span class="p">:</span>/etcd-data<span class="w">
+</span><span class="w">    </span><span class="k">networks</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="k">cluster_net</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span><span class="k">ipv4_address</span><span class="p">:</span><span class="w"> </span><span class="m">172.16.238.102</span><span class="w">
+</span><span class="w">    </span><span class="k">environment</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- ETCDCTL_API=<span class="m">3</span><span class="w">
+</span><span class="w">    </span><span class="k">expose</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- <span class="m">2379</span><span class="w">
+</span><span class="w">      </span>- <span class="m">2380</span><span class="w">
+</span><span class="w">    </span><span class="k">ports</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- <span class="s2">&#34;22383:2379&#34;</span><span class="w">
+</span><span class="w">      </span>- <span class="s2">&#34;22384:2380&#34;</span><span class="w">
+</span><span class="w">    </span><span class="k">command</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- /usr/local/bin/etcd<span class="w">
+</span><span class="w">      </span>- --data-dir=/etcd-data<span class="w">
+</span><span class="w">      </span>- --name<span class="w">
+</span><span class="w">      </span>- node3<span class="w">
+</span><span class="w">      </span>- --initial-advertise-peer-urls<span class="w">
+</span><span class="w">      </span>- http<span class="p">:</span>//<span class="m">172.16.238.102</span><span class="p">:</span><span class="m">2380</span><span class="w">
+</span><span class="w">      </span>- --listen-peer-urls<span class="w">
+</span><span class="w">      </span>- http<span class="p">:</span>//<span class="m">0.0.0.0</span><span class="p">:</span><span class="m">2380</span><span class="w">
+</span><span class="w">      </span>- --advertise-client-urls<span class="w">
+</span><span class="w">      </span>- http<span class="p">:</span>//<span class="m">172.16.238.102</span><span class="p">:</span><span class="m">2379</span><span class="w">
+</span><span class="w">      </span>- --listen-client-urls<span class="w">
+</span><span class="w">      </span>- http<span class="p">:</span>//<span class="m">0.0.0.0</span><span class="p">:</span><span class="m">2379</span><span class="w">
+</span><span class="w">      </span>- --initial-cluster<span class="w">
+</span><span class="w">      </span>- node1=http<span class="p">:</span>//<span class="m">172.16.238.100</span><span class="p">:</span><span class="m">2380</span><span class="p">,</span>node2=http<span class="p">:</span>//<span class="m">172.16.238.101</span><span class="p">:</span><span class="m">2380</span><span class="p">,</span>node3=http<span class="p">:</span>//<span class="m">172.16.238.102</span><span class="p">:</span><span class="m">2380</span><span class="w">
+</span><span class="w">      </span>- --initial-cluster-state<span class="w">
+</span><span class="w">      </span>- new<span class="w">
+</span><span class="w">      </span>- --initial-cluster-token<span class="w">
+</span><span class="w">      </span>- docker-etcd<span class="w">
+</span><span class="w">    </span><span class="k">privileged</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="k">volumes</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">node1-data</span><span class="p">:</span><span class="w"> 
+</span><span class="w">  </span><span class="k">node2-data</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">node3-data</span><span class="p">:</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="k">networks</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">cluster_net</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">driver</span><span class="p">:</span><span class="w"> </span>bridge<span class="w">
+</span><span class="w">    </span><span class="k">ipam</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="k">driver</span><span class="p">:</span><span class="w"> </span>default<span class="w">
+</span><span class="w">      </span><span class="k">config</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="sd">-
+</span><span class="sd">        subnet: 172.16.238.0/24</span><span class="w">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>启动etcd集群</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; docker-compose -f docker-compose.yml -p etcd up -d
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://github.com/etcd-io/etcd/releases">etcd releases</a></li>
+<li><a href="https://github.com/piaohua/bitnami-docker-etcd/tree/master">Bitnami etcd Docker Image</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2021-08-22
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/docker/">docker</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/mysql/20210726-mysql-myrocks/">
+            <span class="next-text nav-default">[MyRocks] Docker中使用MyRocks</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2021
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
