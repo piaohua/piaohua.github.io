@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Linux] shell exec 命令 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="Linux shell exec command shell中exec命令 语法格式 exec [-cl] [-a name] [command [arguments]] 选项说明 -c #在空环境中执行指定的命令 -l #在传递给command的第零个arg的开头放置一" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/linux/20210830-linux-shell-exec/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Linux] shell exec 命令" />
+<meta property="og:description" content="Linux shell exec command shell中exec命令 语法格式 exec [-cl] [-a name] [command [arguments]] 选项说明 -c #在空环境中执行指定的命令 -l #在传递给command的第零个arg的开头放置一" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/linux/20210830-linux-shell-exec/" />
+<meta property="article:published_time" content="2021-08-30T22:07:39+08:00" />
+<meta property="article:modified_time" content="2021-08-30T22:07:39+08:00" />
+<meta itemprop="name" content="[Linux] shell exec 命令">
+<meta itemprop="description" content="Linux shell exec command shell中exec命令 语法格式 exec [-cl] [-a name] [command [arguments]] 选项说明 -c #在空环境中执行指定的命令 -l #在传递给command的第零个arg的开头放置一">
+<meta itemprop="datePublished" content="2021-08-30T22:07:39&#43;08:00" />
+<meta itemprop="dateModified" content="2021-08-30T22:07:39&#43;08:00" />
+<meta itemprop="wordCount" content="2149">
+
+
+
+<meta itemprop="keywords" content="linux," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Linux] shell exec 命令"/>
+<meta name="twitter:description" content="Linux shell exec command shell中exec命令 语法格式 exec [-cl] [-a name] [command [arguments]] 选项说明 -c #在空环境中执行指定的命令 -l #在传递给command的第零个arg的开头放置一"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Linux] shell exec 命令</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2021-08-30 </span>
+        <div class="post-category">
+            <a href="/categories/linux/"> linux </a>
+            </div>
+          <span class="more-meta"> 2149 words </span>
+          <span class="more-meta"> 5 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#shell中exec命令">shell中exec命令</a></li>
+    <li><a href="#shell中的--">shell中的${  }</a></li>
+    <li><a href="#shell-中的0-1-----">shell 中的$0 $1 $* $@ $# $$ $?</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>Linux shell exec command</p>
+</blockquote>
+<h2 id="shell中exec命令">shell中exec命令</h2>
+<p>语法格式</p>
+<pre><code>exec [-cl] [-a name] [command [arguments]]
+</code></pre>
+<p>选项说明</p>
+<pre><code>-c  #在空环境中执行指定的命令
+-l  #在传递给command的第零个arg的开头放置一个破折号
+-a  #Shell将name作为第零个参数传递给command
+</code></pre>
+<p>应用举例</p>
+<ul>
+<li>输出指定信息</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; <span class="nb">echo</span> <span class="s2">&#34;hello world&#34;</span>
+hello world
+&gt; <span class="nb">exec</span> -c <span class="nb">echo</span> hello world
+hello world
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>其它使用总结</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh"><span class="nb">exec</span> ls     <span class="c1">#在 shell 中执行 ls，ls 结束后不返回原来的 shell 中了</span>
+<span class="nb">exec</span>        <span class="c1">#file 中的内容作为标准输入（替代 STDIN）</span>
+<span class="nb">exec</span> &gt;file  <span class="c1">#将标准输出写入file（替代STDOUT）</span>
+<span class="nb">exec</span> <span class="m">3</span>      <span class="c1">#将 file 读入到文件描述符 3 中（此时，创建了文件描述符 3）</span>
+sort &lt;<span class="p">&amp;</span><span class="m">3</span>    <span class="c1">#将文件描述符3作为临时输入，用于 sort 排序</span>
+<span class="nb">exec</span> 4&gt;file <span class="c1">#将写入文件描述符 4 中的内容写入 file 中（此时，创建了文件描述符 4）</span>
+ls &gt;<span class="p">&amp;</span><span class="m">4</span>      <span class="c1">#ls将不会有显示，直接写入文件描述符 4 中了，即上面的 file 中</span>
+<span class="nb">exec</span> 5&lt;<span class="p">&amp;</span><span class="m">4</span>   <span class="c1">#创建文件描述符 4 的拷贝文件描述符 5</span>
+<span class="nb">exec</span> 3&lt;<span class="p">&amp;</span>-   <span class="c1">#关闭文件描述符 3</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>exec执行命令时，不会启用新的shell进程。</p>
+</li>
+<li>
+<p>exec是用被执行的命令行替换掉当前的shell进程, 进程的PID保持不变，且exec命令后的其他命令将不再执行。</p>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; cat test.sh
+<span class="c1">#/bin/bash</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;Hello World&#34;</span>
+<span class="nb">exec</span> <span class="nb">echo</span> <span class="s2">&#34;Hello bash&#34;</span>
+<span class="nb">echo</span> <span class="s2">&#34;Hello Done&#34;</span>
+
+&gt; sh ./test.sh
+Hello World
+Hello bash
+</code></pre></td></tr></table>
+</div>
+</div><p>程序在exec执行后结束退出</p>
+<p>循环执行脚本本身</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; cat test.sh
+<span class="c1">#/bin/bash</span>
+
+<span class="nb">echo</span> <span class="sb">`</span>date +<span class="s2">&#34;%Y-%m-%d %H:%M:%S&#34;</span><span class="sb">`</span> <span class="nv">$$</span>
+sleep 2s
+<span class="nb">exec</span> sh <span class="s2">&#34;</span><span class="nv">$0</span><span class="s2">&#34;</span>
+
+&gt; sh ./test.sh
+2021-08-30 22:50:51 <span class="m">73016</span>
+2021-08-30 22:50:53 <span class="m">73016</span>
+2021-08-30 22:50:55 <span class="m">73016</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="shell中的--">shell中的${  }</h2>
+<ul>
+<li>可以用${}分别替换得到不同的值：</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">file=/dir1/dir2/dir3/my.file.txt
+
+${file#*/}： 删掉第一个/ 及其左边的字符串：dir1/dir2/dir3/my.file.txt
+${file##*/}：删掉最后一个/  及其左边的字符串：my.file.txt
+${file#*.}： 删掉第一个.  及其左边的字符串：file.txt
+${file##*.}：删掉最后一个.  及其左边的字符串：txt
+${file%/*}： 删掉最后一个 /  及其右边的字符串：/dir1/dir2/dir3
+${file%%/*}：删掉第一个/  及其右边的字符串：(空值)
+${file%.*}： 删掉最后一个 .  及其右边的字符串：/dir1/dir2/dir3/my.file
+${file%%.*}：删掉第一个 .   及其右边的字符串：/dir1/dir2/dir3/my
+
+单一符号是最小匹配；两个符号是最大匹配
+# 是去掉左边（键盘上#在 $ 的左边）
+% 是去掉右边（键盘上% 在$ 的右边）
+
+${file:0:5}：提取最左边的5 个字节：/dir1
+${file:5:5}：提取第5 个字节右边的连续5个字节：/dir2
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>替换变量值里的字符串：</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">${file/dir/path}：将第一个dir 替换为path：/path1/dir2/dir3/my.file.txt
+${file//dir/path}：将全部dir 替换为path：/path1/path2/path3/my.file.txt
+
+利用${  } 可针对不同的变数状态赋值(沒设定、空值、非空值)： 
+${file-my.file.txt} ： 假如$file 沒有设定，則使用my.file.txt 作传回值。(空值及非空值時不作处理) 
+${file:-my.file.txt} ：假如$file 沒有設定或為空值，則使用my.file.txt 作傳回值。(非空值時不作处理)
+${file+my.file.txt} ： 假如$file 設為空值或非空值，均使用my.file.txt 作傳回值。(沒設定時不作处理)
+${file:+my.file.txt} ：若$file 為非空值，則使用my.file.txt 作傳回值。(沒設定及空值時不作处理)
+${file=my.file.txt} ： 若$file 沒設定，則使用my.file.txt 作傳回值，同時將$file 賦值為my.file.txt 。(空值及非空值時不作处理)
+${file:=my.file.txt} ：若$file 沒設定或為空值，則使用my.file.txt 作傳回值，同時將$file 賦值為my.file.txt 。(非空值時不作处理)
+${file?my.file.txt} ： 若$file 沒設定，則將my.file.txt 輸出至STDERR。(空值及非空值時不作处理)
+
+${file:?my.file.txt} ：若$file 没设定或为空值，则将my.file.txt 输出至STDERR。(非空值時不作处理)
+
+${#var} 可计算出变量值的长度：
+
+${#file} 可得到27 ，因为/dir1/dir2/dir3/my.file.txt 是27个字节
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="shell-中的0-1-----">shell 中的$0 $1 $* $@ $# $$ $?</h2>
+<ul>
+<li>
+<p>$0: 脚本本身文件名称</p>
+</li>
+<li>
+<p>$1 ~ $n：参数1 ~ 参数n</p>
+</li>
+<li>
+<p>$#: 参数个数</p>
+</li>
+<li>
+<p>$$: 脚本运行时的PID</p>
+</li>
+<li>
+<p>$?: 获取函数的返回值或者上一个命令的退出状态 。如果成功就是0，失败为1。常用if [ $? -eq 0 ] 来判断一个命令有没有执行成功。</p>
+</li>
+<li>
+<p>$*: 所有参数列表</p>
+</li>
+<li>
+<p>$@: 所有参数列表</p>
+</li>
+</ul>
+<p>$@与$*的区别：</p>
+<ul>
+<li>
+<p>$@与$*都可以使用一个变量来来表示所有的参数内容，但这两个变量之间有一些不同之处。</p>
+</li>
+<li>
+<p>$@：将输入的所有参数作为一个列表对象</p>
+</li>
+<li>
+<p>$*：将输入的所有参数作为一个变量</p>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; cat test.sh
+<span class="c1">#/bin/bash</span>
+
+<span class="nb">echo</span> <span class="nv">$*</span>
+<span class="nb">echo</span> <span class="nv">$@</span>
+
+<span class="nv">n</span><span class="o">=</span><span class="m">1</span>
+<span class="k">for</span> i in <span class="s2">&#34;</span><span class="nv">$*</span><span class="s2">&#34;</span>
+<span class="k">do</span>
+    <span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$n</span><span class="s2"> : &#34;</span> <span class="nv">$i</span>
+    <span class="nb">let</span> <span class="nv">n</span><span class="o">+=</span><span class="m">1</span>
+<span class="k">done</span>
+
+<span class="nv">n</span><span class="o">=</span><span class="m">1</span>
+<span class="k">for</span> i in <span class="s2">&#34;</span><span class="nv">$@</span><span class="s2">&#34;</span>
+<span class="k">do</span>
+    <span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$n</span><span class="s2"> : &#34;</span> <span class="nv">$i</span>
+    <span class="nb">let</span> <span class="nv">n</span><span class="o">+=</span><span class="m">1</span>
+<span class="k">done</span>
+
+<span class="nv">n</span><span class="o">=</span><span class="m">1</span>
+<span class="k">for</span> i in <span class="nv">$*</span>
+<span class="k">do</span>
+    <span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$n</span><span class="s2"> : &#34;</span> <span class="nv">$i</span>
+    <span class="nb">let</span> <span class="nv">n</span><span class="o">+=</span><span class="m">1</span>
+<span class="k">done</span>
+
+&gt; sh ./test.sh <span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span>
+<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span>
+<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span>
+<span class="m">1</span> :  <span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span>
+<span class="m">1</span> :  <span class="m">1</span>
+<span class="m">2</span> :  <span class="m">2</span>
+<span class="m">3</span> :  <span class="m">3</span>
+<span class="m">4</span> :  <span class="m">4</span>
+<span class="m">1</span> :  <span class="m">1</span>
+<span class="m">2</span> :  <span class="m">2</span>
+<span class="m">3</span> :  <span class="m">3</span>
+<span class="m">4</span> :  <span class="m">4</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>在上面的例子中，使用$@与$*，都是用双引号引起来，但当$*不使用双引号时，结果与$@的结果相同。</p>
+<p>当命令行为test.sh 1 2 3 4</p>
+<ul>
+<li>
+<p>&ldquo;$*&ldquo;表示&quot;1 2 3 4&rdquo;</p>
+</li>
+<li>
+<p>&ldquo;$@&ldquo;表示&quot;1&rdquo; &ldquo;2&rdquo; &ldquo;3&rdquo; &ldquo;4&rdquo;</p>
+</li>
+</ul>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://blog.csdn.net/xiaojinran/article/details/106089640">shell的exec命令</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2021-08-30
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/linux/">linux</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/mysql/20210830-mysql-dockerfile/">
+            <span class="next-text nav-default">[MySQL] Docker Official Image packaging for MySQL Community Server</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2021
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
