@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[MySQL] Mobike 高可用MySQL集群方案使用实践 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="MoHA 是 Mobike 开源的跨数据中心的 MySQL 集群的高可用（HA）解决方案 MoHA 提供了详细的设计和使用说明文档，点击查看 启动使用 下载项目 1 git clone https://gitee.com/piao/moha.git $GOPATH/src/github.com/moiot/moha 可选择修改配置中的" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/mysql/20210919-mysql-moha/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[MySQL] Mobike 高可用MySQL集群方案使用实践" />
+<meta property="og:description" content="MoHA 是 Mobike 开源的跨数据中心的 MySQL 集群的高可用（HA）解决方案 MoHA 提供了详细的设计和使用说明文档，点击查看 启动使用 下载项目 1 git clone https://gitee.com/piao/moha.git $GOPATH/src/github.com/moiot/moha 可选择修改配置中的" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20210919-mysql-moha/" />
+<meta property="article:published_time" content="2021-09-19T10:38:47+08:00" />
+<meta property="article:modified_time" content="2021-09-19T10:38:47+08:00" />
+<meta itemprop="name" content="[MySQL] Mobike 高可用MySQL集群方案使用实践">
+<meta itemprop="description" content="MoHA 是 Mobike 开源的跨数据中心的 MySQL 集群的高可用（HA）解决方案 MoHA 提供了详细的设计和使用说明文档，点击查看 启动使用 下载项目 1 git clone https://gitee.com/piao/moha.git $GOPATH/src/github.com/moiot/moha 可选择修改配置中的">
+<meta itemprop="datePublished" content="2021-09-19T10:38:47&#43;08:00" />
+<meta itemprop="dateModified" content="2021-09-19T10:38:47&#43;08:00" />
+<meta itemprop="wordCount" content="794">
+
+
+
+<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[MySQL] Mobike 高可用MySQL集群方案使用实践"/>
+<meta name="twitter:description" content="MoHA 是 Mobike 开源的跨数据中心的 MySQL 集群的高可用（HA）解决方案 MoHA 提供了详细的设计和使用说明文档，点击查看 启动使用 下载项目 1 git clone https://gitee.com/piao/moha.git $GOPATH/src/github.com/moiot/moha 可选择修改配置中的"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[MySQL] Mobike 高可用MySQL集群方案使用实践</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2021-09-19 </span>
+        <div class="post-category">
+            <a href="/categories/mysql/"> mysql </a>
+            </div>
+          <span class="more-meta"> 794 words </span>
+          <span class="more-meta"> 2 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#启动使用">启动使用</a>
+      <ul>
+        <li><a href="#下载项目">下载项目</a></li>
+        <li><a href="#启动集群">启动集群</a></li>
+        <li><a href="#查看运行状态">查看运行状态</a></li>
+        <li><a href="#浏览器访问监控数据">浏览器访问监控数据</a></li>
+        <li><a href="#查看etcd目录">查看etcd目录</a></li>
+        <li><a href="#查看mysql集群主节点">查看mysql集群主节点</a></li>
+        <li><a href="#访问mysql集群主节点">访问mysql集群主节点</a></li>
+        <li><a href="#使用root账号访问mysql集群主节点">使用root账号访问mysql集群主节点</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>MoHA 是 Mobike 开源的跨数据中心的 MySQL 集群的高可用（HA）解决方案</p>
+</blockquote>
+<p>MoHA 提供了详细的设计和使用说明文档，<a href="https://gitee.com/piao/moha#/piao/moha/blob/master/docs/design.md">点击查看</a></p>
+<h2 id="启动使用">启动使用</h2>
+<h3 id="下载项目">下载项目</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">git clone https://gitee.com/piao/moha.git <span class="nv">$GOPATH</span>/src/github.com/moiot/moha
+</code></pre></td></tr></table>
+</div>
+</div><p>可选择修改配置中的账号密码，下面演示未修改，使用默认值</p>
+<p>编译项目</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh"><span class="nb">cd</span> <span class="nv">$GOPATH</span>/src/github.com/moiot/moha
+
+make docker-agent
+</code></pre></td></tr></table>
+</div>
+</div><p>编译依赖Docker，需要先安装启动Docker</p>
+<h3 id="启动集群">启动集群</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">github.com/moiot/moha/etc/docker-compose git:<span class="o">(</span>master<span class="o">)</span> ✗ &gt; docker-compose -f docker-compose.yml up -d
+Creating network <span class="s2">&#34;docker-compose_default&#34;</span> with the default driver
+Creating volume <span class="s2">&#34;docker-compose_mysql-node-3-data&#34;</span> with default driver
+Creating etcd-node-2    ... <span class="k">done</span>
+Creating haproxy-slave  ... <span class="k">done</span>
+Creating haproxy-master ... <span class="k">done</span>
+Creating etcd-node-1    ... <span class="k">done</span>
+Creating etcd-node-3    ... <span class="k">done</span>
+Creating etcd-node-0    ... <span class="k">done</span>
+Creating etcd-node-4    ... <span class="k">done</span>
+Creating pmm-server     ... <span class="k">done</span>
+Creating mysql-node-2   ... <span class="k">done</span>
+Creating mysql-node-1   ... <span class="k">done</span>
+Creating mysql-node-3   ... <span class="k">done</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="查看运行状态">查看运行状态</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">github.com/moiot/moha/etc/docker-compose git:<span class="o">(</span>master<span class="o">)</span> ✗ &gt; docker-compose -f docker-compose.yml ps
+     Name                   Command               State                                                   Ports
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+etcd-node-0      /opt/bitnami/scripts/etcd/ ...   Up      0.0.0.0:32768-&gt;2379/tcp, 2380/tcp
+etcd-node-1      /opt/bitnami/scripts/etcd/ ...   Up      0.0.0.0:32769-&gt;2379/tcp, 2380/tcp
+etcd-node-2      /opt/bitnami/scripts/etcd/ ...   Up      0.0.0.0:32770-&gt;2379/tcp, 2380/tcp
+etcd-node-3      /opt/bitnami/scripts/etcd/ ...   Up      0.0.0.0:32771-&gt;2379/tcp, 2380/tcp
+etcd-node-4      /opt/bitnami/scripts/etcd/ ...   Up      0.0.0.0:32772-&gt;2379/tcp, 2380/tcp
+haproxy-master   /docker-entrypoint.sh hapr ...   Up      0.0.0.0:5000-&gt;5000/tcp, 0.0.0.0:7000-&gt;7000/tcp
+haproxy-slave    /docker-entrypoint.sh hapr ...   Up      0.0.0.0:5001-&gt;5000/tcp, 0.0.0.0:7001-&gt;7000/tcp
+mysql-node-1     /agent/supervise                 Up      0.0.0.0:13307-&gt;13306/tcp, 0.0.0.0:3307-&gt;3306/tcp
+mysql-node-2     /agent/supervise                 Up      0.0.0.0:13308-&gt;13306/tcp, 0.0.0.0:3308-&gt;3306/tcp
+mysql-node-3     /agent/supervise                 Up      0.0.0.0:13309-&gt;13306/tcp, 0.0.0.0:3309-&gt;3306/tcp
+pmm-server       /opt/entrypoint.sh               Up      0.0.0.0:3000-&gt;3000/tcp, 443/tcp, 0.0.0.0:8080-&gt;80/tcp, 0.0.0.0:8500-&gt;8500/tcp, 0.0.0.0:9090-&gt;9090/tcp
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="浏览器访问监控数据">浏览器访问监控数据</h3>
+<p><code>http://localhost:8080/</code></p>
+<h3 id="查看etcd目录">查看etcd目录</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; docker <span class="nb">exec</span> -it etcd-node-0 /bin/sh -c <span class="s2">&#34;etcdctl get / --prefix --keys-only&#34;</span>
+/dbproxy/clustername/ks_cfg/nodes/node-test/election/master/id
+
+/dbproxy/clustername/ks_cfg/nodes/node-test/election/master/last_gtid
+
+/dbproxy/clustername/ks_cfg/nodes/node-test/election/master/last_txnid
+
+/dbproxy/clustername/ks_cfg/nodes/node-test/election/master/last_uuid
+
+/dbproxy/clustername/ks_cfg/nodes/node-test/election/master/meta_version
+
+/dbproxy/clustername/ks_cfg/nodes/node-test/election/master/term
+
+/dbproxy/clustername/ks_cfg/nodes/node-test/election/terms/127.0.0.1:3307
+
+/dbproxy/clustername/ks_cfg/nodes/node-test/election/terms/127.0.0.1:3308
+
+/dbproxy/clustername/ks_cfg/nodes/node-test/election/terms/127.0.0.1:3309
+
+/dbproxy/clustername/ks_cfg/nodes/node-test/master
+
+/dbproxy/clustername/ks_cfg/nodes/node-test/slave/127.0.0.1:3307
+
+/dbproxy/clustername/ks_cfg/nodes/node-test/slave/127.0.0.1:3308
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="查看mysql集群主节点">查看mysql集群主节点</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; docker <span class="nb">exec</span> -it etcd-node-0 /bin/sh -c <span class="s2">&#34;etcdctl get /dbproxy/clustername/ks_cfg/nodes/node-test/master&#34;</span>
+/dbproxy/clustername/ks_cfg/nodes/node-test/master
+127.0.0.1:3307
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="访问mysql集群主节点">访问mysql集群主节点</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; docker <span class="nb">exec</span> -it mysql-node-1 /bin/bash
+root@9936e9af59be:/# mysql -umysql_user -pmysql_master_user_pwd
+
+<span class="o">[</span>mysql_user@localhost<span class="o">][</span>checker<span class="o">]</span>&gt; show grants<span class="p">;</span>
++-----------------------------------------------------------------------------------------------------------------------+
+<span class="p">|</span> Grants <span class="k">for</span> mysql_user@%                                                                                               <span class="p">|</span>
++-----------------------------------------------------------------------------------------------------------------------+
+<span class="p">|</span> GRANT SELECT, INSERT, UPDATE, DELETE, RELOAD, SUPER, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO <span class="s1">&#39;mysql_user&#39;</span>@<span class="s1">&#39;%&#39;</span> <span class="p">|</span>
++-----------------------------------------------------------------------------------------------------------------------+
+<span class="m">1</span> row in <span class="nb">set</span> <span class="o">(</span>0.00 sec<span class="o">)</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="使用root账号访问mysql集群主节点">使用root账号访问mysql集群主节点</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-mysql" data-lang="mysql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="o">`</span><span class="n">mo_tbl</span><span class="o">`</span><span class="p">(</span>
+   <span class="o">`</span><span class="n">id</span><span class="o">`</span> <span class="kt">INT</span> <span class="k">UNSIGNED</span> <span class="kp">AUTO_INCREMENT</span><span class="p">,</span>
+   <span class="o">`</span><span class="n">title</span><span class="o">`</span> <span class="kt">VARCHAR</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+   <span class="o">`</span><span class="n">author</span><span class="o">`</span> <span class="kt">VARCHAR</span><span class="p">(</span><span class="mi">40</span><span class="p">)</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+   <span class="o">`</span><span class="kt">date</span><span class="o">`</span> <span class="kt">DATE</span><span class="p">,</span>
+   <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span> <span class="o">`</span><span class="n">id</span><span class="o">`</span> <span class="p">)</span>
+<span class="p">)</span><span class="kp">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span> <span class="k">DEFAULT</span> <span class="kp">CHARSET</span><span class="o">=</span><span class="n">utf8</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>创建数据表并写入数据</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; docker <span class="nb">exec</span> -it mysql-node-1 /bin/bash
+root@9936e9af59be:/# mysql -uroot -pmaster_root_pwd
+
+<span class="o">[</span>root@localhost<span class="o">][</span>checker<span class="o">]</span>&gt; show grants<span class="p">;</span>
++---------------------------------------------------------------------+
+<span class="p">|</span> Grants <span class="k">for</span> root@localhost                                           <span class="p">|</span>
++---------------------------------------------------------------------+
+<span class="p">|</span> GRANT ALL PRIVILEGES ON *.* TO <span class="s1">&#39;root&#39;</span>@<span class="s1">&#39;localhost&#39;</span> WITH GRANT OPTION <span class="p">|</span>
+<span class="p">|</span> GRANT PROXY ON <span class="s1">&#39;&#39;</span>@<span class="s1">&#39;&#39;</span> TO <span class="s1">&#39;root&#39;</span>@<span class="s1">&#39;localhost&#39;</span> WITH GRANT OPTION        <span class="p">|</span>
++---------------------------------------------------------------------+
+<span class="m">2</span> rows in <span class="nb">set</span> <span class="o">(</span>0.00 sec<span class="o">)</span>
+
+<span class="o">[</span>root@localhost<span class="o">][</span>checker<span class="o">]</span>&gt; CREATE TABLE IF NOT EXISTS <span class="sb">`</span>mo_tbl<span class="sb">`</span><span class="o">(</span>
+    -&gt;    <span class="sb">`</span>id<span class="sb">`</span> INT UNSIGNED AUTO_INCREMENT,
+    -&gt;    <span class="sb">`</span>title<span class="sb">`</span> VARCHAR<span class="o">(</span>100<span class="o">)</span> NOT NULL,
+    -&gt;    <span class="sb">`</span>author<span class="sb">`</span> VARCHAR<span class="o">(</span>40<span class="o">)</span> NOT NULL,
+    -&gt;    <span class="sb">`</span>date<span class="sb">`</span> DATE,
+    -&gt;    PRIMARY KEY <span class="o">(</span> <span class="sb">`</span>id<span class="sb">`</span> <span class="o">)</span>
+    -&gt; <span class="o">)</span><span class="nv">ENGINE</span><span class="o">=</span>InnoDB DEFAULT <span class="nv">CHARSET</span><span class="o">=</span>utf8<span class="p">;</span>
+Query OK, <span class="m">0</span> rows affected <span class="o">(</span>0.03 sec<span class="o">)</span>
+
+<span class="o">[</span>root@localhost<span class="o">][</span>checker<span class="o">]</span>&gt; desc mo_tbl<span class="p">;</span>
++--------+------------------+------+-----+---------+----------------+
+<span class="p">|</span> Field  <span class="p">|</span> Type             <span class="p">|</span> Null <span class="p">|</span> Key <span class="p">|</span> Default <span class="p">|</span> Extra          <span class="p">|</span>
++--------+------------------+------+-----+---------+----------------+
+<span class="p">|</span> id     <span class="p">|</span> int<span class="o">(</span>10<span class="o">)</span> unsigned <span class="p">|</span> NO   <span class="p">|</span> PRI <span class="p">|</span> NULL    <span class="p">|</span> auto_increment <span class="p">|</span>
+<span class="p">|</span> title  <span class="p">|</span> varchar<span class="o">(</span>100<span class="o">)</span>     <span class="p">|</span> NO   <span class="p">|</span>     <span class="p">|</span> NULL    <span class="p">|</span>                <span class="p">|</span>
+<span class="p">|</span> author <span class="p">|</span> varchar<span class="o">(</span>40<span class="o">)</span>      <span class="p">|</span> NO   <span class="p">|</span>     <span class="p">|</span> NULL    <span class="p">|</span>                <span class="p">|</span>
+<span class="p">|</span> date   <span class="p">|</span> date             <span class="p">|</span> YES  <span class="p">|</span>     <span class="p">|</span> NULL    <span class="p">|</span>                <span class="p">|</span>
++--------+------------------+------+-----+---------+----------------+
+<span class="m">4</span> rows in <span class="nb">set</span> <span class="o">(</span>0.02 sec<span class="o">)</span>
+
+<span class="o">[</span>root@localhost<span class="o">][</span>checker<span class="o">]</span>&gt; insert into mo_tbl <span class="o">(</span>title, author, date<span class="o">)</span> values <span class="o">(</span><span class="s2">&#34;test&#34;</span>, <span class="s2">&#34;piao&#34;</span>, <span class="s2">&#34;2021-09-04&#34;</span><span class="o">)</span><span class="p">;</span>
+Query OK, <span class="m">1</span> row affected <span class="o">(</span>0.01 sec<span class="o">)</span>
+
+<span class="o">[</span>root@localhost<span class="o">][</span>checker<span class="o">]</span>&gt; <span class="k">select</span> * from mo_tbl<span class="p">;</span>
++----+-------+--------+------------+
+<span class="p">|</span> id <span class="p">|</span> title <span class="p">|</span> author <span class="p">|</span> date       <span class="p">|</span>
++----+-------+--------+------------+
+<span class="p">|</span>  <span class="m">1</span> <span class="p">|</span> <span class="nb">test</span>  <span class="p">|</span> piao   <span class="p">|</span> 2021-09-04 <span class="p">|</span>
++----+-------+--------+------------+
+<span class="m">1</span> row in <span class="nb">set</span> <span class="o">(</span>0.00 sec<span class="o">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://github.com/moiot/moha">Mobike High Availability</a></li>
+<li><a href="https://gitee.com/piao/moha/tree/master/etc/docker-compose">docker-compose</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2021-09-19
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/mysql/">mysql</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/git/20210925-git-add/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[Git] git add -A 和 git add . 及 git add -u的区别</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/linux/20210830-linux-shell-exec/">
+            <span class="next-text nav-default">[Linux] shell exec 命令</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2022
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Gerrit] Gerrit Code Reviewer in Docker - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="Gerrit是一个基于 Web 的代码审查系统，适于采用 Git 版本控制系统开发的项目进行在线代码审查。 快速启动 快速启动一个gerrit server，启动" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/golang/20220701-gerrit-docker/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Gerrit] Gerrit Code Reviewer in Docker" />
+<meta property="og:description" content="Gerrit是一个基于 Web 的代码审查系统，适于采用 Git 版本控制系统开发的项目进行在线代码审查。 快速启动 快速启动一个gerrit server，启动" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20220701-gerrit-docker/" />
+<meta property="article:published_time" content="2022-07-01T21:53:46+08:00" />
+<meta property="article:modified_time" content="2022-07-01T21:53:46+08:00" />
+<meta itemprop="name" content="[Gerrit] Gerrit Code Reviewer in Docker">
+<meta itemprop="description" content="Gerrit是一个基于 Web 的代码审查系统，适于采用 Git 版本控制系统开发的项目进行在线代码审查。 快速启动 快速启动一个gerrit server，启动">
+<meta itemprop="datePublished" content="2022-07-01T21:53:46&#43;08:00" />
+<meta itemprop="dateModified" content="2022-07-01T21:53:46&#43;08:00" />
+<meta itemprop="wordCount" content="1199">
+
+
+
+<meta itemprop="keywords" content="golang,gerrit,docker," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Gerrit] Gerrit Code Reviewer in Docker"/>
+<meta name="twitter:description" content="Gerrit是一个基于 Web 的代码审查系统，适于采用 Git 版本控制系统开发的项目进行在线代码审查。 快速启动 快速启动一个gerrit server，启动"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Gerrit] Gerrit Code Reviewer in Docker</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2022-07-01 </span>
+        <div class="post-category">
+            <a href="/categories/golang/"> golang </a>
+            </div>
+          <span class="more-meta"> 1199 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#快速启动">快速启动</a></li>
+    <li><a href="#生产环境部署">生产环境部署</a>
+      <ul>
+        <li><a href="#环境配置">环境配置</a></li>
+        <li><a href="#启动初始化">启动初始化</a></li>
+        <li><a href="#后台启动">后台启动</a></li>
+        <li><a href="#使用-phpldapadmin-登录-openldap">使用 <code>PhpLdapAdmin</code> 登录 <code>OpenLDAP</code></a></li>
+        <li><a href="#登录-openldap-创建-gerrit-管理员账号">登录 <code>OpenLDAP</code> 创建 gerrit 管理员账号</a></li>
+        <li><a href="#用管理员账号登录gerrit">用管理员账号登录gerrit</a></li>
+      </ul>
+    </li>
+    <li><a href="#创建项目">创建项目</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>Gerrit是一个基于 Web 的代码审查系统，适于采用 Git 版本控制系统开发的项目进行在线代码审查。</p>
+</blockquote>
+<h2 id="快速启动">快速启动</h2>
+<p>快速启动一个gerrit server，启动后在浏览器中访问 <code>http://localhost:8080</code> 即可进入gerrit code reviewer界面</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">docker run -ti -p 8080:8080 -p 29418:29418 gerritcodereview/gerrit
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="生产环境部署">生产环境部署</h2>
+<p>在生产环境中部署gerrit，结合OpenLDAP使用，可以更好的做身份验证。</p>
+<h3 id="环境配置">环境配置</h3>
+<p>创建一个外部目录,来存放配置文件以及存储文件。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">git clone https://github.com/GerritCodeReview/docker-gerrit.git 
+
+<span class="nb">cd</span> docker-gerrit
+
+mkdir -p ./external/gerrit/etc/
+
+touch ./external/gerrit/etc/gerrit.config
+ 
+touch ./external/gerrit/etc/secure.config
+</code></pre></td></tr></table>
+</div>
+</div><p><code>./external/gerrit/etc/gerrit.config</code>配置示例如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">[gerrit]
+  basePath = git
+
+[index]
+  type = LUCENE
+
+[auth]
+  type = ldap
+  gitBasicAuth = true
+
+[ldap]
+  server = ldap://ldap
+  username=cn=admin,dc=example,dc=org
+  accountBase = dc=example,dc=org
+  accountPattern = (&amp;(objectClass=person)(uid=${username}))
+  accountFullName = displayName
+  accountEmailAddress = mail
+
+[sendemail]
+  smtpServer = localhost
+
+[sshd]
+  listenAddress = *:29418
+
+[httpd]
+  listenUrl = http://*:8080/
+
+[cache]
+  directory = cache
+
+[container]
+  user = root
+</code></pre></td></tr></table>
+</div>
+</div><p><code>./external/gerrit/etc/secure.config</code>配置示例如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">[ldap]
+  password = secret
+</code></pre></td></tr></table>
+</div>
+</div><p><code>docker-compose.yaml</code>如下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="k">version</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;3&#39;</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="k">services</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">gerrit</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">image</span><span class="p">:</span><span class="w"> </span>gerritcodereview/gerrit<span class="w">
+</span><span class="w">    </span><span class="k">ports</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- <span class="s2">&#34;29418:29418&#34;</span><span class="w">
+</span><span class="w">      </span>- <span class="s2">&#34;80:8080&#34;</span><span class="w">
+</span><span class="w">    </span><span class="k">depends_on</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- ldap<span class="w">
+</span><span class="w">    </span><span class="k">volumes</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- ./external/gerrit/etc<span class="p">:</span>/var/gerrit/etc<span class="w">
+</span><span class="w">      </span>- ./external/gerrit/git<span class="p">:</span>/var/gerrit/git<span class="w">
+</span><span class="w">      </span>- ./external/gerrit/db<span class="p">:</span>/var/gerrit/db<span class="w">
+</span><span class="w">      </span>- ./external/gerrit/index<span class="p">:</span>/var/gerrit/index<span class="w">
+</span><span class="w">      </span>- ./external/gerrit/cache<span class="p">:</span>/var/gerrit/cache<span class="w">
+</span><span class="w">    </span><span class="k">environment</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- CANONICAL_WEB_URL=http<span class="p">:</span>//localhost<span class="w">
+</span><span class="w">    </span><span class="c"># command: init</span><span class="w">
+</span><span class="w">    </span><span class="c"># entrypoint: /entrypoint.sh init</span><span class="w">
+</span><span class="w">
+</span><span class="w">  </span><span class="k">ldap</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">image</span><span class="p">:</span><span class="w"> </span>osixia/openldap<span class="w">
+</span><span class="w">    </span><span class="k">ports</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- <span class="s2">&#34;389:389&#34;</span><span class="w">
+</span><span class="w">      </span>- <span class="s2">&#34;636:636&#34;</span><span class="w">
+</span><span class="w">    </span><span class="k">environment</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- LDAP_ADMIN_PASSWORD=secret<span class="w">
+</span><span class="w">    </span><span class="k">volumes</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- ./external/gerrit/ldap/var<span class="p">:</span>/var/lib/ldap<span class="w">
+</span><span class="w">      </span>- ./external/gerrit/ldap/etc<span class="p">:</span>/etc/ldap/slapd.d<span class="w">
+</span><span class="w">
+</span><span class="w">  </span><span class="k">ldap-admin</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">image</span><span class="p">:</span><span class="w"> </span>osixia/phpldapadmin<span class="w">
+</span><span class="w">    </span><span class="k">ports</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- <span class="s2">&#34;6443:443&#34;</span><span class="w">
+</span><span class="w">    </span><span class="k">environment</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- PHPLDAPADMIN_LDAP_HOSTS=ldap<span class="w">
+</span></code></pre></td></tr></table>
+</div>
+</div><h3 id="启动初始化">启动初始化</h3>
+<p>启动时取消<code>docker-compose.yaml</code>中的<code>entrypoint: /entrypoint.sh init</code>注释，</p>
+<p>然后运行命令<code>docker-compose up gerrit</code>进行初始化，初始化成功后容器就会退出。</p>
+<h3 id="后台启动">后台启动</h3>
+<p>初始化完成后，重新注释掉init指令，再执行启动命令后台运行。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; docker-compose -f docker-compose.yaml up -d
+</code></pre></td></tr></table>
+</div>
+</div><p>查看启动状态</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; docker-compose -f docker-compose.yaml ps
+           Name                    Command         State                       Ports
+---------------------------------------------------------------------------------------------------------
+docker-gerrit_gerrit_1       /entrypoint.sh        Up      0.0.0.0:29418-&gt;29418/tcp, 0.0.0.0:80-&gt;8080/tcp
+docker-gerrit_ldap-admin_1   /container/tool/run   Up      0.0.0.0:6443-&gt;443/tcp, 80/tcp
+docker-gerrit_ldap_1         /container/tool/run   Up      0.0.0.0:389-&gt;389/tcp, 0.0.0.0:636-&gt;636/tcp
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="使用-phpldapadmin-登录-openldap">使用 <code>PhpLdapAdmin</code> 登录 <code>OpenLDAP</code></h3>
+<p>浏览器打开 <code>https://localhost:6443/</code> 登录，账号为配置文件中设置的<code>username</code>, 密码配置为<code>password</code>,如下：
+账号：cn=admin,dc=example,dc=org
+密码：secret</p>
+<h3 id="登录-openldap-创建-gerrit-管理员账号">登录 <code>OpenLDAP</code> 创建 gerrit 管理员账号</h3>
+<p>点击 <code>Create a child entry</code> 后选择账号模板，点击 <code>Courier Mail Account</code> 填写账号信息，示例如下：</p>
+<p>Given Name: Gerrit
+Last Name: Admin
+Common Name: Gerrit Admin
+User ID: gerritadmin
+Email: gerritadmin@localdomain
+Password: secret</p>
+<p>同样的方式创建其他子账号</p>
+<h3 id="用管理员账号登录gerrit">用管理员账号登录gerrit</h3>
+<p>浏览器中打开 <code>http://localhost</code>，使用在LDAP中创建的账号密码登录</p>
+<p>Login: gerritadmin
+Password: secret</p>
+<p>登录成功后，打开 <code>http://localhost/settings/#SSHKeys</code> 设置ssh keys</p>
+<h2 id="创建项目">创建项目</h2>
+<p>选择 <code>BROWSE</code> -&gt; <code>Repositories</code> -&gt; <code>CREATE NEW</code> 创建存储仓库，示例如下：</p>
+<p>Repository name: rstt</p>
+<p>创建成功后，点击仓库名称进入设置页面</p>
+<p>第一步下载 commit-msg hook，脚本位置存放在.git/hooks/commit-msg，提交审核时会执行这个脚本来生成Change-ID。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">git clone <span class="s2">&#34;ssh://gerritadmin@localhost:29418/rstt&#34;</span> <span class="o">&amp;&amp;</span> scp -p -P <span class="m">29418</span> gerritadmin@localhost:hooks/commit-msg <span class="s2">&#34;rstt/.git/hooks/&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>clone 项目</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">git clone <span class="s2">&#34;ssh://gerritadmin@localhost:29418/rstt&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>创建分支，提交修改，推送提交审核</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">git checkout -b dev master
+
+git push origin HEAD:refs/for/master
+</code></pre></td></tr></table>
+</div>
+</div><p>提交后会创建引用 `.git/refs/changes/01/1/1</p>
+<p>审核过程中提交推送修改</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">git commit --amend
+</code></pre></td></tr></table>
+</div>
+</div><p>查看引用提交列表</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; git ls-remote origin
+74d72f4e31eb984bd852a2ef327a43ca4a244fc9        HEAD
+5a30f5e7b6343e785c0ed9ffa0188ee08c9c36fb        refs/changes/01/1/1
+06c425732aa90317272f1dcaf72b0198e061738d        refs/changes/01/1/2
+471393b7402a031acd0d69a15b7d63808f3d1ee3        refs/changes/01/1/3
+3a48c8c89a35b6161bf654b8889281f4f7d2f978        refs/changes/01/1/4
+c3319ba7d1f26275661b3b39cd2108e3c4318b26        refs/changes/01/1/5
+374956310ca8a5f595aab7197ee48db6adfef195        refs/changes/01/1/meta
+74d72f4e31eb984bd852a2ef327a43ca4a244fc9        refs/changes/02/2/1
+d426a8f985dd1fc9fdcd887c37d255bf319e3727        refs/changes/02/2/meta
+74d72f4e31eb984bd852a2ef327a43ca4a244fc9        refs/heads/master
+</code></pre></td></tr></table>
+</div>
+</div><p>提交审核通过合并后即可更新master</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://github.com/GerritCodeReview/gerrit">gerrit</a></li>
+<li><a href="http://gerrit.googlecode.com">Gerrit doc</a></li>
+<li><a href="github.com/GerritCodeReview/docker-gerrit">Official Docker image of Gerrit Code Review</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/69311610">code review: gerrit实战</a></li>
+<li><a href="https://epost.gitbooks.io/gerrit-user-guide/content/">Gerrit 用户指南</a></li>
+<li><a href="https://ken.io/note/gitlab-code-review-tutorial">基于GitLab的Code Review教程</a></li>
+<li><a href="https://blog.csdn.net/weixin_44204751/article/details/104234388">docker运行gerrit(代码审查工具)</a></li>
+<li><a href="http://www.worldhello.net/gotgit/05-git-server/055-gerrit.html">Gerrit代码审核服务器</a></li>
+<li><a href="https://www.cnblogs.com/chenpingzhao/p/9337117.html">Gerrit code review 介绍与安装</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2022-07-01
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/golang/">golang</a>
+          <a href="/tags/gerrit/">gerrit</a>
+          <a href="/tags/docker/">docker</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/mysql/20210925-mysql-spider-sandbox/">
+            <span class="next-text nav-default">[MySQL] mysql spider sandbox</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2022
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
