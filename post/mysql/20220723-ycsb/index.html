@@ -49,7 +49,7 @@
 <meta itemprop="description" content="Yahoo! Cloud Serving Benchmark (YCSB) 是一个Java语言实现的主要用于云端或者服务器端的数据库性能测试工具。 下载YCSB 下载最新版本的YCSB 1 2 3 curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/0.17.0/ycsb-0.17.0.tar.gz tar xfvz ycsb-0.17.0.tar.gz cd ycsb-0.17.0 查">
 <meta itemprop="datePublished" content="2022-07-23T11:21:06&#43;08:00" />
 <meta itemprop="dateModified" content="2022-07-23T11:21:06&#43;08:00" />
-<meta itemprop="wordCount" content="1164">
+<meta itemprop="wordCount" content="1249">
 
 
 
@@ -133,7 +133,7 @@
         <div class="post-category">
             <a href="/categories/mysql/"> mysql </a>
             </div>
-          <span class="more-meta"> 1164 words </span>
+          <span class="more-meta"> 1249 words </span>
           <span class="more-meta"> 3 mins read </span>
         
       </div>
@@ -333,7 +333,7 @@ tar xfvz ycsb-0.17.0.tar.gz
 </code></pre></td></tr></table>
 </div>
 </div><h3 id="修改dbproperties配置">修改db.properties配置</h3>
-<p>db.properties文件路径在jdbc/config目录下，也可以创建自己的，在执行时指定路径加载。
+<p>db.properties文件路径在<code>YCSB_HOME/jdbc-binding/config/</code>目录下，也可以创建自己的，在执行时指定路径加载。
 配置内容如下：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -349,21 +349,32 @@ db.user=admin
 db.passwd=admin
 </code></pre></td></tr></table>
 </div>
+</div><p>指定<code>JdbcDBCreateTable</code>类，加载所需的jar运行</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">java -cp YCSB_HOME/jdbc-binding/lib/jdbc-binding-0.4.0.jar:mysql-connector-java-5.1.37-bin.jar site.ycsb.db.JdbcDBCreateTable -P db.properties -n usertable
+</code></pre></td></tr></table>
+</div>
 </div><h3 id="运行测试">运行测试</h3>
-<p>运行所要加载的包在jdbc/lib目录下</p>
+<p>运行所要加载的包在<code>jdbc-binding/lib</code>目录下</p>
+<p>指定workload模板运行</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">bin/ycsb load jdbc -s -P workloads/workloada -P db.properties -cp mysql-connector-java.jar &gt; mysql-load-workloada.log
+<pre class="chroma"><code class="language-sh" data-lang="sh">bin/ycsb load jdbc -s -P workloads/workloada -P db.properties -cp YCSB_HOME/jdbc-binding/lib/jdbc-binding-0.4.0.jar:mysql-connector-java-5.1.37-bin.jar &gt; mysql-load-workloada.log
 
 </code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
 <li><a href="https://github.com/brianfrankcooper/YCSB/wiki">官方wiki</a></li>
+<li><a href="https://github.com/brianfrankcooper/YCSB/tree/master/jdbc">DBC Driver for YCSB</a></li>
 <li><a href="https://github.com/brianfrankcooper/YCSB/wiki/Core-Properties#core-ycsb-properties">Core YCSB properties</a></li>
 <li><a href="https://www.jianshu.com/p/66937631bf0b">YCSB数据库性能测试工具</a></li>
 <li><a href="https://docs.yugabyte.com/preview/benchmark/ycsb-jdbc/">ycsb-jdbc</a></li>
