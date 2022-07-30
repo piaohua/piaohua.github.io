@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Go] time.Time 时间格式处理 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="golang中对时间和日期格式处理 date format in Go golang 时间格式化文档time constants 1 2 3 4 5 6 7 time.Now().UTC().Format(&amp;#34;2006-01-02&amp;#34;) time.Now().UTC().Format(&amp;#34;02/01/2006&amp;#34;) time.Now().UTC().Format(&amp;#34;2006-01-02 15:04:05&amp;#34;) time.Now().UTC().Format(time.RFC3339) Parse date with a timezone 1 2 3 4 s := &amp;#34;2022-07-30T19:12:00&#43;01:00&amp;#34; loc, _ := time.LoadLocation(&amp;#34;Europe/Berlin&amp;#34;) t, _ := time.ParseInLocation(time.RFC3339, s, loc) fmt.Println(t) 计" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/golang/20220730-time/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Go] time.Time 时间格式处理" />
+<meta property="og:description" content="golang中对时间和日期格式处理 date format in Go golang 时间格式化文档time constants 1 2 3 4 5 6 7 time.Now().UTC().Format(&#34;2006-01-02&#34;) time.Now().UTC().Format(&#34;02/01/2006&#34;) time.Now().UTC().Format(&#34;2006-01-02 15:04:05&#34;) time.Now().UTC().Format(time.RFC3339) Parse date with a timezone 1 2 3 4 s := &#34;2022-07-30T19:12:00&#43;01:00&#34; loc, _ := time.LoadLocation(&#34;Europe/Berlin&#34;) t, _ := time.ParseInLocation(time.RFC3339, s, loc) fmt.Println(t) 计" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20220730-time/" />
+<meta property="article:published_time" content="2022-07-30T16:37:55+08:00" />
+<meta property="article:modified_time" content="2022-07-30T16:37:55+08:00" />
+<meta itemprop="name" content="[Go] time.Time 时间格式处理">
+<meta itemprop="description" content="golang中对时间和日期格式处理 date format in Go golang 时间格式化文档time constants 1 2 3 4 5 6 7 time.Now().UTC().Format(&#34;2006-01-02&#34;) time.Now().UTC().Format(&#34;02/01/2006&#34;) time.Now().UTC().Format(&#34;2006-01-02 15:04:05&#34;) time.Now().UTC().Format(time.RFC3339) Parse date with a timezone 1 2 3 4 s := &#34;2022-07-30T19:12:00&#43;01:00&#34; loc, _ := time.LoadLocation(&#34;Europe/Berlin&#34;) t, _ := time.ParseInLocation(time.RFC3339, s, loc) fmt.Println(t) 计">
+<meta itemprop="datePublished" content="2022-07-30T16:37:55&#43;08:00" />
+<meta itemprop="dateModified" content="2022-07-30T16:37:55&#43;08:00" />
+<meta itemprop="wordCount" content="1145">
+
+
+
+<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Go] time.Time 时间格式处理"/>
+<meta name="twitter:description" content="golang中对时间和日期格式处理 date format in Go golang 时间格式化文档time constants 1 2 3 4 5 6 7 time.Now().UTC().Format(&#34;2006-01-02&#34;) time.Now().UTC().Format(&#34;02/01/2006&#34;) time.Now().UTC().Format(&#34;2006-01-02 15:04:05&#34;) time.Now().UTC().Format(time.RFC3339) Parse date with a timezone 1 2 3 4 s := &#34;2022-07-30T19:12:00&#43;01:00&#34; loc, _ := time.LoadLocation(&#34;Europe/Berlin&#34;) t, _ := time.ParseInLocation(time.RFC3339, s, loc) fmt.Println(t) 计"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Go] time.Time 时间格式处理</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2022-07-30 </span>
+        <div class="post-category">
+            <a href="/categories/golang/"> golang </a>
+            </div>
+          <span class="more-meta"> 1145 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#date-format-in-go">date format in Go</a>
+      <ul>
+        <li><a href="#parse-date-with-a-timezone">Parse date with a timezone</a></li>
+      </ul>
+    </li>
+    <li><a href="#计算两个日期的时间差">计算两个日期的时间差</a></li>
+    <li><a href="#unix-time-in-go">Unix time in Go</a>
+      <ul>
+        <li><a href="#convert-datetime-to-unix-epoch-time">Convert date/time to Unix epoch time</a></li>
+        <li><a href="#get-current-unix-timestamp">Get current Unix timestamp</a></li>
+        <li><a href="#convert-unix-timestamp-to-timetime">Convert Unix timestamp to time.Time</a></li>
+        <li><a href="#parse-unix-timestamp-from-string-to-timetime">Parse Unix timestamp from string to time.Time</a></li>
+      </ul>
+    </li>
+    <li><a href="#date-and-time-format-in-go">Date and time format in Go</a>
+      <ul>
+        <li><a href="#时间格式">时间格式</a></li>
+      </ul>
+    </li>
+    <li><a href="#date-format">Date format</a>
+      <ul>
+        <li><a href="#year-format">Year format</a></li>
+        <li><a href="#month-format">Month format</a></li>
+        <li><a href="#day-format">Day format</a></li>
+      </ul>
+    </li>
+    <li><a href="#time-format">Time format</a>
+      <ul>
+        <li><a href="#hour-format">Hour format</a></li>
+        <li><a href="#minute-format">Minute format</a></li>
+        <li><a href="#second-format">Second format</a></li>
+      </ul>
+    </li>
+    <li><a href="#time-zone-format">Time zone format</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>golang中对时间和日期格式处理</p>
+</blockquote>
+<h2 id="date-format-in-go">date format in Go</h2>
+<p>golang 时间格式化文档<a href="https://pkg.go.dev/time#pkg-constants">time constants</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">UTC</span><span class="p">().</span><span class="nf">Format</span><span class="p">(</span><span class="s">&#34;2006-01-02&#34;</span><span class="p">)</span>
+
+<span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">UTC</span><span class="p">().</span><span class="nf">Format</span><span class="p">(</span><span class="s">&#34;02/01/2006&#34;</span><span class="p">)</span>
+
+<span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">UTC</span><span class="p">().</span><span class="nf">Format</span><span class="p">(</span><span class="s">&#34;2006-01-02 15:04:05&#34;</span><span class="p">)</span>
+
+<span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">UTC</span><span class="p">().</span><span class="nf">Format</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">RFC3339</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="parse-date-with-a-timezone">Parse date with a timezone</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">s</span> <span class="o">:=</span> <span class="s">&#34;2022-07-30T19:12:00+01:00&#34;</span>
+<span class="nx">loc</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">LoadLocation</span><span class="p">(</span><span class="s">&#34;Europe/Berlin&#34;</span><span class="p">)</span>
+<span class="nx">t</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">ParseInLocation</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">RFC3339</span><span class="p">,</span> <span class="nx">s</span><span class="p">,</span> <span class="nx">loc</span><span class="p">)</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">t</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="计算两个日期的时间差">计算两个日期的时间差</h2>
+<p>使用<code>Time.Sub()</code>函数计算两个时间的差值，将差值转换为不同时间单位。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">d</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Date</span><span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nx">UTC</span><span class="p">)</span>
+<span class="nx">year</span><span class="p">,</span> <span class="nx">month</span><span class="p">,</span> <span class="nx">day</span> <span class="o">:=</span> <span class="nx">d</span><span class="p">.</span><span class="nf">Date</span><span class="p">()</span>
+
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;year = %v\n&#34;</span><span class="p">,</span> <span class="nx">year</span><span class="p">)</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;month = %v\n&#34;</span><span class="p">,</span> <span class="nx">month</span><span class="p">)</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;day = %v\n&#34;</span><span class="p">,</span> <span class="nx">day</span><span class="p">)</span>
+
+<span class="nx">nowDate</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Date</span><span class="p">(</span><span class="mi">2022</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nx">UTC</span><span class="p">)</span>
+<span class="nx">oldDate</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Date</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nx">UTC</span><span class="p">)</span>
+<span class="nx">difference</span> <span class="o">:=</span> <span class="nx">nowDate</span><span class="p">.</span><span class="nf">Sub</span><span class="p">(</span><span class="nx">oldDate</span><span class="p">)</span>
+
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Years: %d\n&#34;</span><span class="p">,</span> <span class="nb">int64</span><span class="p">(</span><span class="nx">difference</span><span class="p">.</span><span class="nf">Hours</span><span class="p">()</span><span class="o">/</span><span class="mi">24</span><span class="o">/</span><span class="mi">365</span><span class="p">))</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Months: %d\n&#34;</span><span class="p">,</span> <span class="nb">int64</span><span class="p">(</span><span class="nx">difference</span><span class="p">.</span><span class="nf">Hours</span><span class="p">()</span><span class="o">/</span><span class="mi">24</span><span class="o">/</span><span class="mi">30</span><span class="p">))</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Weeks: %d\n&#34;</span><span class="p">,</span> <span class="nb">int64</span><span class="p">(</span><span class="nx">difference</span><span class="p">.</span><span class="nf">Hours</span><span class="p">()</span><span class="o">/</span><span class="mi">24</span><span class="o">/</span><span class="mi">7</span><span class="p">))</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Days: %d\n&#34;</span><span class="p">,</span> <span class="nb">int64</span><span class="p">(</span><span class="nx">difference</span><span class="p">.</span><span class="nf">Hours</span><span class="p">()</span><span class="o">/</span><span class="mi">24</span><span class="p">))</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Hours: %.f\n&#34;</span><span class="p">,</span> <span class="nx">difference</span><span class="p">.</span><span class="nf">Hours</span><span class="p">())</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Minutes: %.f\n&#34;</span><span class="p">,</span> <span class="nx">difference</span><span class="p">.</span><span class="nf">Minutes</span><span class="p">())</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Seconds: %.f\n&#34;</span><span class="p">,</span> <span class="nx">difference</span><span class="p">.</span><span class="nf">Seconds</span><span class="p">())</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Milliseconds: %d\n&#34;</span><span class="p">,</span> <span class="nx">difference</span><span class="p">.</span><span class="nf">Milliseconds</span><span class="p">())</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Microseconds: %d\n&#34;</span><span class="p">,</span> <span class="nx">difference</span><span class="p">.</span><span class="nf">Microseconds</span><span class="p">())</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Nanoseconds: %d\n&#34;</span><span class="p">,</span> <span class="nx">difference</span><span class="p">.</span><span class="nf">Nanoseconds</span><span class="p">())</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="unix-time-in-go">Unix time in Go</h2>
+<p>标准库Time包可以轻松处理Unix time，获取时间截，转换时间格式。</p>
+<h3 id="convert-datetime-to-unix-epoch-time">Convert date/time to Unix epoch time</h3>
+<p>标准库time.Time结构包含多个获取Unix时间截的方法，将日期转换类型为<code>int64</code>的时间截</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">date</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Date</span><span class="p">(</span><span class="mi">2022</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nx">UTC</span><span class="p">)</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">date</span><span class="p">.</span><span class="nf">Unix</span><span class="p">())</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">date</span><span class="p">.</span><span class="nf">UnixMilli</span><span class="p">())</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">date</span><span class="p">.</span><span class="nf">UnixMicro</span><span class="p">())</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">date</span><span class="p">.</span><span class="nf">UnixNano</span><span class="p">())</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="get-current-unix-timestamp">Get current Unix timestamp</h3>
+<p>获取当前时间的时间截，只需要通过<code>time.Now()</code>方法获取到当前时间的Time结构，然后使用时间截方法转换。</p>
+<h4 id="get-current-unixepoch-time-in-seconds">Get current Unix/Epoch time in seconds</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Unix</span><span class="p">())</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="get-current-unixepoch-time-in-milliseconds">Get current Unix/Epoch time in milliseconds</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">UnixMilli</span><span class="p">())</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="get-current-unixepoch-time-in-microseconds">Get current Unix/Epoch time in microseconds</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">UnixMicro</span><span class="p">())</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="get-current-unixepoch-time-in-nanoseconds">Get current Unix/Epoch time in nanoseconds</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">UnixNano</span><span class="p">())</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="convert-unix-timestamp-to-timetime">Convert Unix timestamp to time.Time</h3>
+<p>标准库同样提供方法将时间截类型<code>int64</code>转换为Time</p>
+<h4 id="second-unix-timestamp-to-timetime">Second Unix timestamp to time.Time</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">timestamp</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Unix</span><span class="p">()</span>
+<span class="nx">t</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Unix</span><span class="p">(</span><span class="nx">timestamp</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">t</span><span class="p">.</span><span class="nf">UTC</span><span class="p">())</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="millisecond-unix-timestamp-to-timetime">Millisecond Unix timestamp to time.Time</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">timestamp</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">UnixMilli</span><span class="p">()</span>
+<span class="nx">t</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">UnixMilli</span><span class="p">(</span><span class="nx">timestamp</span><span class="p">)</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">t</span><span class="p">.</span><span class="nf">UTC</span><span class="p">())</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="microsecond-unix-timestamp-to-timetime">Microsecond Unix timestamp to time.Time</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">timestamp</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">UnixMicro</span><span class="p">()</span>
+<span class="nx">t</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">UnixMicro</span><span class="p">(</span><span class="nx">timestamp</span><span class="p">)</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">t</span><span class="p">.</span><span class="nf">UTC</span><span class="p">())</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="nanosecond-unix-timestamp-to-timetime">Nanosecond Unix timestamp to time.Time</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">timestamp</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">UnixNano</span><span class="p">()</span>
+<span class="nx">t</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Unix</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">timestamp</span><span class="p">)</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">t</span><span class="p">.</span><span class="nf">UTC</span><span class="p">())</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="parse-unix-timestamp-from-string-to-timetime">Parse Unix timestamp from string to time.Time</h3>
+<p>将字符串类型的时间截转换为time.Time</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">timeString</span> <span class="o">:=</span> <span class="s">&#34;1659173687&#34;</span>
+<span class="nx">timestamp</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">strconv</span><span class="p">.</span><span class="nf">ParseInt</span><span class="p">(</span><span class="nx">timeString</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>
+<span class="nx">t</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Unix</span><span class="p">(</span><span class="nx">timestamp</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">t</span><span class="p">.</span><span class="nf">UTC</span><span class="p">())</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="date-and-time-format-in-go">Date and time format in Go</h2>
+<h3 id="时间格式">时间格式</h3>
+<p>时间格式定义，<a href="https://pkg.go.dev/time#pkg-constants">time constants</a></p>
+<p>&ldquo;01/02 03:04:05PM &lsquo;06 -0700&rdquo;</p>
+<ul>
+<li>01 - month</li>
+<li>02 - day</li>
+<li>03 - hour (12h)</li>
+<li>04 - minute</li>
+<li>05 - second</li>
+<li>06 - year</li>
+<li>07 - time zone offset</li>
+</ul>
+<h2 id="date-format">Date format</h2>
+<h3 id="year-format">Year format</h3>
+<table>
+<thead>
+<tr>
+<th>Go layout</th>
+<th align="left">Format</th>
+<th>Example</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2006</td>
+<td align="left">YYYY</td>
+<td>&ldquo;2022&rdquo;</td>
+<td align="left">Four-digit year</td>
+</tr>
+<tr>
+<td>06</td>
+<td align="left">YY</td>
+<td>&ldquo;22&rdquo;</td>
+<td align="left">Two-digit year</td>
+</tr>
+</tbody>
+</table>
+<h3 id="month-format">Month format</h3>
+<table>
+<thead>
+<tr>
+<th>Go layout</th>
+<th align="left">Format</th>
+<th align="left">Example</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>January</td>
+<td align="left">MMMM</td>
+<td align="left">&ldquo;July&rdquo;</td>
+<td align="left">Full month name</td>
+</tr>
+<tr>
+<td>Jan</td>
+<td align="left">MMM</td>
+<td align="left">&ldquo;Jul&rdquo;</td>
+<td align="left">Three-letter abbreviation of the month</td>
+</tr>
+<tr>
+<td>01</td>
+<td align="left">MM</td>
+<td align="left">&ldquo;07&rdquo;</td>
+<td align="left">Two-digit month (with a leading 0 if necessary)</td>
+</tr>
+<tr>
+<td>1</td>
+<td align="left">M</td>
+<td align="left">&ldquo;7&rdquo;</td>
+<td align="left">At most two-digit month (without a leading 0)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="day-format">Day format</h3>
+<table>
+<thead>
+<tr>
+<th>Go layout</th>
+<th align="left">Format</th>
+<th align="left">Example</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Monday</td>
+<td align="left">DDDD</td>
+<td align="left">&ldquo;Tuesday&rdquo;</td>
+<td align="left">Full weekday name</td>
+</tr>
+<tr>
+<td>Mon</td>
+<td align="left">DDD</td>
+<td align="left">&ldquo;Tue&rdquo;</td>
+<td align="left">Three-letter abbreviation of the weekday</td>
+</tr>
+<tr>
+<td>02</td>
+<td align="left">DD</td>
+<td align="left">&ldquo;08&rdquo;</td>
+<td align="left">Two-digit month day (with a leading 0 if necessary)</td>
+</tr>
+<tr>
+<td>_2</td>
+<td align="left">_D</td>
+<td align="left">&quot; 8&rdquo;</td>
+<td align="left">Two-character month day with a leading space if necessary</td>
+</tr>
+<tr>
+<td>2</td>
+<td align="left">D</td>
+<td align="left">&ldquo;8&rdquo;</td>
+<td align="left">At most two-digit month day (without a leading 0)</td>
+</tr>
+<tr>
+<td>002</td>
+<td align="left">ddd</td>
+<td align="left">&ldquo;074&rdquo;</td>
+<td align="left">Three-digit day of the year (with a leading 0 if necessary)</td>
+</tr>
+<tr>
+<td>__2</td>
+<td align="left">__d</td>
+<td align="left">&quot; 74&rdquo;</td>
+<td align="left">Three-character day of the year with a leading spaces if necessary</td>
+</tr>
+</tbody>
+</table>
+<h2 id="time-format">Time format</h2>
+<h3 id="hour-format">Hour format</h3>
+<table>
+<thead>
+<tr>
+<th>Go layout</th>
+<th align="left">Format</th>
+<th align="left">Example</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>15</td>
+<td align="left">hh</td>
+<td align="left">&ldquo;17&rdquo;</td>
+<td align="left">Two-digit 24h format hour</td>
+</tr>
+<tr>
+<td>03</td>
+<td align="left">hh</td>
+<td align="left">&ldquo;05&rdquo;</td>
+<td align="left">Two digit 12h format hour (with a leading 0 if necessary)</td>
+</tr>
+<tr>
+<td>3</td>
+<td align="left">h</td>
+<td align="left">&ldquo;5&rdquo;</td>
+<td align="left">At most two-digit 12h format hour (without a leading 0)</td>
+</tr>
+<tr>
+<td>PM</td>
+<td align="left">am/pm</td>
+<td align="left">&ldquo;AM&rdquo;</td>
+<td align="left">AM/PM mark (uppercase)</td>
+</tr>
+<tr>
+<td>pm</td>
+<td align="left">am/pm</td>
+<td align="left">&ldquo;am&rdquo;</td>
+<td align="left">AM/PM mark (lowercase)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="minute-format">Minute format</h3>
+<table>
+<thead>
+<tr>
+<th>Go layout</th>
+<th align="left">Format</th>
+<th align="left">Example</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>04</td>
+<td align="left">mm</td>
+<td align="left">&quot;07&rdquo;</td>
+<td align="left">Two-digit minute (with a leading 0 if necessary)</td>
+</tr>
+<tr>
+<td>4</td>
+<td align="left">m</td>
+<td align="left">&quot;7&rdquo;</td>
+<td align="left">At most two-digit minute (without a leading 0)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="second-format">Second format</h3>
+<table>
+<thead>
+<tr>
+<th>Go layout</th>
+<th align="left">Format</th>
+<th align="left">Example</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>05</td>
+<td align="left">ss</td>
+<td align="left">&ldquo;09&rdquo;</td>
+<td align="left">Two-digit second (with a leading 0 if necessary)</td>
+</tr>
+<tr>
+<td>5</td>
+<td align="left">s</td>
+<td align="left">&ldquo;9&rdquo;</td>
+<td align="left">At most two-digit second (without a leading 0)</td>
+</tr>
+<tr>
+<td>.0, .00, …, .000000000</td>
+<td align="left">.s</td>
+<td align="left">&ldquo;.126284000&rdquo;</td>
+<td align="left">A fractional second (trailing zeros included)</td>
+</tr>
+<tr>
+<td>.9, .99, …, .999999999</td>
+<td align="left">.s</td>
+<td align="left">&ldquo;.126284&rdquo;</td>
+<td align="left">A fractional second (trailing zeros omitted)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="time-zone-format">Time zone format</h2>
+<table>
+<thead>
+<tr>
+<th>Go layout</th>
+<th align="left">Format</th>
+<th align="left">Example</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MST</td>
+<td align="left">TTT</td>
+<td align="left">&ldquo;CEST&rdquo;</td>
+<td align="left">Abbreviation of the time zone</td>
+</tr>
+<tr>
+<td>-070000</td>
+<td align="left">±hhmmss</td>
+<td align="left">&ldquo;+010000&rdquo;</td>
+<td align="left">Numeric time zone offset with hours, minutes, and seconds</td>
+</tr>
+<tr>
+<td>-07:00:00</td>
+<td align="left">±hh:mm:ss</td>
+<td align="left">&ldquo;+01:00:00&rdquo;</td>
+<td align="left">Numeric time zone offset with hours, minutes, and seconds separated by colons</td>
+</tr>
+<tr>
+<td>-0700</td>
+<td align="left">±hhmm</td>
+<td align="left">&ldquo;+0100&rdquo;</td>
+<td align="left">Numeric time zone offset with hours and minutes</td>
+</tr>
+<tr>
+<td>-07:00</td>
+<td align="left">±hh:mm</td>
+<td align="left">&ldquo;+01:00&rdquo;</td>
+<td align="left">Numeric time zone offset with hours and minutes separated by colons</td>
+</tr>
+<tr>
+<td>-07</td>
+<td align="left">±hh</td>
+<td align="left">&ldquo;+01&rdquo;</td>
+<td align="left">Numeric time zone offset with hours</td>
+</tr>
+<tr>
+<td>Z070000</td>
+<td align="left">Z or ±hhmmss</td>
+<td align="left">&ldquo;+010000&rdquo;</td>
+<td align="left">Like -070000 but prints &ldquo;Z&rdquo; instead of &ldquo;+000000&rdquo; for the UTC zone (ISO 8601 behavior)</td>
+</tr>
+<tr>
+<td>Z07:00:00</td>
+<td align="left">Z or ±hh:mm:ss</td>
+<td align="left">&ldquo;+01:00:00&rdquo;</td>
+<td align="left">Like -07:00:00 but prints &ldquo;Z&rdquo; instead of &ldquo;+00:00:00&rdquo; for the UTC zone (ISO 8601 behavior)</td>
+</tr>
+<tr>
+<td>Z0700</td>
+<td align="left">Z or ±hhmm</td>
+<td align="left">&ldquo;+0100&rdquo;</td>
+<td align="left">Like -0700 but prints &ldquo;Z&rdquo; instead of &ldquo;+0000&rdquo; for the UTC zone (ISO 8601 behavior)</td>
+</tr>
+<tr>
+<td>Z07:00</td>
+<td align="left">Z or ±hh:mm</td>
+<td align="left">&ldquo;+01:00&rdquo;</td>
+<td align="left">Like -07:00 but prints &ldquo;Z&rdquo; instead of &ldquo;+00:00&rdquo; for the UTC zone (ISO 8601 behavior)</td>
+</tr>
+<tr>
+<td>Z07</td>
+<td align="left">Z or ±hh</td>
+<td align="left">&ldquo;+01&rdquo;</td>
+<td align="left">Like -07 but prints &ldquo;Z&rdquo; instead of &ldquo;+00&rdquo; for the UTC zone (ISO 8601 behavior)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://pkg.go.dev/time#pkg-constants">time constants in go</a></li>
+<li><a href="https://gosamples.dev/unix-time/">Unix time in Go [cheatsheet]</a></li>
+<li><a href="https://gosamples.dev/date-time-format-cheatsheet/">Date and time format in Go cheatsheet</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2022-07-30
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/golang/">golang</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/mysql/20220724-databend/">
+            <span class="next-text nav-default">[Databend] 使用 hyperfine 通过 MySQL 客户端执行基准测试</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: '2022-07-30 16:37:55 \x2b0800 CST',
+        title: '[Go] time.Time 时间格式处理',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2022
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
