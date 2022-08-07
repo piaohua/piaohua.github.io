@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="piaohua" /><meta name="description" content="转载自 理解 Iptables iptables 作为 Linux 内核中的重要功能，有着广泛的应用，在 Istio 中默认就是利用 iptables 做透明流量劫持的。理解 iptables，对于我们理解 Istio 的运作有十分" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="piaohua" /><meta name="description" content="iptables 作为 Linux 内核中的重要功能，有着广泛的应用，在 Istio 中默认就是利用 iptables 做透明流量劫持的。 iptables 简介 iptables 是 Linux 内核中的防火墙软件 netfilter 的管理工具，位于用户空间，同" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 
@@ -40,22 +40,22 @@
 
 
 <meta property="og:title" content="[Linux] 理解 Iptables" />
-<meta property="og:description" content="转载自 理解 Iptables iptables 作为 Linux 内核中的重要功能，有着广泛的应用，在 Istio 中默认就是利用 iptables 做透明流量劫持的。理解 iptables，对于我们理解 Istio 的运作有十分" />
+<meta property="og:description" content="iptables 作为 Linux 内核中的重要功能，有着广泛的应用，在 Istio 中默认就是利用 iptables 做透明流量劫持的。 iptables 简介 iptables 是 Linux 内核中的防火墙软件 netfilter 的管理工具，位于用户空间，同" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://piaohua.github.io/post/linux/20220807-understanding-iptables/" />
 <meta property="article:published_time" content="2022-08-07T10:10:32+08:00" />
 <meta property="article:modified_time" content="2022-08-07T10:10:32+08:00" />
 <meta itemprop="name" content="[Linux] 理解 Iptables">
-<meta itemprop="description" content="转载自 理解 Iptables iptables 作为 Linux 内核中的重要功能，有着广泛的应用，在 Istio 中默认就是利用 iptables 做透明流量劫持的。理解 iptables，对于我们理解 Istio 的运作有十分">
+<meta itemprop="description" content="iptables 作为 Linux 内核中的重要功能，有着广泛的应用，在 Istio 中默认就是利用 iptables 做透明流量劫持的。 iptables 简介 iptables 是 Linux 内核中的防火墙软件 netfilter 的管理工具，位于用户空间，同">
 <meta itemprop="datePublished" content="2022-08-07T10:10:32&#43;08:00" />
 <meta itemprop="dateModified" content="2022-08-07T10:10:32&#43;08:00" />
-<meta itemprop="wordCount" content="1159">
+<meta itemprop="wordCount" content="1031">
 
 
 
 <meta itemprop="keywords" content="linux,iptables," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="[Linux] 理解 Iptables"/>
-<meta name="twitter:description" content="转载自 理解 Iptables iptables 作为 Linux 内核中的重要功能，有着广泛的应用，在 Istio 中默认就是利用 iptables 做透明流量劫持的。理解 iptables，对于我们理解 Istio 的运作有十分"/>
+<meta name="twitter:description" content="iptables 作为 Linux 内核中的重要功能，有着广泛的应用，在 Istio 中默认就是利用 iptables 做透明流量劫持的。 iptables 简介 iptables 是 Linux 内核中的防火墙软件 netfilter 的管理工具，位于用户空间，同"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -133,7 +133,7 @@
         <div class="post-category">
             <a href="/categories/linux/"> linux </a>
             </div>
-          <span class="more-meta"> 1159 words </span>
+          <span class="more-meta"> 1031 words </span>
           <span class="more-meta"> 3 mins read </span>
         
       </div>
@@ -154,16 +154,14 @@
 </div>
     <div class="post-content">
       <blockquote>
-<p>转载自 <a href="https://jimmysong.io/blog/understanding-iptables/">理解 Iptables</a></p>
+<p>iptables 作为 Linux 内核中的重要功能，有着广泛的应用，在 Istio 中默认就是利用 iptables 做透明流量劫持的。</p>
 </blockquote>
-<p>iptables 作为 Linux 内核中的重要功能，有着广泛的应用，在 Istio 中默认就是利用 iptables 做透明流量劫持的。理解 iptables，对于我们理解 Istio 的运作有十分重要的作用。本文将为大家简单介绍下 iptbles。</p>
 <h2 id="iptables-简介">iptables 简介</h2>
 <p>iptables 是 Linux 内核中的防火墙软件 netfilter 的管理工具，位于用户空间，同时也是 netfilter 的一部分。Netfilter 位于内核空间，不仅有网络地址转换的功能，也具备数据包内容修改、以及数据包过滤等防火墙功能。</p>
-<p>在了解 Init 容器初始化的 iptables 之前，我们先来了解下 iptables 和规则配置。</p>
 <p>下图展示了 iptables 调用链。
 <img src="/linux/iptables.webp" alt="iptables"></p>
 <h2 id="iptables-中的表">iptables 中的表</h2>
-<p>Init 容器中使用的的 iptables 版本是 v1.6.0，共包含 5 张表：</p>
+<p>iptables 共包含 5 张表：</p>
 <ol>
 <li>raw 用于配置数据包，raw 中的数据包不会被系统跟踪。</li>
 <li>filter 是用于存放所有与防火墙相关操作的默认表。</li>
@@ -171,7 +169,6 @@
 <li>mangle 用于对特定数据包的修改（参考损坏数据包 ）。</li>
 <li>security 用于强制访问控制 网络规则。</li>
 </ol>
-<p>注：在本示例中只用到了 nat 表。</p>
 <p>不同的表中的具有的链类型如下表所示：</p>
 <table>
 <thead>
@@ -228,7 +225,7 @@
 </tbody>
 </table>
 <h2 id="理解-iptables-规则">理解 iptables 规则</h2>
-<p>查看 istio-proxy 容器中的默认的 iptables 规则，默认查看的是 filter 表中的规则。</p>
+<p>查看 iptables 规则，默认查看的是 filter 表中的规则。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code><span class="lnt">1
@@ -254,7 +251,7 @@ Chain OUTPUT (policy ACCEPT 18M packets, 1916M bytes)
 </code></pre></td></tr></table>
 </div>
 </div><p>可以看到三个默认的链，分别是 INPUT、FORWARD 和 OUTPUT，每个链中的第一行输出表示链名称（在本例中为INPUT/FORWARD/OUTPUT），后跟默认策略（ACCEPT）。</p>
-<p>每条链中都可以添加多条规则，规则是按照顺序从前到后执行的。我们来看下规则的表头定义。</p>
+<p>每条链中都可以添加多条规则，规则是按照顺序从前到后执行的。规则的表头定义。</p>
 <ul>
 <li>pkts：处理过的匹配的报文数量</li>
 <li>bytes：累计处理的报文大小（字节数）</li>
