@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>[Linux] iptables SNAT DNAT - piaohua&#39;s blog</title>
+  <title>[Linux] 理解 Iptables - piaohua&#39;s blog</title>
   <meta name="renderer" content="webkit" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 
@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="piaohua" /><meta name="description" content="Linux Iptables SNAT DNAT 任何一个IP数据包中，都有Source IP Address与Destination IP Address这两个字段， 路由器根据这两个字段来判定" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="piaohua" /><meta name="description" content="转载自 理解 Iptables iptables 作为 Linux 内核中的重要功能，有着广泛的应用，在 Istio 中默认就是利用 iptables 做透明流量劫持的。理解 iptables，对于我们理解 Istio 的运作有十分" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 
@@ -26,7 +26,7 @@
 <meta name="generator" content="Hugo 0.67.0 with theme even" />
 
 
-<link rel="canonical" href="https://piaohua.github.io/post/linux/20200823-linux-iptables-snat-dnat/" />
+<link rel="canonical" href="https://piaohua.github.io/post/linux/20220807-understanding-iptables/" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -39,23 +39,23 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Linux] iptables SNAT DNAT" />
-<meta property="og:description" content="Linux Iptables SNAT DNAT 任何一个IP数据包中，都有Source IP Address与Destination IP Address这两个字段， 路由器根据这两个字段来判定" />
+<meta property="og:title" content="[Linux] 理解 Iptables" />
+<meta property="og:description" content="转载自 理解 Iptables iptables 作为 Linux 内核中的重要功能，有着广泛的应用，在 Istio 中默认就是利用 iptables 做透明流量劫持的。理解 iptables，对于我们理解 Istio 的运作有十分" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/linux/20200823-linux-iptables-snat-dnat/" />
-<meta property="article:published_time" content="2020-08-23T23:01:53+08:00" />
-<meta property="article:modified_time" content="2020-08-23T23:01:53+08:00" />
-<meta itemprop="name" content="[Linux] iptables SNAT DNAT">
-<meta itemprop="description" content="Linux Iptables SNAT DNAT 任何一个IP数据包中，都有Source IP Address与Destination IP Address这两个字段， 路由器根据这两个字段来判定">
-<meta itemprop="datePublished" content="2020-08-23T23:01:53&#43;08:00" />
-<meta itemprop="dateModified" content="2020-08-23T23:01:53&#43;08:00" />
-<meta itemprop="wordCount" content="921">
+<meta property="og:url" content="https://piaohua.github.io/post/linux/20220807-understanding-iptables/" />
+<meta property="article:published_time" content="2022-08-07T10:10:32+08:00" />
+<meta property="article:modified_time" content="2022-08-07T10:10:32+08:00" />
+<meta itemprop="name" content="[Linux] 理解 Iptables">
+<meta itemprop="description" content="转载自 理解 Iptables iptables 作为 Linux 内核中的重要功能，有着广泛的应用，在 Istio 中默认就是利用 iptables 做透明流量劫持的。理解 iptables，对于我们理解 Istio 的运作有十分">
+<meta itemprop="datePublished" content="2022-08-07T10:10:32&#43;08:00" />
+<meta itemprop="dateModified" content="2022-08-07T10:10:32&#43;08:00" />
+<meta itemprop="wordCount" content="1159">
 
 
 
 <meta itemprop="keywords" content="linux,iptables," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Linux] iptables SNAT DNAT"/>
-<meta name="twitter:description" content="Linux Iptables SNAT DNAT 任何一个IP数据包中，都有Source IP Address与Destination IP Address这两个字段， 路由器根据这两个字段来判定"/>
+<meta name="twitter:title" content="[Linux] 理解 Iptables"/>
+<meta name="twitter:description" content="转载自 理解 Iptables iptables 作为 Linux 内核中的重要功能，有着广泛的应用，在 Istio 中默认就是利用 iptables 做透明流量劫持的。理解 iptables，对于我们理解 Istio 的运作有十分"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -126,15 +126,15 @@
           <article class="post">
     
     <header class="post-header">
-      <h1 class="post-title">[Linux] iptables SNAT DNAT</h1>
+      <h1 class="post-title">[Linux] 理解 Iptables</h1>
 
       <div class="post-meta">
-        <span class="post-time"> 2020-08-23 </span>
+        <span class="post-time"> 2022-08-07 </span>
         <div class="post-category">
             <a href="/categories/linux/"> linux </a>
             </div>
-          <span class="more-meta"> 921 words </span>
-          <span class="more-meta"> 2 mins read </span>
+          <span class="more-meta"> 1159 words </span>
+          <span class="more-meta"> 3 mins read </span>
         
       </div>
     </header>
@@ -144,8 +144,9 @@
   <div class="post-toc-content">
     <nav id="TableOfContents">
   <ul>
-    <li><a href="#snat">SNAT</a></li>
-    <li><a href="#dnat">DNAT</a></li>
+    <li><a href="#iptables-简介">iptables 简介</a></li>
+    <li><a href="#iptables-中的表">iptables 中的表</a></li>
+    <li><a href="#理解-iptables-规则">理解 iptables 规则</a></li>
     <li><a href="#参考">参考</a></li>
   </ul>
 </nav>
@@ -153,75 +154,81 @@
 </div>
     <div class="post-content">
       <blockquote>
-<p>Linux Iptables SNAT DNAT</p>
+<p>转载自 <a href="https://jimmysong.io/blog/understanding-iptables/">理解 Iptables</a></p>
 </blockquote>
-<p>任何一个IP数据包中，都有Source IP Address与Destination IP Address这两个字段，
-路由器根据这两个字段来判定数据包是由什么地方发过来的，将要发到什么地方去。
-而iptables的DNAT与SNAT就是根据这个原理，对Source IP Address与Destination IP Address进行修改。
-通过SNAT和DNAT可以使内网和外网进行相互通讯。</p>
-<h2 id="snat">SNAT</h2>
-<p>SNAT（Source Network Address Translation，源地址转换）源映射。
-SNAT是指在数据包从网卡发送出去的时候，把数据包中的源地址部分替换为指定的IP，这样，接收方就认为数据包的来源是被替换的那个IP的主机。</p>
-<p><em><strong>示例将内网请求转发到可上网机器访问公网</strong></em></p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">&gt; iptables -t nat -I POSTROUTING 1 -j SNAT -s 192.168.10.0/24 --to-destination 192.168.1.18
-</code></pre></td></tr></table>
-</div>
-</div><p>将内网192.168.10.0/24这个IP段的请求转发到192.168.1.18这台可上网机器.</p>
-<p><em><strong>示例公网ip主机(master)上配置:</strong></em></p>
+<p>iptables 作为 Linux 内核中的重要功能，有着广泛的应用，在 Istio 中默认就是利用 iptables 做透明流量劫持的。理解 iptables，对于我们理解 Istio 的运作有十分重要的作用。本文将为大家简单介绍下 iptbles。</p>
+<h2 id="iptables-简介">iptables 简介</h2>
+<p>iptables 是 Linux 内核中的防火墙软件 netfilter 的管理工具，位于用户空间，同时也是 netfilter 的一部分。Netfilter 位于内核空间，不仅有网络地址转换的功能，也具备数据包内容修改、以及数据包过滤等防火墙功能。</p>
+<p>在了解 Init 容器初始化的 iptables 之前，我们先来了解下 iptables 和规则配置。</p>
+<p>下图展示了 iptables 调用链。
+<img src="/linux/iptables.webp" alt="iptables"></p>
+<h2 id="iptables-中的表">iptables 中的表</h2>
+<p>Init 容器中使用的的 iptables 版本是 v1.6.0，共包含 5 张表：</p>
 <ol>
-<li>确保master可以访问网络: <code>ping www.baidu.com</code> 测试</li>
-<li>执行如下命令，查看Linux操作系统的IP转发功能是否已开启。</li>
+<li>raw 用于配置数据包，raw 中的数据包不会被系统跟踪。</li>
+<li>filter 是用于存放所有与防火墙相关操作的默认表。</li>
+<li>nat 用于 网络地址转换 （例如：端口转发）。</li>
+<li>mangle 用于对特定数据包的修改（参考损坏数据包 ）。</li>
+<li>security 用于强制访问控制 网络规则。</li>
 </ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">cat /proc/sys/net/ipv4/ip_forward
-</code></pre></td></tr></table>
-</div>
-</div><p>结果：1为开启，0为关闭，默认为0。</p>
-<ol start="3">
-<li>修改/etc/sysctl.conf文件net.ipv4.ip_forward = 1。</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">echo &#34;net.ipv4.ip_forward = 1&#34; &gt;&gt; /etc/sysctl.conf &amp;&amp; sysctl -p /etc/sysctl.conf
-</code></pre></td></tr></table>
-</div>
-</div><ol start="4">
-<li>执行如下命令，使修改生效。</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">sysctl -p /etc/sysctl.conf
-</code></pre></td></tr></table>
-</div>
-</div><ol start="5">
-<li>配置SNAT。
-执行如下命令，允许网段（例如：172.18.73.0/20）内所有云服务器内访外配置。</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">iptables -t nat -A POSTROUTING -o eth0 -s 172.18.73.0/20 -j SNAT --to 172.18.73.36
-</code></pre></td></tr></table>
-</div>
-</div><p>172.18.73.36 为当前主机(master)内网ip，
-6. 查看nat配置</p>
+<p>注：在本示例中只用到了 nat 表。</p>
+<p>不同的表中的具有的链类型如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th align="left">规则名称</th>
+<th align="center">raw</th>
+<th align="center">filter</th>
+<th align="center">nat</th>
+<th align="center">mangle</th>
+<th align="center">security</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">PREROUTING</td>
+<td align="center">✓</td>
+<td align="center"></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left">INPUT</td>
+<td align="center"></td>
+<td align="center">✓</td>
+<td align="center"></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+</tr>
+<tr>
+<td align="left">OUTPUT</td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+</tr>
+<tr>
+<td align="left">POSTROUTING</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left">FORWARD</td>
+<td align="center"></td>
+<td align="center">✓</td>
+<td align="center"></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+</tr>
+</tbody>
+</table>
+<h2 id="理解-iptables-规则">理解 iptables 规则</h2>
+<p>查看 istio-proxy 容器中的默认的 iptables 规则，默认查看的是 filter 表中的规则。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code><span class="lnt">1
@@ -232,41 +239,40 @@ SNAT是指在数据包从网卡发送出去的时候，把数据包中的源地�
 </span><span class="lnt">6
 </span><span class="lnt">7
 </span><span class="lnt">8
+</span><span class="lnt">9
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">[root@masterServer ~]# iptables -t nat -L
-Chain PREROUTING (policy ACCEPT)
-target     prot opt source               destination
-Chain POSTROUTING (policy ACCEPT)
-target     prot opt source               destination
-SNAT       all  --  172.18.64.0/20       anywhere            to:172.18.73.36
-Chain OUTPUT (policy ACCEPT)
-target     prot opt source               destination
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">$ iptables -L -v
+Chain INPUT (policy ACCEPT 350K packets, 63M bytes)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain OUTPUT (policy ACCEPT 18M packets, 1916M bytes)
+ pkts bytes target     prot opt in     out     source               destination
 </code></pre></td></tr></table>
 </div>
-</div><h2 id="dnat">DNAT</h2>
-<p>DNAT（Destination Network Address Translation,目的地址转换) 目的映射。
-DNAT就是指数据包从网卡发送出去的时候，修改数据包中的目的IP。</p>
-<p><em><strong>示例将请求转发到内网机器上</strong></em></p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">&gt; iptables -t nat -A PREROUTING -i eth0 -p tcp --dst 39.156.69.79 --dport 80 -j DNAT --to-destination 192.168.1.13:80
-</code></pre></td></tr></table>
-</div>
-</div><p>把所有通过eth0这个网卡发往地址39.156.69.79的包都转发到局域网中192.168.1.13这台机器上</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">&gt; iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -m string --string &#34;baidu.com&#34; --algo bm -j DNAT --to-destination 192.168.1.10:80
-</code></pre></td></tr></table>
-</div>
-</div><p>使用&ndash;string参数将匹配到baidu.com地址的请求转到局域网192.168.1.10这台机器上.</p>
+</div><p>可以看到三个默认的链，分别是 INPUT、FORWARD 和 OUTPUT，每个链中的第一行输出表示链名称（在本例中为INPUT/FORWARD/OUTPUT），后跟默认策略（ACCEPT）。</p>
+<p>每条链中都可以添加多条规则，规则是按照顺序从前到后执行的。我们来看下规则的表头定义。</p>
+<ul>
+<li>pkts：处理过的匹配的报文数量</li>
+<li>bytes：累计处理的报文大小（字节数）</li>
+<li>target：如果报文与规则匹配，指定目标就会被执行。</li>
+<li>prot：协议，例如 tdp、udp、icmp 和 all。</li>
+<li>opt：很少使用，这一列用于显示 IP 选项。</li>
+<li>in：入站网卡。</li>
+<li>out：出站网卡。</li>
+<li>source：流量的源 IP 地址或子网，或者是 anywhere。</li>
+<li>destination：流量的目的地 IP 地址或子网，或者是 anywhere。</li>
+</ul>
+<p>还有一列没有表头，显示在最后，表示规则的选项，作为规则的扩展匹配条件，用来补充前面的几列中的配置。prot、opt、in、out、source 和 destination 和显示在 destination 后面的没有表头的一列扩展条件共同组成匹配规则。当流量匹配这些规则后就会执行 target。</p>
+<p><em><strong>target 支持的类型</strong></em></p>
+<p>target 类型包括 ACCEPT、REJECT、DROP、LOG 、SNAT、MASQUERADE、DNAT、REDIRECT、RETURN 或者跳转到其他规则等。只要执行到某一条链中只有按照顺序有一条规则匹配后就可以确定报文的去向了，除了 RETURN 类型，类似编程语言中的 return 语句，返回到它的调用点，继续执行下一条规则。target 支持的配置详解请参考 <a href="http://www.zsythink.net/archives/1199">iptables 详解（1）：iptables 概念 </a>。</p>
 <h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://jimmysong.io/blog/understanding-iptables/">理解 Iptables</a></li>
+</ul>
 
     </div>
 
@@ -278,7 +284,7 @@ DNAT就是指数据包从网卡发送出去的时候，修改数据包中的目�
   <p class="copyright-item">
     <span class="item-title">LastMod</span>
     <span class="item-content">
-        2020-08-23
+        2022-08-07
         
     </span>
   </p>
@@ -294,13 +300,9 @@ DNAT就是指数据包从网卡发送出去的时候，修改数据包中的目�
           <a href="/tags/iptables/">iptables</a>
           </div>
       <nav class="post-nav">
-        <a class="prev" href="/post/linux/20200824-linux-iptables-examples/">
-            <i class="iconfont icon-left"></i>
-            <span class="prev-text nav-default">[Linux] iptables常用示例</span>
-            <span class="prev-text nav-mobile">Prev</span>
-          </a>
-        <a class="next" href="/post/golang/20200822-golang-go-mysqlstack/">
-            <span class="next-text nav-default">[Go] 一个Golang实现的MySQL协议库介绍</span>
+        
+        <a class="next" href="/post/tool/20220806-building-github-pages-with-hugo/">
+            <span class="next-text nav-default">[hugo] 使用 Hugo 和 Github Pages 搭建属于自己的博客</span>
             <span class="next-text nav-mobile">Next</span>
             <i class="iconfont icon-right"></i>
           </a>
@@ -314,7 +316,7 @@ DNAT就是指数据包从网卡发送出去的时候，修改数据包中的目�
     <script type="text/javascript">
       var gitalk = new Gitalk({
         id: location.pathname,
-        title: '[Linux] iptables SNAT DNAT',
+        title: '[Linux] 理解 Iptables',
         clientID: '602710b5b9c12cc49296',
         clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
         repo: 'piaohua.github.io',
