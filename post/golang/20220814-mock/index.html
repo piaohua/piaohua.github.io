@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Go] 官方mock框架gomock工具使用 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="mock 是Go官方提供的测试框架，很好的集成testing包，实现对interface的mock。 安装mock 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 &amp;gt; go version" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/golang/20220814-mock/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Go] 官方mock框架gomock工具使用" />
+<meta property="og:description" content="mock 是Go官方提供的测试框架，很好的集成testing包，实现对interface的mock。 安装mock 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 &gt; go version" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20220814-mock/" />
+<meta property="article:published_time" content="2022-08-14T11:24:38+08:00" />
+<meta property="article:modified_time" content="2022-08-14T11:24:38+08:00" />
+<meta itemprop="name" content="[Go] 官方mock框架gomock工具使用">
+<meta itemprop="description" content="mock 是Go官方提供的测试框架，很好的集成testing包，实现对interface的mock。 安装mock 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 &gt; go version">
+<meta itemprop="datePublished" content="2022-08-14T11:24:38&#43;08:00" />
+<meta itemprop="dateModified" content="2022-08-14T11:24:38&#43;08:00" />
+<meta itemprop="wordCount" content="1315">
+
+
+
+<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Go] 官方mock框架gomock工具使用"/>
+<meta name="twitter:description" content="mock 是Go官方提供的测试框架，很好的集成testing包，实现对interface的mock。 安装mock 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 &gt; go version"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Go] 官方mock框架gomock工具使用</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2022-08-14 </span>
+        <div class="post-category">
+            <a href="/categories/golang/"> golang </a>
+            </div>
+          <span class="more-meta"> 1315 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#安装mock">安装mock</a></li>
+    <li><a href="#mockgen使用示例">mockgen使用示例</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p><a href="https://github.com/golang/mock">mock</a> 是Go官方提供的测试框架，很好的集成testing包，实现对interface的mock。</p>
+</blockquote>
+<h2 id="安装mock">安装mock</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">&gt; go version
+go version go1.16.6 darwin/amd64 
+
+&gt; go install github.com/golang/mock/mockgen@v1.6.0
+go: downloading github.com/golang/mock v1.6.0
+go: downloading golang.org/x/mod v0.4.2
+go: downloading golang.org/x/tools v0.1.1
+go: downloading golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
+go: downloading golang.org/x/sys v0.0.0-20210510120138-977fb7262007
+
+&gt; mockgen -version
+v1.6.0
+
+&gt; mockgen -help
+
+</code></pre></td></tr></table>
+</div>
+</div><p>mockgen支持选项：</p>
+<ul>
+<li><em><strong>-source</strong></em>：包含要mock的接口的文件。</li>
+<li><em><strong>-destination</strong></em>：要将生成的源代码写入其中的文件。如果未设置此值，则代码将打印到标准输出。</li>
+<li><em><strong>-package</strong></em>：用于生成的模拟类源代码的包。如果不设置此项，则包名称mock_与输入文件的包连接。</li>
+<li><em><strong>-import</strong></em>：应在生成的源代码中使用的显式导入列表，指定为 foo=bar/baz 形式的逗号分隔元素列表，其中 bar/baz 是要导入的包，foo 是生成的源代码中用于包的标识符。</li>
+<li><em><strong>-aux_files</strong></em>： 应查阅的其他文件列表，以解决例如在不同文件中定义的嵌入式接口。这被指定为以逗号分隔的元素列表 foo=bar/baz.go，其中 bar/baz.go 是源文件，foo 是 <em><strong>-source</strong></em> 文件使用的该文件的包名</li>
+<li><em><strong>-build_flags</strong></em>：（仅反射模式）标志逐字传递以进行构建</li>
+</ul>
+<h2 id="mockgen使用示例">mockgen使用示例</h2>
+<p><code>mockgen</code>有两种操作模式：源文件和反射。</p>
+<p>源文件模式使用<code>-source</code>指定包含interface定义的文件，生成mock类文件。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">mockgen -source=foo.go [other options]
+</code></pre></td></tr></table>
+</div>
+</div><p>反射模式没有标识参数，第一个参数是项目导入路径，第二个参数是interface名称（多个用逗号分隔）</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">mockgen database/sql/driver Conn,Driver
+</code></pre></td></tr></table>
+</div>
+</div><p>准备接口文件foo.go，接口内容如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">gomock</span>
+
+<span class="kd">type</span> <span class="nx">Foo</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nf">Bar</span><span class="p">(</span><span class="nx">x</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">int</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">SUT</span><span class="p">(</span><span class="nx">f</span> <span class="nx">Foo</span><span class="p">)</span> <span class="kt">int</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nx">f</span><span class="p">.</span><span class="nf">Bar</span><span class="p">(</span><span class="mi">99</span><span class="p">)</span>
+<span class="p">}</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>使用<code>mockgen</code>生成mock文件，执行如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">mockgen -source=./foo.go -destination=./mock_foo.go -package=gomock
+</code></pre></td></tr></table>
+</div>
+</div><p>生成的mock文件内容：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Code generated by MockGen. DO NOT EDIT.
+</span><span class="c1">// Source: ./foo.go
+</span><span class="c1"></span>
+<span class="c1">// Package gomock is a generated GoMock package.
+</span><span class="c1"></span><span class="kn">package</span> <span class="nx">gomock</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+	<span class="nx">reflect</span> <span class="s">&#34;reflect&#34;</span>
+
+	<span class="nx">gomock</span> <span class="s">&#34;github.com/golang/mock/gomock&#34;</span>
+<span class="p">)</span>
+
+<span class="c1">// MockFoo is a mock of Foo interface.
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">MockFoo</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">ctrl</span>     <span class="o">*</span><span class="nx">gomock</span><span class="p">.</span><span class="nx">Controller</span>
+	<span class="nx">recorder</span> <span class="o">*</span><span class="nx">MockFooMockRecorder</span>
+<span class="p">}</span>
+
+<span class="c1">// MockFooMockRecorder is the mock recorder for MockFoo.
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">MockFooMockRecorder</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">mock</span> <span class="o">*</span><span class="nx">MockFoo</span>
+<span class="p">}</span>
+
+<span class="c1">// NewMockFoo creates a new mock instance.
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">NewMockFoo</span><span class="p">(</span><span class="nx">ctrl</span> <span class="o">*</span><span class="nx">gomock</span><span class="p">.</span><span class="nx">Controller</span><span class="p">)</span> <span class="o">*</span><span class="nx">MockFoo</span> <span class="p">{</span>
+	<span class="nx">mock</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">MockFoo</span><span class="p">{</span><span class="nx">ctrl</span><span class="p">:</span> <span class="nx">ctrl</span><span class="p">}</span>
+	<span class="nx">mock</span><span class="p">.</span><span class="nx">recorder</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">MockFooMockRecorder</span><span class="p">{</span><span class="nx">mock</span><span class="p">}</span>
+	<span class="k">return</span> <span class="nx">mock</span>
+<span class="p">}</span>
+
+<span class="c1">// EXPECT returns an object that allows the caller to indicate expected use.
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">m</span> <span class="o">*</span><span class="nx">MockFoo</span><span class="p">)</span> <span class="nf">EXPECT</span><span class="p">()</span> <span class="o">*</span><span class="nx">MockFooMockRecorder</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nx">m</span><span class="p">.</span><span class="nx">recorder</span>
+<span class="p">}</span>
+
+<span class="c1">// Bar mocks base method.
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">m</span> <span class="o">*</span><span class="nx">MockFoo</span><span class="p">)</span> <span class="nf">Bar</span><span class="p">(</span><span class="nx">x</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">int</span> <span class="p">{</span>
+	<span class="nx">m</span><span class="p">.</span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">T</span><span class="p">.</span><span class="nf">Helper</span><span class="p">()</span>
+	<span class="nx">ret</span> <span class="o">:=</span> <span class="nx">m</span><span class="p">.</span><span class="nx">ctrl</span><span class="p">.</span><span class="nf">Call</span><span class="p">(</span><span class="nx">m</span><span class="p">,</span> <span class="s">&#34;Bar&#34;</span><span class="p">,</span> <span class="nx">x</span><span class="p">)</span>
+	<span class="nx">ret0</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">ret</span><span class="p">[</span><span class="mi">0</span><span class="p">].(</span><span class="kt">int</span><span class="p">)</span>
+	<span class="k">return</span> <span class="nx">ret0</span>
+<span class="p">}</span>
+
+<span class="c1">// Bar indicates an expected call of Bar.
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">mr</span> <span class="o">*</span><span class="nx">MockFooMockRecorder</span><span class="p">)</span> <span class="nf">Bar</span><span class="p">(</span><span class="nx">x</span> <span class="kd">interface</span><span class="p">{})</span> <span class="o">*</span><span class="nx">gomock</span><span class="p">.</span><span class="nx">Call</span> <span class="p">{</span>
+	<span class="nx">mr</span><span class="p">.</span><span class="nx">mock</span><span class="p">.</span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">T</span><span class="p">.</span><span class="nf">Helper</span><span class="p">()</span>
+	<span class="k">return</span> <span class="nx">mr</span><span class="p">.</span><span class="nx">mock</span><span class="p">.</span><span class="nx">ctrl</span><span class="p">.</span><span class="nf">RecordCallWithMethodType</span><span class="p">(</span><span class="nx">mr</span><span class="p">.</span><span class="nx">mock</span><span class="p">,</span> <span class="s">&#34;Bar&#34;</span><span class="p">,</span> <span class="nx">reflect</span><span class="p">.</span><span class="nf">TypeOf</span><span class="p">((</span><span class="o">*</span><span class="nx">MockFoo</span><span class="p">)(</span><span class="kc">nil</span><span class="p">).</span><span class="nx">Bar</span><span class="p">),</span> <span class="nx">x</span><span class="p">)</span>
+<span class="p">}</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>对生成的mock文件无需修改，生成后编写接口的单元测试方法：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">gomock</span>
+
+<span class="kd">func</span> <span class="nf">TestFoo</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">ctrl</span> <span class="o">:=</span> <span class="nx">gomock</span><span class="p">.</span><span class="nf">NewController</span><span class="p">(</span><span class="nx">t</span><span class="p">)</span>
+
+	<span class="c1">// Assert that Bar() is invoked.
+</span><span class="c1"></span>	<span class="k">defer</span> <span class="nx">ctrl</span><span class="p">.</span><span class="nf">Finish</span><span class="p">()</span>
+
+	<span class="nx">m</span> <span class="o">:=</span> <span class="nf">NewMockFoo</span><span class="p">(</span><span class="nx">ctrl</span><span class="p">)</span>
+
+	<span class="c1">// Asserts that the first and only call to Bar() is passed 99.
+</span><span class="c1"></span>	<span class="c1">// Anything else will fail.
+</span><span class="c1"></span>	<span class="nx">m</span><span class="p">.</span>
+		<span class="nf">EXPECT</span><span class="p">().</span>
+		<span class="nf">Bar</span><span class="p">(</span><span class="nx">gomock</span><span class="p">.</span><span class="nf">Eq</span><span class="p">(</span><span class="mi">99</span><span class="p">)).</span>
+		<span class="nf">Return</span><span class="p">(</span><span class="mi">101</span><span class="p">)</span>
+
+	<span class="nf">SUT</span><span class="p">(</span><span class="nx">m</span><span class="p">)</span>
+<span class="p">}</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li><code>gomock.NewController</code>：返回 <code>gomock.Controller</code>，它代表 mock 生态系统中的顶级控件。定义了 mock 对象的范围、生命周期和期待值。另外它在多个 goroutine 中是安全的</li>
+<li><code>NewMockFoo</code>：创建一个新的 mock 实例</li>
+<li><code>m.EXPECT().Bar(gomock.Eq(99)).Return(101)</code>：这里有三个步骤，EXPECT()返回一个允许调用者设置期望和返回值的对象。Bar(gomock.Eq(99)) 是设置入参并调用 mock 实例中的方法。Return(101) 是设置先前调用的方法出参。简单来说，就是设置入参并调用，最后设置返回值</li>
+</ul>
+<p>运行测试</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">&gt; go test -mod=mod -v -run=&#34;TestFoo&#34;
+=== RUN   TestFoo
+--- PASS: TestFoo (0.00s)
+PASS
+ok      tools/gomock    0.007s
+
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://github.com/golang/mock">mock</a></li>
+<li><a href="https://www.cnblogs.com/nicholas-920610/p/13526112.html">使用gomock对golang项目进行单元测试</a></li>
+<li><a href="https://www.jianshu.com/p/598a11bbdafb">使用Golang的官方mock工具&ndash;gomock</a></li>
+<li><a href="https://www.jianshu.com/p/f4e773a1b11f">GoMock框架使用指南</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2022-08-14
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/golang/">golang</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/golang/20220813-go-sqlmock/">
+            <span class="next-text nav-default">[Go] 使用 go-sqlmock 模拟数据库驱动编写单元测试用例</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: '[Go] 官方mock框架gomock工具使用',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2022
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
