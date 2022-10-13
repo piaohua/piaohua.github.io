@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Databend] 使用对象存储 MinIO 部署云数据仓库 Databend - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="使用对象存储 MinIO 部署云数据仓库 Databend MinIO MinIO 是在 Apache License v2.0 下发布的高性能对象存储。 它是与 Amazon S3 云存储服务 兼容的 API。 使用 MinIO 构建 用于机器学习、分析和应用的高" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/tool/20221013-databend-minio/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Databend] 使用对象存储 MinIO 部署云数据仓库 Databend" />
+<meta property="og:description" content="使用对象存储 MinIO 部署云数据仓库 Databend MinIO MinIO 是在 Apache License v2.0 下发布的高性能对象存储。 它是与 Amazon S3 云存储服务 兼容的 API。 使用 MinIO 构建 用于机器学习、分析和应用的高" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/tool/20221013-databend-minio/" />
+<meta property="article:published_time" content="2022-10-13T10:23:30+08:00" />
+<meta property="article:modified_time" content="2022-10-13T10:23:30+08:00" />
+<meta itemprop="name" content="[Databend] 使用对象存储 MinIO 部署云数据仓库 Databend">
+<meta itemprop="description" content="使用对象存储 MinIO 部署云数据仓库 Databend MinIO MinIO 是在 Apache License v2.0 下发布的高性能对象存储。 它是与 Amazon S3 云存储服务 兼容的 API。 使用 MinIO 构建 用于机器学习、分析和应用的高">
+<meta itemprop="datePublished" content="2022-10-13T10:23:30&#43;08:00" />
+<meta itemprop="dateModified" content="2022-10-13T10:23:30&#43;08:00" />
+<meta itemprop="wordCount" content="1163">
+
+
+
+<meta itemprop="keywords" content="databend,minio," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Databend] 使用对象存储 MinIO 部署云数据仓库 Databend"/>
+<meta name="twitter:description" content="使用对象存储 MinIO 部署云数据仓库 Databend MinIO MinIO 是在 Apache License v2.0 下发布的高性能对象存储。 它是与 Amazon S3 云存储服务 兼容的 API。 使用 MinIO 构建 用于机器学习、分析和应用的高"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Databend] 使用对象存储 MinIO 部署云数据仓库 Databend</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2022-10-13 </span>
+        <div class="post-category">
+            <a href="/categories/minio/"> minio </a>
+            </div>
+          <span class="more-meta"> 1163 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#minio">MinIO</a></li>
+    <li><a href="#databend">Databend</a></li>
+    <li><a href="#install-minio">Install MinIO</a>
+      <ul>
+        <li><a href="#下载二进制安装包">下载二进制安装包</a></li>
+        <li><a href="#创建启动脚本serversh">创建启动脚本<code>server.sh</code></a></li>
+      </ul>
+    </li>
+    <li><a href="#insert-databend">Insert Databend</a>
+      <ul>
+        <li><a href="#修改配置文件">修改配置文件</a></li>
+        <li><a href="#deploying-a-meta-node">Deploying a Meta Node</a></li>
+        <li><a href="#deploying-a-query-node">Deploying a Query Node</a></li>
+        <li><a href="#使用启动脚本部署">使用启动脚本部署</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>使用对象存储 MinIO 部署云数据仓库 Databend</p>
+</blockquote>
+<h2 id="minio">MinIO</h2>
+<p>MinIO 是在 Apache License v2.0 下发布的高性能对象存储。 它是与 Amazon S3 云存储服务</p>
+<p>兼容的 API。 使用 MinIO 构建 用于机器学习、分析和应用的高性能基础设施 数据工作负载。</p>
+<p><a href="https://github.com/minio/minio">MinIO github</a></p>
+<h2 id="databend">Databend</h2>
+<p>Databend 是一个开源的云数据仓库. Databend 使用矢量化查询处理中的最新技术，</p>
+<p>允许对对象存储（S3、Azure Blob 或 <a href="https://min.io/">MinIO</a>）进行超快的数据分析。</p>
+<p>Databend 主要定位于 OLAP 场景，采用云原生架构理念（可对比 snowflake ），</p>
+<p>有非常好的扩展性、同时具备低成本、高性能的优势，兼容 MySQL 协议。</p>
+<p>架构图：</p>
+<p><img src="https://datafuse-1253727613.cos.ap-hongkong.myqcloud.com/arch/datafuse-arch-20210817.svg" alt="databend design overview"></p>
+<ul>
+<li>
+<p><strong>特点：</strong> 计算-存储分离架构， 易扩展；parquet 列式存储，高压缩；兼容 MySQL / Clickhouse  协议（完善中）</p>
+</li>
+<li>
+<p><strong>优点：</strong> 基于云基础设施能力，充分利用了 s3 对象存储高吞吐，高可靠，低成本的优点，真正实现按用量付费</p>
+</li>
+</ul>
+<p><a href="https://github.com/datafuselabs/databend">Databend github</a></p>
+<h2 id="install-minio">Install MinIO</h2>
+<p>安装部署MinIO对象存储服务</p>
+<h3 id="下载二进制安装包">下载二进制安装包</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">wget https://dl.min.io/server/minio/release/linux-amd64/minio
+
+chmod +x minio
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="创建启动脚本serversh">创建启动脚本<code>server.sh</code></h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">~/minio$ cat server.sh
+<span class="nb">export</span> <span class="nv">MINIO_ROOT_USER</span><span class="o">=</span>minioadmin
+<span class="nb">export</span> <span class="nv">MINIO_ROOT_PASSWORD</span><span class="o">=</span>minioadmin
+<span class="nb">export</span> <span class="nv">MINIO_SERVER_URL</span><span class="o">=</span>http://x.x.x.x:port <span class="c1">## 指定 MinIO 服务器的代理可访问主机名，以允许控制台使用 TLS 证书使用 MinIO 服务器 API。</span>
+./minio server --address :9900 ./data &gt; minio.log 2&gt;<span class="p">&amp;</span><span class="m">1</span> <span class="p">&amp;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li><code>MINIO_ROOT_USER</code>  登录账号</li>
+<li><code>MINIO_ROOT_PASSWORD</code> 账号密码</li>
+<li><code>MINIO_SERVER_URL</code> 文件分享的地址，默认为内网地址，当需要开放外网访问，或者有代理， 则需要设置为外网访问地址，否则在分享文件下载地址时，下载url会是内网ip地址，外网无法访问。</li>
+<li><code>MINIO_BROWSER_REDIRECT_URL</code> 对于 MinIO 主机 IP 地址或端口不公开的负载平衡器、代理或入口规则后面的部署，通过该环境变量指定重定向的外部主机名，若不希望通过浏览器登录，可以增加 <code>MINIO_BROWSER: off</code>，禁止浏览器登录； 对于不希望</li>
+</ul>
+<p>比如配置如下nginx代理，则<code>MINIO_SERVER_URL</code>地址配置http://$host:9910</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">&gt; cat /usr/local/nginx/conf/vhost/minio.conf
+upstream minio_gateway {
+    server 127.0.0.1:9900 weight=1 max_fails=2 fail_timeout=10s;
+}
+
+server {
+    listen       9910;
+    server_name  localhost:9910;
+    location  / {
+        proxy_set_header Host $http_host;
+        proxy_pass http://minio_gateway;
+    }
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>执行脚本启动MinIO服务</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">chmod +x server.sh
+./server.sh
+</code></pre></td></tr></table>
+</div>
+</div><p>在浏览器中打开 <code>http://127.0.0.1:9900</code> 并输入启动脚本中设置的账号密码登录到MinIO控制台。</p>
+<p>登录后在控制台创建一个名为databend的bucket。</p>
+<h2 id="insert-databend">Insert Databend</h2>
+<p>安装部署Databend服务，</p>
+<p><a href="https://github.com/datafuselabs/databend/releases">Github Release:</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">curl -LJO https://github.com/datafuselabs/databend/releases/download/v0.8.72-nightly/databend-v0.8.72-nightly-x86_64-unknown-linux-musl.tar.gz
+</code></pre></td></tr></table>
+</div>
+</div><p>解压安装包</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">tar xzvf databend-v0.8.72-nightly-x86_64-unknown-linux-musl.tar.gz
+</code></pre></td></tr></table>
+</div>
+</div><p>解压后修改配置文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; ls configs
+databend-meta.toml  databend-query.toml
+
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="修改配置文件">修改配置文件</h3>
+<p>MinIO 是与 Amazon S3 云存储服务兼容的 API。所以打开 databend-query.toml 修改配置如下，storage.type = &ldquo;s3&rdquo;，storage.s3配置为MinIO服务地址。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-toml" data-lang="toml"><span class="p">[</span><span class="nx">storage</span><span class="p">]</span>
+<span class="c"># s3</span>
+<span class="nx">type</span> <span class="p">=</span> <span class="s2">&#34;s3&#34;</span>
+
+<span class="p">[</span><span class="nx">storage</span><span class="p">.</span><span class="nx">s3</span><span class="p">]</span>
+<span class="nx">bucket</span> <span class="p">=</span> <span class="s2">&#34;databend&#34;</span>
+<span class="nx">endpoint_url</span> <span class="p">=</span> <span class="s2">&#34;http://127.0.0.1:9900&#34;</span>
+<span class="nx">access_key_id</span> <span class="p">=</span> <span class="s2">&#34;minioadmin&#34;</span>
+<span class="nx">secret_access_key</span> <span class="p">=</span> <span class="s2">&#34;minioadmin&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="deploying-a-meta-node">Deploying a Meta Node</h3>
+<ol>
+<li>运行以下命令以启动 Meta 节点：</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">./bin/databend-meta -c ./configs/databend-meta.toml &gt; meta.log 2&gt;&amp;1 &amp;
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>运行以下命令，检查 Meta 节点是否已成功启动：</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">curl -I  http://127.0.0.1:28101/v1/health
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="deploying-a-query-node">Deploying a Query Node</h3>
+<ol>
+<li>运行以下命令以启动 Query 节点：</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">./bin/databend-query -c ../configs/databend-query.toml &gt; query.log 2&gt;&amp;1 &amp;
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>运行以下命令，检查“查询”节点是否已成功启动：</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">curl -I  http://127.0.0.1:8081/v1/health
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="使用启动脚本部署">使用启动脚本部署</h3>
+<ol>
+<li>解压后执行启动脚本</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; cat scripts/start.sh
+<span class="nb">echo</span> <span class="s2">&#34;Stop old Databend instances&#34;</span>
+killall -9 databend-meta
+killall -9 databend-query
+<span class="nb">echo</span> <span class="s2">&#34;Deploy new Databend(standalone)&#34;</span>
+<span class="nb">ulimit</span>  -n <span class="m">65535</span>
+nohup bin/databend-meta --config-file<span class="o">=</span>configs/databend-meta.toml 2&gt;<span class="p">&amp;</span><span class="m">1</span> &gt;meta.log <span class="p">&amp;</span>
+sleep <span class="m">3</span>
+<span class="c1"># export STORAGE_S3_ENABLE_VIRTUAL_HOST_STYLE=true</span>
+nohup bin/databend-query --config-file<span class="o">=</span>configs/databend-query.toml 2&gt;<span class="p">&amp;</span><span class="m">1</span> &gt;query.log <span class="p">&amp;</span>
+sleep <span class="m">3</span>
+tail -f meta.log query.log <span class="p">&amp;</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>停止服务脚本</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; cat scripts/stop.sh
+<span class="nb">echo</span> <span class="s2">&#34;Stop Databend instances&#34;</span>
+killall -9 databend-meta
+killall -9 databend-query
+
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://www.min.io/">MinIO</a></li>
+<li><a href="https://www.minio.org.cn/">MinIO 对象存储</a></li>
+<li><a href="https://www.cnblogs.com/jetsung/p/minio-oss.html">使用 MinIO 搭建属于自己的对象存储（OSS）</a></li>
+<li><a href="https://databend.rs/doc/">Databend documentation</a></li>
+<li><a href="https://databend.rs/doc/deploy/deploying-databend">Databend Deplaying</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2022-10-13
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/databend/">databend</a>
+          <a href="/tags/minio/">minio</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/golang/20220814-mock/">
+            <span class="next-text nav-default">[Go] 官方mock框架gomock工具使用</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: '[Databend] 使用对象存储 MinIO 部署云数据仓库 Databend',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2022
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
