@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[ClickHouse] ClickHouse SQL简单操作 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="ClickHouse支持一种基于SQL的声明式查询语言，它在许多情况下与ANSI SQL标准相同。 支持的查询GROUP BY, ORDER BY, FROM, JOIN, IN以及非相关" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/clickhouse/20230101-sql/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[ClickHouse] ClickHouse SQL简单操作" />
+<meta property="og:description" content="ClickHouse支持一种基于SQL的声明式查询语言，它在许多情况下与ANSI SQL标准相同。 支持的查询GROUP BY, ORDER BY, FROM, JOIN, IN以及非相关" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/clickhouse/20230101-sql/" />
+<meta property="article:published_time" content="2023-01-01T12:24:54+08:00" />
+<meta property="article:modified_time" content="2023-01-01T12:24:54+08:00" />
+<meta itemprop="name" content="[ClickHouse] ClickHouse SQL简单操作">
+<meta itemprop="description" content="ClickHouse支持一种基于SQL的声明式查询语言，它在许多情况下与ANSI SQL标准相同。 支持的查询GROUP BY, ORDER BY, FROM, JOIN, IN以及非相关">
+<meta itemprop="datePublished" content="2023-01-01T12:24:54&#43;08:00" />
+<meta itemprop="dateModified" content="2023-01-01T12:24:54&#43;08:00" />
+<meta itemprop="wordCount" content="2242">
+
+
+
+<meta itemprop="keywords" content="clickhouse," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[ClickHouse] ClickHouse SQL简单操作"/>
+<meta name="twitter:description" content="ClickHouse支持一种基于SQL的声明式查询语言，它在许多情况下与ANSI SQL标准相同。 支持的查询GROUP BY, ORDER BY, FROM, JOIN, IN以及非相关"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[ClickHouse] ClickHouse SQL简单操作</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2023-01-01 </span>
+        <div class="post-category">
+            <a href="/categories/clickhouse/"> clickhouse </a>
+            </div>
+          <span class="more-meta"> 2242 words </span>
+          <span class="more-meta"> 5 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#创建数据库">创建数据库</a></li>
+    <li><a href="#创建表">创建表</a></li>
+    <li><a href="#合并分区操作">合并分区操作</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>ClickHouse支持一种<a href="https://clickhouse.com/docs/zh/sql-reference/">基于SQL的声明式查询语言</a>，它在许多情况下与<a href="https://clickhouse.com/docs/zh/sql-reference/ansi">ANSI SQL标准</a>相同。</p>
+</blockquote>
+<blockquote>
+<p>支持的查询<a href="https://clickhouse.com/docs/zh/sql-reference/statements/select/group-by">GROUP BY</a>, <a href="https://clickhouse.com/docs/zh/sql-reference/statements/select/order-by">ORDER BY</a>, <a href="https://clickhouse.com/docs/zh/sql-reference/statements/select/from">FROM</a>, <a href="https://clickhouse.com/docs/zh/sql-reference/statements/select/join">JOIN</a>, <a href="https://clickhouse.com/docs/zh/sql-reference/operators/in">IN</a>以及非相关子查询。</p>
+</blockquote>
+<h2 id="创建数据库">创建数据库</h2>
+<p>ClickHouse默认使用default数据库，默认使用<a href="https://clickhouse.com/docs/zh/engines/database-engines/atomic">Atomic</a>数据库引擎</p>
+<p>创建数据库SQL语法</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">DATABASE</span> <span class="p">[</span><span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span><span class="p">]</span> <span class="n">db_name</span> <span class="p">[</span><span class="k">ON</span> <span class="k">CLUSTER</span> <span class="k">cluster</span><span class="p">]</span> <span class="p">[</span><span class="n">ENGINE</span> <span class="o">=</span> <span class="n">engine</span><span class="p">(...)]</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>ON CLUSTER 指定集群名称，指定后会在集群所有节点上创建数据库</p>
+<p>执行 <code>show databases</code> 查看节点所有数据库</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="mi">28</span><span class="n">b9c4cb4ed6</span> <span class="p">:)</span> <span class="k">show</span> <span class="n">databases</span><span class="p">;</span>
+
+<span class="k">SHOW</span> <span class="n">DATABASES</span>
+
+<span class="n">Query</span> <span class="n">id</span><span class="p">:</span> <span class="mi">627</span><span class="n">e2dc7</span><span class="o">-</span><span class="mi">8</span><span class="n">f4a</span><span class="o">-</span><span class="mi">4</span><span class="n">ebd</span><span class="o">-</span><span class="n">a329</span><span class="o">-</span><span class="mi">508</span><span class="n">a6205dc79</span>
+
+<span class="err">┌─</span><span class="n">name</span><span class="err">───────────────┐</span>
+<span class="err">│</span> <span class="n">INFORMATION_SCHEMA</span> <span class="err">│</span>
+<span class="err">│</span> <span class="k">default</span>            <span class="err">│</span>
+<span class="err">│</span> <span class="n">information_schema</span> <span class="err">│</span>
+<span class="err">│</span> <span class="k">system</span>             <span class="err">│</span>
+<span class="err">└────────────────────┘</span>
+
+<span class="mi">4</span> <span class="k">rows</span> <span class="k">in</span> <span class="k">set</span><span class="p">.</span> <span class="n">Elapsed</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">004</span> <span class="n">sec</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="创建表">创建表</h2>
+<p>创建表SQL语法</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="p">[</span><span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span><span class="p">]</span> <span class="p">[</span><span class="n">db</span><span class="p">.]</span><span class="k">table_name</span> <span class="p">[</span><span class="k">ON</span> <span class="k">CLUSTER</span> <span class="k">cluster</span><span class="p">]</span>
+<span class="p">(</span>
+    <span class="n">name1</span> <span class="p">[</span><span class="n">type1</span><span class="p">]</span> <span class="p">[</span><span class="k">NULL</span><span class="o">|</span><span class="k">NOT</span> <span class="k">NULL</span><span class="p">]</span> <span class="p">[</span><span class="k">DEFAULT</span><span class="o">|</span><span class="n">MATERIALIZED</span><span class="o">|</span><span class="n">EPHEMERAL</span><span class="o">|</span><span class="k">ALIAS</span> <span class="n">expr1</span><span class="p">]</span> <span class="p">[</span><span class="n">compression_codec</span><span class="p">]</span> <span class="p">[</span><span class="n">TTL</span> <span class="n">expr1</span><span class="p">],</span>
+    <span class="n">name2</span> <span class="p">[</span><span class="n">type2</span><span class="p">]</span> <span class="p">[</span><span class="k">NULL</span><span class="o">|</span><span class="k">NOT</span> <span class="k">NULL</span><span class="p">]</span> <span class="p">[</span><span class="k">DEFAULT</span><span class="o">|</span><span class="n">MATERIALIZED</span><span class="o">|</span><span class="n">EPHEMERAL</span><span class="o">|</span><span class="k">ALIAS</span> <span class="n">expr2</span><span class="p">]</span> <span class="p">[</span><span class="n">compression_codec</span><span class="p">]</span> <span class="p">[</span><span class="n">TTL</span> <span class="n">expr2</span><span class="p">],</span>
+    <span class="p">...</span>
+<span class="p">)</span> <span class="n">ENGINE</span> <span class="o">=</span> <span class="n">engine</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>ON CLUSTER: 指定集群，在集群上创建表</p>
+<p>创建一个MergeTree引擎的表test,  用创建日期<code>create_time</code>字段按天分区。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">create</span> <span class="k">table</span> <span class="k">if</span> <span class="k">not</span> <span class="k">exists</span> <span class="n">test</span> <span class="p">(</span>
+   <span class="n">id</span> <span class="n">UInt32</span> <span class="k">COMMENT</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span>
+   <span class="n">shop_id</span> <span class="n">String</span> <span class="k">COMMENT</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+   <span class="n">amount</span> <span class="nb">Decimal</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="k">COMMENT</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+   <span class="n">create_time</span> <span class="n">Datetime</span> <span class="k">COMMENT</span> <span class="s1">&#39;创建时间&#39;</span>
+<span class="p">)</span> <span class="n">engine</span> <span class="o">=</span><span class="n">MergeTree</span><span class="p">()</span>
+<span class="n">partition</span> <span class="k">by</span> <span class="n">toYYYYMMDD</span><span class="p">(</span><span class="n">create_time</span><span class="p">)</span> 
+<span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="k">order</span> <span class="k">by</span> <span class="p">(</span><span class="n">id</span><span class="p">,</span> <span class="n">shop_id</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>order by(必选)</p>
+<pre><code>`order by` 设定了分区内的数据按照哪些字段顺序进行有序保存。
+
+`order by` 是 `MergeTree` 中唯一一个必填项，甚至比 primary key 还重要，因为当不设置主键的情况，很多处理会依照 order by 的字段进行处理
+
+要求:主键必须是 `order by` 字段的前缀字段。
+
+比如 order by 字段是 (id, shop_id) 那么主键必须是 id 或者(id, shop_id)
+</code></pre>
+<p>primary key 主键(可选)</p>
+<pre><code>ClickHouse 中的主键，和其他数据库不太一样，它只提供了数据的一级索引，
+但是却不是唯一约束。这就意味着是可以存在相同 primary key 的数据的。
+
+主键的设定主要依据是查询语句中的 where 条件。
+
+根据条件通过对主键进行某种形式的二分查找，能够定位到对应的index granularity,避免了全表扫描。
+
+index granularity: 直接翻译的话就是索引粒度，指在稀疏索引中两个相邻索引对应数据的
+间隔。ClickHouse 中的 MergeTree 默认是 8192。官方不建议修改这个值，除非该列存在
+大量重复值，比如在一个分区中几万行才有一个不同数据。
+</code></pre>
+<p>artition by 分区(可选)</p>
+<pre><code>1）作用：分区的目的主要是降低扫描的范围，优化查询速度。如果不指明partition by的话，只会使用一个分区
+
+2）分区目录：MergeTree 是以列文件+索引文件+表定义文件组成的，
+但是如果设定了分区那么这些文件就会保存到不同的分区目录中。
+
+3）并行：分区后，面对涉及跨分区的查询统计，ClickHouse 会以分区为单位并行处理。
+
+4）数据写入与分区合并：任何一个批次的数据写入都会产生一个临时分区，不会纳入任何一个已有的分区。
+写入后的某个时刻(大概 10-15 分钟后)，ClickHouse 会自动执行合并操作(等不及也可以
+手动。通过 optimize 执行)，把临时分区的数据，合并到已有分区中。
+
+手动合并执行SQL `optimize table test final;`
+</code></pre>
+<p>执行 <code>show tables</code> 查看当前库中所有表</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="mi">28</span><span class="n">b9c4cb4ed6</span> <span class="p">:)</span> <span class="k">show</span> <span class="n">tables</span><span class="p">;</span>
+
+<span class="k">SHOW</span> <span class="n">TABLES</span>
+
+<span class="n">Query</span> <span class="n">id</span><span class="p">:</span> <span class="n">a2e44d1e</span><span class="o">-</span><span class="mi">6617</span><span class="o">-</span><span class="mi">426</span><span class="n">a</span><span class="o">-</span><span class="mi">9600</span><span class="o">-</span><span class="mi">0</span><span class="n">d7df0a768fa</span>
+
+<span class="err">┌─</span><span class="n">name</span><span class="err">─┐</span>
+<span class="err">│</span> <span class="n">test</span> <span class="err">│</span>
+<span class="err">└──────┘</span>
+
+<span class="mi">1</span> <span class="k">rows</span> <span class="k">in</span> <span class="k">set</span><span class="p">.</span> <span class="n">Elapsed</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">005</span> <span class="n">sec</span><span class="p">.</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>使用 <code>describe test</code> 查看表字段属性</p>
+<p>分批插入数据</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">insert</span> <span class="k">into</span> <span class="n">test</span><span class="p">(</span><span class="n">id</span><span class="p">,</span> <span class="n">shop_id</span><span class="p">,</span> <span class="n">amount</span><span class="p">,</span> <span class="n">create_time</span><span class="p">)</span> <span class="k">VALUES</span> 
+<span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;101&#39;</span><span class="p">,</span> <span class="s1">&#39;11.00&#39;</span><span class="p">,</span> <span class="n">toDateTime</span><span class="p">(</span><span class="s1">&#39;2023-01-01 00:00:00&#39;</span><span class="p">)),</span>
+<span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;102&#39;</span><span class="p">,</span> <span class="s1">&#39;12.00&#39;</span><span class="p">,</span> <span class="n">toDateTime</span><span class="p">(</span><span class="s1">&#39;2023-01-01 00:00:00&#39;</span><span class="p">));</span>
+
+<span class="k">insert</span> <span class="k">into</span> <span class="n">test</span><span class="p">(</span><span class="n">id</span><span class="p">,</span> <span class="n">shop_id</span><span class="p">,</span> <span class="n">amount</span><span class="p">,</span> <span class="n">create_time</span><span class="p">)</span> <span class="k">VALUES</span> 
+<span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;103&#39;</span><span class="p">,</span> <span class="s1">&#39;13.00&#39;</span><span class="p">,</span> <span class="n">toDateTime</span><span class="p">(</span><span class="s1">&#39;2023-01-01 00:00:00&#39;</span><span class="p">)),</span>
+<span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;104&#39;</span><span class="p">,</span> <span class="s1">&#39;14.00&#39;</span><span class="p">,</span> <span class="n">toDateTime</span><span class="p">(</span><span class="s1">&#39;2023-01-01 00:00:00&#39;</span><span class="p">));</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>查询数据</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="mi">28</span><span class="n">b9c4cb4ed6</span> <span class="p">:)</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">test</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="o">*</span>
+<span class="k">FROM</span> <span class="n">test</span>
+
+<span class="n">Query</span> <span class="n">id</span><span class="p">:</span> <span class="mi">989</span><span class="n">e4853</span><span class="o">-</span><span class="mi">0</span><span class="n">eea</span><span class="o">-</span><span class="mi">46</span><span class="n">fe</span><span class="o">-</span><span class="n">ba2f</span><span class="o">-</span><span class="mi">81816580839</span><span class="n">e</span>
+
+<span class="err">┌─</span><span class="n">id</span><span class="err">─┬─</span><span class="n">shop_id</span><span class="err">─┬─</span><span class="n">amount</span><span class="err">─┬─────────</span><span class="n">create_time</span><span class="err">─┐</span>
+<span class="err">│</span>  <span class="mi">3</span> <span class="err">│</span> <span class="mi">103</span>     <span class="err">│</span>     <span class="mi">13</span> <span class="err">│</span> <span class="mi">2023</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">01</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span> <span class="err">│</span>
+<span class="err">│</span>  <span class="mi">4</span> <span class="err">│</span> <span class="mi">104</span>     <span class="err">│</span>     <span class="mi">14</span> <span class="err">│</span> <span class="mi">2023</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">01</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span> <span class="err">│</span>
+<span class="err">└────┴─────────┴────────┴─────────────────────┘</span>
+<span class="err">┌─</span><span class="n">id</span><span class="err">─┬─</span><span class="n">shop_id</span><span class="err">─┬─</span><span class="n">amount</span><span class="err">─┬─────────</span><span class="n">create_time</span><span class="err">─┐</span>
+<span class="err">│</span>  <span class="mi">1</span> <span class="err">│</span> <span class="mi">101</span>     <span class="err">│</span>     <span class="mi">11</span> <span class="err">│</span> <span class="mi">2023</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">01</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span> <span class="err">│</span>
+<span class="err">│</span>  <span class="mi">2</span> <span class="err">│</span> <span class="mi">102</span>     <span class="err">│</span>     <span class="mi">12</span> <span class="err">│</span> <span class="mi">2023</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">01</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span> <span class="err">│</span>
+<span class="err">└────┴─────────┴────────┴─────────────────────┘</span>
+
+<span class="mi">4</span> <span class="k">rows</span> <span class="k">in</span> <span class="k">set</span><span class="p">.</span> <span class="n">Elapsed</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">006</span> <span class="n">sec</span><span class="p">.</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>分批插入的数据会生成新的临时片段,存储底层对应新的分区文件，可以通过system.parts表查看。</p>
+<p>执行如下SQL查看test表的分区情况</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="mi">28</span><span class="n">b9c4cb4ed6</span> <span class="p">:)</span>  <span class="k">SELECT</span>
+                 <span class="k">database</span><span class="p">,</span>
+                 <span class="k">table</span><span class="p">,</span>
+                 <span class="n">partition</span><span class="p">,</span>
+                 <span class="n">partition_id</span><span class="p">,</span>
+                 <span class="n">name</span><span class="p">,</span>
+                 <span class="n">active</span><span class="p">,</span>
+                 <span class="n">path</span>
+                 <span class="k">FROM</span> <span class="k">system</span><span class="p">.</span><span class="n">parts</span>
+                 <span class="k">WHERE</span> <span class="k">table</span> <span class="o">=</span> <span class="s1">&#39;test&#39;</span>
+
+<span class="k">SELECT</span>
+    <span class="k">database</span><span class="p">,</span>
+    <span class="k">table</span><span class="p">,</span>
+    <span class="n">partition</span><span class="p">,</span>
+    <span class="n">partition_id</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">,</span>
+    <span class="n">active</span><span class="p">,</span>
+    <span class="n">path</span>
+<span class="k">FROM</span> <span class="k">system</span><span class="p">.</span><span class="n">parts</span>
+<span class="k">WHERE</span> <span class="k">table</span> <span class="o">=</span> <span class="s1">&#39;test&#39;</span>
+
+<span class="n">Query</span> <span class="n">id</span><span class="p">:</span> <span class="mi">55</span><span class="n">ddd330</span><span class="o">-</span><span class="n">e30c</span><span class="o">-</span><span class="mi">4918</span><span class="o">-</span><span class="mi">8777</span><span class="o">-</span><span class="n">bfa9c3b56dc2</span>
+
+<span class="err">┌─</span><span class="k">database</span><span class="err">─┬─</span><span class="k">table</span><span class="err">─┬─</span><span class="n">partition</span><span class="err">─┬─</span><span class="n">partition_id</span><span class="err">─┬─</span><span class="n">name</span><span class="err">───────────┬─</span><span class="n">active</span><span class="err">─┬─</span><span class="n">path</span><span class="err">───────────────────────────────────────────────────────────────────────────────┐</span>
+<span class="err">│</span> <span class="k">default</span>  <span class="err">│</span> <span class="n">test</span>  <span class="err">│</span> <span class="mi">20230101</span>  <span class="err">│</span> <span class="mi">20230101</span>     <span class="err">│</span> <span class="mi">20230101</span><span class="n">_1_1_0</span> <span class="err">│</span>      <span class="mi">1</span> <span class="err">│</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">clickhouse</span><span class="o">/</span><span class="n">store</span><span class="o">/</span><span class="mi">683</span><span class="o">/</span><span class="mi">6838</span><span class="n">f6bf</span><span class="o">-</span><span class="mi">7</span><span class="n">c41</span><span class="o">-</span><span class="mi">4</span><span class="n">b02</span><span class="o">-</span><span class="n">a838</span><span class="o">-</span><span class="n">f6bf7c417b02</span><span class="o">/</span><span class="mi">20230101</span><span class="n">_1_1_0</span><span class="o">/</span> <span class="err">│</span>
+<span class="err">│</span> <span class="k">default</span>  <span class="err">│</span> <span class="n">test</span>  <span class="err">│</span> <span class="mi">20230101</span>  <span class="err">│</span> <span class="mi">20230101</span>     <span class="err">│</span> <span class="mi">20230101</span><span class="n">_2_2_0</span> <span class="err">│</span>      <span class="mi">1</span> <span class="err">│</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">clickhouse</span><span class="o">/</span><span class="n">store</span><span class="o">/</span><span class="mi">683</span><span class="o">/</span><span class="mi">6838</span><span class="n">f6bf</span><span class="o">-</span><span class="mi">7</span><span class="n">c41</span><span class="o">-</span><span class="mi">4</span><span class="n">b02</span><span class="o">-</span><span class="n">a838</span><span class="o">-</span><span class="n">f6bf7c417b02</span><span class="o">/</span><span class="mi">20230101</span><span class="n">_2_2_0</span><span class="o">/</span> <span class="err">│</span>
+<span class="err">└──────────┴───────┴───────────┴──────────────┴────────────────┴────────┴────────────────────────────────────────────────────────────────────────────────────┘</span>
+
+<span class="mi">2</span> <span class="k">rows</span> <span class="k">in</span> <span class="k">set</span><span class="p">.</span> <span class="n">Elapsed</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">006</span> <span class="n">sec</span><span class="p">.</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>MergeTree引擎会在插入数据15分钟左右，将同一个分区的各个分区文件片段合并成一整个分区文件。</p>
+<p>也可以手动执行 OPTIMIZE 语句手动触发合并指定的分区片段。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">OPTIMIZE</span> <span class="k">TABLE</span> <span class="n">test</span> <span class="n">PARTITION</span> <span class="s1">&#39;20230101&#39;</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="合并分区操作">合并分区操作</h2>
+<p>合并分区操作SQL语法</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">OPTIMIZE</span> <span class="k">TABLE</span> <span class="p">[</span><span class="n">db</span><span class="p">.]</span><span class="n">name</span> <span class="p">[</span><span class="k">ON</span> <span class="k">CLUSTER</span> <span class="k">cluster</span><span class="p">]</span> <span class="p">[</span><span class="n">PARTITION</span> <span class="n">partition</span> <span class="o">|</span> <span class="n">PARTITION</span> <span class="n">ID</span> <span class="s1">&#39;partition_id&#39;</span><span class="p">]</span> <span class="p">[</span><span class="k">FINAL</span><span class="p">]</span> <span class="p">[</span><span class="n">DEDUPLICATE</span> <span class="p">[</span><span class="k">BY</span> <span class="n">expression</span><span class="p">]]</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>OPTIMIZE TABLE test PARTITION &lsquo;partition&rsquo;：合并指定分区(partition)，如果有多个分区，需要执行多次。</li>
+<li>OPTIMIZE TABLE test：合并一个分区，如果有多个分区，需要执行多次。</li>
+<li>OPTIMIZE TABLE test FINAL：合并所有分区。</li>
+</ul>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://clickhouse.com/docs/zh/sql-reference/">SQL参考</a></li>
+<li><a href="https://cuizb.top/myblog/article/1639116339">ClickHouse的表引擎介绍（三）</a></li>
+<li><a href="https://cuizb.top/myblog/article/1639407329">ClickHouse的SQL简单操作（四）</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2023-01-01
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/clickhouse/">clickhouse</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/clickhouse/20221231-table-engines/">
+            <span class="next-text nav-default">[ClickHouse] ClickHouse 表引擎介绍</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: '[ClickHouse] ClickHouse SQL简单操作',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2023
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[ClickHouse] ClickHouse 表引擎介绍 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="ClickHouse 表引擎介绍 表引擎 表引擎（即表的类型）决定了： 数据的存储方式和位置，写到哪里以及从哪里读取数据 支持哪些查询以及如何支持。 并发数据访问。 索引的" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/clickhouse/20221231-table-engines/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[ClickHouse] ClickHouse 表引擎介绍" />
+<meta property="og:description" content="ClickHouse 表引擎介绍 表引擎 表引擎（即表的类型）决定了： 数据的存储方式和位置，写到哪里以及从哪里读取数据 支持哪些查询以及如何支持。 并发数据访问。 索引的" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/clickhouse/20221231-table-engines/" />
+<meta property="article:published_time" content="2022-12-31T21:13:27+08:00" />
+<meta property="article:modified_time" content="2022-12-31T21:13:27+08:00" />
+<meta itemprop="name" content="[ClickHouse] ClickHouse 表引擎介绍">
+<meta itemprop="description" content="ClickHouse 表引擎介绍 表引擎 表引擎（即表的类型）决定了： 数据的存储方式和位置，写到哪里以及从哪里读取数据 支持哪些查询以及如何支持。 并发数据访问。 索引的">
+<meta itemprop="datePublished" content="2022-12-31T21:13:27&#43;08:00" />
+<meta itemprop="dateModified" content="2022-12-31T21:13:27&#43;08:00" />
+<meta itemprop="wordCount" content="2722">
+
+
+
+<meta itemprop="keywords" content="clickhouse," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[ClickHouse] ClickHouse 表引擎介绍"/>
+<meta name="twitter:description" content="ClickHouse 表引擎介绍 表引擎 表引擎（即表的类型）决定了： 数据的存储方式和位置，写到哪里以及从哪里读取数据 支持哪些查询以及如何支持。 并发数据访问。 索引的"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[ClickHouse] ClickHouse 表引擎介绍</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2022-12-31 </span>
+        <div class="post-category">
+            <a href="/categories/clickhouse/"> clickhouse </a>
+            </div>
+          <span class="more-meta"> 2722 words </span>
+          <span class="more-meta"> 6 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#表引擎">表引擎</a></li>
+    <li><a href="#mergetree表引擎系列">MergeTree表引擎系列</a>
+      <ul>
+        <li><a href="#mergetree表引擎">MergeTree表引擎</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>ClickHouse <a href="https://clickhouse.com/docs/zh/engines/table-engines/">表引擎</a>介绍</p>
+</blockquote>
+<h2 id="表引擎">表引擎</h2>
+<p>表引擎（即表的类型）决定了：</p>
+<ul>
+<li>数据的存储方式和位置，写到哪里以及从哪里读取数据</li>
+<li>支持哪些查询以及如何支持。</li>
+<li>并发数据访问。</li>
+<li>索引的使用（如果存在）。</li>
+<li>是否可以执行多线程请求。</li>
+<li>数据复制参数。</li>
+</ul>
+<p>ClickHouse包含4大类表引擎类型: 合并树家族(MergeTree)、日志引擎系列(Log)、集成引擎(Integration)、用于其他特定功能的引擎(Special)</p>
+<h2 id="mergetree表引擎系列">MergeTree表引擎系列</h2>
+<p><code>ReplacingMergeTree</code>：在后台数据合并期间，对具有相同排序键的数据进行去重操作。</p>
+<p><code>SummingMergeTree</code>：当合并数据时，会把具有相同主键的记录合并为一条记录。根据聚合字段设置，该字段的值为聚合后的汇总值，非聚合字段使用第一条记录的值，聚合字段类型必须为数值类型。</p>
+<p><code>AggregatingMergeTree</code>：在同一数据分区下，可以将具有相同主键的数据进行聚合。</p>
+<p><code>CollapsingMergeTree</code>：在同一数据分区下，对具有相同主键的数据进行折叠合并。</p>
+<p><code>VersionedCollapsingMergeTree</code>：</p>
+<p>基于<code>CollapsingMergeTree</code>引擎，增添了数据版本信息字段配置选项。在数据依据ORDER BY设置对数据进行排序的基础上，如果数据的版本信息列不在排序字段中，那么版本信息会被隐式的作为ORDER BY的最后一列从而影响数据排序。</p>
+<p><code>GraphiteMergeTree</code>：用来存储时序数据库<code>Graphites</code>的数据。</p>
+<p><code>MergeTree</code>是该系列引擎中最核心的引擎，其他引擎均以<code>MergeTree</code>为基础，并在数据合并过程中实现了不同的特性，从而构成了<code>MergeTree</code>表引擎家族。</p>
+<h3 id="mergetree表引擎">MergeTree表引擎</h3>
+<p>Clickhouse 中最强大的表引擎当属 MergeTree （合并树）引擎及该系列（*MergeTree）中的其他引擎。</p>
+<p>MergeTree 系列的引擎被设计用于插入极大量的数据到一张表当中。数据可以以数据片段的形式一个接着一个的快速写入，数据片段在后台按照一定的规则进行合并。相比在插入时不断修改（重写）已存储的数据，这种策略会高效很多。</p>
+<p>主要特点:</p>
+<ul>
+<li>存储的数据按主键排序。</li>
+</ul>
+<p>这使得您能够创建一个小型的稀疏索引来加快数据检索。</p>
+<ul>
+<li>如果指定了 分区键 的话，可以使用分区。</li>
+</ul>
+<p>在相同数据集和相同结果集的情况下 ClickHouse 中某些带分区的操作会比普通操作更快。查询中指定了分区键时 ClickHouse 会自动截取分区数据。这也有效增加了查询性能。</p>
+<ul>
+<li>支持数据副本。</li>
+</ul>
+<p><code>ReplicatedMergeTree</code> 系列的表提供了数据副本功能。更多信息，请参阅 数据副本 一节。</p>
+<ul>
+<li>支持数据采样。</li>
+</ul>
+<h4 id="创建表">创建表</h4>
+<p>建表DDL语法如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="p">[</span><span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span><span class="p">]</span> <span class="p">[</span><span class="n">db</span><span class="p">.]</span><span class="k">table_name</span> <span class="p">[</span><span class="k">ON</span> <span class="k">CLUSTER</span> <span class="k">cluster</span><span class="p">]</span>
+<span class="p">(</span>
+    <span class="n">name1</span> <span class="p">[</span><span class="n">type1</span><span class="p">]</span> <span class="p">[</span><span class="k">DEFAULT</span><span class="o">|</span><span class="n">MATERIALIZED</span><span class="o">|</span><span class="k">ALIAS</span> <span class="n">expr1</span><span class="p">]</span> <span class="p">[</span><span class="n">TTL</span> <span class="n">expr1</span><span class="p">],</span>
+    <span class="n">name2</span> <span class="p">[</span><span class="n">type2</span><span class="p">]</span> <span class="p">[</span><span class="k">DEFAULT</span><span class="o">|</span><span class="n">MATERIALIZED</span><span class="o">|</span><span class="k">ALIAS</span> <span class="n">expr2</span><span class="p">]</span> <span class="p">[</span><span class="n">TTL</span> <span class="n">expr2</span><span class="p">],</span>
+    <span class="p">...</span>
+    <span class="k">INDEX</span> <span class="n">index_name1</span> <span class="n">expr1</span> <span class="k">TYPE</span> <span class="n">type1</span><span class="p">(...)</span> <span class="n">GRANULARITY</span> <span class="n">value1</span><span class="p">,</span>
+    <span class="k">INDEX</span> <span class="n">index_name2</span> <span class="n">expr2</span> <span class="k">TYPE</span> <span class="n">type2</span><span class="p">(...)</span> <span class="n">GRANULARITY</span> <span class="n">value2</span>
+<span class="p">)</span> <span class="n">ENGINE</span> <span class="o">=</span> <span class="n">MergeTree</span><span class="p">()</span>
+<span class="k">ORDER</span> <span class="k">BY</span> <span class="n">expr</span>
+<span class="p">[</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">expr</span><span class="p">]</span>
+<span class="p">[</span><span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="n">expr</span><span class="p">]</span>
+<span class="p">[</span><span class="n">SAMPLE</span> <span class="k">BY</span> <span class="n">expr</span><span class="p">]</span>
+<span class="p">[</span><span class="n">TTL</span> <span class="n">expr</span> <span class="p">[</span><span class="k">DELETE</span><span class="o">|</span><span class="k">TO</span> <span class="n">DISK</span> <span class="s1">&#39;xxx&#39;</span><span class="o">|</span><span class="k">TO</span> <span class="n">VOLUME</span> <span class="s1">&#39;xxx&#39;</span><span class="p">],</span> <span class="p">...]</span>
+<span class="p">[</span><span class="n">SETTINGS</span> <span class="n">name</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="p">...]</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>主要参数说明：</p>
+<p>必选参数：</p>
+<ul>
+<li>
+<p>ENGINE：引擎名字，MergeTree引擎无参数。</p>
+</li>
+<li>
+<p>ORDER BY：排序键，可以由一列或多列组成，决定了数据以何种方式进行排序，例如ORDER BY（CounterID, EventDate）。 如果没有显示指定PRIMARY KEY，那么将使用ORDER BY作为PRIMARY KEY。通常只指定ORDER BY即可。</p>
+</li>
+</ul>
+<p>可选参数：</p>
+<ul>
+<li>PARTITION BY：分区键，指明表中的数据以何种规则进行分区。分区是在一个表中通过指定的规则划分而成的逻辑数据集。分区可以按任意标准进行，如按月、按日或按事件类型。为了减少需要操作的数据，每个分区都是分开存储的。</li>
+</ul>
+<p>大多数情况下，不需要分使用区键。即使需要使用，也不需要使用比月更细粒度的分区键。分区不会加快查询（这与 ORDER BY 表达式不同）。永远也别使用过细粒度的分区键。不要使用客户端指定分区标识符或分区字段名称来对数据进行分区（而是将分区字段标识或名称作为 ORDER BY 表达式的第一列来指定分区）。</p>
+<p>要按月分区，可以使用表达式 toYYYYMM(date_column) ，这里的 date_column 是一个 Date 类型的列。分区名的格式会是 &ldquo;YYYYMM&rdquo; 。</p>
+<ul>
+<li>
+<p>PRIMARY KEY：主键，设置后会按照主键生成一级索引（primary.idx），数据会依据索引的设置进行排序，从而加速查询性能。默认情况下，PRIMARY KEY与ORDER BY设置相同，所以通常情况下直接使用ORDER BY设置来替代主键设置。</p>
+</li>
+<li>
+<p>SAMPLE BY：数据采样设置，如果显示配置了该选项，那么主键配置中也应该包括此配置。例如 ORDER BY CounterID / EventDate / intHash32（UserID）、SAMPLE BY intHash32（UserID）。</p>
+</li>
+<li>
+<p>TTL：数据存活时间，可以为某一字段列或者一整张表设置TTL，设置中必须包含Date或DateTime字段类型。如果设置在列上，那么会删除字段中过期的数据。如果设置的是表级的TTL，那么会删除表中过期的数据。如果设置了两种类型，那么按先到期的为准。例如，TTL createtime + INTERVAL 1 DAY，即一天后过期。使用场景包括定期删除数据，或者定期将数据进行归档。</p>
+</li>
+<li>
+<p>index_granularity：索引间隔粒度。MergeTree索引为稀疏索引，每index_granularity个数据产生一条索引。index_granularity默认设置为8092。</p>
+</li>
+<li>
+<p>enable_mixed_granularity_parts：是否启动index_granularity_bytes来控制索引粒度大小。</p>
+</li>
+<li>
+<p>index_granularity_bytes：索引粒度，以字节为单位，默认10Mb。</p>
+</li>
+<li>
+<p>merge_max_block_size：数据块合并最大记录个数，默认8192。</p>
+</li>
+<li>
+<p>merge_with_ttl_timeout：合并频率最小时间间隔，默认1天。</p>
+</li>
+</ul>
+<p>创建分区表后，可以使用如下命令查看表分区相关信息：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"> <span class="k">SELECT</span> 
+ <span class="k">database</span><span class="p">,</span> 
+ <span class="k">table</span><span class="p">,</span> 
+ <span class="n">partition</span><span class="p">,</span> 
+ <span class="n">partition_id</span><span class="p">,</span> 
+ <span class="n">name</span><span class="p">,</span> 
+ <span class="n">active</span><span class="p">,</span> 
+ <span class="n">path</span> 
+ <span class="k">FROM</span> <span class="k">system</span><span class="p">.</span><span class="n">parts</span> 
+ <span class="k">WHERE</span> <span class="k">table</span> <span class="o">=</span> <span class="s1">&#39;&lt;table_name&gt;&#39;</span> 
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>partitionid: 分区ID</li>
+<li>path: 分区目录路径</li>
+</ul>
+<p><em><strong>数据分区ID生成规则</strong></em></p>
+<p>数据分区规则由分区ID决定，分区ID由PARTITION BY分区键决定。根据分区键字段类型，ID生成规则可分为：</p>
+<ul>
+<li>未定义分区键</li>
+</ul>
+<p>没有定义PARTITION BY，默认生成一个目录名为all的数据分区，所有数据均存放在all目录下。</p>
+<ul>
+<li>整型分区键</li>
+</ul>
+<p>分区键为整型，那么直接用该整型值的字符串形式做为分区ID。</p>
+<ul>
+<li>日期类分区键</li>
+</ul>
+<p>分区键为日期类型，或者可以转化成日期类型。</p>
+<ul>
+<li>其他类型分区键</li>
+</ul>
+<p>String、Float类型等，通过128位的Hash算法取其Hash值作为分区ID。</p>
+<p><em><strong>数据分区目录命名规则</strong></em></p>
+<p>目录命名规则如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">PartitionId_MinBlockNum_MaxBlockNum_Level
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>PartitionId</li>
+</ul>
+<p>分区id。</p>
+<ul>
+<li>MinBlockNum</li>
+</ul>
+<p>最小分区块编号，自增类型，从1开始向上递增。每产生一个新的目录分区就向上递增一个数字。</p>
+<ul>
+<li>MaxBlockNum</li>
+</ul>
+<p>最大分区块编号，新创建的分区MinBlockNum等于MaxBlockNum的编号。</p>
+<ul>
+<li>Level</li>
+</ul>
+<p>合并的层级，被合并的次数。合并次数越多，层级值越大。</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://clickhouse.com/docs/zh/engines/table-engines/">表引擎</a></li>
+<li><a href="https://cuizb.top/myblog/article/1639116339">ClickHouse的表引擎介绍（三）</a></li>
+<li><a href="https://www.jianshu.com/p/142696aebc78">ClickHouse表引擎</a></li>
+<li><a href="https://www.cnblogs.com/gentlescholar/p/15043116.html">clickhouse（九）核心引擎MergeTree解读</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2022-12-31
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/clickhouse/">clickhouse</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/clickhouse/20230101-sql/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[ClickHouse] ClickHouse SQL简单操作</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/docker/20221231-clickhouse/">
+            <span class="next-text nav-default">[ClickHouse] ClickHouse 安装部署</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: '[ClickHouse] ClickHouse 表引擎介绍',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2023
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
