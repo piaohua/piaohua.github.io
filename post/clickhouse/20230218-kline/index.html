@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Clickhouse] clickhouse中使用AggregatingMergeTree表引擎聚合k线数据 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="使用 AggregatingMergeTree 表来做增量数据的聚合统计，包括物化视图的数据聚合。 股市及期货市场中的K线图的画法包含四个数据，即开盘价、最高价、最低价、收盘价。 以及单" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/clickhouse/20230218-kline/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Clickhouse] clickhouse中使用AggregatingMergeTree表引擎聚合k线数据" />
+<meta property="og:description" content="使用 AggregatingMergeTree 表来做增量数据的聚合统计，包括物化视图的数据聚合。 股市及期货市场中的K线图的画法包含四个数据，即开盘价、最高价、最低价、收盘价。 以及单" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/clickhouse/20230218-kline/" />
+<meta property="article:published_time" content="2023-02-18T21:06:18+08:00" />
+<meta property="article:modified_time" content="2023-02-18T21:06:18+08:00" />
+<meta itemprop="name" content="[Clickhouse] clickhouse中使用AggregatingMergeTree表引擎聚合k线数据">
+<meta itemprop="description" content="使用 AggregatingMergeTree 表来做增量数据的聚合统计，包括物化视图的数据聚合。 股市及期货市场中的K线图的画法包含四个数据，即开盘价、最高价、最低价、收盘价。 以及单">
+<meta itemprop="datePublished" content="2023-02-18T21:06:18&#43;08:00" />
+<meta itemprop="dateModified" content="2023-02-18T21:06:18&#43;08:00" />
+<meta itemprop="wordCount" content="837">
+
+
+
+<meta itemprop="keywords" content="clickhouse," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Clickhouse] clickhouse中使用AggregatingMergeTree表引擎聚合k线数据"/>
+<meta name="twitter:description" content="使用 AggregatingMergeTree 表来做增量数据的聚合统计，包括物化视图的数据聚合。 股市及期货市场中的K线图的画法包含四个数据，即开盘价、最高价、最低价、收盘价。 以及单"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Clickhouse] clickhouse中使用AggregatingMergeTree表引擎聚合k线数据</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2023-02-18 </span>
+        <div class="post-category">
+            <a href="/categories/clickhouse/"> clickhouse </a>
+            </div>
+          <span class="more-meta"> 837 words </span>
+          <span class="more-meta"> 2 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#创建明细表">创建明细表</a></li>
+    <li><a href="#创建基于1分钟k线的物化视图">创建基于1分钟K线的物化视图</a></li>
+    <li><a href="#创建基于物化视图的普通视图表">创建基于物化视图的普通视图表</a></li>
+    <li><a href="#插入数据">插入数据</a></li>
+    <li><a href="#查询普通视图表">查询普通视图表</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>使用 <code>AggregatingMergeTree</code> 表来做增量数据的聚合统计，包括物化视图的数据聚合。</p>
+</blockquote>
+<p>股市及期货市场中的K线图的画法包含四个数据，即开盘价、最高价、最低价、收盘价。</p>
+<p>以及单位时间内的成交量，成交单数，交易额等数据。</p>
+<p>而不同时间周期K线可以通过基础数据聚合获得。比如3分钟K线聚合自3条1分钟K线。</p>
+<h2 id="创建明细表">创建明细表</h2>
+<p>创建一张基础表，这里以1分钟k线做基础表，通过1分钟聚合3分钟5分钟，及更多周期的k线数据。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="n">table_1m</span> <span class="p">(</span>
+    <span class="n">start_time</span> <span class="n">Int64</span><span class="p">,</span>
+    <span class="n">end_time</span> <span class="n">Int64</span><span class="p">,</span>
+    <span class="k">open</span> <span class="n">Float64</span><span class="p">,</span>
+    <span class="k">close</span> <span class="n">Float64</span><span class="p">,</span>
+    <span class="n">high</span> <span class="n">Float64</span><span class="p">,</span>
+    <span class="n">low</span> <span class="n">Float64</span><span class="p">,</span>
+    <span class="n">volume</span> <span class="n">Float64</span><span class="p">,</span>
+    <span class="n">trade_num</span> <span class="n">Int64</span><span class="p">,</span>
+    <span class="n">quote_volume</span> <span class="n">Float64</span><span class="p">,</span>
+    <span class="k">version</span> <span class="n">DateTime</span>
+<span class="p">)</span> <span class="n">ENGINE</span> <span class="o">=</span> <span class="n">ReplacingMergeTree</span><span class="p">(</span><span class="k">version</span><span class="p">)</span>
+<span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">toYYYYMM</span><span class="p">(</span><span class="n">toDateTime</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="s1">&#39;UTC&#39;</span><span class="p">))</span>
+<span class="k">ORDER</span> <span class="k">BY</span> <span class="p">(</span><span class="n">start_time</span><span class="p">)</span>
+<span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">start_time</span><span class="p">)</span>
+<span class="k">COMMENT</span> <span class="s1">&#39;1m kline data&#39;</span>
+<span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>字段定义：start_time: 开盘时间，end_time: 收盘时间，open: 开盘价，close: 收盘价</p>
+<p>high: 最高价，low: 最低价，volume: 成交量，trade_num: 成交笔数，quote_volume: 成交额</p>
+<p>引擎选择 <code>ReplaingMergeTree</code> , start_time 做唯一主键和排序。</p>
+<h2 id="创建基于1分钟k线的物化视图">创建基于1分钟K线的物化视图</h2>
+<p>物化视图表引擎选择 <code>AggregatingMergeTree</code> , 字段添加 <code>State</code> 后缀，类型为 <code>AggregateFunction</code>。</p>
+<p>其能够以二进制的形式存储聚合数据的中间状态，聚合结果查询时需要调用 <code>Merge</code> 后缀函数。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="n">MATERIALIZED</span> <span class="k">VIEW</span> <span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="n">table_3m_a</span>
+<span class="n">ENGINE</span> <span class="o">=</span> <span class="n">AggregatingMergeTree</span><span class="p">()</span>
+<span class="k">ORDER</span> <span class="k">BY</span><span class="p">(</span><span class="n">start_interval</span><span class="p">)</span>
+<span class="n">POPULATE</span>
+<span class="k">AS</span>
+<span class="k">SELECT</span> 
+ <span class="n">toStartOfInterval</span><span class="p">(</span><span class="n">toDateTime</span><span class="p">(</span><span class="n">start_time</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">,</span> <span class="s1">&#39;UTC&#39;</span><span class="p">),</span> <span class="nb">INTERVAL</span> <span class="mi">3</span> <span class="k">minute</span><span class="p">)</span> <span class="k">AS</span> <span class="n">start_interval</span><span class="p">,</span>
+ <span class="n">argMinState</span><span class="p">(</span><span class="k">open</span><span class="p">,</span> <span class="n">start_time</span><span class="p">)</span> <span class="k">AS</span> <span class="k">open</span><span class="p">,</span>
+ <span class="n">argMaxState</span><span class="p">(</span><span class="k">close</span><span class="p">,</span> <span class="n">end_time</span><span class="p">)</span> <span class="k">AS</span> <span class="k">close</span><span class="p">,</span>
+ <span class="n">minState</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span> <span class="k">AS</span> <span class="n">open_time</span><span class="p">,</span>
+ <span class="n">maxState</span><span class="p">(</span><span class="n">end_time</span><span class="p">)</span> <span class="k">AS</span> <span class="n">close_time</span><span class="p">,</span>
+ <span class="n">maxState</span><span class="p">(</span><span class="n">high</span><span class="p">)</span> <span class="k">AS</span> <span class="n">high</span><span class="p">,</span>
+ <span class="n">minState</span><span class="p">(</span><span class="n">low</span><span class="p">)</span> <span class="k">AS</span> <span class="n">low</span><span class="p">,</span> 
+ <span class="n">sumState</span><span class="p">(</span><span class="n">volume</span><span class="p">)</span> <span class="k">AS</span> <span class="n">volume</span><span class="p">,</span>
+ <span class="n">sumState</span><span class="p">(</span><span class="n">trade_num</span><span class="p">)</span> <span class="k">AS</span> <span class="n">trade_num</span><span class="p">,</span>
+ <span class="n">sumState</span><span class="p">(</span><span class="n">quote_volume</span><span class="p">)</span> <span class="k">AS</span> <span class="n">quote_volume</span>
+<span class="k">FROM</span> <span class="n">table_1m</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="p">(</span><span class="n">start_interval</span><span class="p">)</span>
+<span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="创建基于物化视图的普通视图表">创建基于物化视图的普通视图表</h2>
+<p>创建调用了Merge函数的普通视图，基于物化视图。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">VIEW</span> <span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="n">table_3m_v</span>
+<span class="k">AS</span> 
+<span class="k">SELECT</span> 
+ <span class="n">start_interval</span><span class="p">,</span>
+ <span class="n">argMinMerge</span><span class="p">(</span><span class="k">open</span><span class="p">)</span> <span class="k">AS</span> <span class="k">open</span><span class="p">,</span>
+ <span class="n">argMaxMerge</span><span class="p">(</span><span class="k">close</span><span class="p">)</span> <span class="k">AS</span> <span class="k">close</span><span class="p">,</span>
+ <span class="n">minMerge</span><span class="p">(</span><span class="n">open_time</span><span class="p">)</span> <span class="k">AS</span> <span class="n">start_time</span><span class="p">,</span>
+ <span class="n">maxMerge</span><span class="p">(</span><span class="n">close_time</span><span class="p">)</span> <span class="k">AS</span> <span class="n">end_time</span><span class="p">,</span>
+ <span class="n">maxMerge</span><span class="p">(</span><span class="n">high</span><span class="p">)</span> <span class="k">AS</span> <span class="n">high</span><span class="p">,</span>
+ <span class="n">minMerge</span><span class="p">(</span><span class="n">low</span><span class="p">)</span> <span class="k">AS</span> <span class="n">low</span><span class="p">,</span> 
+ <span class="n">sumMerge</span><span class="p">(</span><span class="n">volume</span><span class="p">)</span> <span class="k">AS</span> <span class="n">volume</span><span class="p">,</span>
+ <span class="n">sumMerge</span><span class="p">(</span><span class="n">trade_num</span><span class="p">)</span> <span class="k">AS</span> <span class="n">trade_num</span><span class="p">,</span>
+ <span class="n">sumMerge</span><span class="p">(</span><span class="n">quote_volume</span><span class="p">)</span> <span class="k">AS</span> <span class="n">quote_volume</span>
+<span class="k">FROM</span> <span class="n">table_3m_a</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="p">(</span><span class="n">start_interval</span><span class="p">)</span>
+<span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>创建普通视图方便简化后续的查询SQL。</p>
+<h2 id="插入数据">插入数据</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">insert</span> <span class="k">into</span> <span class="n">table_1m</span> <span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="k">open</span><span class="p">,</span> <span class="k">close</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="n">trade_num</span><span class="p">,</span> <span class="n">quote_volume</span><span class="p">)</span> <span class="k">values</span> 
+<span class="p">(</span><span class="mi">1672243200000</span><span class="p">,</span> <span class="mi">1672243259999</span><span class="p">,</span> <span class="s1">&#39;16578.29&#39;</span><span class="p">,</span> <span class="s1">&#39;16576.39&#39;</span><span class="p">,</span> <span class="s1">&#39;16578.29&#39;</span><span class="p">,</span> <span class="s1">&#39;16569.08&#39;</span><span class="p">,</span> <span class="s1">&#39;8.472423&#39;</span><span class="p">,</span> <span class="mi">160</span><span class="p">,</span> <span class="s1">&#39;140413.39080774&#39;</span><span class="p">),</span>
+<span class="p">(</span><span class="mi">1672243260000</span><span class="p">,</span> <span class="mi">1672243319999</span><span class="p">,</span> <span class="s1">&#39;16571.3&#39;</span><span class="p">,</span> <span class="s1">&#39;16577.93&#39;</span><span class="p">,</span> <span class="s1">&#39;16579.06&#39;</span><span class="p">,</span> <span class="s1">&#39;16569.78&#39;</span><span class="p">,</span> <span class="s1">&#39;7.709314&#39;</span><span class="p">,</span> <span class="mi">221</span><span class="p">,</span> <span class="s1">&#39;127788.02226838&#39;</span><span class="p">),</span>
+<span class="p">(</span><span class="mi">1672243320000</span><span class="p">,</span> <span class="mi">1672243379999</span><span class="p">,</span> <span class="s1">&#39;16578.17&#39;</span><span class="p">,</span> <span class="s1">&#39;16573.26&#39;</span><span class="p">,</span> <span class="s1">&#39;16578.24&#39;</span><span class="p">,</span> <span class="s1">&#39;16567.36&#39;</span><span class="p">,</span> <span class="s1">&#39;9.097228&#39;</span><span class="p">,</span> <span class="mi">210</span><span class="p">,</span> <span class="s1">&#39;150771.9145546&#39;</span><span class="p">),</span>
+<span class="p">(</span><span class="mi">1672243380000</span><span class="p">,</span> <span class="mi">1672243439999</span><span class="p">,</span> <span class="s1">&#39;16575.31&#39;</span><span class="p">,</span> <span class="s1">&#39;16592.81&#39;</span><span class="p">,</span> <span class="s1">&#39;16592.81&#39;</span><span class="p">,</span> <span class="s1">&#39;16574.59&#39;</span><span class="p">,</span> <span class="s1">&#39;9.788205&#39;</span><span class="p">,</span> <span class="mi">337</span><span class="p">,</span> <span class="s1">&#39;162330.90030962&#39;</span><span class="p">),</span>
+<span class="p">(</span><span class="mi">1672243440000</span><span class="p">,</span> <span class="mi">1672243499999</span><span class="p">,</span> <span class="s1">&#39;16593.27&#39;</span><span class="p">,</span> <span class="s1">&#39;16599.96&#39;</span><span class="p">,</span> <span class="s1">&#39;16602.6&#39;</span><span class="p">,</span> <span class="s1">&#39;16592.58&#39;</span><span class="p">,</span> <span class="s1">&#39;8.916786&#39;</span><span class="p">,</span> <span class="mi">244</span><span class="p">,</span> <span class="s1">&#39;148008.06068256&#39;</span><span class="p">),</span>
+<span class="p">(</span><span class="mi">1672243500000</span><span class="p">,</span> <span class="mi">1672243559999</span><span class="p">,</span> <span class="s1">&#39;16597.62&#39;</span><span class="p">,</span> <span class="s1">&#39;16595.7&#39;</span><span class="p">,</span> <span class="s1">&#39;16600.27&#39;</span><span class="p">,</span> <span class="s1">&#39;16594.73&#39;</span><span class="p">,</span> <span class="s1">&#39;7.25037&#39;</span><span class="p">,</span> <span class="mi">155</span><span class="p">,</span> <span class="s1">&#39;120334.92142551&#39;</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="查询普通视图表">查询普通视图表</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">selct</span> <span class="o">*</span> <span class="k">from</span> <span class="n">table_3m_v</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>预期查询结果为2条聚合后的3分钟k线数据。</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://clickhouse.com/docs/zh/engines/table-engines/mergetree-family/aggregatingmergetree/">AggregatingMergeTree</a></li>
+<li><a href="https://clickhouse.com/docs/zh/sql-reference/data-types/aggregatefunction">AggregateFunction</a></li>
+<li><a href="https://clickhouse.com/docs/zh/sql-reference/data-types/simpleaggregatefunction">SimpleAggregateFunction</a></li>
+<li><a href="http://www.tracefact.net/tech/111.html">clickhouse中使用AggregatingMergeTree表引擎</a></li>
+<li><a href="https://www.cnblogs.com/yunqishequ/p/15672270.html">在 ClickHouse 中处理实时更新</a></li>
+<li><a href="https://www.modb.pro/db/197765">ClickHouse多种实时更新方法总结</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2023-02-18
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/clickhouse/">clickhouse</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/clickhouse/20230101-sql/">
+            <span class="next-text nav-default">[ClickHouse] ClickHouse SQL简单操作</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: '[Clickhouse] clickhouse中使用AggregatingMergeTree表引擎聚合k线数据',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2023
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
