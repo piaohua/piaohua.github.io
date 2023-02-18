@@ -49,7 +49,7 @@
 <meta itemprop="description" content="使用 AggregatingMergeTree 表来做增量数据的聚合统计，包括物化视图的数据聚合。 股市及期货市场中的K线图的画法包含四个数据，即开盘价、最高价、最低价、收盘价。 以及单">
 <meta itemprop="datePublished" content="2023-02-18T21:06:18&#43;08:00" />
 <meta itemprop="dateModified" content="2023-02-18T21:06:18&#43;08:00" />
-<meta itemprop="wordCount" content="837">
+<meta itemprop="wordCount" content="1122">
 
 
 
@@ -133,8 +133,8 @@
         <div class="post-category">
             <a href="/categories/clickhouse/"> clickhouse </a>
             </div>
-          <span class="more-meta"> 837 words </span>
-          <span class="more-meta"> 2 mins read </span>
+          <span class="more-meta"> 1122 words </span>
+          <span class="more-meta"> 3 mins read </span>
         
       </div>
     </header>
@@ -253,7 +253,19 @@
 <span class="p">;</span>
 </code></pre></td></tr></table>
 </div>
-</div><h2 id="创建基于物化视图的普通视图表">创建基于物化视图的普通视图表</h2>
+</div><p>当物化视图创建之后，如果源表被写入了新数据，那么物化视图也会同步更新。</p>
+<p>POPULATE修饰符决定了物化视图的初始化策略:</p>
+<ul>
+<li>
+<p>如果使用了POPULATE修饰符，那么在创建视图的过程中，会连带将源表中 已存在的数据一并导入，如同执行了SELECT INTO一般;</p>
+</li>
+<li>
+<p>反之，如果不使用POPULATE修饰符，那么物化视图在创建之后是没有数据的，它只会同步在此之后被写入源表的数据。</p>
+</li>
+</ul>
+<p>物化视图目前并不支持同步删除，如果在源表中删除了数据，物化视图的数据仍会保留。</p>
+<p>物化视图本质上是一张特殊的数据表，可使用SHOW TABLE查看数据表的列表</p>
+<h2 id="创建基于物化视图的普通视图表">创建基于物化视图的普通视图表</h2>
 <p>创建调用了Merge函数的普通视图，基于物化视图。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -331,6 +343,7 @@
 <li><a href="https://clickhouse.com/docs/zh/sql-reference/data-types/aggregatefunction">AggregateFunction</a></li>
 <li><a href="https://clickhouse.com/docs/zh/sql-reference/data-types/simpleaggregatefunction">SimpleAggregateFunction</a></li>
 <li><a href="http://www.tracefact.net/tech/111.html">clickhouse中使用AggregatingMergeTree表引擎</a></li>
+<li><a href="https://mp.weixin.qq.com/s/RP7j59ehR-n2oGCs3t3wiA">实时分析优化AggregateFunction及物化视图</a></li>
 <li><a href="https://www.cnblogs.com/yunqishequ/p/15672270.html">在 ClickHouse 中处理实时更新</a></li>
 <li><a href="https://www.modb.pro/db/197765">ClickHouse多种实时更新方法总结</a></li>
 </ul>
