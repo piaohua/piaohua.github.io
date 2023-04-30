@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Graylog] Graylog 安装部署 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="Graylog graylog是一个简单易用、功能较全面的日志管理工具，graylog采用Elasticsearch或OpenSearch作为存储和索引以" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/tool/20230331-graylog-install/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Graylog] Graylog 安装部署" />
+<meta property="og:description" content="Graylog graylog是一个简单易用、功能较全面的日志管理工具，graylog采用Elasticsearch或OpenSearch作为存储和索引以" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/tool/20230331-graylog-install/" />
+<meta property="article:published_time" content="2023-03-31T17:53:26+08:00" />
+<meta property="article:modified_time" content="2023-03-31T17:53:26+08:00" />
+<meta itemprop="name" content="[Graylog] Graylog 安装部署">
+<meta itemprop="description" content="Graylog graylog是一个简单易用、功能较全面的日志管理工具，graylog采用Elasticsearch或OpenSearch作为存储和索引以">
+<meta itemprop="datePublished" content="2023-03-31T17:53:26&#43;08:00" />
+<meta itemprop="dateModified" content="2023-03-31T17:53:26&#43;08:00" />
+<meta itemprop="wordCount" content="1222">
+
+
+
+<meta itemprop="keywords" content="graylog," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Graylog] Graylog 安装部署"/>
+<meta name="twitter:description" content="Graylog graylog是一个简单易用、功能较全面的日志管理工具，graylog采用Elasticsearch或OpenSearch作为存储和索引以"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Graylog] Graylog 安装部署</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2023-03-31 </span>
+        <div class="post-category">
+            <a href="/categories/graylog/"> graylog </a>
+            </div>
+          <span class="more-meta"> 1222 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#优势">优势</a></li>
+    <li><a href="#安装依赖">安装依赖</a></li>
+    <li><a href="#在centos-78安装graylog-50">在Centos 7/8安装Graylog 5.0</a>
+      <ul>
+        <li><a href="#安装mongodb">安装MongoDB</a></li>
+        <li><a href="#安装opensearch">安装OpenSearch</a></li>
+        <li><a href="#安装graylog">安装Graylog</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p><a href="https://www.graylog.org/">Graylog</a></p>
+</blockquote>
+<p>graylog是一个简单易用、功能较全面的日志管理工具，graylog采用Elasticsearch或OpenSearch作为存储和索引以保障性能，</p>
+<p>MongoDB用来存储少量的自身配置信息，master-node模式具有很好的扩展性，UI上自带的基础查询与分析功能比较实用且高效，</p>
+<p>支持LDAP、权限控制并有丰富的日志类型和标准（如syslog，GELF）并支持基于日志的报警。</p>
+<p>在日志接收方面通常是网络传输，可以是TCP也可以是UDP，在实际生产环境量级较大多数采用UDP，也可以通过MQ来消费日志。</p>
+<h2 id="优势">优势</h2>
+<ul>
+<li>部署维护简单</li>
+<li>资源占用较少</li>
+<li>查询语法简单易懂(对比ES的语法…)</li>
+<li>内置简单的告警</li>
+<li>可以将搜索结果导出为 json</li>
+<li>UI 比较友好</li>
+</ul>
+<h2 id="安装依赖">安装依赖</h2>
+<p>以Graylog 5.0版本安装依赖项：</p>
+<ul>
+<li>OpenJDK 17 (内嵌在graylog 5.0中，不需要单独安装)</li>
+<li>OpenSearch 1.x、2.x或Elasticsearch 7.10.2</li>
+<li>MongoDB 5.x或6.x</li>
+</ul>
+<h2 id="在centos-78安装graylog-50">在Centos 7/8安装Graylog 5.0</h2>
+<h3 id="安装mongodb">安装MongoDB</h3>
+<ol>
+<li>添加仓库源文件<code>/etc/yum.repos.d/mongodb-org.repo</code>, 内容如下：</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">[mongodb-org-6.0]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/6.0/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-6.0.asc
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>安装最新版本</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">sudo yum install mongodb-org
+</code></pre></td></tr></table>
+</div>
+</div><ol start="3">
+<li>启动运行MongoDB</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">systemctl daemon-reload
+systemctl enable mongod.service
+systemctl start mongod.service
+systemctl --type=service --state=active | grep mongod
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="安装opensearch">安装OpenSearch</h3>
+<p>可以选择安装OpenSearch,或者Elasticsearch，这里选择安装OpenSearch</p>
+<ol>
+<li>关闭THP提高性能</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">sudo echo &#34;Description=Disable Transparent Huge Pages (THP)
+DefaultDependencies=no
+After=sysinit.target local-fs.target
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c &#39;echo never | tee /sys/kernel/mm/transparent_hugepage/enabled &gt; /dev/null&#39;
+[Install]
+WantedBy=basic.target&#34; | sudo tee /etc/systemd/system/disable-transparent-huge-pages.service
+</code></pre></td></tr></table>
+</div>
+</div><p>然后启动服务：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">sudo systemctl daemon-reload
+sudo systemctl enable disable-transparent-huge-pages.service
+sudo systemctl start disable-transparent-huge-pages.service
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>创建本地repo文件</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">sudo curl -SL https://artifacts.opensearch.org/releases/bundle/opensearch/2.x/opensearch-2.x.repo -o /etc/yum.repos.d/opensearch-2.x.repo
+</code></pre></td></tr></table>
+</div>
+</div><ol start="3">
+<li>安装最新版本</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">yum install opensearch
+</code></pre></td></tr></table>
+</div>
+</div><ol start="4">
+<li>配置文件</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">vim /etc/opensearch/opensearch.yml
+
+path.data: /var/lib/opensearch
+path.logs: /var/log/opensearch
+network.host: 0.0.0.0
+http.port: 9200
+discovery.type: single-node
+plugins.security.disabled: true
+</code></pre></td></tr></table>
+</div>
+</div><ol start="5">
+<li>启动服务</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">systemctl enable opensearch
+systemctl start opensearch
+systemctl status opensearch
+</code></pre></td></tr></table>
+</div>
+</div><ol start="6">
+<li>发送请求验证</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">[root@10-7-98-3 ~]# curl -X GET http://localhost:9200 -u &#39;admin:admin&#39; --insecure
+{
+  &#34;name&#34; : &#34;10-7-98-3&#34;,
+  &#34;cluster_name&#34; : &#34;opensearch&#34;,
+  &#34;cluster_uuid&#34; : &#34;gGi1MQcZQWOcBfQrxmSaQA&#34;,
+  &#34;version&#34; : {
+    &#34;distribution&#34; : &#34;opensearch&#34;,
+    &#34;number&#34; : &#34;2.6.0&#34;,
+    &#34;build_type&#34; : &#34;rpm&#34;,
+    &#34;build_hash&#34; : &#34;7203a5af21a8a009aece1474446b437a3c674db6&#34;,
+    &#34;build_date&#34; : &#34;2023-02-24T18:57:09.290618503Z&#34;,
+    &#34;build_snapshot&#34; : false,
+    &#34;lucene_version&#34; : &#34;9.5.0&#34;,
+    &#34;minimum_wire_compatibility_version&#34; : &#34;7.10.0&#34;,
+    &#34;minimum_index_compatibility_version&#34; : &#34;7.0.0&#34;
+  },
+  &#34;tagline&#34; : &#34;The OpenSearch Project: https://opensearch.org/&#34;
+}
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="安装graylog">安装Graylog</h3>
+<ol>
+<li>简单安装</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">sudo rpm -Uvh https://packages.graylog2.org/repo/packages/graylog-5.0-repository_latest.rpm
+sudo yum install graylog-server
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>安装pwgen，用于生成密码</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">yum install pwgen
+</code></pre></td></tr></table>
+</div>
+</div><ol start="3">
+<li>生成密码，用于配置项<code>password_secret</code></li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">pwgen -N 1 -s 96
+</code></pre></td></tr></table>
+</div>
+</div><ol start="4">
+<li>生成web登录密码，用于配置项<code>root_password_sha2</code></li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">echo -n &#34;Enter Password: &#34; &amp;&amp; head -1 &lt;/dev/stdin | tr -d &#39;\n&#39; | sha256sum | cut -d&#34; &#34; -f1
+</code></pre></td></tr></table>
+</div>
+</div><ol start="5">
+<li>配置文件</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">vim /etc/graylog/server/server.conf
+
+password_secret = xxx
+root_password_sha2 = xxx
+http_bind_address = 0.0.0.0:9000
+mongodb_uri = mongodb://localhost/graylog
+</code></pre></td></tr></table>
+</div>
+</div><p>mongodb配置本地服务连接。</p>
+<ol start="6">
+<li>启动服务</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">sudo systemctl daemon-reload
+sudo systemctl enable graylog-server.service
+sudo systemctl start graylog-server.service
+sudo systemctl --type=service --state=active | grep graylog
+</code></pre></td></tr></table>
+</div>
+</div><ol start="7">
+<li>添加日志收集器</li>
+</ol>
+<p>在浏览器中打开<code>http://host:9000/</code>，用admin用户登录，密码是生成配置项<code>root_password_sha2</code>的密码。</p>
+<p>进入 System &gt; Inputs &gt; Inputs in Cluster &gt; Raw/Plaintext TCP | Launch new input
+取名&quot;tcp 5555&rdquo; 完成创建</p>
+<p>创建完成后可看到5555端口已经启动监听</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">tcp6       0      0 :::5555                 :::*                    LISTEN      1850857/java
+</code></pre></td></tr></table>
+</div>
+</div><p>然后向该端口建立tcp连接并发送日志</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">echo `date` | nc 127.0.0.1 5555
+</code></pre></td></tr></table>
+</div>
+</div><p>发送后即可在首页看到日志记录。</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://go2docs.graylog.org/5-0/downloading_and_installing_graylog/red_hat_installation.htm">Graylog Red Hat Installation</a></li>
+<li><a href="https://blog.csdn.net/dyangel2013/article/details/118860181">Graylog安装入门</a></li>
+<li><a href="https://www.jianshu.com/p/5c93f69a50cf">Graylog—日志聚合工具中的后起之秀</a></li>
+<li><a href="https://opensearch.org/docs/latest/install-and-configure/install-opensearch/rpm/">Installing OpenSearch using RPM Package Manager</a></li>
+<li><a href="https://gitee.com/piao/logrus-graylog-hook">Use this hook to send your logs to Graylog server over UDP</a></li>
+<li><a href="https://gitee.com/piao/logrus-logstash-hook">Use this hook to send the logs to Logstash.</a></li>
+<li><a href="https://github.com/Graylog2/docker-compose">Graylog Docker Compose files</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2023-03-31
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/graylog/">graylog</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/clickhouse/20230218-kline/">
+            <span class="next-text nav-default">[Clickhouse] clickhouse中使用AggregatingMergeTree表引擎聚合k线数据</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: '[Graylog] Graylog 安装部署',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2023
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
