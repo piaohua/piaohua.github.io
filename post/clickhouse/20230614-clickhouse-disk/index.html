@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[ClickHouse] ClickHouse 查询表占用空间大小 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="ClickHouse查看数据库容量、表的指标、表分区、数据大小等。 业务表空间 通过 system.parts 查询数据库容量大小。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 SELECT formatReadableSize(sum(bytes)) AS bytes_size, formatReadableSize(sum(primary_key_bytes_in_memory))" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/clickhouse/20230614-clickhouse-disk/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[ClickHouse] ClickHouse 查询表占用空间大小" />
+<meta property="og:description" content="ClickHouse查看数据库容量、表的指标、表分区、数据大小等。 业务表空间 通过 system.parts 查询数据库容量大小。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 SELECT formatReadableSize(sum(bytes)) AS bytes_size, formatReadableSize(sum(primary_key_bytes_in_memory))" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/clickhouse/20230614-clickhouse-disk/" />
+<meta property="article:published_time" content="2023-06-14T14:37:26+08:00" />
+<meta property="article:modified_time" content="2023-06-14T14:37:26+08:00" />
+<meta itemprop="name" content="[ClickHouse] ClickHouse 查询表占用空间大小">
+<meta itemprop="description" content="ClickHouse查看数据库容量、表的指标、表分区、数据大小等。 业务表空间 通过 system.parts 查询数据库容量大小。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 SELECT formatReadableSize(sum(bytes)) AS bytes_size, formatReadableSize(sum(primary_key_bytes_in_memory))">
+<meta itemprop="datePublished" content="2023-06-14T14:37:26&#43;08:00" />
+<meta itemprop="dateModified" content="2023-06-14T14:37:26&#43;08:00" />
+<meta itemprop="wordCount" content="2131">
+
+
+
+<meta itemprop="keywords" content="clickhouse," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[ClickHouse] ClickHouse 查询表占用空间大小"/>
+<meta name="twitter:description" content="ClickHouse查看数据库容量、表的指标、表分区、数据大小等。 业务表空间 通过 system.parts 查询数据库容量大小。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 SELECT formatReadableSize(sum(bytes)) AS bytes_size, formatReadableSize(sum(primary_key_bytes_in_memory))"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[ClickHouse] ClickHouse 查询表占用空间大小</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2023-06-14 </span>
+        <div class="post-category">
+            <a href="/categories/clickhouse/"> clickhouse </a>
+            </div>
+          <span class="more-meta"> 2131 words </span>
+          <span class="more-meta"> 5 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#业务表空间">业务表空间</a></li>
+    <li><a href="#系统日志表">系统日志表</a>
+      <ul>
+        <li><a href="#清理日志表">清理日志表</a></li>
+        <li><a href="#定期清理日志表">定期清理日志表</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p><a href="https://clickhouse.com/docs/zh/getting-started/install">ClickHouse</a>查看数据库容量、表的指标、表分区、数据大小等。</p>
+</blockquote>
+<h2 id="业务表空间">业务表空间</h2>
+<p>通过 <code>system.parts</code> 查询数据库容量大小。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> 
+<span class="n">formatReadableSize</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">bytes</span><span class="p">))</span> <span class="k">AS</span> <span class="n">bytes_size</span><span class="p">,</span>
+<span class="n">formatReadableSize</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">primary_key_bytes_in_memory</span><span class="p">))</span> <span class="k">AS</span> <span class="n">primary_keys_size</span><span class="p">,</span>
+<span class="n">formatReadableSize</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">data_uncompressed_bytes</span><span class="p">))</span> <span class="k">AS</span> <span class="o">`</span><span class="err">原始大小</span><span class="o">`</span><span class="p">,</span>
+<span class="n">formatReadableSize</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">data_compressed_bytes</span><span class="p">))</span> <span class="k">AS</span> <span class="o">`</span><span class="err">压缩大小</span><span class="o">`</span><span class="p">,</span>
+<span class="n">round</span><span class="p">((</span><span class="k">sum</span><span class="p">(</span><span class="n">data_compressed_bytes</span><span class="p">)</span> <span class="o">/</span> <span class="k">sum</span><span class="p">(</span><span class="n">data_uncompressed_bytes</span><span class="p">))</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">AS</span> <span class="o">`</span><span class="err">压缩率</span><span class="o">`</span>
+<span class="k">FROM</span> <span class="k">system</span><span class="p">.</span><span class="n">parts</span> 
+<span class="k">where</span> <span class="k">database</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
+<span class="k">order</span> <span class="k">by</span> <span class="n">bytes_size</span> <span class="k">desc</span>
+<span class="k">limit</span> <span class="mi">10</span><span class="p">;</span>
+
+<span class="err">┌─</span><span class="n">bytes_size</span><span class="err">─┬─</span><span class="n">primary_keys_size</span><span class="err">─┬─原始大小──┬─压缩大小──┬─压缩率──┐</span>
+<span class="err">│</span> <span class="mi">11</span><span class="p">.</span><span class="mi">49</span> <span class="n">GiB</span>  <span class="err">│</span> <span class="mi">1</span><span class="p">.</span><span class="mi">07</span> <span class="n">MiB</span>          <span class="err">│</span> <span class="mi">24</span><span class="p">.</span><span class="mi">01</span> <span class="n">GiB</span> <span class="err">│</span> <span class="mi">11</span><span class="p">.</span><span class="mi">48</span> <span class="n">GiB</span> <span class="err">│</span>     <span class="mi">48</span> <span class="err">│</span>
+<span class="err">└────────────┴───────────────────┴───────────┴───────────┴────────┘</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>查看表分区情况</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> 
+<span class="n">partition</span>
+<span class="k">FROM</span> <span class="k">system</span><span class="p">.</span><span class="n">parts</span> 
+<span class="k">WHERE</span> <span class="n">active</span>
+    <span class="k">AND</span> <span class="k">database</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
+    <span class="k">AND</span> <span class="k">table</span> <span class="o">=</span> <span class="s1">&#39;user&#39;</span>
+
+<span class="err">┌─</span><span class="n">partition</span><span class="err">─┐</span>
+<span class="err">│</span> <span class="mi">210602</span>    <span class="err">│</span>
+<span class="err">│</span> <span class="mi">210602</span>    <span class="err">│</span>
+<span class="err">└───────────┘</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="系统日志表">系统日志表</h2>
+<p>ClickHouse有许多系统表<a href="https://clickhouse.com/docs/en/operations/system-tables">System Table</a>，</p>
+<p>其中一些用来存储日志，比如：query_log, query_thread_log, trace_log, part_log, metric_log 等等。</p>
+<p>系统日志表默认是不会清理，会随着时间增长，最终可能导致磁盘空间不足。所以需要定期清理这些日志。</p>
+<p>通过 system.parts 查看日志表大小</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> <span class="k">sum</span><span class="p">(</span><span class="k">rows</span><span class="p">)</span> <span class="k">AS</span> <span class="o">`</span><span class="err">总行数</span><span class="o">`</span><span class="p">,</span>
+<span class="n">formatReadableSize</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">data_uncompressed_bytes</span><span class="p">))</span> <span class="k">AS</span> <span class="o">`</span><span class="err">原始大小</span><span class="o">`</span><span class="p">,</span>
+<span class="n">formatReadableSize</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">data_compressed_bytes</span><span class="p">))</span> <span class="k">AS</span> <span class="o">`</span><span class="err">压缩大小</span><span class="o">`</span><span class="p">,</span>
+<span class="n">round</span><span class="p">((</span><span class="k">sum</span><span class="p">(</span><span class="n">data_compressed_bytes</span><span class="p">)</span> <span class="o">/</span> <span class="k">sum</span><span class="p">(</span><span class="n">data_uncompressed_bytes</span><span class="p">))</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">AS</span> <span class="o">`</span><span class="err">压缩率</span><span class="o">`</span><span class="p">,</span>
+<span class="o">`</span><span class="k">table</span><span class="o">`</span> <span class="k">AS</span> <span class="o">`</span><span class="err">表名</span><span class="o">`</span>
+<span class="k">FROM</span> <span class="k">system</span><span class="p">.</span><span class="n">parts</span> 
+<span class="k">where</span> <span class="k">database</span> <span class="o">=</span> <span class="s1">&#39;system&#39;</span> 
+<span class="k">group</span> <span class="k">by</span> <span class="o">`</span><span class="k">table</span><span class="o">`</span>
+<span class="k">order</span> <span class="k">by</span> <span class="k">table</span> <span class="k">asc</span><span class="p">;</span>
+
+<span class="err">┌─────总行数─┬─原始大小──┬─压缩大小───┬─压缩率─┬─表名──────────────────────┐</span>
+<span class="err">│</span> <span class="mi">2513009176</span> <span class="err">│</span> <span class="mi">35</span><span class="p">.</span><span class="mi">12</span> <span class="n">GiB</span> <span class="err">│</span> <span class="mi">1</span><span class="p">.</span><span class="mi">69</span> <span class="n">GiB</span>   <span class="err">│</span>      <span class="mi">5</span> <span class="err">│</span> <span class="n">asynchronous_metric_log</span> <span class="err">│</span>
+<span class="err">│</span>   <span class="mi">13941652</span> <span class="err">│</span> <span class="mi">49</span><span class="p">.</span><span class="mi">52</span> <span class="n">GiB</span> <span class="err">│</span> <span class="mi">1</span><span class="p">.</span><span class="mi">33</span> <span class="n">GiB</span>   <span class="err">│</span>      <span class="mi">3</span> <span class="err">│</span> <span class="n">metric_log</span>              <span class="err">│</span>
+<span class="err">│</span>   <span class="mi">68050999</span> <span class="err">│</span> <span class="mi">15</span><span class="p">.</span><span class="mi">60</span> <span class="n">GiB</span> <span class="err">│</span> <span class="mi">2</span><span class="p">.</span><span class="mi">75</span> <span class="n">GiB</span>   <span class="err">│</span>     <span class="mi">18</span> <span class="err">│</span> <span class="n">part_log</span>                <span class="err">│</span>
+<span class="err">│</span>         <span class="mi">41</span> <span class="err">│</span> <span class="mi">57</span><span class="p">.</span><span class="mi">71</span> <span class="n">KiB</span> <span class="err">│</span> <span class="mi">15</span><span class="p">.</span><span class="mi">30</span> <span class="n">KiB</span>  <span class="err">│</span>     <span class="mi">27</span> <span class="err">│</span> <span class="n">query_log</span>               <span class="err">│</span>
+<span class="err">│</span>    <span class="mi">4457997</span> <span class="err">│</span> <span class="mi">6</span><span class="p">.</span><span class="mi">08</span> <span class="n">GiB</span>  <span class="err">│</span> <span class="mi">178</span><span class="p">.</span><span class="mi">01</span> <span class="n">MiB</span> <span class="err">│</span>      <span class="mi">3</span> <span class="err">│</span> <span class="n">query_views_log</span>         <span class="err">│</span>
+<span class="err">│</span>  <span class="mi">230288475</span> <span class="err">│</span> <span class="mi">68</span><span class="p">.</span><span class="mi">45</span> <span class="n">GiB</span> <span class="err">│</span> <span class="mi">4</span><span class="p">.</span><span class="mi">40</span> <span class="n">GiB</span>   <span class="err">│</span>      <span class="mi">6</span> <span class="err">│</span> <span class="n">trace_log</span>               <span class="err">│</span>
+<span class="err">└────────────┴───────────┴────────────┴────────┴─────────────────────────┘</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="清理日志表">清理日志表</h3>
+<p>系统日志表默认配置按月分区，query_log为例，其配置信息如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-xml" data-lang="xml"> <span class="nt">&lt;query_log&gt;</span>
+        <span class="c">&lt;!-- What table to insert data. If table is not exist, it will be created.
+</span><span class="c">             When query log structure is changed after system update,
+</span><span class="c">              then old table will be renamed and new table will be created automatically.
+</span><span class="c">        --&gt;</span>
+        <span class="nt">&lt;database&gt;</span>system<span class="nt">&lt;/database&gt;</span>
+        <span class="nt">&lt;table&gt;</span>query_log<span class="nt">&lt;/table&gt;</span>
+        <span class="c">&lt;!--
+</span><span class="c">            PARTITION BY expr: https://clickhouse.com/docs/en/table_engines/mergetree-family/custom_partitioning_key/
+</span><span class="c">            Example:
+</span><span class="c">                event_date
+</span><span class="c">                toMonday(event_date)
+</span><span class="c">                toYYYYMM(event_date)
+</span><span class="c">                toStartOfHour(event_time)
+</span><span class="c">        --&gt;</span>
+        <span class="nt">&lt;partition_by&gt;</span>toYYYYMM(event_date)<span class="nt">&lt;/partition_by&gt;</span>
+        <span class="c">&lt;!--
+</span><span class="c">            Table TTL specification: https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree/#mergetree-table-ttl
+</span><span class="c">            Example:
+</span><span class="c">                event_date + INTERVAL 1 WEEK
+</span><span class="c">                event_date + INTERVAL 7 DAY DELETE
+</span><span class="c">                event_date + INTERVAL 2 WEEK TO DISK &#39;bbb&#39;
+</span><span class="c">
+</span><span class="c">        &lt;ttl&gt;event_date + INTERVAL 30 DAY DELETE&lt;/ttl&gt;
+</span><span class="c">        --&gt;</span>
+
+        <span class="c">&lt;!-- Instead of partition_by, you can provide full engine expression (starting with ENGINE = ) with parameters,
+</span><span class="c">             Example: &lt;engine&gt;ENGINE = MergeTree PARTITION BY toYYYYMM(event_date) ORDER BY (event_date, event_time) SETTINGS index_granularity = 1024&lt;/engine&gt;
+</span><span class="c">          --&gt;</span>
+
+        <span class="c">&lt;!-- Interval of flushing data. --&gt;</span>
+        <span class="nt">&lt;flush_interval_milliseconds&gt;</span>7500<span class="nt">&lt;/flush_interval_milliseconds&gt;</span>
+    <span class="nt">&lt;/query_log&gt;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>查询<code>query_log</code>表的分区信息</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">&gt; select partition,name from system.parts where database=&#39;system&#39; and table=&#39;query_log&#39;;
+
+┌─partition─┬─name───────────┐
+│ 202306    │ 202306_1_14_3  │
+│ 202306    │ 202306_1_19_4  │
+│ 202306    │ 202306_15_15_0 │
+│ 202306    │ 202306_16_16_0 │
+│ 202306    │ 202306_17_17_0 │
+│ 202306    │ 202306_18_18_0 │
+│ 202306    │ 202306_19_19_0 │
+└───────────┴────────────────┘
+
+</code></pre></td></tr></table>
+</div>
+</div><p>有两种方法可以删除<code>query_log</code>表中数据。</p>
+<ul>
+<li>使用mutation语句</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">alter table system.query_log delete where event_date &lt; &#39;2023-06-01&#39;;
+</code></pre></td></tr></table>
+</div>
+</div><p>当表数据量大时，执行效率低。</p>
+<ul>
+<li>直接删除分区</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">alter table system.query_log drop partition &#39;202306&#39;;
+</code></pre></td></tr></table>
+</div>
+</div><p>当删除分区过大时（默认为50GB），会删除失败。</p>
+<p>解决办法参考<a href="https://clickhouse.com/docs/en/operations/server-configuration-parameters/settings#max-table-size-to-drop">max_partition_size_to_drop</a></p>
+<h3 id="定期清理日志表">定期清理日志表</h3>
+<p>依赖人定期清理效率低，且容易出错失败，可以通过设置日志表TTL，给日志设置自动过期时间，自动清理。</p>
+<ul>
+<li>通过SQL设置TTL</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">alter</span> <span class="k">table</span> <span class="k">system</span><span class="p">.</span><span class="n">query_log</span> <span class="k">modify</span> <span class="n">ttl</span> <span class="n">event_date</span> <span class="o">+</span> <span class="n">toIntervalDay</span><span class="p">(</span><span class="mi">15</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>设置<code>query_log</code>表日志过期时间为15天。</p>
+<ul>
+<li>修改配置设置TTL</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;query_log&gt;</span>
+        <span class="c">&lt;!-- What table to insert data. If table is not exist, it will be created.
+</span><span class="c">             When query log structure is changed after system update,
+</span><span class="c">              then old table will be renamed and new table will be created automatically.
+</span><span class="c">        --&gt;</span>
+        <span class="nt">&lt;database&gt;</span>system<span class="nt">&lt;/database&gt;</span>
+        <span class="nt">&lt;table&gt;</span>query_log<span class="nt">&lt;/table&gt;</span>
+        <span class="c">&lt;!--
+</span><span class="c">            PARTITION BY expr: https://clickhouse.com/docs/en/table_engines/mergetree-family/custom_partitioning_key/
+</span><span class="c">            Example:
+</span><span class="c">                event_date
+</span><span class="c">                toMonday(event_date)
+</span><span class="c">                toYYYYMM(event_date)
+</span><span class="c">                toStartOfHour(event_time)
+</span><span class="c">        --&gt;</span>
+        <span class="nt">&lt;partition_by&gt;</span>toYYYYMM(event_date)<span class="nt">&lt;/partition_by&gt;</span>
+        <span class="c">&lt;!--
+</span><span class="c">            Table TTL specification: https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree/#mergetree-table-ttl
+</span><span class="c">            Example:
+</span><span class="c">                event_date + INTERVAL 1 WEEK
+</span><span class="c">                event_date + INTERVAL 7 DAY DELETE
+</span><span class="c">                event_date + INTERVAL 2 WEEK TO DISK &#39;bbb&#39;
+</span><span class="c">
+</span><span class="c">        --&gt;</span>
+        <span class="nt">&lt;ttl&gt;</span>event_date + INTERVAL 15 DAY DELETE<span class="nt">&lt;/ttl&gt;</span>
+
+        <span class="c">&lt;!-- Instead of partition_by, you can provide full engine expression (starting with ENGINE = ) with parameters,
+</span><span class="c">             Example: &lt;engine&gt;ENGINE = MergeTree PARTITION BY toYYYYMM(event_date) ORDER BY (event_date, event_time) SETTINGS index_granularity = 1024&lt;/engine&gt;
+</span><span class="c">          --&gt;</span>
+
+        <span class="c">&lt;!-- Interval of flushing data. --&gt;</span>
+        <span class="nt">&lt;flush_interval_milliseconds&gt;</span>7500<span class="nt">&lt;/flush_interval_milliseconds&gt;</span>
+    <span class="nt">&lt;/query_log&gt;</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>设置ttl为15天过期。</p>
+<p>或者在engine参数中设置</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;query_log&gt;</span>
+        <span class="c">&lt;!-- What table to insert data. If table is not exist, it will be created.
+</span><span class="c">             When query log structure is changed after system update,
+</span><span class="c">              then old table will be renamed and new table will be created automatically.
+</span><span class="c">        --&gt;</span>
+        <span class="nt">&lt;database&gt;</span>system<span class="nt">&lt;/database&gt;</span>
+        <span class="nt">&lt;table&gt;</span>query_log<span class="nt">&lt;/table&gt;</span>
+        <span class="c">&lt;!--
+</span><span class="c">            PARTITION BY expr: https://clickhouse.com/docs/en/table_engines/mergetree-family/custom_partitioning_key/
+</span><span class="c">            Example:
+</span><span class="c">                event_date
+</span><span class="c">                toMonday(event_date)
+</span><span class="c">                toYYYYMM(event_date)
+</span><span class="c">                toStartOfHour(event_time)
+</span><span class="c">        --&gt;</span>
+        <span class="nt">&lt;partition_by&gt;</span>toYYYYMM(event_date)<span class="nt">&lt;/partition_by&gt;</span>
+        <span class="c">&lt;!--
+</span><span class="c">            Table TTL specification: https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree/#mergetree-table-ttl
+</span><span class="c">            Example:
+</span><span class="c">                event_date + INTERVAL 1 WEEK
+</span><span class="c">                event_date + INTERVAL 7 DAY DELETE
+</span><span class="c">                event_date + INTERVAL 2 WEEK TO DISK &#39;bbb&#39;
+</span><span class="c">
+</span><span class="c">        --&gt;</span>
+        <span class="nt">&lt;ttl&gt;</span>event_date + INTERVAL 15 DAY DELETE<span class="nt">&lt;/ttl&gt;</span>
+
+        <span class="c">&lt;!-- Instead of partition_by, you can provide full engine expression (starting with ENGINE = ) with parameters,
+</span><span class="c">             Example: &lt;engine&gt;ENGINE = MergeTree PARTITION BY toYYYYMM(event_date) ORDER BY (event_date, event_time) SETTINGS index_granularity = 1024&lt;/engine&gt;
+</span><span class="c">          --&gt;</span>
+        <span class="nt">&lt;engine&gt;</span>Engine = MergeTree PARTITION BY event_date ORDER BY event_time TTL event_date + INTERVAL 15 day<span class="nt">&lt;/engine&gt;</span>
+
+        <span class="c">&lt;!-- Interval of flushing data. --&gt;</span>
+        <span class="nt">&lt;flush_interval_milliseconds&gt;</span>7500<span class="nt">&lt;/flush_interval_milliseconds&gt;</span>
+    <span class="nt">&lt;/query_log&gt;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>修改配置后重启<code>clickhouse-server</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">sudo /etc/init.d/clickhouse-server restart
+</code></pre></td></tr></table>
+</div>
+</div><p>重启成功后，系统日志表可能会分表，如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">┌─────总行数─┬─原始大小───┬─压缩大小──┬─压缩率─┬─表名────────────────────────┐
+│   36447928 │ 522.15 MiB │ 28.36 MiB │      5 │ asynchronous_metric_log   │
+│ 2055180396 │ 28.72 GiB  │ 1.31 GiB  │      5 │ asynchronous_metric_log_0 │
+│      39861 │ 153.50 MiB │ 11.49 MiB │      7 │ metric_log                │
+│   10888256 │ 40.95 GiB  │ 1.61 GiB  │      4 │ metric_log_0              │
+│     150279 │ 36.24 MiB  │ 6.82 MiB  │     19 │ part_log                  │
+│  399724812 │ 94.02 GiB  │ 15.58 GiB │     17 │ part_log_0                │
+│     238332 │ 292.44 MiB │ 29.52 MiB │     10 │ query_log                 │
+│  387395848 │ 448.59 GiB │ 43.70 GiB │     10 │ query_log_0               │
+│   46233632 │ 59.73 GiB  │ 1.87 GiB  │      3 │ query_views_log           │
+│     255595 │ 76.37 MiB  │ 7.44 MiB  │     10 │ trace_log                 │
+│  539787879 │ 161.39 GiB │ 13.79 GiB │      9 │ trace_log_0               │
+└────────────┴────────────┴───────────┴────────┴───────────────────────────┘
+
+</code></pre></td></tr></table>
+</div>
+</div><p>可以选择删除或清理旧的日志表来释放空间，比如：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">alter</span> <span class="k">table</span> <span class="k">system</span><span class="p">.</span><span class="n">trace_log_0</span> <span class="k">modify</span> <span class="n">ttl</span> <span class="n">event_date</span> <span class="o">+</span> <span class="n">toIntervalDay</span><span class="p">(</span><span class="mi">30</span><span class="p">);</span>
+<span class="k">alter</span> <span class="k">table</span> <span class="k">system</span><span class="p">.</span><span class="n">query_log_0</span> <span class="k">modify</span> <span class="n">ttl</span> <span class="n">event_date</span> <span class="o">+</span> <span class="n">toIntervalDay</span><span class="p">(</span><span class="mi">30</span><span class="p">);</span>
+<span class="k">alter</span> <span class="k">table</span> <span class="k">system</span><span class="p">.</span><span class="n">part_log_0</span> <span class="k">modify</span> <span class="n">ttl</span> <span class="n">event_date</span> <span class="o">+</span> <span class="n">toIntervalDay</span><span class="p">(</span><span class="mi">30</span><span class="p">);</span>
+<span class="k">alter</span> <span class="k">table</span> <span class="k">system</span><span class="p">.</span><span class="n">metric_log_0</span> <span class="k">modify</span> <span class="n">ttl</span> <span class="n">event_date</span> <span class="o">+</span> <span class="n">toIntervalDay</span><span class="p">(</span><span class="mi">30</span><span class="p">);</span>
+<span class="k">alter</span> <span class="k">table</span> <span class="k">system</span><span class="p">.</span><span class="n">asynchronous_metric_log_0</span> <span class="k">modify</span> <span class="n">ttl</span> <span class="n">event_date</span> <span class="o">+</span> <span class="n">toIntervalDay</span><span class="p">(</span><span class="mi">30</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://clickhouse.com/docs/en/operations/system-tables">System Table</a></li>
+<li><a href="https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree#mergetree-table-ttl">Table TTL</a></li>
+<li><a href="https://clickhouse.com/docs/en/operations/server-configuration-parameters/settings#server_configuration_parameters-query-log">Query log</a></li>
+<li><a href="https://blog.csdn.net/liujg79/article/details/124857754">Clickhouse：日志表占用大量磁盘空间怎么办？</a></li>
+<li><a href="https://blog.csdn.net/chenwewi520feng/article/details/130506422">ClickHouse查看数据库容量、表的指标、表分区、数据大小等</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2023-06-14
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/clickhouse/">clickhouse</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/clickhouse/20230614-clickhouse-start-err/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[ClickHouse] ClickHouse 启动失败</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/docker/20230610-sshd/">
+            <span class="next-text nav-default">[SSH] Dokcer 基于 Alpine 构建 SSH 服务</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: '[ClickHouse] ClickHouse 查询表占用空间大小',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2023
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[ClickHouse] ClickHouse 启动失败 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="ClickHouse 重启时一直提示Waiting for server to start, 无法启动生成。 修改clickhouse配置重启时，一直重启不成功。 1 2 3 4 $ sudo /etc/init.d/clickhouse-server restart Waiting for server to start Cannot start server. You can" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/clickhouse/20230614-clickhouse-start-err/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[ClickHouse] ClickHouse 启动失败" />
+<meta property="og:description" content="ClickHouse 重启时一直提示Waiting for server to start, 无法启动生成。 修改clickhouse配置重启时，一直重启不成功。 1 2 3 4 $ sudo /etc/init.d/clickhouse-server restart Waiting for server to start Cannot start server. You can" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/clickhouse/20230614-clickhouse-start-err/" />
+<meta property="article:published_time" content="2023-06-14T16:37:26+08:00" />
+<meta property="article:modified_time" content="2023-06-14T16:37:26+08:00" />
+<meta itemprop="name" content="[ClickHouse] ClickHouse 启动失败">
+<meta itemprop="description" content="ClickHouse 重启时一直提示Waiting for server to start, 无法启动生成。 修改clickhouse配置重启时，一直重启不成功。 1 2 3 4 $ sudo /etc/init.d/clickhouse-server restart Waiting for server to start Cannot start server. You can">
+<meta itemprop="datePublished" content="2023-06-14T16:37:26&#43;08:00" />
+<meta itemprop="dateModified" content="2023-06-14T16:37:26&#43;08:00" />
+<meta itemprop="wordCount" content="501">
+
+
+
+<meta itemprop="keywords" content="clickhouse," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[ClickHouse] ClickHouse 启动失败"/>
+<meta name="twitter:description" content="ClickHouse 重启时一直提示Waiting for server to start, 无法启动生成。 修改clickhouse配置重启时，一直重启不成功。 1 2 3 4 $ sudo /etc/init.d/clickhouse-server restart Waiting for server to start Cannot start server. You can"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[ClickHouse] ClickHouse 启动失败</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2023-06-14 </span>
+        <div class="post-category">
+            <a href="/categories/clickhouse/"> clickhouse </a>
+            </div>
+          <span class="more-meta"> 501 words </span>
+          <span class="more-meta"> 1 min read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>ClickHouse 重启时一直提示<code>Waiting for server to start</code>, 无法启动生成。</p>
+</blockquote>
+<p>修改clickhouse配置重启时，一直重启不成功。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">$ sudo /etc/init.d/clickhouse-server restart
+Waiting for server to start
+Cannot start server. You can execute sudo -u &#39;clickhouse&#39; /usr/bin/clickhouse-server --config-file /etc/clickhouse-server/config.xml --pid-file /var/run/clickhouse-server/clickhouse-server.pid --daemon without --daemon option to run manually.
+Look for logs at /var/log/clickhouse-server/ and for /var/log/clickhouse-server/stderr.log.
+</code></pre></td></tr></table>
+</div>
+</div><p>查看启动失败日志：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">$ sudo -u clickhouse /usr/bin/clickhouse-server --config-file /etc/clickhouse-server/config.xml
+Processing configuration file &#39;/etc/clickhouse-server/config.xml&#39;.
+std::exception. Code: 1001, type: std::__1::__fs::filesystem::filesystem_error, e.what() = filesystem error: in posix_stat: failed to determine attributes for the specified path: Permission denied [&#34;/etc/clickhouse-server/config.xml&#34;], Stack trace (when copying this message, always include the lines below):
+
+1. std::__1::system_error::system_error(std::__1::error_code, std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt;&gt; const&amp;) @ 0x1a352f32 in /usr/bin/clickhouse
+2. ? @ 0xddf0c63 in /usr/bin/clickhouse
+3. ? @ 0x1a2f7e1a in /usr/bin/clickhouse
+4. ? @ 0x1a302ad2 in /usr/bin/clickhouse
+5. ? @ 0x1a3028d4 in /usr/bin/clickhouse
+6. std::__1::__fs::filesystem::__status(std::__1::__fs::filesystem::path const&amp;, std::__1::error_code*) @ 0x1a2ff129 in /usr/bin/clickhouse
+7. DB::ConfigProcessor::processConfig(bool*, zkutil::ZooKeeperNodeCache*, std::__1::shared_ptr&lt;Poco::Event&gt; const&amp;) @ 0x14c2157b in /usr/bin/clickhouse
+8. DB::ConfigProcessor::loadConfig(bool) @ 0x14c24874 in /usr/bin/clickhouse
+9. BaseDaemon::reloadConfiguration() @ 0xdfff54f in /usr/bin/clickhouse
+10. BaseDaemon::initialize(Poco::Util::Application&amp;) @ 0xe000c01 in /usr/bin/clickhouse
+11. DB::Server::initialize(Poco::Util::Application&amp;) @ 0xde33303 in /usr/bin/clickhouse
+12. Poco::Util::Application::run() @ 0x17554a17 in /usr/bin/clickhouse
+13. DB::Server::run() @ 0xde3315c in /usr/bin/clickhouse
+14. Poco::Util::ServerApplication::run(int, char**) @ 0x17568d7a in /usr/bin/clickhouse
+15. mainEntryClickHouseServer(int, char**) @ 0xde2fb86 in /usr/bin/clickhouse
+16. main @ 0x8837833 in /usr/bin/clickhouse
+17. __libc_start_main @ 0x237b3 in /usr/lib64/libc-2.28.so
+18. _start @ 0x7ea07ee in /usr/bin/clickhouse
+
+Cannot print extra info for Poco::Exception (version 23.1.3.5 (official build))
+</code></pre></td></tr></table>
+</div>
+</div><p>日志提示配置文件权限不足，可是没有修改过配置文件的权限。</p>
+<p>查看配置文件权限：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">$ ll -ht
+total 80K
+-rw------- 1 clickhouse clickhouse  70K Jun 14 10:15 config.xml
+-r-------- 1 clickhouse clickhouse 5.4K Dec 29 07:19 users.xml
+dr-x------ 2 clickhouse clickhouse    6 Dec 29 07:14 config.d
+dr-x------ 2 clickhouse clickhouse    6 Dec 29 07:14 users.d
+
+</code></pre></td></tr></table>
+</div>
+</div><p>然而在本地测试环境这个权限可以启动成功，但是在生产环境会失败。</p>
+<p>尝试修改配置文件权限755：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">$ chmod 755 /etc/clickhouse-server/*
+
+$ ll -ht
+total 80K
+-rwxr-xr-x 1 clickhouse clickhouse  71K Jun 14 16:19 config.xml
+-rwxr-xr-x 1 clickhouse clickhouse 5.3K Feb  8 14:02 users.xml
+drwxr-xr-x 2 clickhouse clickhouse    6 Feb  8 13:57 config.d
+drwxr-xr-x 2 clickhouse clickhouse    6 Feb  8 13:57 users.d
+</code></pre></td></tr></table>
+</div>
+</div><p>修改权限后启动成功。</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://www.oomake.com/question/16506762">Clickhouse failed to start, permission denied</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2023-06-14
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/clickhouse/">clickhouse</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/clickhouse/20230614-clickhouse-mutations/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[ClickHouse] ClickHouse 删除数据或分区后为什么还能查到？</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/clickhouse/20230614-clickhouse-disk/">
+            <span class="next-text nav-default">[ClickHouse] ClickHouse 查询表占用空间大小</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: '[ClickHouse] ClickHouse 启动失败',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2023
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
