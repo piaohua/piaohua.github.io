@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[MySQL] where和order by使用索引不一致导致慢SQL问题 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="where和order by使用索引不一致导致慢SQL问题 慢SQL场景 数据库版本： 1 2 3 4 5 6 7 MySQL [test]&amp;gt; select version(); &#43;------------&#43; | version() | &#43;------------&#43; | 5.7.25-log | &#43;------------&#43; 1 row in set (0.03 sec) 表结构语" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/mysql/20230627-index/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[MySQL] where和order by使用索引不一致导致慢SQL问题" />
+<meta property="og:description" content="where和order by使用索引不一致导致慢SQL问题 慢SQL场景 数据库版本： 1 2 3 4 5 6 7 MySQL [test]&gt; select version(); &#43;------------&#43; | version() | &#43;------------&#43; | 5.7.25-log | &#43;------------&#43; 1 row in set (0.03 sec) 表结构语" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20230627-index/" />
+<meta property="article:published_time" content="2023-06-27T10:17:34+08:00" />
+<meta property="article:modified_time" content="2023-06-27T10:17:34+08:00" />
+<meta itemprop="name" content="[MySQL] where和order by使用索引不一致导致慢SQL问题">
+<meta itemprop="description" content="where和order by使用索引不一致导致慢SQL问题 慢SQL场景 数据库版本： 1 2 3 4 5 6 7 MySQL [test]&gt; select version(); &#43;------------&#43; | version() | &#43;------------&#43; | 5.7.25-log | &#43;------------&#43; 1 row in set (0.03 sec) 表结构语">
+<meta itemprop="datePublished" content="2023-06-27T10:17:34&#43;08:00" />
+<meta itemprop="dateModified" content="2023-06-27T10:17:34&#43;08:00" />
+<meta itemprop="wordCount" content="1223">
+
+
+
+<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[MySQL] where和order by使用索引不一致导致慢SQL问题"/>
+<meta name="twitter:description" content="where和order by使用索引不一致导致慢SQL问题 慢SQL场景 数据库版本： 1 2 3 4 5 6 7 MySQL [test]&gt; select version(); &#43;------------&#43; | version() | &#43;------------&#43; | 5.7.25-log | &#43;------------&#43; 1 row in set (0.03 sec) 表结构语"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[MySQL] where和order by使用索引不一致导致慢SQL问题</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2023-06-27 </span>
+        <div class="post-category">
+            <a href="/categories/mysql/"> mysql </a>
+            </div>
+          <span class="more-meta"> 1223 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#慢sql场景">慢SQL场景</a>
+      <ul>
+        <li><a href="#mysql中的三星索引">MySQL中的三星索引</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>where和order by使用索引不一致导致慢SQL问题</p>
+</blockquote>
+<h2 id="慢sql场景">慢SQL场景</h2>
+<ol>
+<li>数据库版本：</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">MySQL</span> <span class="p">[</span><span class="n">test</span><span class="p">]</span><span class="o">&gt;</span> <span class="k">select</span> <span class="k">version</span><span class="p">();</span>
+<span class="o">+</span><span class="c1">------------+
+</span><span class="c1"></span><span class="o">|</span> <span class="k">version</span><span class="p">()</span>  <span class="o">|</span>
+<span class="o">+</span><span class="c1">------------+
+</span><span class="c1"></span><span class="o">|</span> <span class="mi">5</span><span class="p">.</span><span class="mi">7</span><span class="p">.</span><span class="mi">25</span><span class="o">-</span><span class="n">log</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">------------+
+</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">03</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>表结构语句如下：</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">t_order_logs</span><span class="o">`</span> <span class="p">(</span>
+  <span class="o">`</span><span class="n">id</span><span class="o">`</span> <span class="nb">int</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="n">unsigned</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">user_id</span><span class="o">`</span> <span class="nb">int</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">name</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">time</span><span class="o">`</span> <span class="nb">int</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">price</span><span class="o">`</span> <span class="nb">decimal</span><span class="p">(</span><span class="mi">26</span><span class="p">,</span><span class="mi">12</span><span class="p">)</span> <span class="n">unsigned</span> <span class="k">DEFAULT</span> <span class="s1">&#39;0.000000000000&#39;</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">quantity</span><span class="o">`</span> <span class="nb">decimal</span><span class="p">(</span><span class="mi">26</span><span class="p">,</span><span class="mi">8</span><span class="p">)</span> <span class="n">unsigned</span> <span class="k">DEFAULT</span> <span class="s1">&#39;0.00000000&#39;</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">kind</span><span class="o">`</span> <span class="nb">int</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">order_id</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">org_price</span><span class="o">`</span> <span class="nb">decimal</span><span class="p">(</span><span class="mi">26</span><span class="p">,</span><span class="mi">12</span><span class="p">)</span> <span class="n">unsigned</span> <span class="k">DEFAULT</span> <span class="s1">&#39;0.000000000000&#39;</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">org_quantity</span><span class="o">`</span> <span class="nb">decimal</span><span class="p">(</span><span class="mi">26</span><span class="p">,</span><span class="mi">8</span><span class="p">)</span> <span class="n">unsigned</span> <span class="k">DEFAULT</span> <span class="s1">&#39;0.00000000&#39;</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">group_order_id</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">24</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+  <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">),</span>
+  <span class="k">KEY</span> <span class="o">`</span><span class="n">index_userid</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">user_id</span><span class="o">`</span><span class="p">),</span>
+  <span class="k">KEY</span> <span class="o">`</span><span class="n">index_group_id</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">group_order_id</span><span class="o">`</span><span class="p">),</span>
+  <span class="k">KEY</span> <span class="o">`</span><span class="n">index_time</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">time</span><span class="o">`</span><span class="p">)</span>
+<span class="p">)</span> <span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span> <span class="n">AUTO_INCREMENT</span><span class="o">=</span><span class="mi">1</span> <span class="k">DEFAULT</span> <span class="n">CHARSET</span><span class="o">=</span><span class="n">utf8mb4</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="3">
+<li>表数据量大概为300w+</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">MySQL</span> <span class="p">[</span><span class="n">test</span><span class="p">]</span><span class="o">&gt;</span> <span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">from</span> <span class="n">t_order_logs</span><span class="p">;</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span> <span class="k">count</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span>  <span class="mi">3096393</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">91</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="4">
+<li>慢SQL示例</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">MySQL</span> <span class="p">[</span><span class="n">test</span><span class="p">]</span><span class="o">&gt;</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="o">`</span><span class="n">t_order_logs</span><span class="o">`</span> <span class="k">WHERE</span> <span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="mi">1</span> <span class="k">and</span> <span class="n">time</span><span class="o">&gt;=</span><span class="mi">1680001635</span> <span class="k">and</span> <span class="n">time</span><span class="o">&lt;</span> <span class="mi">1687777635</span><span class="p">)</span> <span class="k">and</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;book&#39;</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">group_order_id</span> <span class="k">DESC</span> <span class="k">LIMIT</span> <span class="mi">30</span><span class="p">;</span>
+<span class="n">Empty</span> <span class="k">set</span> <span class="p">(</span><span class="mi">23</span><span class="p">.</span><span class="mi">74</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>执行耗时非常的长，而且这条SQL是没有返回数据, 也就是说没有满足条件的数据行，但是当有满足条件行时执行耗时正常。</p>
+<p>通过explain分析查询SQL</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">MySQL</span> <span class="p">[</span><span class="n">test</span><span class="p">]</span><span class="o">&gt;</span> <span class="k">explain</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="o">`</span><span class="n">t_order_logs</span><span class="o">`</span> <span class="k">WHERE</span> <span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="mi">1</span> <span class="k">and</span> <span class="n">time</span><span class="o">&gt;=</span><span class="mi">1680001635</span> <span class="k">and</span> <span class="n">time</span><span class="o">&lt;</span> <span class="mi">1687777635</span><span class="p">)</span> <span class="k">and</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;book&#39;</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">group_order_id</span> <span class="k">DESC</span> <span class="k">LIMIT</span> <span class="mi">30</span><span class="p">;</span>
+<span class="o">+</span><span class="c1">----+-------------+--------------+------------+-------+-------------------------+-----------------+---------+------+------+----------+-------------+
+</span><span class="c1"></span><span class="o">|</span> <span class="n">id</span> <span class="o">|</span> <span class="n">select_type</span> <span class="o">|</span> <span class="k">table</span>        <span class="o">|</span> <span class="n">partitions</span> <span class="o">|</span> <span class="k">type</span>  <span class="o">|</span> <span class="n">possible_keys</span>           <span class="o">|</span> <span class="k">key</span>             <span class="o">|</span> <span class="n">key_len</span> <span class="o">|</span> <span class="k">ref</span>  <span class="o">|</span> <span class="k">rows</span> <span class="o">|</span> <span class="n">filtered</span> <span class="o">|</span> <span class="n">Extra</span>       <span class="o">|</span>
+<span class="o">+</span><span class="c1">----+-------------+--------------+------------+-------+-------------------------+-----------------+---------+------+------+----------+-------------+
+</span><span class="c1"></span><span class="o">|</span>  <span class="mi">1</span> <span class="o">|</span> <span class="k">SIMPLE</span>      <span class="o">|</span> <span class="n">t_order_logs</span> <span class="o">|</span> <span class="k">NULL</span>       <span class="o">|</span> <span class="k">index</span> <span class="o">|</span> <span class="n">index_userid</span><span class="p">,</span><span class="n">index_time</span> <span class="o">|</span> <span class="n">index_group_id</span>  <span class="o">|</span> <span class="mi">98</span>      <span class="o">|</span> <span class="k">NULL</span> <span class="o">|</span>  <span class="mi">777</span> <span class="o">|</span>     <span class="mi">0</span><span class="p">.</span><span class="mi">05</span> <span class="o">|</span> <span class="k">Using</span> <span class="k">where</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----+-------------+--------------+------------+-------+-------------------------+-----------------+---------+------+------+----------+-------------+
+</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span><span class="p">,</span> <span class="mi">1</span> <span class="n">warning</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>很明显查询没有走条件索引，直接使用<code>index_group_id</code>索引，导致排序整个表，自然就会很慢。</p>
+<p>为什么没有使用其他两个索引呢，在MySQL中有个“三星索引”的概念。</p>
+<h3 id="mysql中的三星索引">MySQL中的三星索引</h3>
+<ul>
+<li>索引将相关记录放在一起获得一星
+没有必要为where中的每一条件单独建立索引，可以把条件中的多列一起形成一个组合索引。</li>
+<li>如果索引中的数据顺序和查找中的排列顺序一致获得两星
+order by 中的列，与where条件中的列，都存在于索引中，且order by 的列为最前列（索引第一前缀）。</li>
+<li>如果索引中的列包含了查询中需要的全部列则获得三星
+索引中的列包含了查询中需要的全部列。同时，将易变的列变在最后。这样索引包含查询所需要的数据列，不再进行回表查询。这样的索引效率是极高的。</li>
+</ul>
+<p>通过三星索引知道，一条SQL只能使用一条索引，如果order by 和 where条件中的列不同，使用的索引也不同时，MySQL只会选择一个索引。</p>
+<p>这也就是为什么这条SQL会很慢的原因，因为where条件没有使用到索引。</p>
+<p>把order by索引修改和where条件相同来验证一下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">MySQL</span> <span class="p">[</span><span class="n">test</span><span class="p">]</span><span class="o">&gt;</span> <span class="k">explain</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="o">`</span><span class="n">t_order_logs</span><span class="o">`</span> <span class="k">WHERE</span> <span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="mi">1</span> <span class="k">and</span> <span class="n">time</span><span class="o">&gt;=</span><span class="mi">1680001635</span> <span class="k">and</span> <span class="n">time</span><span class="o">&lt;</span> <span class="mi">1687777635</span><span class="p">)</span> <span class="k">and</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;book&#39;</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">time</span> <span class="k">DESC</span> <span class="k">LIMIT</span> <span class="mi">30</span><span class="p">;</span>
+<span class="o">+</span><span class="c1">----+-------------+--------------+------------+-------+-------------------------+------------+---------+------+--------+----------+------------------------------------+
+</span><span class="c1"></span><span class="o">|</span> <span class="n">id</span> <span class="o">|</span> <span class="n">select_type</span> <span class="o">|</span> <span class="k">table</span>        <span class="o">|</span> <span class="n">partitions</span> <span class="o">|</span> <span class="k">type</span>  <span class="o">|</span> <span class="n">possible_keys</span>           <span class="o">|</span> <span class="k">key</span>        <span class="o">|</span> <span class="n">key_len</span> <span class="o">|</span> <span class="k">ref</span>  <span class="o">|</span> <span class="k">rows</span>   <span class="o">|</span> <span class="n">filtered</span> <span class="o">|</span> <span class="n">Extra</span>                              <span class="o">|</span>
+<span class="o">+</span><span class="c1">----+-------------+--------------+------------+-------+-------------------------+------------+---------+------+--------+----------+------------------------------------+
+</span><span class="c1"></span><span class="o">|</span>  <span class="mi">1</span> <span class="o">|</span> <span class="k">SIMPLE</span>      <span class="o">|</span> <span class="n">t_order_logs</span> <span class="o">|</span> <span class="k">NULL</span>       <span class="o">|</span> <span class="n">range</span> <span class="o">|</span> <span class="n">index_userid</span><span class="p">,</span><span class="n">index_time</span> <span class="o">|</span> <span class="n">index_time</span> <span class="o">|</span> <span class="mi">5</span>       <span class="o">|</span> <span class="k">NULL</span> <span class="o">|</span> <span class="mi">118126</span> <span class="o">|</span>     <span class="mi">1</span><span class="p">.</span><span class="mi">25</span> <span class="o">|</span> <span class="k">Using</span> <span class="k">index</span> <span class="n">condition</span><span class="p">;</span> <span class="k">Using</span> <span class="k">where</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----+-------------+--------------+------------+-------+-------------------------+------------+---------+------+--------+----------+------------------------------------+
+</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span><span class="p">,</span> <span class="mi">1</span> <span class="n">warning</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>可以看到使用的索引变为<code>index_time</code>，这时的查询速度就会很快。</p>
+<p>解决办法可以通过修改表索引，比如针对这个查询增加组合索引，但是加索引也是个耗时操作，可能会影响业务。</p>
+<p>也可以通过<code>force index</code> / <code>ignore index</code> / <code>use index</code> 强制指定使用索引，其执行效果如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">MySQL</span> <span class="p">[</span><span class="n">test</span><span class="p">]</span><span class="o">&gt;</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="o">`</span><span class="n">t_order_logs</span><span class="o">`</span> <span class="k">force</span> <span class="k">index</span><span class="p">(</span><span class="n">index_time</span><span class="p">)</span> <span class="k">WHERE</span> <span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="mi">1</span> <span class="k">and</span> <span class="n">time</span><span class="o">&gt;=</span><span class="mi">1680001635</span> <span class="k">and</span> <span class="n">time</span><span class="o">&lt;</span> <span class="mi">1687777635</span><span class="p">)</span> <span class="k">and</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;book&#39;</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">group_order_id</span> <span class="k">DESC</span> <span class="k">LIMIT</span> <span class="mi">30</span><span class="p">;</span>
+<span class="n">Empty</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">17</span> <span class="n">sec</span><span class="p">)</span>
+
+<span class="n">MySQL</span> <span class="p">[</span><span class="n">test</span><span class="p">]</span><span class="o">&gt;</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="o">`</span><span class="n">t_order_logs</span><span class="o">`</span> <span class="k">force</span> <span class="k">index</span><span class="p">(</span><span class="n">index_userid</span><span class="p">)</span> <span class="k">WHERE</span> <span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="mi">1</span> <span class="k">and</span> <span class="n">time</span><span class="o">&gt;=</span><span class="mi">1680001635</span> <span class="k">and</span> <span class="n">time</span><span class="o">&lt;</span> <span class="mi">1687777635</span><span class="p">)</span> <span class="k">and</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;book&#39;</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">group_order_id</span> <span class="k">DESC</span> <span class="k">LIMIT</span> <span class="mi">30</span><span class="p">;</span>
+<span class="n">Empty</span> <span class="k">set</span> <span class="p">(</span><span class="mi">2</span><span class="p">.</span><span class="mi">90</span> <span class="n">sec</span><span class="p">)</span>
+
+<span class="n">MySQL</span> <span class="p">[</span><span class="n">test</span><span class="p">]</span><span class="o">&gt;</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="o">`</span><span class="n">t_order_logs</span><span class="o">`</span> <span class="k">force</span> <span class="k">index</span><span class="p">(</span><span class="n">index_group_id</span><span class="p">)</span> <span class="k">WHERE</span> <span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="mi">1</span> <span class="k">and</span> <span class="n">time</span><span class="o">&gt;=</span><span class="mi">1680001635</span> <span class="k">and</span> <span class="n">time</span><span class="o">&lt;</span> <span class="mi">1687777635</span><span class="p">)</span> <span class="k">and</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;book&#39;</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">group_order_id</span> <span class="k">DESC</span> <span class="k">LIMIT</span> <span class="mi">30</span><span class="p">;</span>
+<span class="n">Empty</span> <span class="k">set</span> <span class="p">(</span><span class="mi">26</span><span class="p">.</span><span class="mi">16</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>强制走where条件索引后执行结果明显优化。</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://blog.csdn.net/Mr_SeaTurtle_/article/details/89133224">OrderBy 和Select的错误使用导致的慢sql——一次问题排查记录</a></li>
+<li><a href="https://blog.csdn.net/Zhuxiaoyu_91/article/details/127178101">Mysql中三星索引</a></li>
+<li><a href="https://www.jianshu.com/p/590ecb77739c">Mysql using filesort 优化</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2023-06-27
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/mysql/">mysql</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/golang/20230713-gracefully-restarting/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[Go] Golang服务平滑重启更新</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/mysql/20230624-systemd/">
+            <span class="next-text nav-default">systemd授权mysql用户管理MySQL服务</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: '[MySQL] where和order by使用索引不一致导致慢SQL问题',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2023
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

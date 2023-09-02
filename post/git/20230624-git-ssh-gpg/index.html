@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Git] git提交使用SSH签名和GPG签名验证 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="Git 支持使用SSH签名，也支持GPG签名提交记录 SSH签名 SSH 签名的工具是 ssh-keygen 使用 ssh-keygen 生成 SSH Key 1 ssh-keygen -t ed25519 -C &amp;#34;Gitee SSH Key&amp;#34; -t key 类型 -C 注释 执行后，在~/.ssh目" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/git/20230624-git-ssh-gpg/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Git] git提交使用SSH签名和GPG签名验证" />
+<meta property="og:description" content="Git 支持使用SSH签名，也支持GPG签名提交记录 SSH签名 SSH 签名的工具是 ssh-keygen 使用 ssh-keygen 生成 SSH Key 1 ssh-keygen -t ed25519 -C &#34;Gitee SSH Key&#34; -t key 类型 -C 注释 执行后，在~/.ssh目" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/git/20230624-git-ssh-gpg/" />
+<meta property="article:published_time" content="2023-06-24T21:40:05+08:00" />
+<meta property="article:modified_time" content="2023-06-24T21:40:05+08:00" />
+<meta itemprop="name" content="[Git] git提交使用SSH签名和GPG签名验证">
+<meta itemprop="description" content="Git 支持使用SSH签名，也支持GPG签名提交记录 SSH签名 SSH 签名的工具是 ssh-keygen 使用 ssh-keygen 生成 SSH Key 1 ssh-keygen -t ed25519 -C &#34;Gitee SSH Key&#34; -t key 类型 -C 注释 执行后，在~/.ssh目">
+<meta itemprop="datePublished" content="2023-06-24T21:40:05&#43;08:00" />
+<meta itemprop="dateModified" content="2023-06-24T21:40:05&#43;08:00" />
+<meta itemprop="wordCount" content="1297">
+
+
+
+<meta itemprop="keywords" content="git," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Git] git提交使用SSH签名和GPG签名验证"/>
+<meta name="twitter:description" content="Git 支持使用SSH签名，也支持GPG签名提交记录 SSH签名 SSH 签名的工具是 ssh-keygen 使用 ssh-keygen 生成 SSH Key 1 ssh-keygen -t ed25519 -C &#34;Gitee SSH Key&#34; -t key 类型 -C 注释 执行后，在~/.ssh目"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Git] git提交使用SSH签名和GPG签名验证</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2023-06-24 </span>
+        <div class="post-category">
+            <a href="/categories/git/"> git </a>
+            </div>
+          <span class="more-meta"> 1297 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#ssh签名">SSH签名</a>
+      <ul>
+        <li><a href="#使用-ssh-keygen-生成-ssh-key">使用 ssh-keygen 生成 SSH Key</a></li>
+        <li><a href="#签名与验证">签名与验证</a></li>
+        <li><a href="#git命令添加ssh签名">Git命令添加SSH签名</a></li>
+      </ul>
+    </li>
+    <li><a href="#gpg签名">GPG签名</a>
+      <ul>
+        <li><a href="#导出-gpg-公钥">导出 GPG 公钥</a></li>
+        <li><a href="#查看本地私钥信息">查看本地私钥信息</a></li>
+        <li><a href="#配置git">配置Git</a></li>
+        <li><a href="#使用参数-s参数签名进行提交会提示输入密码">使用参数<code>-S</code>参数签名进行提交，会提示输入密码</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>Git 支持使用SSH签名，也支持GPG签名提交记录</p>
+</blockquote>
+<h2 id="ssh签名">SSH签名</h2>
+<p>SSH 签名的工具是 ssh-keygen</p>
+<h3 id="使用-ssh-keygen-生成-ssh-key">使用 ssh-keygen 生成 SSH Key</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">ssh-keygen -t ed25519 -C &#34;Gitee SSH Key&#34;
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>-t key 类型</li>
+<li>-C 注释</li>
+</ul>
+<p>执行后，在<code>~/.ssh</code>目录下生成SSH私钥<code>id_ed25519</code>和公钥<code>id_ed25519.pub</code></p>
+<h3 id="签名与验证">签名与验证</h3>
+<p>通过 ssh-keygen 工具，-f参数指定私钥，给指定文件签名</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">ssh-keygen -Y sign -f ~/.ssh/id_ed25519 -n file /tmp/a.txt
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>-Y sign表示计算签名</li>
+<li>-f指定私钥</li>
+<li>-n file是给签名指定类型</li>
+<li>file是我们自己定的，不同类型的签名不会产生冲突</li>
+</ul>
+<p>签名后会生成一个签名文件<code>/tmp/a.txt.sig</code></p>
+<p>配置公钥列表，或者将公钥上传到git服务器。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">www@gmail.com ssh-ed25519 AAAAxxx 
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>第一列是公钥的标识(邮箱)。</li>
+<li>第二列是公钥类型，</li>
+<li>第三列是公钥内容，也就是~/.ssh/id_ed25519.pub的内容</li>
+</ul>
+<p>验证签名</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">ssh-keygen -Y verify -f allowed_signers -I www@gmail.com -n file -s /tmp/a.txt.sig &lt; /tmp/a.txt
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>-Y verify表示要验证签名</li>
+<li>-f 用来指定公钥列表文件</li>
+<li>-I 指定使用公钥标识</li>
+<li>-n file 需要跟签名的时候保持一致</li>
+<li>-s 指定签名所在文件</li>
+</ul>
+<h3 id="git命令添加ssh签名">Git命令添加SSH签名</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback"># 使用 SSH 签名
+git config gpg.format ssh
+# 指定 SSH 私钥文件
+git config user.signingKey ~/.ssh/id_ed25519.pub
+# 指定可信公钥列表文件
+git config gpg.ssh.allowedSignersFile &#34;$HOME/.config/git/allowed_signers&#34;
+# 开启自动签名（可选）
+git config commit.gpgsign true
+git config tag.gpgsign true
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="gpg签名">GPG签名</h2>
+<p><a href="https://help.gitee.com/repository/ssh-key/How-to-use-GPG-with-Gitee">GPG安装</a></p>
+<p>安装完成后，在命令行生成密钥对</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">&gt; gpg --gen-key
+请选择您要使用的密钥种类：
+   (1) RSA and RSA (default)
+   (2) DSA and Elgamal
+   (3) DSA (仅用于签名)
+   (4) RSA (仅用于签名)
+您的选择？1                                                   &lt;- 选择密钥类型
+RSA 密钥长度应在 1024 位与 4096 位之间。
+您想要用多大的密钥尺寸？(3072) 3072
+您所要求的密钥尺寸是 3072 位
+请设定这把密钥的有效期限。
+         0 = 密钥永不过期
+      &lt;n&gt;  = 密钥在 n 天后过期
+      &lt;n&gt;w = 密钥在 n 周后过期
+      &lt;n&gt;m = 密钥在 n 月后过期
+      &lt;n&gt;y = 密钥在 n 年后过期
+密钥的有效期限是？(0) 1y                                       &lt;- 有效期
+密钥于 2020 年 05 月 04 日 星期一 14 时 38 分 48 秒 CST 过期
+以上正确吗？(y/n) y                                            &lt;- 确定
+
+You need a user ID to identify your key; the software constructs the user ID
+from the Real Name, Comment and Email Address in this form:
+    &#34;Heinrich Heine (Der Dichter) &lt;heinrichh@duesseldorf.de&gt;&#34;
+
+真实姓名：YOUR_NAME                                          &lt;- 用户名
+电子邮件地址：gitee@gitee.com                                 &lt;- 邮箱，需要与 Gitee 提交邮箱保持一致
+注释：Gitee GPG Key                                          &lt;- 注释
+您选定了这个用户标识：
+    “YOUR_NAME (Gitee GPG Key) &lt;gitee@gitee.com&gt;”
+
+更改姓名 (N)、注释 (C)、电子邮件地址 (E) 或确定 (O)/退出 (Q)？O
+gpg: 密钥 B0A02972E266DD6D 被标记为绝对信任
+gpg: revocation certificate stored as &#39;xxx&#39;
+公钥和私钥已经生成并经签名。
+
+pub   rsa3072 2019-05-05 [SC] [有效至：2020-05-04]
+      8086B4D21B3118A83CC16CEBB0A02972E266DD6D                 &lt;- Key ID
+uid                      likui (Gitee GPG Key) &lt;gitee@gitee.com&gt;
+sub   rsa3072 2019-05-05 [E] [有效至：2020-05-04]
+</code></pre></td></tr></table>
+</div>
+</div><p>执行命令后，提示输入选择要生成的密钥类型，</p>
+<p>选择类型后，比如默认RSA，会提示选择RSA Keys大小，默认2048。</p>
+<p>然后是密钥过期时间，再选择用户名和邮箱。</p>
+<h3 id="导出-gpg-公钥">导出 GPG 公钥</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">gpg --armor --export 8086B4D21B3118A83CC16CEBB0A02972E266DD6D
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="查看本地私钥信息">查看本地私钥信息</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">gpg --list-secret-keys
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="配置git">配置Git</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">git config --global user.signingkey 8086B4D21B3118A83CC16CEBB0A02972E266DD6D
+</code></pre></td></tr></table>
+</div>
+</div><p>将公钥添加到git服务器，或者使用命令发送到指定服务器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">gpg --keyserver hkp://pgp.mit.edu --send-keys 8086B4D2
+</code></pre></td></tr></table>
+</div>
+</div><p>如果没有配置gpg,查看到的记录会显示未签名</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">&gt; git log --show-signature -n 1
+fatal: cannot run gpg: No such file or directory
+No signature
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="使用参数-s参数签名进行提交会提示输入密码">使用参数<code>-S</code>参数签名进行提交，会提示输入密码</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">git commit -S -m &#34;xxx&#34; 
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">git log --show-signature -n 1
+commit f042dc0da63e192c3ffd89b6c5cdb560d3706ab3 (HEAD -&gt; master)
+gpg: Signature made 2023年06月27日 15:53:50
+gpg:                using RSA key 533F5540BE351AADFEF3C588AFBF216B5F802252
+gpg: Good signature from &#34;piaohua &lt;wangpiaohua@163.com&gt;&#34; [ultimate]
+Author: piao &lt;wangpiaohua@163.com&gt;
+Date:   Tue Jun 27 15:53:44 2023 +0800
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://taoshu.in/git/ssh-sign.html">使用 SSH 签名 Git 提交记录</a></li>
+<li><a href="https://help.gitee.com/base/account/SSH%E5%85%AC%E9%92%A5%E8%AE%BE%E7%BD%AE">gitee SSH 公钥设置</a></li>
+<li><a href="https://help.gitee.com/repository/ssh-key/How-to-use-GPG-with-Gitee">如何在 Gitee 上使用 GPG</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2023-06-24
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/git/">git</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/mysql/20230624-systemd/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">systemd授权mysql用户管理MySQL服务</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/golang/20230623-ethereum-wallet/">
+            <span class="next-text nav-default">[Go] 生成polygon和tron钱包地址</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: '[Git] git提交使用SSH签名和GPG签名验证',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2023
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
