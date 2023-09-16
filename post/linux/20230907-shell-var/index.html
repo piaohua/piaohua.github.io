@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Shell] shell变量替换:=、=、:-、-、:?、?、:&#43;、&#43;句法 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="shell变量替换:=、=、:-、-、:?、?、:&#43;、&#43;句法 linux bash shell之变量替换：:=句法、=句法、:-句法、-句法、=?句法、?句法、" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/linux/20230907-shell-var/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Shell] shell变量替换:=、=、:-、-、:?、?、:&#43;、&#43;句法" />
+<meta property="og:description" content="shell变量替换:=、=、:-、-、:?、?、:&#43;、&#43;句法 linux bash shell之变量替换：:=句法、=句法、:-句法、-句法、=?句法、?句法、" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/linux/20230907-shell-var/" />
+<meta property="article:published_time" content="2023-09-07T17:17:22+08:00" />
+<meta property="article:modified_time" content="2023-09-07T17:17:22+08:00" />
+<meta itemprop="name" content="[Shell] shell变量替换:=、=、:-、-、:?、?、:&#43;、&#43;句法">
+<meta itemprop="description" content="shell变量替换:=、=、:-、-、:?、?、:&#43;、&#43;句法 linux bash shell之变量替换：:=句法、=句法、:-句法、-句法、=?句法、?句法、">
+<meta itemprop="datePublished" content="2023-09-07T17:17:22&#43;08:00" />
+<meta itemprop="dateModified" content="2023-09-07T17:17:22&#43;08:00" />
+<meta itemprop="wordCount" content="2854">
+
+
+
+<meta itemprop="keywords" content="linux,shell," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Shell] shell变量替换:=、=、:-、-、:?、?、:&#43;、&#43;句法"/>
+<meta name="twitter:description" content="shell变量替换:=、=、:-、-、:?、?、:&#43;、&#43;句法 linux bash shell之变量替换：:=句法、=句法、:-句法、-句法、=?句法、?句法、"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Shell] shell变量替换:=、=、:-、-、:?、?、:&#43;、&#43;句法</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2023-09-07 </span>
+        <div class="post-category">
+            <a href="/categories/linux/"> linux </a>
+            <a href="/categories/shell/"> shell </a>
+            </div>
+          <span class="more-meta"> 2854 words </span>
+          <span class="more-meta"> 6 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#1-句法">（1） :=句法</a></li>
+    <li><a href="#2-句法">（2） =句法</a></li>
+    <li><a href="#3--句法">（3） :-句法</a></li>
+    <li><a href="#4--句法">（4） -句法</a></li>
+    <li><a href="#5-句法">（5） :?句法</a></li>
+    <li><a href="#6-句法">（6） ?句法</a></li>
+    <li><a href="#7-句法">（7） :+句法</a></li>
+    <li><a href="#8-句法">（8） +句法</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p><a href="https://blog.csdn.net/taiyang1987912/article/details/40323481">shell变量替换:=、=、:-、-、:?、?、:+、+句法</a></p>
+</blockquote>
+<p>linux bash shell之变量替换：:=句法、=句法、:-句法、-句法、=?句法、?句法、:+句法、+句法</p>
+<p>变量替换和变量默认值设置是紧密相关的，至少从概念出发是如此。</p>
+<dl>
+<dt>参数扩张是将类似于变量的参数用它的值来替换。例如以“echo $VAR”的形式调用一个简单的变量。此外还有更多的特性可以访问。这个句法还包含一些没有扩展的特性，虽然这些特性自身很有意义。首先，这类特性执行默认变量赋值。使用这些特性时，整个表达式需要用花括号括起来。</dt>
+<dd>
+<p>${VAR:=”some default”}</p>
+</dd>
+</dl>
+<p>这些代码开始的冒号是一个正确执行非活动任务的shell命令。在这个句法中，它仅仅扩展了行中紧随其后的所有参数。本例中，只要是要在花括号内扩展参数值。</p>
+<p>本行ongoing冒号中的参数是最有趣的部分；它是用花括号起来的一些逻辑的参数扩展。:=句法表示VAR变量将会和“some defalut”字符串进行比较。</p>
+<p>在这个表达式中，如果变量VAR还没有被设置，那么“:=”之后表达式的值将被赋给它，这个值可能是一个数字，一个字符串，或者是另外一个变量。</p>
+<dl>
+<dt>系统中的脚步可能需要将多个变量设置成默认值。程序员可以在一行中给多个变量设置默认值，而不是编码一组变量替换，这样也使得代码更加紧凑、易读。下面的例子包含了程序员需要执行的各种替换操作。第一个默认值是一个显示的串，第二个是一个显示的整数，第三个是一个已定义的变量。</dt>
+<dd>
+<p>${VAR:=”some default”} ${VAR2:=42} ${VAR3:=$LOGNAME}</p>
+</dd>
+</dl>
+<p>这几个变量替换类型和前例中的:=句法类似。因为不同替换类型的句法都是相同的，不过它们的意义却略有不同，可能很容易混淆。在大多数情况下，代码中执行替换句法的地方，这些替换仅仅用某个值替换了变量，但是并没有设置变量，也就是说变量并没有被真正赋值。下面句法类型的定义在所有的shell联机资料中找到的，但是这些说明通常不是很清楚。</p>
+<h2 id="1-句法">（1） :=句法</h2>
+<p>在这种替换中，使用和前例中相同的:=句法来设置默认值。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">$ <span class="nv">LOGNAME</span><span class="o">=</span>log <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="si">${</span><span class="nv">username</span><span class="p">:=</span><span class="si">${</span><span class="nv">LOGNAME</span><span class="si">}}</span>
+log
+
+$ <span class="nb">echo</span> <span class="nv">$username</span>
+log
+$ : <span class="si">${</span><span class="nv">username</span><span class="p">:=</span><span class="s2">&#34;newlog&#34;</span><span class="si">}</span>
+$ <span class="nb">echo</span> <span class="nv">$username</span>
+log
+
+
+$ : <span class="si">${</span><span class="nv">username</span><span class="p">:=</span><span class="s2">&#34;newlog&#34;</span><span class="si">}</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="si">${</span><span class="nv">username</span><span class="si">}</span>
+log
+$ : <span class="si">${</span><span class="nv">username2</span><span class="p">:=</span><span class="s2">&#34;newlog&#34;</span><span class="si">}</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="si">${</span><span class="nv">username2</span><span class="si">}</span>
+newlog
+</code></pre></td></tr></table>
+</div>
+</div><p>在使用“:=”进行比较时，username变量已经被定义了，但是它的值为空。因此，这里对echo命令使用了变量LOGNAME的值，即设置变量username的值为LOGNAME的值。</p>
+<p>有了这个特殊的句法，只有当变量username已被定义，而且有一个实际的非空值时，变量username才会被设置为变量LOGNAME的值。</p>
+<p>和前例的主要不同是使用活动命令（echo）而不是被动的冒号来设置变量的默认值，当活动命令被调用时，默认赋值仍然会执行，并输出显示结果。</p>
+<h2 id="2-句法">（2） =句法</h2>
+<p>下面的语句和:=句法非常类似，但是没有冒号。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">$ <span class="nv">username</span><span class="o">=</span><span class="s2">&#34;&#34;</span>
+
+$ <span class="nv">LOGNAME</span><span class="o">=</span><span class="s2">&#34;tt&#34;</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="si">${</span><span class="nv">username</span><span class="p">=</span><span class="nv">$LOGNAME</span><span class="si">}</span>
+
+$ <span class="nv">LOGNAME</span><span class="o">=</span><span class="s2">&#34;tt&#34;</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="si">${</span><span class="nv">username2</span><span class="p">=</span><span class="nv">$LOGNAME</span><span class="si">}</span>
+tt
+
+$ <span class="nb">echo</span> <span class="si">${</span><span class="nv">username2</span><span class="si">}</span>
+tt
+
+$ <span class="nb">echo</span> <span class="si">${</span><span class="nv">username</span><span class="si">}</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>和前面一样，变量username已经被定义，但是它的值为空。在这个句法中，命令将会输出“echo”之后语句的执行结果。因为变量username虽然为空值，但已经被定义了，所以除了一个回车不会再有其他输出。只有当username变量完全没有定义时，才会将其设置为变量LOGNAME的值。</p>
+<p>当脚本或者函数需要依赖某些定义变量时，就要使用这种语法。它主要应用于登陆。如果一个特定环境变量还没有被定义，就可以给它赋予脚本所需要的值。</p>
+<h2 id="3--句法">（3） :-句法</h2>
+<p>在这个命令中，因为变量username虽然已被定义但是为空值，echo语句将使用LOGNAME变量的值。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">$ <span class="nv">username</span><span class="o">=</span><span class="s2">&#34;&#34;</span>
+
+$ <span class="nv">LOGNAME</span><span class="o">=</span><span class="s2">&#34;aa&#34;</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="si">${</span><span class="nv">username</span><span class="k">:-</span><span class="si">${</span><span class="nv">LOGNAME</span><span class="si">}}</span>
+aa
+
+$ <span class="nb">echo</span> <span class="nv">$username</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这里username变量的值保持不变。这个命令和使用=句语法的不同之处是，在此命令被执行前，仅仅在代码中的“${}”句法中做替换。也就是说，echo命令将输出LOGNAME变量的值，但是这个值不会被赋给username变量。</p>
+<h2 id="4--句法">（4） -句法</h2>
+<p>当删除上述的:-语句中的冒号，即变成-的时候，因为username变量已被定义，输出将为空。如果未定义，就会使用LOGNAME变量的值。还有一点也与:-句法相同，即username变量的值没有改变。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">$ <span class="nv">username</span><span class="o">=</span><span class="s2">&#34;&#34;</span>
+
+$ <span class="nv">LOGNAME</span><span class="o">=</span><span class="s2">&#34;a4&#34;</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="si">${</span><span class="nv">username</span><span class="p">-</span><span class="nv">$LOGNAME</span><span class="si">}</span>
+
+
+$ <span class="nb">echo</span> <span class="nv">$username</span>
+
+
+$ <span class="nv">LOGNAME</span><span class="o">=</span><span class="s2">&#34;a4&#34;</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="si">${</span><span class="nv">username2</span><span class="p">-</span><span class="nv">$LOGNAME</span><span class="si">}</span>
+a4
+
+$ <span class="nb">echo</span> <span class="nv">$username2</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>当脚本评价或检查系统环境的时，:-句法和-句法都可以使用。这两种检查基本上是相反的，它们用默认值替换变量，或者甚至于不依赖username变量是否已经被定义。如果脚本中急需要一组被定义的变量，也需要一些不该被定义的变量，那么在脚本执行任务之前组合这两种句法，肯定可以实现正确的设置。</p>
+<h2 id="5-句法">（5） :?句法</h2>
+<p>使用:?句法时，如果username变量已被定义为非空值，在echo命令中就会使用username变量的值。如果username变量已被定义但却没有一个真正的值（也就是说非空）或者完全未被定义，那么在echo命令中就会使用LOGNAME的值，并且脚本退出执行。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">$ <span class="nv">username</span><span class="o">=</span><span class="s2">&#34;a5&#34;</span>
+
+
+$ <span class="nv">LOGNAME</span><span class="o">=</span><span class="s2">&#34;log&#34;</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="si">${</span><span class="nv">username</span><span class="p">:?</span><span class="nv">$LOGNAME</span><span class="si">}</span>
+a5
+
+$ <span class="nb">echo</span> <span class="nv">$username</span>
+a5
+
+$ <span class="nv">username2</span><span class="o">=</span><span class="s2">&#34;&#34;</span>
+
+
+$ <span class="nv">LOGNAME</span><span class="o">=</span><span class="s2">&#34;log&#34;</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="si">${</span><span class="nv">username2</span><span class="p">:?</span><span class="nv">$LOGNAME</span><span class="si">}</span>
+bash: username2: log
+
+$ <span class="nb">echo</span> <span class="nv">$username2</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>如果把问号字符的参数改为某种错误字符，那这个语句就会在代码调试和查找未定义变量时变得很有用。这段代码不仅仅输出字符串，而且会显示代码在脚本中所在行的位置。</p>
+<h2 id="6-句法">（6） ?句法</h2>
+<p>从:?句法中去掉冒号使用username变量不必一定为非空值。如果username只被设置为一个空值，那么将使用这个空值。相反的，如果username变量没有被定义，则同前所述的:?句法，执行LOGNAME替换，脚本退出运行，并显示退出时所在代码行在脚本中的位置。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">$ <span class="nv">username</span><span class="o">=</span><span class="s2">&#34;&#34;</span>
+
+$ <span class="nv">LOGNAME</span><span class="o">=</span><span class="s2">&#34;tt&#34;</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="si">${</span><span class="nv">username</span><span class="p">?</span><span class="nv">$LOGNAME</span><span class="si">}</span>
+
+
+$ <span class="nb">echo</span> <span class="si">${</span><span class="nv">username</span><span class="si">}</span>
+
+
+$ <span class="nv">LOGNAME</span><span class="o">=</span><span class="s2">&#34;tt&#34;</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="si">${</span><span class="nv">username2</span><span class="p">?</span><span class="nv">$LOGNAME</span><span class="si">}</span>
+bash: username2: tt
+
+$ <span class="nb">echo</span> <span class="si">${</span><span class="nv">username2</span><span class="si">}</span>
+
+
+$ <span class="nv">username3</span><span class="o">=</span><span class="s2">&#34;a6&#34;</span>
+
+$ <span class="nv">LOGNAME</span><span class="o">=</span><span class="s2">&#34;tt&#34;</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="si">${</span><span class="nv">username3</span><span class="p">?</span><span class="nv">$LOGNAME</span><span class="si">}</span>
+a6
+
+$ <span class="nb">echo</span> <span class="si">${</span><span class="nv">username3</span><span class="si">}</span>
+a6
+</code></pre></td></tr></table>
+</div>
+</div><p>在脚本调试过程中，需要检查变量是否已被定义或者是非空的是否，:?和?句法是非常有用的。这个代码最大的优点是脚本会从出错行退出，而且会显示出错误行行号。在要显示的文本中加上类似于“is undefined”或者“has a null value”信息，可以更清楚的说明脚本中的问题。</p>
+<h2 id="7-句法">（7） :+句法</h2>
+<p>和前面的例子相比，这个句法有相反的作用。这这是因为，只有当变量已被定义而不是未定义的时候，“${}”表达式才执行替换。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">$ <span class="nv">username</span><span class="o">=</span><span class="s2">&#34;a7&#34;</span>
+
+$ <span class="nv">LOGNAME</span><span class="o">=</span><span class="s2">&#34;tt&#34;</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="si">${</span><span class="nv">username</span><span class="p">:+</span><span class="nv">$LOGNAME</span><span class="si">}</span>
+tt
+
+$ <span class="nb">echo</span> <span class="si">${</span><span class="nv">username</span><span class="si">}</span>
+a7
+
+$ <span class="nv">username2</span><span class="o">=</span><span class="s2">&#34;&#34;</span>
+
+$ <span class="nv">LOGNAME</span><span class="o">=</span><span class="s2">&#34;tt&#34;</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="si">${</span><span class="nv">username2</span><span class="p">:+</span><span class="nv">$LOGNAME</span><span class="si">}</span>
+
+
+$ <span class="nb">echo</span> <span class="si">${</span><span class="nv">username2</span><span class="si">}</span>
+
+
+</code></pre></td></tr></table>
+</div>
+</div><p>如果这里的username变量已被定义而且非空，因此使用LOGNAME的值。如果username变量未定义，或者已定义但为空，则将使用空值。在任何情况下，username变量的值都不会改变。</p>
+<h2 id="8-句法">（8） +句法</h2>
+<p>如果 前例:+中的冒号，一旦变量username被定义，“${}”表达式都将使用LOGNAME的值；进行这个替换时，username变量不需要有一个实际的值（即非空值）。如</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">$ <span class="nv">username</span><span class="o">=</span><span class="s2">&#34;&#34;</span>
+
+$ <span class="nv">LOGNAME</span><span class="o">=</span><span class="s2">&#34;tt&#34;</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="si">${</span><span class="nv">username</span><span class="p">+</span><span class="nv">$LOGNAME</span><span class="si">}</span>
+tt
+
+$ <span class="nb">echo</span> <span class="si">${</span><span class="nv">username</span><span class="si">}</span>
+
+
+$ <span class="nv">LOGNAME</span><span class="o">=</span><span class="s2">&#34;tt&#34;</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="si">${</span><span class="nv">username2</span><span class="p">+</span><span class="nv">$LOGNAME</span><span class="si">}</span>
+
+
+$ <span class="nb">echo</span> <span class="si">${</span><span class="nv">username2</span><span class="si">}</span>
+
+
+$ <span class="nv">username</span><span class="o">=</span><span class="s2">&#34;a8&#34;</span>
+
+$ <span class="nv">LOGNAME</span><span class="o">=</span><span class="s2">&#34;tt&#34;</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="si">${</span><span class="nv">username</span><span class="p">+</span><span class="nv">$LOGNAME</span><span class="si">}</span>
+tt
+
+$ <span class="nb">echo</span> <span class="si">${</span><span class="nv">username</span><span class="si">}</span>
+a8
+</code></pre></td></tr></table>
+</div>
+</div><p>“:+”、“+”句法的用法很多是喝“:-”、“-”句法的用法相同的。最主要的区别是“:+”、“+”示例检查的是一个已定义的变量，而不是未定义的变量。这类类似于家法、减法——一枚硬币的两面。</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2023-09-07
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/linux/">linux</a>
+          <a href="/tags/shell/">shell</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/linux/20230907-swapfile/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[Linux] linux系统创建交换文件（swapfile）</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/golang/20230907-nats/">
+            <span class="next-text nav-default">[Nats] nats 简介及使用</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: '[Shell] shell变量替换:=、=、:-、-、:?、?、:\x2b、\x2b句法',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2023
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
