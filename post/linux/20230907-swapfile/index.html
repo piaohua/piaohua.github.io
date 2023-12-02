@@ -49,7 +49,7 @@
 <meta itemprop="description" content="linux系统创建交换文件（swapfile） 查看交换空间大小 1 2 3 4 # free -h total used free shared buff/cache available Mem: 1.8Gi 699Mi 465Mi 3.0Mi 694Mi 1.0Gi Swap: 2.0Gi 885Mi 1.1Gi 如果没有设置交换空间，则Swa">
 <meta itemprop="datePublished" content="2023-09-07T17:18:22&#43;08:00" />
 <meta itemprop="dateModified" content="2023-09-07T18:17:22&#43;08:00" />
-<meta itemprop="wordCount" content="332">
+<meta itemprop="wordCount" content="442">
 
 
 
@@ -133,7 +133,7 @@
         <div class="post-category">
             <a href="/categories/linux/"> linux </a>
             </div>
-          <span class="more-meta"> 332 words </span>
+          <span class="more-meta"> 442 words </span>
           <span class="more-meta"> 1 min read </span>
         
       </div>
@@ -145,6 +145,7 @@
     <nav id="TableOfContents">
   <ul>
     <li><a href="#创建交换文件">创建交换文件</a></li>
+    <li><a href="#参考">参考</a></li>
   </ul>
 </nav>
   </div>
@@ -208,9 +209,19 @@ NAME      TYPE SIZE   USED PRIO
 <span class="c1">#其中这个16384是指创建16G=(16384*1M)的交换空间，交换空间的大小一般是物理内存的1-2倍</span>
 </code></pre></td></tr></table>
 </div>
+</div><p>或者使用<code>fallocate</code>创建</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">sudo fallocate -l 1G /swapfile
+</code></pre></td></tr></table>
+</div>
 </div><ul>
 <li>第二步启动交换空间：</li>
 </ul>
+<p>只有root用户才能读取和写入交换文件，需要设置正确的权限</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code><span class="lnt">1
@@ -226,6 +237,7 @@ swapon /swapfile <span class="c1">#启用swap文件</span>
 </div><ul>
 <li>第三步：</li>
 </ul>
+<p>使更改永久生效，修改<code>/etc/fstab</code></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code><span class="lnt">1
@@ -238,7 +250,11 @@ vim /etc/fstab
 /swapfile none swap defaults <span class="m">0</span> <span class="m">0</span>
 </code></pre></td></tr></table>
 </div>
-</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://www.ywnz.com/linuxjc/5592.html">在Debian 10 Linux上添加Swap交换空间和调整Swappiness值</a></li>
+</ul>
+
     </div>
 
     <div class="post-copyright">
