@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Polygon测试网络上实现Token交易 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="Polygon测试网络上实现Token交易。 交易节点 Infura和Alchemy是两个最受欢迎的节点供应商。两个节点都支持Polygon主网" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/golang/20230623-polygon-token-transation/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Polygon测试网络上实现Token交易" />
+<meta property="og:description" content="Polygon测试网络上实现Token交易。 交易节点 Infura和Alchemy是两个最受欢迎的节点供应商。两个节点都支持Polygon主网" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20230623-polygon-token-transation/" />
+<meta property="article:published_time" content="2023-12-17T16:52:00+08:00" />
+<meta property="article:modified_time" content="2023-12-17T16:52:00+08:00" />
+<meta itemprop="name" content="Polygon测试网络上实现Token交易">
+<meta itemprop="description" content="Polygon测试网络上实现Token交易。 交易节点 Infura和Alchemy是两个最受欢迎的节点供应商。两个节点都支持Polygon主网">
+<meta itemprop="datePublished" content="2023-12-17T16:52:00&#43;08:00" />
+<meta itemprop="dateModified" content="2023-12-17T16:52:00&#43;08:00" />
+<meta itemprop="wordCount" content="1772">
+
+
+
+<meta itemprop="keywords" content="go,polygon," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Polygon测试网络上实现Token交易"/>
+<meta name="twitter:description" content="Polygon测试网络上实现Token交易。 交易节点 Infura和Alchemy是两个最受欢迎的节点供应商。两个节点都支持Polygon主网"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Polygon测试网络上实现Token交易</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2023-12-17 </span>
+        <div class="post-category">
+            <a href="/categories/go/"> go </a>
+            </div>
+          <span class="more-meta"> 1772 words </span>
+          <span class="more-meta"> 4 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#交易节点">交易节点</a></li>
+    <li><a href="#测试网络领取token">测试网络领取Token</a></li>
+    <li><a href="#发起一笔交易">发起一笔交易</a></li>
+    <li><a href="#指定token交易">指定Token交易</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>Polygon测试网络上实现Token交易。</p>
+</blockquote>
+<h2 id="交易节点">交易节点</h2>
+<p><a href="https://infura.io">Infura</a>和<a href="https://www.alchemy.com">Alchemy</a>是两个最受欢迎的节点供应商。两个节点都支持Polygon主网和测试网络。</p>
+<p>关于两个节点比较和选择选择：<a href="https://zhuanlan.zhihu.com/p/514654991">Alchemy vs. Infura：哪个是最好的区块链节点服务商？</a></p>
+<p>以Infura节点为例，登录Infura生成APIKey，后续通过APIKey即可连接上节点。</p>
+<p>通过申请的APIKEY连接polygon mumbai测试网络，需要在Infura上对APIKey授权访问该测试网络。</p>
+<p>访问节点并查询最新区块。
+<a href="https://docs.infura.io/networks/ethereum/how-to/make-requests">Make requests</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+	<span class="s">&#34;fmt&#34;</span>
+	<span class="s">&#34;log&#34;</span>
+
+	<span class="s">&#34;github.com/ethereum/go-ethereum/rpc&#34;</span>
+<span class="p">)</span>
+
+<span class="kd">type</span> <span class="nx">Block</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Number</span> <span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">client</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">rpc</span><span class="p">.</span><span class="nf">Dial</span><span class="p">(</span><span class="s">&#34;https://polygon-mumbai.infura.io/v3/&lt;APIKEY&gt;&#34;</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatalf</span><span class="p">(</span><span class="s">&#34;Could not connect to Infura: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="kd">var</span> <span class="nx">lastBlock</span> <span class="nx">Block</span>
+	<span class="nx">err</span> <span class="p">=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">Call</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">lastBlock</span><span class="p">,</span> <span class="s">&#34;eth_getBlockByNumber&#34;</span><span class="p">,</span> <span class="s">&#34;latest&#34;</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Cannot get the latest block:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+		<span class="k">return</span>
+	<span class="p">}</span>
+
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Latest block: %v\n&#34;</span><span class="p">,</span> <span class="nx">lastBlock</span><span class="p">.</span><span class="nx">Number</span><span class="p">)</span>
+<span class="p">}</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="测试网络领取token">测试网络领取Token</h2>
+<p>如果选择测试网格测试，可以免费领取到一些Token用于测试体验，下面是一些领取的方法:</p>
+<p>打开<a href="https://faucet.polygon.technology/">polygon Faucet</a>,可以选择网络和Token，</p>
+<p>然后输入钱包地址，提交就会领取到一定数量的Token，打开选择的测试网络即可查看到，前提是需要</p>
+<p>登录<a href="https://discord.com">Discord</a>授权登录，如果需要更多的测试Token，可以单独提交申请，申请时需要填写Discord的ID。</p>
+<p>可以领取到MATIC和ERC20 Token，领取或申请几分钟后，进入测试网络即可看到。</p>
+<h2 id="发起一笔交易">发起一笔交易</h2>
+<p><a href="https://docs.infura.io/tutorials/ethereum/send-a-transaction/send-a-transaction">Send a regular transaction from one account to another with Go.</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+	<span class="s">&#34;context&#34;</span>
+	<span class="s">&#34;crypto/ecdsa&#34;</span>
+	<span class="s">&#34;fmt&#34;</span>
+	<span class="s">&#34;log&#34;</span>
+	<span class="s">&#34;math/big&#34;</span>
+
+	<span class="s">&#34;github.com/ethereum/go-ethereum/common&#34;</span>
+	<span class="s">&#34;github.com/ethereum/go-ethereum/core/types&#34;</span>
+	<span class="s">&#34;github.com/ethereum/go-ethereum/crypto&#34;</span>
+	<span class="s">&#34;github.com/ethereum/go-ethereum/ethclient&#34;</span>
+<span class="p">)</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">client</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">ethclient</span><span class="p">.</span><span class="nf">Dial</span><span class="p">(</span><span class="s">&#34;https://polygon-mumbai.infura.io/v3/8c6cc3ae7d5b4449bb48ada6ef8ae892&#34;</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">privateKey</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">crypto</span><span class="p">.</span><span class="nf">HexToECDSA</span><span class="p">(</span><span class="s">&#34;PRIVATE_KEY&#34;</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">publicKey</span> <span class="o">:=</span> <span class="nx">privateKey</span><span class="p">.</span><span class="nf">Public</span><span class="p">()</span>
+	<span class="nx">publicKeyECDSA</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">publicKey</span><span class="p">.(</span><span class="o">*</span><span class="nx">ecdsa</span><span class="p">.</span><span class="nx">PublicKey</span><span class="p">)</span>
+	<span class="k">if</span> <span class="p">!</span><span class="nx">ok</span> <span class="p">{</span>
+		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="s">&#34;error casting public key to ECDSA&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">fromAddress</span> <span class="o">:=</span> <span class="nx">crypto</span><span class="p">.</span><span class="nf">PubkeyToAddress</span><span class="p">(</span><span class="o">*</span><span class="nx">publicKeyECDSA</span><span class="p">)</span>
+
+	<span class="nx">nonce</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">PendingNonceAt</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="nx">fromAddress</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">value</span> <span class="o">:=</span> <span class="nx">big</span><span class="p">.</span><span class="nf">NewInt</span><span class="p">(</span><span class="mi">10000000000000000</span><span class="p">)</span> <span class="c1">// in wei (0.01 eth)
+</span><span class="c1"></span>	<span class="nx">gasLimit</span> <span class="o">:=</span> <span class="nb">uint64</span><span class="p">(</span><span class="mi">21000</span><span class="p">)</span>              <span class="c1">// in units
+</span><span class="c1"></span>	<span class="nx">tip</span> <span class="o">:=</span> <span class="nx">big</span><span class="p">.</span><span class="nf">NewInt</span><span class="p">(</span><span class="mi">2000000000</span><span class="p">)</span>          <span class="c1">// maxPriorityFeePerGas = 2 Gwei
+</span><span class="c1"></span>	<span class="nx">feeCap</span> <span class="o">:=</span> <span class="nx">big</span><span class="p">.</span><span class="nf">NewInt</span><span class="p">(</span><span class="mi">20000000000</span><span class="p">)</span>      <span class="c1">// maxFeePerGas = 20 Gwei
+</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">toAddress</span> <span class="o">:=</span> <span class="nx">common</span><span class="p">.</span><span class="nf">HexToAddress</span><span class="p">(</span><span class="s">&#34;ADDRESS_TO&#34;</span><span class="p">)</span>
+	<span class="kd">var</span> <span class="nx">data</span> <span class="p">[]</span><span class="kt">byte</span>
+
+	<span class="nx">chainID</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">NetworkID</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">())</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">tx</span> <span class="o">:=</span> <span class="nx">types</span><span class="p">.</span><span class="nf">NewTx</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">types</span><span class="p">.</span><span class="nx">DynamicFeeTx</span><span class="p">{</span>
+		<span class="nx">ChainID</span><span class="p">:</span>   <span class="nx">chainID</span><span class="p">,</span>
+		<span class="nx">Nonce</span><span class="p">:</span>     <span class="nx">nonce</span><span class="p">,</span>
+		<span class="nx">GasFeeCap</span><span class="p">:</span> <span class="nx">feeCap</span><span class="p">,</span>
+		<span class="nx">GasTipCap</span><span class="p">:</span> <span class="nx">tip</span><span class="p">,</span>
+		<span class="nx">Gas</span><span class="p">:</span>       <span class="nx">gasLimit</span><span class="p">,</span>
+		<span class="nx">To</span><span class="p">:</span>        <span class="o">&amp;</span><span class="nx">toAddress</span><span class="p">,</span>
+		<span class="nx">Value</span><span class="p">:</span>     <span class="nx">value</span><span class="p">,</span>
+		<span class="nx">Data</span><span class="p">:</span>      <span class="nx">data</span><span class="p">,</span>
+	<span class="p">})</span>
+
+	<span class="nx">signedTx</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">types</span><span class="p">.</span><span class="nf">SignTx</span><span class="p">(</span><span class="nx">tx</span><span class="p">,</span> <span class="nx">types</span><span class="p">.</span><span class="nf">LatestSignerForChainID</span><span class="p">(</span><span class="nx">chainID</span><span class="p">),</span> <span class="nx">privateKey</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">err</span> <span class="p">=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">SendTransaction</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="nx">signedTx</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Transaction hash: %s&#34;</span><span class="p">,</span> <span class="nx">signedTx</span><span class="p">.</span><span class="nf">Hash</span><span class="p">().</span><span class="nf">Hex</span><span class="p">())</span>
+
+<span class="p">}</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="指定token交易">指定Token交易</h2>
+<p>交易Token<a href="https://mumbai.polygonscan.com/address/0xfe4f5145f6e09952a5ba9e956ed0c25e3fa4c7f1">Dummy ERC20 (DERC20)</a></p>
+<p>交易其他Token如USDT时，替换对应的Token合约地址即可。</p>
+<p><a href="https://gealber.com/usdt-polygon-transaction">USDT Token Transaction</a></p>
+<p>在polygon mumbai网络上交易DERC20 Token。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span><span class="lnt">141
+</span><span class="lnt">142
+</span><span class="lnt">143
+</span><span class="lnt">144
+</span><span class="lnt">145
+</span><span class="lnt">146
+</span><span class="lnt">147
+</span><span class="lnt">148
+</span><span class="lnt">149
+</span><span class="lnt">150
+</span><span class="lnt">151
+</span><span class="lnt">152
+</span><span class="lnt">153
+</span><span class="lnt">154
+</span><span class="lnt">155
+</span><span class="lnt">156
+</span><span class="lnt">157
+</span><span class="lnt">158
+</span><span class="lnt">159
+</span><span class="lnt">160
+</span><span class="lnt">161
+</span><span class="lnt">162
+</span><span class="lnt">163
+</span><span class="lnt">164
+</span><span class="lnt">165
+</span><span class="lnt">166
+</span><span class="lnt">167
+</span><span class="lnt">168
+</span><span class="lnt">169
+</span><span class="lnt">170
+</span><span class="lnt">171
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">const</span> <span class="p">(</span>
+	<span class="c1">// replace &lt;API-KEY&gt; with alchemy api key provided.
+</span><span class="c1"></span>	<span class="nx">AlchemyPolygonRPCEndpoint</span> <span class="p">=</span> <span class="s">&#34;https://polygon-mumbai.infura.io/v3/&lt;API-KEY&gt;&#34;</span>
+
+	<span class="c1">// TokenAddress is DERC20 contract address for the DERC20 token on Polygon mumbai
+</span><span class="c1"></span>	<span class="c1">// network. Can be checked in the following polygonscan link:
+</span><span class="c1"></span>    <span class="c1">// https://mumbai.polygonscan.com/address/0xfe4f5145f6e09952a5ba9e956ed0c25e3fa4c7f1
+</span><span class="c1"></span>	<span class="nx">TokenAddress</span> <span class="p">=</span> <span class="s">&#34;0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1&#34;</span>
+
+	<span class="nx">DefaultGasLimit</span> <span class="kt">uint64</span> <span class="p">=</span> <span class="mi">100000</span>
+<span class="p">)</span>
+
+<span class="c1">// Client for making transaction.
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Client</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">client</span>     <span class="o">*</span><span class="nx">ethclient</span><span class="p">.</span><span class="nx">Client</span>
+	<span class="nx">publickKey</span> <span class="nx">common</span><span class="p">.</span><span class="nx">Address</span>
+	<span class="nx">privateKey</span> <span class="o">*</span><span class="nx">ecdsa</span><span class="p">.</span><span class="nx">PrivateKey</span>
+<span class="p">}</span>
+
+<span class="c1">// NewWithPrivateKey creates a new Client with the private key
+</span><span class="c1">// provided.
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">NewWithPrivateKey</span><span class="p">(</span><span class="nx">pKeyStr</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">Client</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">client</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">ethclient</span><span class="p">.</span><span class="nf">Dial</span><span class="p">(</span><span class="nx">AlchemyPolygonRPCEndpoint</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+	<span class="p">}</span>
+
+	<span class="nx">privateKey</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">crypto</span><span class="p">.</span><span class="nf">HexToECDSA</span><span class="p">(</span><span class="nx">pKeyStr</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+	<span class="p">}</span>
+
+	<span class="nx">publicKey</span> <span class="o">:=</span> <span class="nx">privateKey</span><span class="p">.</span><span class="nf">Public</span><span class="p">()</span>
+	<span class="nx">publicKeyECDSA</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">publicKey</span><span class="p">.(</span><span class="o">*</span><span class="nx">ecdsa</span><span class="p">.</span><span class="nx">PublicKey</span><span class="p">)</span>
+	<span class="k">if</span> <span class="p">!</span><span class="nx">ok</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;unable to convert publicKey to *ecdsa.PublicKey type&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="c1">// extracting public address of the wallet with the supplied private key.
+</span><span class="c1"></span>	<span class="nx">pubAddrs</span> <span class="o">:=</span> <span class="nx">crypto</span><span class="p">.</span><span class="nf">PubkeyToAddress</span><span class="p">(</span><span class="o">*</span><span class="nx">publicKeyECDSA</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">Client</span><span class="p">{</span>
+		<span class="nx">client</span><span class="p">:</span>     <span class="nx">client</span><span class="p">,</span>
+		<span class="nx">publickKey</span><span class="p">:</span> <span class="nx">pubAddrs</span><span class="p">,</span>
+		<span class="nx">privateKey</span><span class="p">:</span> <span class="nx">privateKey</span><span class="p">,</span>
+	<span class="p">},</span> <span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="c1">// TransferToken make transaction of tokens to the specified address.
+</span><span class="c1">// The amount should be provided in 18 decimals.
+</span><span class="c1">// Meaning, 1 DERC20 should be represented as 1e18.
+</span><span class="c1">// ctx: context
+</span><span class="c1">// toAddressStrHex: hexadecimal representation of receiver address(Public Address)
+</span><span class="c1">// amount: usdt amount to be sent.
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">Client</span><span class="p">)</span> <span class="nf">TransferToken</span><span class="p">(</span>
+	<span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span>
+	<span class="nx">toAddressStrHex</span> <span class="kt">string</span><span class="p">,</span>
+	<span class="nx">amount</span> <span class="kt">uint64</span><span class="p">,</span>
+<span class="p">)</span> <span class="p">(</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="c1">// Retrieving pending nonce. The nonce, according to
+</span><span class="c1"></span>	<span class="c1">// ethereum glossary is a:
+</span><span class="c1"></span>	<span class="c1">// &#34;An account nonce is a transaction counter in each account,
+</span><span class="c1"></span>	<span class="c1">// which is used to prevent replay attacks.&#34;
+</span><span class="c1"></span>	<span class="nx">nonce</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nf">PendingNonceAt</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">c</span><span class="p">.</span><span class="nx">publickKey</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">err</span>
+	<span class="p">}</span>
+
+	<span class="c1">// given that we are going to transfer
+</span><span class="c1"></span>	<span class="c1">// usdts we don&#39;t need eths wei (0 eth).
+</span><span class="c1"></span>	<span class="nx">value</span> <span class="o">:=</span> <span class="nx">big</span><span class="p">.</span><span class="nf">NewInt</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+	<span class="c1">// receiver address.
+</span><span class="c1"></span>	<span class="nx">toAddress</span> <span class="o">:=</span> <span class="nx">common</span><span class="p">.</span><span class="nf">HexToAddress</span><span class="p">(</span><span class="nx">toAddressStrHex</span><span class="p">)</span>
+	<span class="c1">// usdt token address.
+</span><span class="c1"></span>	<span class="nx">tokenAddress</span> <span class="o">:=</span> <span class="nx">common</span><span class="p">.</span><span class="nf">HexToAddress</span><span class="p">(</span><span class="nx">TokenAddress</span><span class="p">)</span>
+
+	<span class="c1">// we will use the transfer method
+</span><span class="c1"></span>	<span class="c1">// on the smart contract associated with usdt token
+</span><span class="c1"></span>	<span class="c1">// in order to use this method, we need to provide the method id
+</span><span class="c1"></span>	<span class="c1">// this is how we get that number.
+</span><span class="c1"></span>	<span class="c1">// You could also check it here in this link
+</span><span class="c1"></span>    <span class="c1">// https://mumbai.polygonscan.com/address/0xfe4f5145f6e09952a5ba9e956ed0c25e3fa4c7f1#writeContract#F9
+</span><span class="c1"></span>	<span class="nx">transferFnSignature</span> <span class="o">:=</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;transfer(address,uint256)&#34;</span><span class="p">)</span>
+	<span class="nx">hash</span> <span class="o">:=</span> <span class="nx">sha3</span><span class="p">.</span><span class="nf">NewLegacyKeccak256</span><span class="p">()</span>
+	<span class="nx">hash</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">transferFnSignature</span><span class="p">)</span>
+	<span class="nx">methodID</span> <span class="o">:=</span> <span class="nx">hash</span><span class="p">.</span><span class="nf">Sum</span><span class="p">(</span><span class="kc">nil</span><span class="p">)[:</span><span class="mi">4</span><span class="p">]</span>
+
+	<span class="c1">// we need to add 32 bytes of zeros to our address.
+</span><span class="c1"></span>	<span class="nx">paddedAddress</span> <span class="o">:=</span> <span class="nx">common</span><span class="p">.</span><span class="nf">LeftPadBytes</span><span class="p">(</span><span class="nx">toAddress</span><span class="p">.</span><span class="nf">Bytes</span><span class="p">(),</span> <span class="mi">32</span><span class="p">)</span>
+
+	<span class="c1">// we need to add 32 bytes of zeros to our amount of tokens.
+</span><span class="c1"></span>	<span class="c1">// we are assuming this amount of tokens is expressed in 18 decimals.
+</span><span class="c1"></span>	<span class="c1">// which are the decimals for DERC20.
+</span><span class="c1"></span>	<span class="nx">amountBigInt</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">big</span><span class="p">.</span><span class="nx">Int</span><span class="p">)</span>
+	<span class="nx">amountBigInt</span><span class="p">.</span><span class="nf">SetUint64</span><span class="p">(</span><span class="nx">amount</span><span class="p">)</span>
+	<span class="nx">paddedAmount</span> <span class="o">:=</span> <span class="nx">common</span><span class="p">.</span><span class="nf">LeftPadBytes</span><span class="p">(</span><span class="nx">amountBigInt</span><span class="p">.</span><span class="nf">Bytes</span><span class="p">(),</span> <span class="mi">32</span><span class="p">)</span>
+
+	<span class="c1">// now let&#39;s put this three parts into
+</span><span class="c1"></span>	<span class="c1">// the data we are going to pass in the transaction
+</span><span class="c1"></span>	<span class="c1">// part one: methodID
+</span><span class="c1"></span>	<span class="c1">// part two: receiver address padded 32 bytes
+</span><span class="c1"></span>	<span class="c1">// part three: padded amount to be sent
+</span><span class="c1"></span>	<span class="kd">var</span> <span class="nx">data</span> <span class="p">[]</span><span class="kt">byte</span>
+	<span class="nx">data</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">methodID</span><span class="o">...</span><span class="p">)</span>
+	<span class="nx">data</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">paddedAddress</span><span class="o">...</span><span class="p">)</span>
+	<span class="nx">data</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">paddedAmount</span><span class="o">...</span><span class="p">)</span>
+
+	<span class="c1">// retrieving suggested gas fees and gas price.
+</span><span class="c1"></span>	<span class="nx">tipCap</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nf">SuggestGasTipCap</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">err</span>
+	<span class="p">}</span>
+
+	<span class="nx">feeCap</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nf">SuggestGasPrice</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">err</span>
+	<span class="p">}</span>
+
+	<span class="c1">//  network ID for this client.
+</span><span class="c1"></span>	<span class="nx">chainID</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nf">NetworkID</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">err</span>
+	<span class="p">}</span>
+
+	<span class="c1">// creating our transaction, in this case we are going to use
+</span><span class="c1"></span>	<span class="c1">// dynamic fees txns instead of the legacy system.
+</span><span class="c1"></span>	<span class="nx">tx</span> <span class="o">:=</span> <span class="nx">types</span><span class="p">.</span><span class="nf">NewTx</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">types</span><span class="p">.</span><span class="nx">DynamicFeeTx</span><span class="p">{</span>
+		<span class="nx">ChainID</span><span class="p">:</span>   <span class="nx">chainID</span><span class="p">,</span>
+		<span class="nx">Nonce</span><span class="p">:</span>     <span class="nx">nonce</span><span class="p">,</span>
+		<span class="nx">GasTipCap</span><span class="p">:</span> <span class="nx">tipCap</span><span class="p">,</span>
+		<span class="nx">GasFeeCap</span><span class="p">:</span> <span class="nx">feeCap</span><span class="p">,</span>
+		<span class="nx">Gas</span><span class="p">:</span>       <span class="nx">DefaultGasLimit</span><span class="p">,</span>
+		<span class="nx">To</span><span class="p">:</span>        <span class="o">&amp;</span><span class="nx">tokenAddress</span><span class="p">,</span>
+		<span class="nx">Value</span><span class="p">:</span>     <span class="nx">value</span><span class="p">,</span>
+		<span class="nx">Data</span><span class="p">:</span>      <span class="nx">data</span><span class="p">,</span>
+	<span class="p">})</span>
+
+	<span class="c1">// sign the transaction with our private key.
+</span><span class="c1"></span>	<span class="nx">signedTx</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">types</span><span class="p">.</span><span class="nf">SignTx</span><span class="p">(</span><span class="nx">tx</span><span class="p">,</span> <span class="nx">types</span><span class="p">.</span><span class="nf">LatestSignerForChainID</span><span class="p">(</span><span class="nx">chainID</span><span class="p">),</span> <span class="nx">c</span><span class="p">.</span><span class="nx">privateKey</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">err</span>
+	<span class="p">}</span>
+
+	<span class="c1">// send the transaction.
+</span><span class="c1"></span>	<span class="nx">err</span> <span class="p">=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nf">SendTransaction</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">signedTx</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">err</span>
+	<span class="p">}</span>
+
+	<span class="c1">// return the hexadecimal representation of the txnHash.
+</span><span class="c1"></span>	<span class="k">return</span> <span class="nx">signedTx</span><span class="p">.</span><span class="nf">Hash</span><span class="p">().</span><span class="nf">Hex</span><span class="p">(),</span> <span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">ctx</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">()</span>
+	<span class="nx">privateKey</span> <span class="o">:=</span> <span class="s">`&lt;PRIVATE-KEY&gt;`</span>
+	<span class="nx">client</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">NewWithPrivateKey</span><span class="p">(</span><span class="nx">privateKey</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">receiverAddress</span> <span class="o">:=</span> <span class="s">`RECEIVER-ADDRESS`</span>
+	<span class="nx">txnHash</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">TransferToken</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">receiverAddress</span><span class="p">,</span> <span class="mf">1e18</span><span class="p">)</span> <span class="c1">// Sending 1 DERC20.
+</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;TXN HASH: &#34;</span><span class="p">,</span> <span class="nx">txnHash</span><span class="p">)</span>
+<span class="p">}</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://faucet.polygon.technology/">polygon Faucet</a></li>
+<li><a href="https://mumbai.polygonscan.com">polygon mumbai network</a></li>
+<li><a href="https://gealber.com/usdt-polygon-transaction">USDT transaction on Polygon(MATIC) network</a></li>
+<li><a href="https://docs.infura.io/networks/ethereum/how-to/make-requests">Make requests</a></li>
+<li><a href="https://docs.infura.io/tutorials/ethereum/send-a-transaction/send-a-transaction">send a transaction</a></li>
+<li><a href="https://community.infura.io/t/go-eth-how-to-send-erc-20-tokens-eip-1559/6810">Go Eth - How to send ERC-20 Tokens (EIP-1559)</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2023-12-17
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/go/">go</a>
+          <a href="/tags/polygon/">polygon</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/docker/20231028-mac-colima/">
+            <span class="next-text nav-default">Mac使用Colima运行Docker</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'Polygon测试网络上实现Token交易',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2023
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
