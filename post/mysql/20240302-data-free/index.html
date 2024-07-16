@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>MySQL 性能优化：碎片整理 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="MySQL 性能优化：碎片整理 MySQL 碎片是什么 MySQL 碎片就是 MySQL 数据文件中一些不连续的空白空间，这些空间无法再被全部利用，久而久之越来多，越来越零碎，从而造成物" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/mysql/20240302-data-free/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="MySQL 性能优化：碎片整理" />
+<meta property="og:description" content="MySQL 性能优化：碎片整理 MySQL 碎片是什么 MySQL 碎片就是 MySQL 数据文件中一些不连续的空白空间，这些空间无法再被全部利用，久而久之越来多，越来越零碎，从而造成物" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20240302-data-free/" />
+<meta property="article:published_time" content="2024-03-02T16:00:33+08:00" />
+<meta property="article:modified_time" content="2024-03-02T16:00:33+08:00" />
+<meta itemprop="name" content="MySQL 性能优化：碎片整理">
+<meta itemprop="description" content="MySQL 性能优化：碎片整理 MySQL 碎片是什么 MySQL 碎片就是 MySQL 数据文件中一些不连续的空白空间，这些空间无法再被全部利用，久而久之越来多，越来越零碎，从而造成物">
+<meta itemprop="datePublished" content="2024-03-02T16:00:33&#43;08:00" />
+<meta itemprop="dateModified" content="2024-03-02T16:00:33&#43;08:00" />
+<meta itemprop="wordCount" content="1654">
+
+
+
+<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="MySQL 性能优化：碎片整理"/>
+<meta name="twitter:description" content="MySQL 性能优化：碎片整理 MySQL 碎片是什么 MySQL 碎片就是 MySQL 数据文件中一些不连续的空白空间，这些空间无法再被全部利用，久而久之越来多，越来越零碎，从而造成物"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">MySQL 性能优化：碎片整理</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-03-02 </span>
+        <div class="post-category">
+            <a href="/categories/mysql/"> mysql </a>
+            </div>
+          <span class="more-meta"> 1654 words </span>
+          <span class="more-meta"> 4 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#mysql-碎片是什么">MySQL 碎片是什么</a></li>
+    <li><a href="#碎片是如何产生的">碎片是如何产生的</a>
+      <ul>
+        <li><a href="#delete-操作">delete 操作</a></li>
+        <li><a href="#update-操作">update 操作</a></li>
+      </ul>
+    </li>
+    <li><a href="#碎片到底产生了什么影响">碎片到底产生了什么影响</a>
+      <ul>
+        <li><a href="#空间浪费">空间浪费</a></li>
+        <li><a href="#读写性能下降">读写性能下降</a></li>
+      </ul>
+    </li>
+    <li><a href="#找一找有哪些碎片">找一找有哪些碎片</a></li>
+    <li><a href="#如何清理碎片">如何清理碎片</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p><a href="https://mp.weixin.qq.com/s/c2BHClBGsbSn2vXKoP1mRQ">MySQL 性能优化：碎片整理</a></p>
+</blockquote>
+<h2 id="mysql-碎片是什么">MySQL 碎片是什么</h2>
+<p>MySQL 碎片就是 MySQL 数据文件中一些不连续的空白空间，这些空间无法再被全部利用，久而久之越来多，越来越零碎，从而造成物理存储和逻辑存储的位置顺序不一致，这就是碎片。</p>
+<h2 id="碎片是如何产生的">碎片是如何产生的</h2>
+<h3 id="delete-操作">delete 操作</h3>
+<p>在 MySQL 中删除数据，在存储中就会产生空白的空间，当有新数据插入时，MySQL 会试着在这些空白空间中保存新数据，但是呢总是用不满这些空白空间。所以日积月累，亦或是一下有大量的 delete 操作，一下就会有大量的空白空间，慢慢的会大到比表的数据使用的空间还大。</p>
+<h3 id="update-操作">update 操作</h3>
+<p>在 MySQL 中更新数据，在可变长度的字段（比如 varchar）中更新数据，innodb 表存储数据的单位是页，update 操作会造成页分裂，分裂以后存储变的不连续，不规则，从而产生碎片。比如说原始字段长度 varchar(100)，我们大量的更新数据长度位为 50，这样的话，有 50 的空间被空白了，新入库的数据不能完全利用剩余的 50，这就会产生碎片。</p>
+<h2 id="碎片到底产生了什么影响">碎片到底产生了什么影响</h2>
+<p>MySQL 既然产生了碎片，你可能比较豪横说磁盘空间够大，浪费空间也没事，但是这些碎片也会产生性能问题，碎片会有什么影响呢？</p>
+<h3 id="空间浪费">空间浪费</h3>
+<p>空间浪费不用多说，碎片占用了大量可用空间。</p>
+<h3 id="读写性能下降">读写性能下降</h3>
+<p>由于存在大量碎片，数据从连续规则的存储方式变为随机分散的存储方式，磁盘 IO 会变的繁忙，数据库读写性能就会下降。</p>
+<h2 id="找一找有哪些碎片">找一找有哪些碎片</h2>
+<p>现在有一个测试库 employees，在找碎片清理碎片前我们先查询一下表的数据，记录一下时间，以便后边做对比。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">from</span> <span class="n">current_dept_emp</span><span class="p">;</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span>   <span class="mi">300024</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">1</span><span class="p">.</span><span class="mi">17</span> <span class="n">sec</span><span class="p">)</span>
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">from</span> <span class="n">departments</span><span class="p">;</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span>        <span class="mi">9</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">from</span> <span class="n">dept_emp</span><span class="p">;</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span>   <span class="mi">331603</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">08</span> <span class="n">sec</span><span class="p">)</span>
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">from</span> <span class="n">dept_emp_latest_date</span><span class="p">;</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span>   <span class="mi">300024</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">49</span> <span class="n">sec</span><span class="p">)</span>
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">from</span> <span class="n">dept_manager</span><span class="p">;</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span>       <span class="mi">24</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">from</span> <span class="n">employees</span><span class="p">;</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span>   <span class="mi">300024</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">09</span> <span class="n">sec</span><span class="p">)</span>
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">from</span> <span class="n">salaries</span><span class="p">;</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span>  <span class="mi">2844047</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">60</span> <span class="n">sec</span><span class="p">)</span>
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">from</span> <span class="n">titles</span><span class="p">;</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span>   <span class="mi">443308</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">11</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>接下来开始看看都有哪些碎片吧。这里介绍两种方式查看表碎片。</p>
+<ol>
+<li>通过表状态信息查看</li>
+</ol>
+<p>查询表状态信息SQL</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">show</span> <span class="k">table</span> <span class="n">status</span> <span class="k">like</span> <span class="s1">&#39;%table_name%&#39;</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>查看salaries表状态信息</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="k">table</span> <span class="n">status</span> <span class="k">like</span> <span class="s1">&#39;salaries&#39;</span><span class="err">\</span><span class="k">G</span><span class="p">;</span> 
+<span class="o">***************************</span> <span class="mi">1</span><span class="p">.</span> <span class="k">row</span> <span class="o">***************************</span>
+           <span class="n">Name</span><span class="p">:</span> <span class="n">salaries</span>
+         <span class="n">Engine</span><span class="p">:</span> <span class="n">InnoDB</span>
+        <span class="k">Version</span><span class="p">:</span> <span class="mi">10</span>
+     <span class="n">Row_format</span><span class="p">:</span> <span class="k">Dynamic</span>
+           <span class="k">Rows</span><span class="p">:</span> <span class="mi">2838918</span>
+ <span class="n">Avg_row_length</span><span class="p">:</span> <span class="mi">31</span>
+    <span class="n">Data_length</span><span class="p">:</span> <span class="mi">90832896</span>
+<span class="n">Max_data_length</span><span class="p">:</span> <span class="mi">0</span>
+   <span class="n">Index_length</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="n">Data_free</span><span class="p">:</span> <span class="mi">4194304</span>
+ <span class="n">Auto_increment</span><span class="p">:</span> <span class="k">NULL</span>
+    <span class="n">Create_time</span><span class="p">:</span> <span class="mi">2021</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">14</span> <span class="mi">14</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span><span class="mi">47</span>
+    <span class="n">Update_time</span><span class="p">:</span> <span class="mi">2021</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">14</span> <span class="mi">14</span><span class="p">:</span><span class="mi">34</span><span class="p">:</span><span class="mi">42</span>
+     <span class="n">Check_time</span><span class="p">:</span> <span class="k">NULL</span>
+      <span class="k">Collation</span><span class="p">:</span> <span class="n">utf8_bin</span>
+       <span class="n">Checksum</span><span class="p">:</span> <span class="k">NULL</span>
+ <span class="n">Create_options</span><span class="p">:</span> 
+        <span class="k">Comment</span><span class="p">:</span> 
+<span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>data<em>length 表数据大小 index</em>length 表索引大小 data_free 碎片大小</p>
+<p>根据返回信息，知道碎片大小为 4194304（单位 B）</p>
+<ol start="2">
+<li>通过数据库视图信息查看</li>
+</ol>
+<p>查询 information_schema.tables 的 data_free 列的值：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> 
+<span class="n">t</span><span class="p">.</span><span class="n">table_schema</span><span class="p">,</span>
+<span class="n">t</span><span class="p">.</span><span class="k">table_name</span><span class="p">,</span>
+<span class="n">t</span><span class="p">.</span><span class="n">table_rows</span><span class="p">,</span>
+<span class="n">t</span><span class="p">.</span><span class="n">data_length</span><span class="p">,</span>
+<span class="n">t</span><span class="p">.</span><span class="n">index_length</span><span class="p">,</span>
+<span class="n">concat</span><span class="p">(</span><span class="n">round</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">data_free</span><span class="o">/</span><span class="mi">1024</span><span class="o">/</span><span class="mi">1024</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="s1">&#39;m&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">data_free</span>
+<span class="k">from</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">tables</span> <span class="n">t</span>
+<span class="k">where</span> <span class="n">t</span><span class="p">.</span><span class="n">table_schema</span> <span class="o">=</span> <span class="s1">&#39;employees&#39;</span><span class="p">;</span>
+
+<span class="o">+</span><span class="c1">--------------+----------------------+------------+-------------+--------------+-----------+
+</span><span class="c1"></span><span class="o">|</span> <span class="n">TABLE_SCHEMA</span> <span class="o">|</span> <span class="k">TABLE_NAME</span>           <span class="o">|</span> <span class="n">TABLE_ROWS</span> <span class="o">|</span> <span class="n">DATA_LENGTH</span> <span class="o">|</span> <span class="n">INDEX_LENGTH</span> <span class="o">|</span> <span class="n">DATA_FREE</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">--------------+----------------------+------------+-------------+--------------+-----------+
+</span><span class="c1"></span><span class="o">|</span> <span class="n">employees</span>    <span class="o">|</span> <span class="n">current_dept_emp</span>     <span class="o">|</span>       <span class="k">NULL</span> <span class="o">|</span>        <span class="k">NULL</span> <span class="o">|</span>         <span class="k">NULL</span> <span class="o">|</span> <span class="k">NULL</span>      <span class="o">|</span>
+<span class="o">|</span> <span class="n">employees</span>    <span class="o">|</span> <span class="n">departments</span>          <span class="o">|</span>          <span class="mi">9</span> <span class="o">|</span>       <span class="mi">16384</span> <span class="o">|</span>        <span class="mi">16384</span> <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">00</span><span class="n">M</span>     <span class="o">|</span>
+<span class="o">|</span> <span class="n">employees</span>    <span class="o">|</span> <span class="n">dept_emp</span>             <span class="o">|</span>     <span class="mi">331143</span> <span class="o">|</span>    <span class="mi">12075008</span> <span class="o">|</span>      <span class="mi">5783552</span> <span class="o">|</span> <span class="mi">4</span><span class="p">.</span><span class="mi">00</span><span class="n">M</span>     <span class="o">|</span>
+<span class="o">|</span> <span class="n">employees</span>    <span class="o">|</span> <span class="n">dept_emp_latest_date</span> <span class="o">|</span>       <span class="k">NULL</span> <span class="o">|</span>        <span class="k">NULL</span> <span class="o">|</span>         <span class="k">NULL</span> <span class="o">|</span> <span class="k">NULL</span>      <span class="o">|</span>
+<span class="o">|</span> <span class="n">employees</span>    <span class="o">|</span> <span class="n">dept_manager</span>         <span class="o">|</span>         <span class="mi">24</span> <span class="o">|</span>       <span class="mi">16384</span> <span class="o">|</span>        <span class="mi">16384</span> <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">00</span><span class="n">M</span>     <span class="o">|</span>
+<span class="o">|</span> <span class="n">employees</span>    <span class="o">|</span> <span class="n">employees</span>            <span class="o">|</span>     <span class="mi">299069</span> <span class="o">|</span>    <span class="mi">15220736</span> <span class="o">|</span>            <span class="mi">0</span> <span class="o">|</span> <span class="mi">4</span><span class="p">.</span><span class="mi">00</span><span class="n">M</span>     <span class="o">|</span>
+<span class="o">|</span> <span class="n">employees</span>    <span class="o">|</span> <span class="n">salaries</span>             <span class="o">|</span>    <span class="mi">2838426</span> <span class="o">|</span>   <span class="mi">100270080</span> <span class="o">|</span>            <span class="mi">0</span> <span class="o">|</span> <span class="mi">4</span><span class="p">.</span><span class="mi">00</span><span class="n">M</span>     <span class="o">|</span>
+<span class="o">|</span> <span class="n">employees</span>    <span class="o">|</span> <span class="n">titles</span>               <span class="o">|</span>     <span class="mi">442902</span> <span class="o">|</span>    <span class="mi">20512768</span> <span class="o">|</span>            <span class="mi">0</span> <span class="o">|</span> <span class="mi">4</span><span class="p">.</span><span class="mi">00</span><span class="n">M</span>     <span class="o">|</span>
+<span class="o">+</span><span class="c1">--------------+----------------------+------------+-------------+--------------+-----------+
+</span><span class="c1"></span><span class="mi">8</span> <span class="k">rows</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">01</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>根据结果显示，data_free 列数据就是要查询的表的碎片大小内容，是 4M。</p>
+<h2 id="如何清理碎片">如何清理碎片</h2>
+<p>找到表碎片了，如何清理呢？有两种方法。</p>
+<ol>
+<li><strong>分析表</strong></li>
+</ol>
+<p>命令：</p>
+<p><code>optimize table table_name;</code>
+这个方法主要针对 MyISAM 引擎表使用，因为 MyISAM 表的数据和索引是分离的，optimize 表可以整理数据文件，重新排列索引。</p>
+<p>注意：optimize 会锁表，时间长短依据表数据量的大小。</p>
+<ol start="2">
+<li><strong>重建表引擎</strong></li>
+</ol>
+<p>命令：</p>
+<p><code>alter table table_name engine = innodb;</code>
+这个方法主要针对 InnoDB 引擎表使用，该操作会重建表的存储引擎，重组数据和索引的存储。</p>
+<p>刚才查到表 salaries 有 4M 的碎片，现在清理一下 salaries 表碎片：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">alter</span> <span class="k">table</span> <span class="n">salaries</span> <span class="n">engine</span> <span class="o">=</span> <span class="n">innodb</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>查询一下该表的碎片是否被清理：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> 
+<span class="n">t</span><span class="p">.</span><span class="n">table_schema</span><span class="p">,</span>
+<span class="n">t</span><span class="p">.</span><span class="k">table_name</span><span class="p">,</span>
+<span class="n">t</span><span class="p">.</span><span class="n">table_rows</span><span class="p">,</span>
+<span class="n">t</span><span class="p">.</span><span class="n">data_length</span><span class="p">,</span>
+<span class="n">t</span><span class="p">.</span><span class="n">index_length</span><span class="p">,</span>
+<span class="n">concat</span><span class="p">(</span><span class="n">round</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">data_free</span><span class="o">/</span><span class="mi">1024</span><span class="o">/</span><span class="mi">1024</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="s1">&#39;m&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">data_free</span>
+<span class="k">from</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">tables</span> <span class="n">t</span>
+<span class="k">where</span> <span class="n">t</span><span class="p">.</span><span class="n">table_schema</span> <span class="o">=</span> <span class="s1">&#39;employees&#39;</span> <span class="k">and</span> <span class="k">table_name</span><span class="o">=</span><span class="s1">&#39;salaries&#39;</span><span class="p">;</span>
+
+<span class="o">+</span><span class="c1">--------------+------------+------------+-------------+--------------+-----------+
+</span><span class="c1"></span><span class="o">|</span> <span class="n">table_schema</span> <span class="o">|</span> <span class="k">table_name</span> <span class="o">|</span> <span class="n">table_rows</span> <span class="o">|</span> <span class="n">data_length</span> <span class="o">|</span> <span class="n">index_length</span> <span class="o">|</span> <span class="n">data_free</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">--------------+------------+------------+-------------+--------------+-----------+
+</span><span class="c1"></span><span class="o">|</span> <span class="n">employees</span>    <span class="o">|</span> <span class="n">salaries</span>   <span class="o">|</span>    <span class="mi">2838426</span> <span class="o">|</span>   <span class="mi">114950144</span> <span class="o">|</span>            <span class="mi">0</span> <span class="o">|</span> <span class="mi">2</span><span class="p">.</span><span class="mi">00</span><span class="n">m</span>     <span class="o">|</span>
+<span class="o">+</span><span class="c1">--------------+------------+------------+-------------+--------------+-----------+
+</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>碎片从原来的 4M 清理到现在的 2M。</p>
+<p>看看查询表是否提高了速度：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">from</span> <span class="n">salaries</span><span class="p">;</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span>  <span class="mi">2844047</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">16</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>速度还是提高了不少，清理碎片后提高了查询速度。</p>
+<p><strong>总结一下</strong>：清理表的碎片可以提高 MySQL 性能，在日常工作中我们可以定期执行表碎片整理，从而提高 MySQL 性能。</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-03-02
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/mysql/">mysql</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/tool/20240303-apisix/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">云原生 API 网关 APISIX 介绍使用</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/mysql/20240302-index-condition-pushdown/">
+            <span class="next-text nav-default">MySQL索引下推知识</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'MySQL 性能优化：碎片整理',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

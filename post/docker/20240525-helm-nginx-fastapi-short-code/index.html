@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Helm 部署 nginx 和 fastapi 本地镜像服务 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="Helm 部署 nginx 和 fastapi 本地镜像服务 FastAPI web服务 目录结构： 1 2 3 4 5 6 . ├── app │ ├── __init__.py │ └── main.py ├── app.Dockerfile └── requirements.txt app服务 创建一个fastapi服务" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/docker/20240525-helm-nginx-fastapi-short-code/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Helm 部署 nginx 和 fastapi 本地镜像服务" />
+<meta property="og:description" content="Helm 部署 nginx 和 fastapi 本地镜像服务 FastAPI web服务 目录结构： 1 2 3 4 5 6 . ├── app │ ├── __init__.py │ └── main.py ├── app.Dockerfile └── requirements.txt app服务 创建一个fastapi服务" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/docker/20240525-helm-nginx-fastapi-short-code/" />
+<meta property="article:published_time" content="2024-05-25T18:10:26+08:00" />
+<meta property="article:modified_time" content="2024-05-25T18:10:26+08:00" />
+<meta itemprop="name" content="Helm 部署 nginx 和 fastapi 本地镜像服务">
+<meta itemprop="description" content="Helm 部署 nginx 和 fastapi 本地镜像服务 FastAPI web服务 目录结构： 1 2 3 4 5 6 . ├── app │ ├── __init__.py │ └── main.py ├── app.Dockerfile └── requirements.txt app服务 创建一个fastapi服务">
+<meta itemprop="datePublished" content="2024-05-25T18:10:26&#43;08:00" />
+<meta itemprop="dateModified" content="2024-05-25T18:10:26&#43;08:00" />
+<meta itemprop="wordCount" content="1525">
+
+
+
+<meta itemprop="keywords" content="helm,docker,nginx,python,kubernetes," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Helm 部署 nginx 和 fastapi 本地镜像服务"/>
+<meta name="twitter:description" content="Helm 部署 nginx 和 fastapi 本地镜像服务 FastAPI web服务 目录结构： 1 2 3 4 5 6 . ├── app │ ├── __init__.py │ └── main.py ├── app.Dockerfile └── requirements.txt app服务 创建一个fastapi服务"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Helm 部署 nginx 和 fastapi 本地镜像服务</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-05-25 </span>
+        <div class="post-category">
+            <a href="/categories/docker/"> docker </a>
+            </div>
+          <span class="more-meta"> 1525 words </span>
+          <span class="more-meta"> 4 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#fastapi-web服务">FastAPI web服务</a>
+      <ul>
+        <li><a href="#app服务">app服务</a></li>
+        <li><a href="#requirementstxt">requirements.txt</a></li>
+        <li><a href="#dockerfile文件">Dockerfile文件</a></li>
+        <li><a href="#构建docker镜像">构建Docker镜像</a></li>
+        <li><a href="#构建完成后查看本地镜像">构建完成后，查看本地镜像</a></li>
+        <li><a href="#运行镜像">运行镜像</a></li>
+        <li><a href="#查看运行镜像状态">查看运行镜像状态</a></li>
+        <li><a href="#查看镜像运行日志">查看镜像运行日志</a></li>
+        <li><a href="#接口测试">接口测试</a></li>
+      </ul>
+    </li>
+    <li><a href="#helm部署fastapi-app">helm部署fastapi app</a>
+      <ul>
+        <li><a href="#部署失败场景">部署失败场景</a></li>
+      </ul>
+    </li>
+    <li><a href="#nginx部署">nginx部署</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>Helm 部署 nginx 和 fastapi 本地镜像服务</p>
+</blockquote>
+<h2 id="fastapi-web服务">FastAPI web服务</h2>
+<p>目录结构：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">.
+├── app
+│   ├── __init__.py
+│   └── main.py
+├── app.Dockerfile
+└── requirements.txt
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="app服务">app服务</h3>
+<p>创建一个fastapi服务,实现生成短链接的接口, 实现参考<a href="https://mp.weixin.qq.com/s/sHp9Anpa36QjUq4TbDZVog">如何生成短链？</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">FastAPI</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+
+<span class="kn">import</span> <span class="nn">mmh3</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="k">class</span> <span class="nc">URL</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">long_url</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">short_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="bp">None</span> <span class="o">=</span> <span class="bp">None</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
+
+<span class="nd">@app.get</span><span class="p">(</span><span class="s2">&#34;/&#34;</span><span class="p">)</span>
+<span class="n">async</span> <span class="k">def</span> <span class="nf">read_root</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&#34;Hello&#34;</span><span class="p">:</span> <span class="s2">&#34;World&#34;</span><span class="p">}</span>
+
+
+<span class="nd">@app.get</span><span class="p">(</span><span class="s2">&#34;/items/{item_id}&#34;</span><span class="p">)</span>
+<span class="n">async</span> <span class="k">def</span> <span class="nf">read_item</span><span class="p">(</span><span class="n">item_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">q</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&#34;item_id&#34;</span><span class="p">:</span> <span class="n">item_id</span><span class="p">,</span> <span class="s2">&#34;q&#34;</span><span class="p">:</span> <span class="n">q</span><span class="p">}</span>
+
+<span class="nd">@app.get</span><span class="p">(</span><span class="s2">&#34;/short/code&#34;</span><span class="p">)</span>
+<span class="n">async</span> <span class="k">def</span> <span class="nf">short_code</span><span class="p">():</span>
+    <span class="nb">hash</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">((</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">32</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="n">to_base62</span><span class="p">(</span><span class="nb">hash</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&#34;code&#34;</span><span class="p">:</span> <span class="n">code</span><span class="p">}</span>
+
+<span class="nd">@app.post</span><span class="p">(</span><span class="s2">&#34;/short/url&#34;</span><span class="p">)</span>
+<span class="n">async</span> <span class="k">def</span> <span class="nf">short_url</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="n">URL</span><span class="p">):</span>
+    <span class="nb">hash</span> <span class="o">=</span> <span class="n">mmh3</span><span class="o">.</span><span class="n">hash</span><span class="p">(</span><span class="n">url</span><span class="o">.</span><span class="n">long_url</span><span class="p">,</span> <span class="n">signed</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span> <span class="c1"># returns a 32-bit unsigned int</span>
+    <span class="n">url</span><span class="o">.</span><span class="n">short_url</span> <span class="o">=</span> <span class="n">to_base62</span><span class="p">(</span><span class="nb">hash</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">url</span>
+
+<span class="n">BASE62</span> <span class="o">=</span> <span class="s2">&#34;0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span>
+<span class="n">async</span> <span class="k">def</span> <span class="nf">to_base62</span><span class="p">(</span><span class="nb">hash</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">while</span> <span class="nb">hash</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">code</span> <span class="o">+=</span> <span class="n">BASE62</span><span class="p">[</span><span class="nb">hash</span> <span class="o">%</span> <span class="mi">62</span><span class="p">]</span>
+        <span class="nb">hash</span> <span class="o">//=</span> <span class="mi">62</span>
+    <span class="k">return</span> <span class="n">code</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="requirementstxt">requirements.txt</h3>
+<p>app/main.py 服务依赖文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-txt" data-lang="txt">fastapi==0.111.0
+pydantic==2.7.1
+uvicorn==0.29.0
+mmh3==4.1.0
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="dockerfile文件">Dockerfile文件</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="k">FROM</span><span class="s"> python:3.12.3</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /code</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">COPY</span> ./requirements.txt /code/requirements.txt<span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">RUN</span> pip install --no-cache-dir --upgrade -r /code/requirements.txt<span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">COPY</span> ./app /code/app<span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">CMD</span> <span class="p">[</span><span class="s2">&#34;uvicorn&#34;</span><span class="p">,</span> <span class="s2">&#34;app.main:app&#34;</span><span class="p">,</span> <span class="s2">&#34;--host&#34;</span><span class="p">,</span> <span class="s2">&#34;0.0.0.0&#34;</span><span class="p">,</span> <span class="s2">&#34;--port&#34;</span><span class="p">,</span> <span class="s2">&#34;8080&#34;</span><span class="p">]</span><span class="err">
+</span></code></pre></td></tr></table>
+</div>
+</div><h3 id="构建docker镜像">构建Docker镜像</h3>
+<p>构建app服务镜像</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">docker build -t fastapi_shortcode:v0.1 -f app.Dockerfile .
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="构建完成后查看本地镜像">构建完成后，查看本地镜像</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">docker images
+REPOSITORY                         TAG                   IMAGE ID       CREATED              SIZE
+fastapi_shortcode                  v0.1                  b5a184cd5f41   About a minute ago   1.09GB
+python                             3.12.3                12e5ab9d51c8   <span class="m">6</span> weeks ago          1.02GB
+
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="运行镜像">运行镜像</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">docker run -d --name fastapi_shortcode -p 8080:8080 fastapi_shortcode:v0.1
+6742784e41c6ed59d738d492862cb437b97264e82fdc5ddf39231a394d4c338b
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="查看运行镜像状态">查看运行镜像状态</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">docker ps
+CONTAINER ID   IMAGE                             COMMAND                   CREATED         STATUS         PORTS                                       NAMES
+6742784e41c6   fastapi_shortcode:v0.1            <span class="s2">&#34;uvicorn app.main:ap…&#34;</span>   <span class="m">26</span> seconds ago   Up <span class="m">25</span> seconds   0.0.0.0:8080-&gt;8080/tcp, :::8080-&gt;8080/tcp   fastapi_shortcode
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="查看镜像运行日志">查看镜像运行日志</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">docker logs -f 6742784e41c6
+INFO:     Started server process <span class="o">[</span>1<span class="o">]</span>
+INFO:     Waiting <span class="k">for</span> application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8080 <span class="o">(</span>Press CTRL+C to quit<span class="o">)</span>
+INFO:     172.17.0.1:49386 - <span class="s2">&#34;GET / HTTP/1.1&#34;</span> <span class="m">200</span> OK
+INFO:     172.17.0.1:49386 - <span class="s2">&#34;GET /favicon.ico HTTP/1.1&#34;</span> <span class="m">404</span> Not Found
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="接口测试">接口测试</h3>
+<p>Swagger UI： http://localhost:8080/docs#</p>
+<ol>
+<li>验证服务接口</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">curl -i http://localhost:8080/
+HTTP/1.1 <span class="m">200</span> OK
+date: Sat, <span class="m">25</span> May <span class="m">2024</span> 14:06:21 GMT
+server: uvicorn
+content-length: <span class="m">17</span>
+content-type: application/json
+
+<span class="o">{</span><span class="s2">&#34;Hello&#34;</span>:<span class="s2">&#34;World&#34;</span><span class="o">}</span>%
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>随机生成短链接code</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">curl -i http://localhost:8080/short/code
+HTTP/1.1 <span class="m">200</span> OK
+date: Sat, <span class="m">25</span> May <span class="m">2024</span> 15:12:29 GMT
+server: uvicorn
+content-length: <span class="m">17</span>
+content-type: application/json
+
+<span class="o">{</span><span class="s2">&#34;code&#34;</span>:<span class="s2">&#34;L5xZu2&#34;</span><span class="o">}</span>%
+</code></pre></td></tr></table>
+</div>
+</div><ol start="3">
+<li>生成长链接对应的短链接code</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">curl -X <span class="s1">&#39;POST&#39;</span> <span class="se">\
+</span><span class="se"></span>  <span class="s1">&#39;http://localhost:8080/short/url&#39;</span> <span class="se">\
+</span><span class="se"></span>  -H <span class="s1">&#39;accept: application/json&#39;</span> <span class="se">\
+</span><span class="se"></span>  -H <span class="s1">&#39;Content-Type: application/json&#39;</span> <span class="se">\
+</span><span class="se"></span>  -d <span class="s1">&#39;{
+</span><span class="s1">  &#34;long_url&#34;: &#34;https://google.com&#34;,
+</span><span class="s1">  &#34;short_url&#34;: &#34;&#34;
+</span><span class="s1">}&#39;</span>
+
+<span class="o">{</span>
+  <span class="s2">&#34;long_url&#34;</span>: <span class="s2">&#34;https://google.com&#34;</span>,
+  <span class="s2">&#34;short_url&#34;</span>: <span class="s2">&#34;zTgQx3&#34;</span>
+<span class="o">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="helm部署fastapi-app">helm部署fastapi app</h2>
+<p>使用helm来安装fastapi app，并使用nginx ingress来做反向代理。</p>
+<p>helm 版本</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">~ helm version
+version.BuildInfo<span class="o">{</span>Version:<span class="s2">&#34;v3.14.4&#34;</span>, GitCommit:<span class="s2">&#34;81c902a123462fd4052bc5e9aa9c513c4c8fc142&#34;</span>, GitTreeState:<span class="s2">&#34;clean&#34;</span>, GoVersion:<span class="s2">&#34;go1.22.2&#34;</span><span class="o">}</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>helm 仓库</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">helm repo list
+NAME    URL
+piaohua https://piaohua.github.io/helm-charts/
+bitnami https://charts.bitnami.com/bitnami
+
+</code></pre></td></tr></table>
+</div>
+</div><p>仓库中搜索nginx镜像</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">helm search repo nginx
+NAME                                    CHART VERSION   APP VERSION     DESCRIPTION
+bitnami/nginx                           16.0.6          1.25.5          NGINX Open Source is a web server that can be a...
+bitnami/nginx-ingress-controller        11.1.1          1.10.1          NGINX Ingress Controller is an Ingress controll...
+bitnami/nginx-intel                     2.1.15          0.4.9           DEPRECATED NGINX Open Source <span class="k">for</span> Intel is a lig...
+
+</code></pre></td></tr></table>
+</div>
+</div><p>创建一个新的Helm chart目录结构:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">helm create fastapi-short-code
+</code></pre></td></tr></table>
+</div>
+</div><p>配置values.yaml后，打包应用</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">helm package fastapi-short-code --debug
+Successfully packaged chart and saved it to: /Users/piao/data/golang/helm-charts/fastapi-short-code-0.1.0.tgz
+</code></pre></td></tr></table>
+</div>
+</div><p>打包后安装启动应用</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">helm install shortcode fastapi-short-code-0.1.0.tgz
+NAME: shortcode
+LAST DEPLOYED: Sun May <span class="m">26</span> 17:40:19 <span class="m">2024</span>
+NAMESPACE: default
+STATUS: deployed
+REVISION: <span class="m">1</span>
+NOTES:
+1. Get the application URL by running these commands
+  http:///
+
+</code></pre></td></tr></table>
+</div>
+</div><p>部署成功后，查看启动服务</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">kubectl get pods,rc,svc,deployment -o wide -n default
+NAME                                                READY   STATUS    RESTARTS   AGE   IP          NODE               NOMINATED NODE   READINESS GATES
+pod/shortcode-fastapi-short-code-78546fd569-6x8qk   1/1     Running   <span class="m">0</span>          15m   10.42.0.8   colima-helm-test   &lt;none&gt;           &lt;none&gt;
+
+NAME                                   TYPE        CLUSTER-IP     EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>    AGE   SELECTOR
+service/kubernetes                     ClusterIP   10.43.0.1      &lt;none&gt;        443/TCP    20d   &lt;none&gt;
+service/shortcode-fastapi-short-code   ClusterIP   10.43.229.27   &lt;none&gt;        8080/TCP   15m   app.kubernetes.io/instance<span class="o">=</span>shortcode,app.kubernetes.io/name<span class="o">=</span>fastapi-short-code
+
+NAME                                           READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS           IMAGES                   SELECTOR
+deployment.apps/shortcode-fastapi-short-code   1/1     <span class="m">1</span>            <span class="m">1</span>           15m   fastapi-short-code   fastapi_shortcode:v0.1   app.kubernetes.io/instance<span class="o">=</span>shortcode,app.kubernetes.io/name<span class="o">=</span>fastapi-short-code
+
+</code></pre></td></tr></table>
+</div>
+</div><p>helm应用查看</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">~ helm ls
+NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART                           APP VERSION
+shortcode       default         <span class="m">1</span>               2024-05-26 17:40:19.987909 +0800 CST    deployed        fastapi-short-code-0.1.0        1.16.0
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="部署失败场景">部署失败场景</h3>
+<p>部署出现如下错误</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">Error: INSTALLATION FAILED: 1 error occurred:
+        * Ingress.extensions &#34;shortcode&#34; is invalid: spec.rules[0].host: Invalid value: &#34;0.0.0.0&#34;: must be a DNS name, not an IP address
+</code></pre></td></tr></table>
+</div>
+</div><p>是因为values.yaml中host配置错误,host只能配置为域名，不能是ip，或者配置为空</p>
+<p>第二种错误场景如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">Error: INSTALLATION FAILED: non-absolute URLs should be in form of repo_name/path_to_chart, got: shortcode-0.1.0.tgz
+</code></pre></td></tr></table>
+</div>
+</div><p>这是因为应用名称已经存在，可以用命令<code>helm -n default ls -a</code>查看,</p>
+<p>如果已经存在，可以用命令<code>helm -n default delete shortcode</code>删除。</p>
+<h2 id="nginx部署">nginx部署</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh"> ~ helm install nginx-fastapi fastapi-short-code-nginx-0.1.0.tgz
+NAME: nginx-fastapi
+LAST DEPLOYED: Sun May <span class="m">26</span> 17:59:04 <span class="m">2024</span>
+NAMESPACE: default
+STATUS: deployed
+REVISION: <span class="m">1</span>
+NOTES:
+1. Get the application URL by running these commands:
+     NOTE: It may take a few minutes <span class="k">for</span> the LoadBalancer IP to be available.
+           You can watch the status of by running <span class="s1">&#39;kubectl get --namespace default svc -w nginx-fastapi-fastapi-short-code-nginx&#39;</span>
+  <span class="nb">export</span> <span class="nv">SERVICE_IP</span><span class="o">=</span><span class="k">$(</span>kubectl get svc --namespace default nginx-fastapi-fastapi-short-code-nginx --template <span class="s2">&#34;{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}&#34;</span><span class="k">)</span>
+  <span class="nb">echo</span> http://<span class="nv">$SERVICE_IP</span>:80
+</code></pre></td></tr></table>
+</div>
+</div><p>部署成功后查看服务状态</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">➜  ~ kubectl get pods,rc,svc,deployment -o wide -n default
+NAME                                                          READY   STATUS    RESTARTS      AGE   IP           NODE               NOMINATED NODE   READINESS GATES
+pod/shortcode-fastapi-short-code-78546fd569-6x8qk             1/1     Running   <span class="m">0</span>             19m   10.42.0.8    colima-helm-test   &lt;none&gt;           &lt;none&gt;
+pod/nginx-fastapi-fastapi-short-code-nginx-66cf6785dd-dcffz   0/1     Running   <span class="m">1</span> <span class="o">(</span>29s ago<span class="o">)</span>   60s   10.42.0.10   colima-helm-test   &lt;none&gt;           &lt;none&gt;
+
+NAME                                             TYPE           CLUSTER-IP     EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>        AGE   SELECTOR
+service/kubernetes                               ClusterIP      10.43.0.1      &lt;none&gt;        443/TCP        20d   &lt;none&gt;
+service/shortcode-fastapi-short-code             ClusterIP      10.43.229.27   &lt;none&gt;        8080/TCP       19m   app.kubernetes.io/instance<span class="o">=</span>shortcode,app.kubernetes.io/name<span class="o">=</span>fastapi-short-code
+service/nginx-fastapi-fastapi-short-code-nginx   LoadBalancer   10.43.56.241   192.168.5.3   80:30726/TCP   62s   app.kubernetes.io/instance<span class="o">=</span>nginx-fastapi,app.kubernetes.io/name<span class="o">=</span>fastapi-short-code-nginx
+
+NAME                                                     READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS                 IMAGES                              SELECTOR
+deployment.apps/shortcode-fastapi-short-code             1/1     <span class="m">1</span>            <span class="m">1</span>           19m   fastapi-short-code         fastapi_shortcode:v0.1              app.kubernetes.io/instance<span class="o">=</span>shortcode,app.kubernetes.io/name<span class="o">=</span>fastapi-short-code
+deployment.apps/nginx-fastapi-fastapi-short-code-nginx   0/1     <span class="m">1</span>            <span class="m">0</span>           62s   fastapi-short-code-nginx   bitnami/nginx:1.25.5-debian-12-r0   app.kubernetes.io/instance<span class="o">=</span>nginx-fastapi,app.kubernetes.io/name<span class="o">=</span>fastapi-short-code-nginx
+
+</code></pre></td></tr></table>
+</div>
+</div><p>helm应用查看</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">➜  ~ helm ls
+NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART                           APP VERSION
+nginx-fastapi   default         <span class="m">1</span>               2024-05-26 17:59:04.017599 +0800 CST    deployed        fastapi-short-code-nginx-0.1.0  1.16.0
+shortcode       default         <span class="m">1</span>               2024-05-26 17:40:19.987909 +0800 CST    deployed        fastapi-short-code-0.1.0        1.16.0
+
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://kubernetes.github.io/ingress-nginx/">Ingress-Nginx Controller</a></li>
+<li><a href="https://fastapi.tiangolo.com/zh/deployment/docker/">容器中的 FastAPI - Docker</a></li>
+<li><a href="https://mp.weixin.qq.com/s/sHp9Anpa36QjUq4TbDZVog">如何生成短链？</a></li>
+<li><a href="https://docs.vmware.com/en/VMware-Tanzu-Application-Catalog/services/tutorials/GUID-create-first-helm-chart-index.html">Create Your First Helm Chart</a></li>
+<li><a href="https://www.cnblogs.com/songqingbo/articles/12487939.html">k8s基于nginx ingress实现服务暴露</a></li>
+<li><a href="https://www.cnblogs.com/syushin/p/15271304.html">使用Helm3.6 安装 Ingress-nginx </a></li>
+<li><a href="https://blog.csdn.net/vic_qxz/article/details/119059454">k8s-(七）暴露服务的三种方式</a></li>
+<li><a href="https://github.com/MdAhosanHabib/Ingress_LB_Kubernetes">Container image push then Ingress &amp; Load Balancing in Kubernetes with FastAPI in Private Data Center</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-05-25
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/helm/">helm</a>
+          <a href="/tags/docker/">docker</a>
+          <a href="/tags/nginx/">nginx</a>
+          <a href="/tags/python/">python</a>
+          <a href="/tags/kubernetes/">kubernetes</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/docker/20240529-helm-repo/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Helm repo 配置</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/linux/20240524-top9-cases-behind-100-cpu-usage/">
+            <span class="next-text nav-default">9个导致 CPU 100% 的原因</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'Helm 部署 nginx 和 fastapi 本地镜像服务',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

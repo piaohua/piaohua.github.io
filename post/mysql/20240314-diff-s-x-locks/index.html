@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>mysql读取已提交(RC)和可重复读(RR)级别下的共享锁和排他锁有什么区别吗？ - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="mysql读取已提交和可重复读级别下的共享锁和排他锁有什么区别吗？ MySQL 的事务隔离级别对锁的行为有重要影响。在 READ COMMITTED 和 REPEATABLE READ 这两个隔离级别下，共享锁" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/mysql/20240314-diff-s-x-locks/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="mysql读取已提交(RC)和可重复读(RR)级别下的共享锁和排他锁有什么区别吗？" />
+<meta property="og:description" content="mysql读取已提交和可重复读级别下的共享锁和排他锁有什么区别吗？ MySQL 的事务隔离级别对锁的行为有重要影响。在 READ COMMITTED 和 REPEATABLE READ 这两个隔离级别下，共享锁" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20240314-diff-s-x-locks/" />
+<meta property="article:published_time" content="2024-03-14T12:55:43+08:00" />
+<meta property="article:modified_time" content="2024-03-14T12:55:43+08:00" />
+<meta itemprop="name" content="mysql读取已提交(RC)和可重复读(RR)级别下的共享锁和排他锁有什么区别吗？">
+<meta itemprop="description" content="mysql读取已提交和可重复读级别下的共享锁和排他锁有什么区别吗？ MySQL 的事务隔离级别对锁的行为有重要影响。在 READ COMMITTED 和 REPEATABLE READ 这两个隔离级别下，共享锁">
+<meta itemprop="datePublished" content="2024-03-14T12:55:43&#43;08:00" />
+<meta itemprop="dateModified" content="2024-03-14T12:55:43&#43;08:00" />
+<meta itemprop="wordCount" content="2039">
+
+
+
+<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="mysql读取已提交(RC)和可重复读(RR)级别下的共享锁和排他锁有什么区别吗？"/>
+<meta name="twitter:description" content="mysql读取已提交和可重复读级别下的共享锁和排他锁有什么区别吗？ MySQL 的事务隔离级别对锁的行为有重要影响。在 READ COMMITTED 和 REPEATABLE READ 这两个隔离级别下，共享锁"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">mysql读取已提交(RC)和可重复读(RR)级别下的共享锁和排他锁有什么区别吗？</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-03-14 </span>
+        <div class="post-category">
+            <a href="/categories/mysql/"> mysql </a>
+            </div>
+          <span class="more-meta"> 2039 words </span>
+          <span class="more-meta"> 5 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#排他锁exclusive-lock">排他锁（Exclusive Lock）</a></li>
+    <li><a href="#如何避免mysql死锁">如何避免MySQL死锁</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>mysql读取已提交和可重复读级别下的共享锁和排他锁有什么区别吗？</p>
+</blockquote>
+<p>MySQL 的事务隔离级别对锁的行为有重要影响。在 READ COMMITTED 和 REPEATABLE READ 这两个隔离级别下，共享锁（Shared Locks，S锁）和排他锁（Exclusive Locks，X锁）的行为是有所不同的。让我们来详细看看这两种隔离级别下的锁行为差异。</p>
+<p><strong>共享锁（S锁）</strong></p>
+<p>共享锁允许事务读取一行数据，而阻止其他事务对该行进行写操作（即阻止其他事务获取排他锁）。多个事务可以同时持有同一行的共享锁，从而允许多个读操作同时进行。</p>
+<p><strong>排他锁（X锁）</strong></p>
+<p>排他锁允许事务更新或删除一行数据。当一行数据被排他锁锁定时，其他事务既不能读取也不能写入该数据，直到该锁被释放。</p>
+<p><strong>READ COMMITTED 隔离级别</strong>
+在 READ COMMITTED 隔离级别下：</p>
+<ul>
+<li>读取操作（例如 SELECT）不会设置任何锁，因此它们不会阻止其他事务写入数据。</li>
+<li>写入操作（例如 UPDATE 或 DELETE）会设置排他锁，阻止其他事务读取或写入被锁定的数据。</li>
+<li>一旦事务提交，其他事务可以读取该数据，但如果在事务提交之前有其他事务修改了该数据，则读取操作会看到修改后的数据。</li>
+</ul>
+<p><strong>REPEATABLE READ 隔离级别</strong>
+在 REPEATABLE READ 隔离级别下（这是 MySQL 的默认隔离级别）：</p>
+<ul>
+<li>读取操作（例如 SELECT）会设置共享锁，阻止其他事务写入被锁定的数据，直到读取事务结束。这确保了在事务过程中读取的数据不会被其他事务修改。</li>
+<li>写入操作（例如 UPDATE 或 DELETE）会设置排他锁，阻止其他事务读取或写入被锁定的数据。</li>
+<li>在 REPEATABLE READ 隔离级别下，MySQL 使用了一种称为一致性非锁定读取（Consistent Nonlocking Reads）的技术，使得普通的 SELECT 操作不需要设置共享锁，也可以保证读取的数据在事务开始时的状态。这种读取方式不会受到其他事务中未提交修改的影响。</li>
+</ul>
+<p><strong>总结</strong></p>
+<p>在 READ COMMITTED 和 REPEATABLE READ 隔离级别下，共享锁和排他锁的基本行为是一致的：共享锁允许多个读操作，排他锁阻止其他读写操作。然而，这两种隔离级别在处理读取操作和锁定的具体行为上有所不同。在 READ COMMITTED 隔离级别下，读取操作不会设置锁，而在 REPEATABLE READ 隔离级别下，读取操作会设置共享锁，以确保数据的一致性。</p>
+<h2 id="排他锁exclusive-lock">排他锁（Exclusive Lock）</h2>
+<p>排他锁（Exclusive Lock）在MySQL中是一种重要的锁机制，它用于保护数据库的安全性和完整性。以下是排他锁在MySQL中的主要作用：</p>
+<ul>
+<li><strong>防止并发修改：</strong> 排他锁允许一个事务独占性地访问数据资源，从而防止其他事务同时修改同一份数据。这确保了数据的一致性，避免了因并发访问导致的数据冲突或不一致。</li>
+<li><strong>防止读取冲突：</strong> 除了防止其他事务修改数据，排他锁还阻止其他事务读取被锁定的数据。这确保了数据在被一个事务修改期间不会被其他事务读取到中间状态，从而避免了脏读（Dirty Read）问题。</li>
+<li><strong>保证数据完整性：</strong> 通过防止多个事务同时修改同一份数据，排他锁确保了数据的完整性。它防止了数据在并发操作中产生冲突或不一致的状态，从而确保了数据的准确性和可靠性。</li>
+<li><strong>提高并发性能：</strong> 虽然排他锁会限制并发访问，但它也避免了因并发修改导致的数据冲突和不一致处理。通过合理地使用排他锁，可以提高数据库的并发性能，确保数据的高效处理和访问。</li>
+</ul>
+<p>需要注意的是，排他锁的使用需要谨慎，以避免死锁（Deadlock）和过度锁定（Overlocking）的问题。同时，合理设计数据库事务和锁策略，也是确保数据库性能和可靠性的关键。</p>
+<h2 id="如何避免mysql死锁">如何避免MySQL死锁</h2>
+<p>避免MySQL中的死锁问题可以采取以下几种策略：</p>
+<ul>
+<li><strong>保持一致的访问顺序：</strong> 在多个事务并发访问多个资源时，尽量保持一致的访问顺序。如果所有事务都按照相同的顺序来访问资源，那么死锁的可能性就会大大降低。</li>
+<li><strong>缩短事务的持有锁时间：</strong> 事务持有锁的时间越长，死锁的可能性就越高。因此，尽量缩短事务的持有锁时间，避免长时间占用资源。可以通过将数据操作分成多个小批次来降低每个批次持有锁的时间。</li>
+<li><strong>使用低隔离级别：</strong> MySQL支持多种事务隔离级别，其中READ COMMITTED和REPEATABLE READ是比较常用的两种。根据业务需求，选择较低的隔离级别可以减少死锁的可能性。例如，READ COMMITTED隔离级别下，事务在读取数据时不会锁定数据，从而减少了死锁的风险。</li>
+<li><strong>使用锁超时时间：</strong> MySQL提供了锁超时时间的设置，可以在发生死锁时自动解除锁，从而避免死锁的持续。通过合理设置锁超时时间，可以在一定程度上缓解死锁问题。</li>
+<li><strong>避免在事务中持有过多的锁：</strong> 在事务中，尽量避免持有过多的锁。如果需要更新多个表或资源，可以考虑将它们分成多个事务进行处理，而不是一次性获取所有需要的锁。</li>
+<li><strong>分析和监控死锁：</strong> 使用MySQL提供的死锁监控和分析工具，如SHOW ENGINE INNODB STATUS命令，可以及时发现和解决死锁问题。通过分析死锁日志，可以了解死锁发生的原因和涉及的事务，从而采取相应的措施避免类似问题的再次发生。</li>
+</ul>
+<p>综上所述，避免MySQL中的死锁问题需要从多个方面综合考虑，包括访问顺序、事务持有锁时间、隔离级别、锁超时时间、持有锁的数量以及死锁监控和分析等方面。通过合理设计数据库事务和锁策略，可以大大降低死锁的可能性，提高数据库的并发性能和可靠性。</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-03-14
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/mysql/">mysql</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/mysql/20240314-canal/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">阿里巴巴 MySQL binlog 增量订阅&amp;消费组件Canal介绍和使用指南</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/mysql/20240314-diff-varchar-size/">
+            <span class="next-text nav-default">varchar(50)和varchar(500)有什么区别？</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'mysql读取已提交(RC)和可重复读(RR)级别下的共享锁和排他锁有什么区别吗？',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Redis 持久化机制 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="Redis 的持久化机制有两种，第一种是快照，第二种是 AOF 日志。快照是一次全量备份，AOF 日志是连续的增量备份。快照是内存数据的二进制序列化形式，在存储" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/redis/20240328-persistence/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Redis 持久化机制" />
+<meta property="og:description" content="Redis 的持久化机制有两种，第一种是快照，第二种是 AOF 日志。快照是一次全量备份，AOF 日志是连续的增量备份。快照是内存数据的二进制序列化形式，在存储" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/redis/20240328-persistence/" />
+<meta property="article:published_time" content="2024-03-28T00:24:47+08:00" />
+<meta property="article:modified_time" content="2024-03-28T00:24:47+08:00" />
+<meta itemprop="name" content="Redis 持久化机制">
+<meta itemprop="description" content="Redis 的持久化机制有两种，第一种是快照，第二种是 AOF 日志。快照是一次全量备份，AOF 日志是连续的增量备份。快照是内存数据的二进制序列化形式，在存储">
+<meta itemprop="datePublished" content="2024-03-28T00:24:47&#43;08:00" />
+<meta itemprop="dateModified" content="2024-03-28T00:24:47&#43;08:00" />
+<meta itemprop="wordCount" content="2025">
+
+
+
+<meta itemprop="keywords" content="redis," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Redis 持久化机制"/>
+<meta name="twitter:description" content="Redis 的持久化机制有两种，第一种是快照，第二种是 AOF 日志。快照是一次全量备份，AOF 日志是连续的增量备份。快照是内存数据的二进制序列化形式，在存储"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Redis 持久化机制</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-03-28 </span>
+        <div class="post-category">
+            <a href="/categories/redis/"> redis </a>
+            </div>
+          <span class="more-meta"> 2025 words </span>
+          <span class="more-meta"> 5 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#redis-持久化方式">Redis 持久化方式</a></li>
+    <li><a href="#rdb-持久化">RDB 持久化</a>
+      <ul>
+        <li><a href="#rdb-持久化方式">RDB 持久化方式</a></li>
+      </ul>
+    </li>
+    <li><a href="#aof-持久化">AOF 持久化</a>
+      <ul>
+        <li><a href="#aof-持久化流程">AOF 持久化流程</a></li>
+        <li><a href="#刷盘策略">刷盘策略</a></li>
+      </ul>
+    </li>
+    <li><a href="#rdb-和-aof-优缺点对比">RDB 和 AOF 优缺点对比</a>
+      <ul>
+        <li><a href="#rdb-优点">RDB 优点</a></li>
+        <li><a href="#rdb-缺点">RDB 缺点</a></li>
+        <li><a href="#aof-优点">AOF 优点</a></li>
+        <li><a href="#aof-缺点">AOF 缺点</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>Redis 的持久化机制有两种，第一种是快照，第二种是 AOF 日志。快照是一次全量备份，AOF 日志是连续的增量备份。快照是内存数据的二进制序列化形式，在存储上非常紧凑，而 AOF 日志记录的是内存数据修改的指令记录文本。AOF 日志在长期的运行过程中会变得无比庞大，数据库重启时需要加载 AOF 日志进行指令重放，这个时间就会无比漫长，所以需要定期进行 AOF 重写，给 AOF 日志进行瘦身。</p>
+</blockquote>
+<h2 id="redis-持久化方式">Redis 持久化方式</h2>
+<ol>
+<li>
+<p>快照（snapshotting，RDB）一般用于全量同步</p>
+</li>
+<li>
+<p>只追加文件（append-only file, AOF）一般用于增量同步</p>
+</li>
+<li>
+<p>RDB 和 AOF 的混合持久化(Redis 4.0 新增)</p>
+</li>
+</ol>
+<h2 id="rdb-持久化">RDB 持久化</h2>
+<p>通过创建 SnapShotting 快照来获取内存里面的某个时间点上的副本，利用快照可以进行方便的进行主从复制。</p>
+<p>默认持久化方式是 RDB，默认文件 dump.rdb。在Redis服务器启动时，会重新加载dump.rdb文件的数据到内存当中恢复数据。</p>
+<p>rdb文件生成流程：</p>
+<ol>
+<li>
+<p>生成临时rdb文件，并写入数据。</p>
+</li>
+<li>
+<p>完成数据写入，用临时文代替代正式rdb文件。</p>
+</li>
+<li>
+<p>删除原来的db文件。</p>
+</li>
+</ol>
+<h3 id="rdb-持久化方式">RDB 持久化方式</h3>
+<ol>
+<li>save 命令</li>
+</ol>
+<p>save 命令是同步保存，会阻塞主进程。</p>
+<p>当客户端向服务器发送save命令请求进行持久化时，服务器会阻塞save命令之后的其他客户端的请求，直到数据同步完成。</p>
+<ol start="2">
+<li>bgsave 命令</li>
+</ol>
+<p>bgsave 利用 Fork 操作，得到子进程，子进程执行，不阻塞主进程，默认用的 bgsave。</p>
+<p>将数据保存到rdb文件之后，子进程会退出。</p>
+<p>forks子进程是同步的，所以forks子进程时，一样不能接收其他请求。</p>
+<p>执行流程：</p>
+<ol>
+<li>
+<p>检查子进程（检查是否存在 AOF/RDB 的子进程正在进行），如果有返回错误</p>
+</li>
+<li>
+<p>触发持久化，调用 rdbsaveBackGroud</p>
+</li>
+<li>
+<p>开始 fork，子进程执行 rdb 操作，同时主进程响应其他操作。</p>
+</li>
+<li>
+<p>RDB 完成后，替换原来的旧 RDB 文件，子进程退出。</p>
+</li>
+</ol>
+<ol start="3">
+<li>自动触发</li>
+</ol>
+<p>Redis配置文件中的save指定到达触发RDB持久化的条件，比如【多少秒内至少达到多少写操作】就开启RDB数据同步</p>
+<p>配置文件redis.conf选项示例：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback"># 900s内至少达到一条写命令
+save 900 1
+# 300s内至少达至10条写命令
+save 300 10
+# 60s内至少达到10000条写命令
+save 60 10000
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="aof-持久化">AOF 持久化</h2>
+<p>Redis6.0 版本以前，AOF 持久化没有被默认开启，6.0 以后默认开启。</p>
+<p>开启 AOF 持久化后，每次修改 Redis 中的数据，就会将该次命令写入 AOF 缓冲区（Server.aof_buf)，然后再写入到 AOF 文件中（此时还在系统内核缓存区未同步到磁盘），最后根据持久化方式(fsync策略)的配置，决定了刷盘的时机。</p>
+<p>默认文件名：appendonly.aof。</p>
+<p>配置文件redis.conf开启AOF机制：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback"># 开启aof机制
+appendonly yes
+
+# aof文件名
+appendfilename &#34;appendonly.aof&#34;
+
+# 写入策略,always表示每个写操作都保存到aof文件中,也可以是everysec或no
+appendfsync always
+
+# 默认不重写aof文件
+no-appendfsync-on-rewrite no
+
+# 保存目录
+dir ~/redis/
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="aof-持久化流程">AOF 持久化流程</h3>
+<ol>
+<li>
+<p>append：写命令追加到 AOF 缓冲区。</p>
+</li>
+<li>
+<p>write（系统调用）：AOF 缓冲区写入 AOF 文件，此时数据到达系统内核缓冲区（非磁盘）</p>
+</li>
+<li>
+<p>根据刷盘策略(fsync策略)进行同步机制，此时会阻塞直到写入磁盘完成。</p>
+</li>
+<li>
+<p>文件重写机制，AOF 文件变大，定期会对 AOF 做重写，一个参数是超过 X MB，一个参数是百分比（相对于上次重写文件大小）。</p>
+</li>
+<li>
+<p>重启加载，检验和机制 (CRC64循环冗余校验)</p>
+</li>
+</ol>
+<h3 id="刷盘策略">刷盘策略</h3>
+<ol>
+<li>
+<p>always，每次 write 系统调用后，立刻进行同步机制，性能低，安全高</p>
+</li>
+<li>
+<p>everysec（默认写入策略）：调用 write 函数后返回，后台线程每秒钟调用 fsync 函数同步 AOF。因此，最多可能会丢失1s的数据。</p>
+</li>
+<li>
+<p>no：由操作系统决定同步时机，一般 Linux 为 30 秒。写入更快，但不安全。</p>
+</li>
+</ol>
+<h2 id="rdb-和-aof-优缺点对比">RDB 和 AOF 优缺点对比</h2>
+<h3 id="rdb-优点">RDB 优点</h3>
+<ol>
+<li>
+<p>存储二进制压缩数据，文件小，适合数据备份灾难恢复。</p>
+</li>
+<li>
+<p>RDB 恢复数据，直接解析即可还原数据，速度快，适用大数据量和数据备份。</p>
+</li>
+</ol>
+<h3 id="rdb-缺点">RDB 缺点</h3>
+<ol>
+<li>
+<p>save命令会造成阻塞。</p>
+</li>
+<li>
+<p>如果服务器宕机的话，采用RDB的方式会造成某个时段内数据的丢失，比如我们设置10分钟同步一次或5分钟达到1000次写入就同步一次，那么如果还没达到触发条件服务器就死机了，那么这个时间段的数据会丢失。</p>
+</li>
+<li>
+<p>bgsave 对机器的 CPU 和内存产生影响。使用bgsave命令在forks子进程时，如果数据量太大，forks的过程也会发生阻塞，另外，forks子进程会耗费内存。</p>
+</li>
+<li>
+<p>RDB 新老版本的兼容性差。</p>
+</li>
+<li>
+<p>可读性差，二进制压缩数据。</p>
+</li>
+</ol>
+<h3 id="aof-优点">AOF 优点</h3>
+<ol>
+<li>
+<p>AOF只是追加日志文件，因此对服务器性能影响较小，速度比RDB要快，消耗的内存较少。</p>
+</li>
+<li>
+<p>命令比较轻量级，丢失数据少</p>
+</li>
+<li>
+<p>可读性强，存放的是写命令，可以在没有 AOF 刷盘时，取消某些操作。</p>
+</li>
+</ol>
+<h3 id="aof-缺点">AOF 缺点</h3>
+<ol>
+<li>
+<p>大数据量时，恢复比较慢</p>
+</li>
+<li>
+<p>AOF方式生成的日志文件太大，即使通过AFO重写，文件体积仍然很大。</p>
+</li>
+<li>
+<p>AOF 重写期间会使用大量内存，可能会有安全问题，需要人工控制参数和具体的流程。</p>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th align="center">RDB</th>
+<th align="center">AOF</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>启动优化级</td>
+<td align="center">低</td>
+<td align="center">高</td>
+</tr>
+<tr>
+<td>体积</td>
+<td align="center">小</td>
+<td align="center">大</td>
+</tr>
+<tr>
+<td>恢复速度</td>
+<td align="center">快</td>
+<td align="center">慢</td>
+</tr>
+<tr>
+<td>数据安全性</td>
+<td align="center">会丢数据</td>
+<td align="center">由策略决定</td>
+</tr>
+<tr>
+<td>轻重</td>
+<td align="center">重</td>
+<td align="center">轻</td>
+</tr>
+</tbody>
+</table>
+<p>当RDB与AOF两种方式都开启时，Redis会优先使用AOF日志来恢复数据，因为AOF保存的文件比RDB文件更完整。</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://redis.io/docs/management/persistence/">Redis persistence</a></li>
+<li><a href="https://mp.weixin.qq.com/s/oe1LxgGvkQYBtoU11tYe_A">深入浅出 Redis 持久化机制</a></li>
+<li><a href="https://mp.weixin.qq.com/s/ij67XYJgYK2kYrAlSDz3sw">彻底理解 Redis 的持久化机制：RDB和AOF</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-03-28
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/redis/">redis</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/golang/20240330-lock/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[Go] 互斥锁实现原理</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/redis/20240327-type-struct/">
+            <span class="next-text nav-default">redis的底层数据结构</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'Redis 持久化机制',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

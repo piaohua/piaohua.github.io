@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Python 装饰器 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="装饰器是语法糖： 在代码中利用更简洁流畅的语法实现更为复杂的功能。 装饰器允许包装另一个函数，以扩展包装函数的行为，而无需修改基础函数定义。 经常" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/python/20240518-decorator/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Python 装饰器" />
+<meta property="og:description" content="装饰器是语法糖： 在代码中利用更简洁流畅的语法实现更为复杂的功能。 装饰器允许包装另一个函数，以扩展包装函数的行为，而无需修改基础函数定义。 经常" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/python/20240518-decorator/" />
+<meta property="article:published_time" content="2024-05-18T16:59:25+08:00" />
+<meta property="article:modified_time" content="2024-05-18T16:59:25+08:00" />
+<meta itemprop="name" content="Python 装饰器">
+<meta itemprop="description" content="装饰器是语法糖： 在代码中利用更简洁流畅的语法实现更为复杂的功能。 装饰器允许包装另一个函数，以扩展包装函数的行为，而无需修改基础函数定义。 经常">
+<meta itemprop="datePublished" content="2024-05-18T16:59:25&#43;08:00" />
+<meta itemprop="dateModified" content="2024-05-18T16:59:25&#43;08:00" />
+<meta itemprop="wordCount" content="3779">
+
+
+
+<meta itemprop="keywords" content="python," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Python 装饰器"/>
+<meta name="twitter:description" content="装饰器是语法糖： 在代码中利用更简洁流畅的语法实现更为复杂的功能。 装饰器允许包装另一个函数，以扩展包装函数的行为，而无需修改基础函数定义。 经常"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Python 装饰器</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-05-18 </span>
+        <div class="post-category">
+            <a href="/categories/python/"> python </a>
+            </div>
+          <span class="more-meta"> 3779 words </span>
+          <span class="more-meta"> 8 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#常见装饰器-staticmethod-和-classmethod">常见装饰器 @staticmethod 和 @classmethod</a></li>
+    <li><a href="#函数装饰器">函数装饰器</a>
+      <ul>
+        <li><a href="#装饰不带参数的函数">装饰不带参数的函数</a></li>
+        <li><a href="#装饰带一个参数的函数">装饰带一个参数的函数</a></li>
+        <li><a href="#装饰带不定长参数的函数">装饰带不定长参数的函数</a></li>
+        <li><a href="#装饰器带参数">装饰器带参数</a></li>
+        <li><a href="#decorator库">decorator库</a></li>
+        <li><a href="#保留原函数的元信息">保留原函数的元信息</a></li>
+      </ul>
+    </li>
+    <li><a href="#类装饰器">类装饰器</a>
+      <ul>
+        <li><a href="#本身无参数">本身无参数</a></li>
+        <li><a href="#带参数的类装饰器">带参数的类装饰器</a></li>
+      </ul>
+    </li>
+    <li><a href="#描述符与装饰器">描述符与装饰器</a></li>
+    <li><a href="#property装饰器">property装饰器</a>
+      <ul>
+        <li><a href="#属性访问控制">属性访问控制</a></li>
+        <li><a href="#自定义setter与getter">自定义setter与getter</a></li>
+      </ul>
+    </li>
+    <li><a href="#装饰类的装饰器">装饰类的装饰器</a></li>
+    <li><a href="#使用-wrapt-模块编写更扁平的装饰器">使用 wrapt 模块编写更扁平的装饰器</a></li>
+    <li><a href="#单分派泛函singledispatch">单分派泛函：singledispatch</a></li>
+    <li><a href="#装饰器实现重载">装饰器实现重载</a></li>
+    <li><a href="#第三方库typing_extensions">第三方库typing_extensions</a></li>
+    <li><a href="#模块approach-multipledispatch-dispatch-装饰器">模块approach: multipledispatch @dispatch 装饰器</a></li>
+    <li><a href="#抽象基类装饰器-abstractmethod">抽象基类装饰器 @abstractmethod</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>装饰器是语法糖： 在代码中利用更简洁流畅的语法实现更为复杂的功能。</p>
+</blockquote>
+<p>装饰器允许包装另一个函数，以扩展包装函数的行为，而无需修改基础函数定义。</p>
+<p>经常会用到 @staticmethod 和 @classmethod 两个内置装饰器。</p>
+<h2 id="常见装饰器-staticmethod-和-classmethod">常见装饰器 @staticmethod 和 @classmethod</h2>
+<p>静态方法通过@staticmethod装饰器定义，它不接收隐含的self或cls参数。这类方法通常与类的实例无关，可以视为与类关联的函数，用于组织逻辑或提供工具函数 ，提升代码模块化。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="k">class</span> <span class="nc">MathUtils</span><span class="p">:</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">MathUtils</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>  <span class="c1"># 输出: 8</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>类方法通过 @classmethod 装饰器定义，它接收一个隐含的参数cls ，代表类本身而不是类的实例。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="k">class</span> <span class="nc">Pizza</span><span class="p">:</span>
+    <span class="n">toppings</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;cheese&#34;</span><span class="p">,</span> <span class="s2">&#34;tomato&#34;</span><span class="p">]</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">add_default_topping</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">topping</span><span class="p">):</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">toppings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">topping</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_available_toppings</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">toppings</span>
+
+<span class="n">Pizza</span><span class="o">.</span><span class="n">add_default_topping</span><span class="p">(</span><span class="s2">&#34;mushroom&#34;</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">Pizza</span><span class="o">.</span><span class="n">get_available_toppings</span><span class="p">())</span>  <span class="c1"># 输出: [&#39;cheese&#39;, &#39;tomato&#39;, &#39;mushroom&#39;]</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="函数装饰器">函数装饰器</h2>
+<p>函数装饰器包装另一个函数，返回一个函数</p>
+<p><a href="https://mp.weixin.qq.com/s/HzBAwgaFvVPc7cnLXRwXbw">装饰器详解</a></p>
+<h3 id="装饰不带参数的函数">装饰不带参数的函数</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="k">def</span> <span class="nf">my_decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">():</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;wrapper of decorator&#39;</span><span class="p">)</span>
+        <span class="n">func</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+<span class="nd">@my_decorator</span>
+<span class="k">def</span> <span class="nf">greet</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;hello world&#39;</span><span class="p">)</span>
+
+<span class="n">greet</span><span class="p">()</span>
+
+<span class="c1"># 没有装饰器时，等价于如下调用：</span>
+<span class="c1"># greet = my_decorator(greet)</span>
+<span class="c1"># greet()</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="装饰带一个参数的函数">装饰带一个参数的函数</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="k">def</span> <span class="nf">my_decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;wrapper of decorator&#39;</span><span class="p">)</span>
+        <span class="n">func</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+
+<span class="nd">@my_decorator</span>
+<span class="k">def</span> <span class="nf">greet</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+<span class="n">greet</span><span class="p">(</span><span class="s1">&#39;hello world&#39;</span><span class="p">)</span>
+
+<span class="c1"># 没有装饰器时，等价于如下调用：</span>
+<span class="c1"># greet = my_decorator(greet)</span>
+<span class="c1"># greet(&#39;hello world&#39;)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="装饰带不定长参数的函数">装饰带不定长参数的函数</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="k">def</span> <span class="nf">my_decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># 不定长参数*args,**kwargs</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;wrapper of decorator&#39;</span><span class="p">)</span>
+        <span class="n">func</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+<span class="nd">@my_decorator</span>
+<span class="k">def</span> <span class="nf">greet</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+<span class="n">greet</span><span class="p">(</span><span class="s1">&#39;hello world&#39;</span><span class="p">)</span>
+
+<span class="nd">@my_decorator</span>
+<span class="k">def</span> <span class="nf">greet2</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">num</span><span class="p">)</span>
+
+<span class="n">greet2</span><span class="p">(</span><span class="s2">&#34;hello world2&#34;</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="装饰器带参数">装饰器带参数</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="k">def</span> <span class="nf">repeat</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">my_decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
+                <span class="k">print</span><span class="p">(</span><span class="s1">&#39;wrapper of decorator&#39;</span><span class="p">)</span>
+                <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">wrapper</span>
+    <span class="k">return</span> <span class="n">my_decorator</span>
+
+
+<span class="nd">@repeat</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">greet</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+<span class="c1"># @语法糖等价于：</span>
+<span class="c1"># my_decorator = repeat(4)</span>
+<span class="c1"># greet = my_decorator(greet)</span>
+
+<span class="n">greet</span><span class="p">(</span><span class="s1">&#39;hello world&#39;</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="decorator库">decorator库</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">from</span> <span class="nn">decorator</span> <span class="kn">import</span> <span class="n">decorator</span>
+
+<span class="nd">@decorator</span>
+<span class="k">def</span> <span class="nf">repeat</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;wrapper of decorator&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+    <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<span class="nd">@repeat</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&#34;greet&#34;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">greet</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+<span class="c1"># @语法糖等价于：</span>
+<span class="c1"># greet = repeat(greet, name=&#34;greet&#34;)</span>
+
+<span class="n">greet</span><span class="p">(</span><span class="s1">&#39;hello world&#39;</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="保留原函数的元信息">保留原函数的元信息</h3>
+<p>打印出 greet() 函数的一些元信息:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="n">greet</span><span class="o">.</span><span class="vm">__name__</span>
+<span class="c1">## 输出</span>
+<span class="s1">&#39;wrapper&#39;</span>
+
+<span class="n">help</span><span class="p">(</span><span class="n">greet</span><span class="p">)</span>
+<span class="c1"># 输出</span>
+<span class="n">Help</span> <span class="n">on</span> <span class="n">function</span> <span class="n">wrapper</span> <span class="ow">in</span> <span class="n">module</span> <span class="n">__main__</span><span class="p">:</span>
+
+<span class="n">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>输出的是装饰器，可以通常使用内置的装饰器@functools.wrap，它会帮助保留原函数的元信息（也就是将原函数的元信息，拷贝到对应的装饰器函数里）。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">import</span> <span class="nn">functools</span>
+
+<span class="k">def</span> <span class="nf">my_decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="nd">@functools.wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span> <span class="c1"># 保留原函数元信息</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;wrapper of decorator&#39;</span><span class="p">)</span>
+        <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wrapper</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="类装饰器">类装饰器</h2>
+<p>定义一个类装饰器，装饰函数，默认调用__call__方法</p>
+<h3 id="本身无参数">本身无参数</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="k">class</span> <span class="nc">Count</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_calls</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_calls</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;num of calls is: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_calls</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<span class="nd">@Count</span>
+<span class="k">def</span> <span class="nf">example</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;hello world&#34;</span><span class="p">)</span>
+
+<span class="c1"># 等价于example = Count(example) </span>
+
+<span class="n">example</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="带参数的类装饰器">带参数的类装饰器</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="k">class</span> <span class="nc">Count</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span> <span class="c1"># 类装饰器参数</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">a</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_calls</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span> <span class="c1"># 被装饰函数</span>
+        <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_calls</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;num of calls is: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_calls</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">wrapper</span>
+
+
+<span class="nd">@Count</span><span class="p">(</span><span class="s2">&#34;aaaa&#34;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">example</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;hello world&#34;</span><span class="p">)</span>
+
+
+<span class="k">print</span><span class="p">(</span><span class="s2">&#34;开始调用example函数..............&#34;</span><span class="p">)</span>
+
+<span class="n">example</span><span class="p">()</span>
+
+<span class="c1"># @语法糖等价形式</span>
+<span class="c1"># example = Count(&#34;aaaa&#34;)(example)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="描述符与装饰器">描述符与装饰器</h2>
+<p>还有一类装饰器比较特殊，比如python描述符类的property。</p>
+<pre><code>在Python中，属性描述符可以用作装饰器，是因为描述符对象可以通过实现 
+__get__()、__set__() 和 __delete__() 方法来拦截对属性的访问和操作。 
+https://docs.python.org/3/reference/datamodel.html#descriptors
+https://docs.python.org/3/howto/descriptor.html#descriptorhowto
+</code></pre>
+<p>关于描述符，这里不赘述。基于描述符，我们也可以实现自定义的property:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="k">class</span> <span class="nc">cached_property</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__set__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&#34;can&#39;t set attribute&#34;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">MyClass</span><span class="p">:</span>
+    <span class="nd">@cached_property</span>
+    <span class="c1"># @property</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;Calculating value...&#34;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">42</span>
+
+
+<span class="n">obj</span> <span class="o">=</span> <span class="n">MyClass</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># 输出: Calculating value...   42</span>
+
+<span class="c1"># 使用缓存的值</span>
+<span class="k">print</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># 输出: 42</span>
+
+<span class="c1"># 尝试修改属性值（抛出TypeError）</span>
+<span class="n">obj</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&#34;invalid&#34;</span>  <span class="c1"># 抛出 TypeError: can&#39;t set attribute</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="property装饰器">property装饰器</h2>
+<p>property装饰器允许将方法转变为属性访问的形式，从而提供更简洁、更符合面向对象原则的接口。它支持定义getter、setter和deleter方法，而外部调用时就像直接操作属性一样。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="k">class</span> <span class="nc">Celsius</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_temperature</span> <span class="o">=</span> <span class="n">temperature</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_temperature</span>
+
+    <span class="nd">@temperature.setter</span>
+    <span class="k">def</span> <span class="nf">temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mf">273.15</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&#34;Temperature below -273.15 is not possible&#34;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_temperature</span> <span class="o">=</span> <span class="n">value</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">Celsius</span><span class="p">()</span>
+<span class="n">c</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="mi">37</span>  <span class="c1"># 使用setter设置温度</span>
+<span class="k">print</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>  <span class="c1"># 使用getter获取温度 ，输出: 37</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="属性访问控制">属性访问控制</h3>
+<p>通过property ，可以轻松实现属性访问控制 ，比如检查数据的有效性、执行额外逻辑等，而无需暴露内部实现细节。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="k">class</span> <span class="nc">Account</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">balance</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_balance</span> <span class="o">=</span> <span class="n">balance</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">balance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&#34;&#34;&#34;返回账户余额&#34;&#34;&#34;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_balance</span>
+
+    <span class="nd">@balance.setter</span>
+    <span class="k">def</span> <span class="nf">balance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">):</span>
+        <span class="s2">&#34;&#34;&#34;设置账户余额，不允许负数存款&#34;&#34;&#34;</span>
+        <span class="k">if</span> <span class="n">amount</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&#34;Balance cannot be negative&#34;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_balance</span> <span class="o">=</span> <span class="n">amount</span>
+
+<span class="n">account</span> <span class="o">=</span> <span class="n">Account</span><span class="p">()</span>
+<span class="n">account</span><span class="o">.</span><span class="n">balance</span> <span class="o">=</span> <span class="mi">100</span>  <span class="c1"># 正常设置</span>
+<span class="k">print</span><span class="p">(</span><span class="n">account</span><span class="o">.</span><span class="n">balance</span><span class="p">)</span>  <span class="c1"># 输出: 100</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">account</span><span class="o">.</span><span class="n">balance</span> <span class="o">=</span> <span class="o">-</span><span class="mi">50</span>  <span class="c1"># 尝试设置负数 ，将抛出异常</span>
+<span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>  <span class="c1"># 输出: Balance cannot be negative</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="自定义setter与getter">自定义setter与getter</h3>
+<p>property还允许自定义的getter和setter逻辑，这样可以在获取或设置属性值时执行额外的操作 ，如日志记录、单位转换等。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="k">class</span> <span class="nc">TemperatureConverter</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kelvin</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_kelvin</span> <span class="o">=</span> <span class="n">kelvin</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">kelvin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kelvin</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">celsius</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&#34;&#34;&#34;从Kelvin转换到Celsius&#34;&#34;&#34;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kelvin</span> <span class="o">-</span> <span class="mf">273.15</span>
+
+    <span class="nd">@celsius.setter</span>
+    <span class="k">def</span> <span class="nf">celsius</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="s2">&#34;&#34;&#34;设置Celsius温度 ，同时更新Kelvin&#34;&#34;&#34;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_kelvin</span> <span class="o">=</span> <span class="n">value</span> <span class="o">+</span> <span class="mf">273.15</span>
+
+<span class="n">converter</span> <span class="o">=</span> <span class="n">TemperatureConverter</span><span class="p">(</span><span class="mf">273.15</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">celsius</span><span class="p">)</span>  <span class="c1"># 输出: 0.0</span>
+
+<span class="n">converter</span><span class="o">.</span><span class="n">celsius</span> <span class="o">=</span> <span class="mi">100</span>  <span class="c1"># 设置摄氏温度</span>
+<span class="k">print</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">kelvin</span><span class="p">)</span>  <span class="c1"># 输出: 373.15，由于setter更新了_kelvin</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>通过这些示例可以看出，property装饰器为属性访问提供了优雅且强大的控制手段，使得代码更加整洁、易于理解和维护。</p>
+<h2 id="装饰类的装饰器">装饰类的装饰器</h2>
+<p>在Python中，装饰类的装饰器是一种特殊类型的函数，它用于修改或增强类的行为。装饰器可以在不修改原始类定义的情况下，通过将类传递给装饰器函数来对其进行装饰。</p>
+<p>通常情况下，装饰类的装饰器是一个接受类作为参数的函数，并返回一个新的类或修改原始类的函数。这个装饰器函数可以在类定义之前使用@符号应用到类上。</p>
+<pre><code>输入是类，输出也是类。
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">import</span> <span class="nn">time</span>
+
+
+<span class="k">def</span> <span class="nf">timer_decorator</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">TimerClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">def</span> <span class="fm">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+            <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">execution_time</span> <span class="o">=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&#34;Method &#39;{name}&#39; executed in {execution_time} seconds.&#34;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">return</span> <span class="n">TimerClass</span>
+
+
+<span class="nd">@timer_decorator</span>
+<span class="k">class</span> <span class="nc">MyClass</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">my_method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;Executing my_method&#34;</span><span class="p">)</span>
+
+
+<span class="n">obj</span> <span class="o">=</span> <span class="n">MyClass</span><span class="p">()</span>
+<span class="n">obj</span><span class="o">.</span><span class="n">my_method</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="使用-wrapt-模块编写更扁平的装饰器">使用 wrapt 模块编写更扁平的装饰器</h2>
+<p>函数签名是固定的，必须是(wrapped, instance, args, kwargs)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">import</span> <span class="nn">wrapt</span>
+
+<span class="nd">@wrapt.decorator</span>
+<span class="k">def</span> <span class="nf">pass_through</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<span class="nd">@pass_through</span>
+<span class="k">def</span> <span class="nf">function</span><span class="p">():</span>
+    <span class="k">pass</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>更多使用见 <a href="https://mp.weixin.qq.com/s/HzBAwgaFvVPc7cnLXRwXbw">装饰器详解</a></p>
+<h2 id="单分派泛函singledispatch">单分派泛函：singledispatch</h2>
+<p>singledispatch装饰器实现了通用函数的概念 ，允许为不同类型的参数注册不同的处理函数。当调用这样的函数时，它会自动根据第一个参数的类型来选择对应的实现。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">singledispatch</span>
+
+<span class="nd">@singledispatch</span>
+<span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="s2">&#34;&#34;&#34;默认处理函数 ，用于未注册的类型&#34;&#34;&#34;</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&#34;Default processing for type {type(value).__name__}: {value}&#34;</span><span class="p">)</span>
+
+<span class="nd">@process.register</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="s2">&#34;&#34;&#34;处理整数类型&#34;&#34;&#34;</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&#34;Processing integer: {value * 2}&#34;</span><span class="p">)</span>
+
+<span class="nd">@process.register</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="s2">&#34;&#34;&#34;处理字符串类型&#34;&#34;&#34;</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&#34;Processing string: {value.upper()}&#34;</span><span class="p">)</span>
+
+<span class="c1"># 示例调用</span>
+<span class="n">process</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>       <span class="c1"># 输出: Processing integer: 20</span>
+<span class="n">process</span><span class="p">(</span><span class="s2">&#34;hello&#34;</span><span class="p">)</span>  <span class="c1"># 输出: Processing string: HELLO</span>
+<span class="n">process</span><span class="p">(</span><span class="mf">3.14</span><span class="p">)</span>     <span class="c1"># 输出: Default processing for type float: 3.14</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="装饰器实现重载">装饰器实现重载</h2>
+<p>动态创建函数实现重载</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="k">def</span> <span class="nf">overload_decorator</span><span class="p">(</span><span class="o">*</span><span class="n">signatures</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">sig_func</span> <span class="ow">in</span> <span class="n">signatures</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">sig_arg_type</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span><span class="p">,</span> <span class="n">sig_arg_type</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">sig_func</span><span class="p">)):</span>
+                    <span class="k">return</span> <span class="n">sig_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&#34;No matching signature found.&#34;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">wrapper</span>
+    <span class="k">return</span> <span class="n">decorator</span>
+
+<span class="nd">@overload_decorator</span>
+<span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="s2">&#34;&#34;&#34;默认处理逻辑&#34;&#34;&#34;</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&#34;默认处理: {value}&#34;</span><span class="p">)</span>
+
+<span class="nd">@overload_decorator</span><span class="p">((</span><span class="nb">int</span><span class="p">,))</span>
+<span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="s2">&#34;&#34;&#34;处理整数类型&#34;&#34;&#34;</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&#34;处理整数: {value * 2}&#34;</span><span class="p">)</span>
+
+<span class="nd">@overload_decorator</span><span class="p">((</span><span class="nb">str</span><span class="p">,))</span>
+<span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="s2">&#34;&#34;&#34;处理字符串类型&#34;&#34;&#34;</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&#34;处理字符串: {value.upper()}&#34;</span><span class="p">)</span>
+
+<span class="c1"># 示例调用</span>
+<span class="n">process</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>      <span class="c1"># 输出: 处理整数: 20</span>
+<span class="n">process</span><span class="p">(</span><span class="s2">&#34;hello&#34;</span><span class="p">)</span> <span class="c1"># 输出: 处理字符串: HELLO</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这个overload_decorator装饰器接收一组签名（每个签名是一个元组，包含期望的参数类型），并根据传入的参数类型自动选择正确的函数版本来执行。如果找不到匹配的签名 ，将抛出TypeError异常。</p>
+<h2 id="第三方库typing_extensions">第三方库typing_extensions</h2>
+<p>借助第三方库typing_extensions中的@overload装饰器，实现函数重载。</p>
+<p>安装</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">pip install typing_extensions
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">overload</span>
+
+<span class="nd">@overload</span>
+<span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="o">...</span>
+
+<span class="nd">@overload</span>
+<span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="o">...</span>
+
+<span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+
+<span class="c1"># 实际调用</span>
+<span class="k">print</span><span class="p">(</span><span class="n">calculate</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>    <span class="c1"># 输出: 3</span>
+<span class="k">print</span><span class="p">(</span><span class="n">calculate</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">))</span>  <span class="c1"># 输出: 4.0</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>@overload装饰器本身不会改变函数的行为，它主要服务于类型检查器 。</p>
+<h2 id="模块approach-multipledispatch-dispatch-装饰器">模块approach: multipledispatch @dispatch 装饰器</h2>
+<p>根据函数参数的类型实现多路派发，即更高级别的重载功能。</p>
+<p>安装</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">pip install multipledispatch
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">from</span> <span class="nn">multipledispatch</span> <span class="kn">import</span> <span class="n">dispatch</span>
+
+<span class="nd">@dispatch</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="mi">2</span>
+
+<span class="nd">@dispatch</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+
+<span class="nd">@dispatch</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span>
+
+<span class="nd">@dispatch</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="nb">object</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="s2">&#34;不支持的操作: {a} 和 {b}&#34;</span>
+
+<span class="c1"># 调用示例</span>
+<span class="k">print</span><span class="p">(</span><span class="n">calculate</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>          <span class="c1"># 输出: 20</span>
+<span class="k">print</span><span class="p">(</span><span class="n">calculate</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>        <span class="c1"># 输出: 8</span>
+<span class="k">print</span><span class="p">(</span><span class="n">calculate</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">))</span>     <span class="c1"># 输出: 8.75</span>
+<span class="k">print</span><span class="p">(</span><span class="n">calculate</span><span class="p">(</span><span class="s2">&#34;hello&#34;</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>  <span class="c1"># 输出: 不支持的操作: hello 和 5</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>calculate函数根据传入参数的类型和数量自动选择了不同的处理逻辑。multipledispatch库通过分析函数签名，智能地匹配最适合的实现版本</p>
+<h2 id="抽象基类装饰器-abstractmethod">抽象基类装饰器 @abstractmethod</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+
+<span class="k">class</span> <span class="nc">Shape</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">perimeter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">Circle</span><span class="p">(</span><span class="n">Shape</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radius</span> <span class="o">=</span> <span class="n">radius</span>
+
+    <span class="k">def</span> <span class="nf">area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mf">3.14</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radius</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">perimeter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="mf">3.14</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span>
+
+<span class="k">class</span> <span class="nc">Square</span><span class="p">(</span><span class="n">Shape</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">side</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">side</span> <span class="o">=</span> <span class="n">side</span>
+
+    <span class="k">def</span> <span class="nf">area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">side</span> <span class="o">**</span> <span class="mi">2</span>
+
+    <span class="k">def</span> <span class="nf">perimeter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">4</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">side</span>
+
+<span class="n">shapes</span> <span class="o">=</span> <span class="p">[</span><span class="n">Circle</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span> <span class="n">Square</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+<span class="k">for</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">shapes</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&#34;Area: {shape.area()}, Perimeter: {shape.perimeter()}&#34;</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>通过定义Shape抽象基类并声明area和perimeter为抽象方法，确保了任何继承自Shape的类都必须实现这两个方法，从而在不同的形状之间保持了一致的接口。</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://mp.weixin.qq.com/s/HzBAwgaFvVPc7cnLXRwXbw">装饰器详解</a></li>
+<li><a href="https://mp.weixin.qq.com/s/zgmRDO-5XJItDrTftlzxIA">Python函数重载6种实现方式</a></li>
+<li><a href="https://mp.weixin.qq.com/s/hE8yZcaCTZPhsCE2ZrmsLw">Python OOP技术 </a></li>
+<li><a href="https://mp.weixin.qq.com/s/a4oa2-rvy8fKvB8FMl8QyA">Python高级技术：10个显著优化你代码的Python OOP 技术</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-05-18
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/python/">python</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/redis/20240519-maxmemory-policy/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Redis内存淘汰策略</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/python/20240518-cron-task/">
+            <span class="next-text nav-default">Python定时任务</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'Python 装饰器',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

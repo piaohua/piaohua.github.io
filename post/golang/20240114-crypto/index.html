@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Go 加密解密算法 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="Go 加密解密算法总结 加密解密在实际开发中应用比较广泛，常用加解密分为：“对称式”、“非对称式”和”数字签名“。 对称式：对称加密(也叫私钥加密)" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/golang/20240114-crypto/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Go 加密解密算法" />
+<meta property="og:description" content="Go 加密解密算法总结 加密解密在实际开发中应用比较广泛，常用加解密分为：“对称式”、“非对称式”和”数字签名“。 对称式：对称加密(也叫私钥加密)" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20240114-crypto/" />
+<meta property="article:published_time" content="2024-01-14T16:45:13+08:00" />
+<meta property="article:modified_time" content="2024-01-14T16:45:13+08:00" />
+<meta itemprop="name" content="Go 加密解密算法">
+<meta itemprop="description" content="Go 加密解密算法总结 加密解密在实际开发中应用比较广泛，常用加解密分为：“对称式”、“非对称式”和”数字签名“。 对称式：对称加密(也叫私钥加密)">
+<meta itemprop="datePublished" content="2024-01-14T16:45:13&#43;08:00" />
+<meta itemprop="dateModified" content="2024-01-14T16:45:13&#43;08:00" />
+<meta itemprop="wordCount" content="1686">
+
+
+
+<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Go 加密解密算法"/>
+<meta name="twitter:description" content="Go 加密解密算法总结 加密解密在实际开发中应用比较广泛，常用加解密分为：“对称式”、“非对称式”和”数字签名“。 对称式：对称加密(也叫私钥加密)"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Go 加密解密算法</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-01-14 </span>
+        <div class="post-category">
+            <a href="/categories/golang/"> golang </a>
+            </div>
+          <span class="more-meta"> 1686 words </span>
+          <span class="more-meta"> 4 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#md5">md5</a></li>
+    <li><a href="#hmac">hmac</a></li>
+    <li><a href="#sha1">sha1</a></li>
+    <li><a href="#aes">AES</a></li>
+    <li><a href="#rsa">RSA</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p><a href="https://segmentfault.com/a/1190000024557845">Go 加密解密算法总结</a></p>
+</blockquote>
+<p>加密解密在实际开发中应用比较广泛，常用加解密分为：“对称式”、“非对称式”和”数字签名“。</p>
+<ul>
+<li>
+<p><strong>对称式</strong>：对称加密(也叫私钥加密)指加密和解密使用相同密钥的加密算法。具体算法主要有DES算法，3DES算法，TDEA算法，Blowfish算法，RC5算法，IDEA算法。</p>
+</li>
+<li>
+<p><strong>非对称加密(公钥加密)</strong>：指加密和解密使用不同密钥的加密算法，也称为公私钥加密。具体算法主要有RSA、Elgamal、背包算法、Rabin、D-H、ECC（椭圆曲线加密算法）。</p>
+</li>
+<li>
+<p>数字签名：数字签名是非对称密钥加密技术与数字摘要技术的应用。主要算法有md5、hmac、sha1等。</p>
+</li>
+</ul>
+<p>以下介绍golang语言主要的加密解密算法实现。</p>
+<h2 id="md5">md5</h2>
+<p>MD5信息摘要算法是一种被广泛使用的密码散列函数，可以产生出一个128位（16进制，32个字符）的散列值（hash value），用于确保信息传输完整一致。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">GetMd5String</span><span class="p">(</span><span class="nx">s</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="nx">h</span> <span class="o">:=</span> <span class="nx">md5</span><span class="p">.</span><span class="nf">New</span><span class="p">()</span>
+    <span class="nx">h</span><span class="p">.</span><span class="nf">Write</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">s</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nx">hex</span><span class="p">.</span><span class="nf">EncodeToString</span><span class="p">(</span><span class="nx">h</span><span class="p">.</span><span class="nf">Sum</span><span class="p">(</span><span class="kc">nil</span><span class="p">))</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="hmac">hmac</h2>
+<p>HMAC是密钥相关的哈希运算消息认证码（Hash-based Message Authentication Code）的缩写，</p>
+<p>它通过一个标准算法，在计算哈希的过程中，把key混入计算过程中。</p>
+<p>和我们自定义的加salt算法不同，Hmac算法针对所有哈希算法都通用，无论是MD5还是SHA-1。采用Hmac替代我们自己的salt算法，可以使程序算法更标准化，也更安全。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">//key随意设置 data 要加密数据
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">Hmac</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">data</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="nx">hash</span><span class="o">:=</span> <span class="nx">hmac</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">md5</span><span class="p">.</span><span class="nx">New</span><span class="p">,</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">key</span><span class="p">))</span> <span class="c1">// 创建对应的md5哈希加密算法
+</span><span class="c1"></span>    <span class="nx">hash</span><span class="p">.</span><span class="nf">Write</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">data</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nx">hex</span><span class="p">.</span><span class="nf">EncodeToString</span><span class="p">(</span><span class="nx">hash</span><span class="p">.</span><span class="nf">Sum</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;&#34;</span><span class="p">)))</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="nf">HmacSha256</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">data</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="nx">hash</span><span class="o">:=</span> <span class="nx">hmac</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">sha256</span><span class="p">.</span><span class="nx">New</span><span class="p">,</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">key</span><span class="p">))</span> <span class="c1">//创建对应的sha256哈希加密算法
+</span><span class="c1"></span>    <span class="nx">hash</span><span class="p">.</span><span class="nf">Write</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">data</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nx">hex</span><span class="p">.</span><span class="nf">EncodeToString</span><span class="p">(</span><span class="nx">hash</span><span class="p">.</span><span class="nf">Sum</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;&#34;</span><span class="p">)))</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="sha1">sha1</h2>
+<p>SHA-1可以生成一个被称为消息摘要的160位（20字节）散列值，散列值通常的呈现形式为40个十六进制数。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">Sha1</span><span class="p">(</span><span class="nx">data</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="nx">sha1</span> <span class="o">:=</span> <span class="nx">sha1</span><span class="p">.</span><span class="nf">New</span><span class="p">()</span>
+    <span class="nx">sha1</span><span class="p">.</span><span class="nf">Write</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">data</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nx">hex</span><span class="p">.</span><span class="nf">EncodeToString</span><span class="p">(</span><span class="nx">sha1</span><span class="p">.</span><span class="nf">Sum</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;&#34;</span><span class="p">)))</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="aes">AES</h2>
+<p>密码学中的高级加密标准（Advanced Encryption Standard，AES），又称Rijndael加密法，是美国联邦政府采用的一种区块加密标准。这个标准用来替代原先的DES（Data Encryption Standard），已经被多方分析且广为全世界所使用。AES中常见的有三种解决方案，分别为AES-128、AES-192和AES-256。如果采用真正的128位加密技术甚至256位加密技术，蛮力攻击要取得成功需要耗费相当长的时间。</p>
+<p>AES 有五种加密模式：</p>
+<ul>
+<li>电码本模式（Electronic Codebook Book (ECB)）、</li>
+<li>密码分组链接模式（Cipher Block Chaining (CBC)）、</li>
+<li>计算器模式（Counter (CTR)）、</li>
+<li>密码反馈模式（Cipher FeedBack (CFB)）</li>
+<li>输出反馈模式（Output FeedBack (OFB)）</li>
+</ul>
+<p>CRT模式</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+    <span class="s">&#34;bytes&#34;</span>
+    <span class="s">&#34;crypto/aes&#34;</span>
+    <span class="s">&#34;crypto/cipher&#34;</span>
+    <span class="s">&#34;fmt&#34;</span>
+<span class="p">)</span>
+<span class="c1">//加密
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">aesCtrCrypt</span><span class="p">(</span><span class="nx">plainText</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">key</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="c1">//1. 创建cipher.Block接口
+</span><span class="c1"></span>    <span class="nx">block</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">aes</span><span class="p">.</span><span class="nf">NewCipher</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+    <span class="p">}</span>
+    <span class="c1">//2. 创建分组模式，在crypto/cipher包中
+</span><span class="c1"></span>    <span class="nx">iv</span> <span class="o">:=</span> <span class="nx">bytes</span><span class="p">.</span><span class="nf">Repeat</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;1&#34;</span><span class="p">),</span> <span class="nx">block</span><span class="p">.</span><span class="nf">BlockSize</span><span class="p">())</span>
+    <span class="nx">stream</span> <span class="o">:=</span> <span class="nx">cipher</span><span class="p">.</span><span class="nf">NewCTR</span><span class="p">(</span><span class="nx">block</span><span class="p">,</span> <span class="nx">iv</span><span class="p">)</span>
+    <span class="c1">//3. 加密
+</span><span class="c1"></span>    <span class="nx">dst</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="nx">plainText</span><span class="p">))</span>
+    <span class="nx">stream</span><span class="p">.</span><span class="nf">XORKeyStream</span><span class="p">(</span><span class="nx">dst</span><span class="p">,</span> <span class="nx">plainText</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nx">dst</span><span class="p">,</span> <span class="kc">nil</span>
+<span class="p">}</span>
+
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">source</span><span class="o">:=</span><span class="s">&#34;hello world&#34;</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;原字符：&#34;</span><span class="p">,</span><span class="nx">source</span><span class="p">)</span>
+
+    <span class="nx">key</span><span class="o">:=</span><span class="s">&#34;1443flfsaWfdasds&#34;</span>
+    <span class="nx">encryptCode</span><span class="p">,</span><span class="nx">_</span><span class="o">:=</span><span class="nf">aesCtrCrypt</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">source</span><span class="p">),[]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">key</span><span class="p">))</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;密文：&#34;</span><span class="p">,</span><span class="nb">string</span><span class="p">(</span><span class="nx">encryptCode</span><span class="p">))</span>
+
+    <span class="nx">decryptCode</span><span class="p">,</span><span class="nx">_</span><span class="o">:=</span><span class="nf">aesCtrCrypt</span><span class="p">(</span><span class="nx">encryptCode</span><span class="p">,[]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">key</span><span class="p">))</span>
+
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;解密：&#34;</span><span class="p">,</span><span class="nb">string</span><span class="p">(</span><span class="nx">decryptCode</span><span class="p">))</span>
+<span class="p">}</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>更多示例：https://gitee.com/piao/go-utils/tree/master/crypto</p>
+<h2 id="rsa">RSA</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+    <span class="s">&#34;crypto/rand&#34;</span>
+    <span class="s">&#34;crypto/rsa&#34;</span>
+    <span class="s">&#34;crypto/x509&#34;</span>
+    <span class="s">&#34;encoding/base64&#34;</span>
+    <span class="s">&#34;encoding/pem&#34;</span>
+    <span class="s">&#34;errors&#34;</span>
+    <span class="s">&#34;fmt&#34;</span>
+<span class="p">)</span>
+
+<span class="c1">// 私钥生成
+</span><span class="c1">//openssl genrsa -out rsa_private_key.pem 1024
+</span><span class="c1"></span><span class="kd">var</span> <span class="nx">privateKey</span> <span class="p">=</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="s">`
+</span><span class="s">-----BEGIN RSA PRIVATE KEY-----
+</span><span class="s">MIICWwIBAAKBgQDcGsUIIAINHfRTdMmgGwLrjzfMNSrtgIf4EGsNaYwmC1GjF/bM
+</span><span class="s">h0Mcm10oLhNrKNYCTTQVGGIxuc5heKd1gOzb7bdTnCDPPZ7oV7p1B9Pud+6zPaco
+</span><span class="s">qDz2M24vHFWYY2FbIIJh8fHhKcfXNXOLovdVBE7Zy682X1+R1lRK8D+vmQIDAQAB
+</span><span class="s">AoGAeWAZvz1HZExca5k/hpbeqV+0+VtobMgwMs96+U53BpO/VRzl8Cu3CpNyb7HY
+</span><span class="s">64L9YQ+J5QgpPhqkgIO0dMu/0RIXsmhvr2gcxmKObcqT3JQ6S4rjHTln49I2sYTz
+</span><span class="s">7JEH4TcplKjSjHyq5MhHfA+CV2/AB2BO6G8limu7SheXuvECQQDwOpZrZDeTOOBk
+</span><span class="s">z1vercawd+J9ll/FZYttnrWYTI1sSF1sNfZ7dUXPyYPQFZ0LQ1bhZGmWBZ6a6wd9
+</span><span class="s">R+PKlmJvAkEA6o32c/WEXxW2zeh18sOO4wqUiBYq3L3hFObhcsUAY8jfykQefW8q
+</span><span class="s">yPuuL02jLIajFWd0itjvIrzWnVmoUuXydwJAXGLrvllIVkIlah+lATprkypH3Gyc
+</span><span class="s">YFnxCTNkOzIVoXMjGp6WMFylgIfLPZdSUiaPnxby1FNM7987fh7Lp/m12QJAK9iL
+</span><span class="s">2JNtwkSR3p305oOuAz0oFORn8MnB+KFMRaMT9pNHWk0vke0lB1sc7ZTKyvkEJW0o
+</span><span class="s">eQgic9DvIYzwDUcU8wJAIkKROzuzLi9AvLnLUrSdI6998lmeYO9x7pwZPukz3era
+</span><span class="s">zncjRK3pbVkv0KrKfczuJiRlZ7dUzVO0b6QJr8TRAA==
+</span><span class="s">-----END RSA PRIVATE KEY-----
+</span><span class="s">`</span><span class="p">)</span>
+
+<span class="c1">// 公钥: 根据私钥生成
+</span><span class="c1">//openssl rsa -in rsa_private_key.pem -pubout -out rsa_public_key.pem
+</span><span class="c1"></span><span class="kd">var</span> <span class="nx">publicKey</span> <span class="p">=</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="s">`
+</span><span class="s">-----BEGIN PUBLIC KEY-----
+</span><span class="s">MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDcGsUIIAINHfRTdMmgGwLrjzfM
+</span><span class="s">NSrtgIf4EGsNaYwmC1GjF/bMh0Mcm10oLhNrKNYCTTQVGGIxuc5heKd1gOzb7bdT
+</span><span class="s">nCDPPZ7oV7p1B9Pud+6zPacoqDz2M24vHFWYY2FbIIJh8fHhKcfXNXOLovdVBE7Z
+</span><span class="s">y682X1+R1lRK8D+vmQIDAQAB
+</span><span class="s">-----END PUBLIC KEY-----
+</span><span class="s">`</span><span class="p">)</span>
+
+<span class="c1">// 加密
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">RsaEncrypt</span><span class="p">(</span><span class="nx">origData</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">//解密pem格式的公钥
+</span><span class="c1"></span>    <span class="nx">block</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">pem</span><span class="p">.</span><span class="nf">Decode</span><span class="p">(</span><span class="nx">publicKey</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">block</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;public key error&#34;</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="c1">// 解析公钥
+</span><span class="c1"></span>    <span class="nx">pubInterface</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">x509</span><span class="p">.</span><span class="nf">ParsePKIXPublicKey</span><span class="p">(</span><span class="nx">block</span><span class="p">.</span><span class="nx">Bytes</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+    <span class="p">}</span>
+    <span class="c1">// 类型断言
+</span><span class="c1"></span>    <span class="nx">pub</span> <span class="o">:=</span> <span class="nx">pubInterface</span><span class="p">.(</span><span class="o">*</span><span class="nx">rsa</span><span class="p">.</span><span class="nx">PublicKey</span><span class="p">)</span>
+    <span class="c1">//加密
+</span><span class="c1"></span>    <span class="k">return</span> <span class="nx">rsa</span><span class="p">.</span><span class="nf">EncryptPKCS1v15</span><span class="p">(</span><span class="nx">rand</span><span class="p">.</span><span class="nx">Reader</span><span class="p">,</span> <span class="nx">pub</span><span class="p">,</span> <span class="nx">origData</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// 解密
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">RsaDecrypt</span><span class="p">(</span><span class="nx">ciphertext</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">//解密
+</span><span class="c1"></span>    <span class="nx">block</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">pem</span><span class="p">.</span><span class="nf">Decode</span><span class="p">(</span><span class="nx">privateKey</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">block</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;private key error!&#34;</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="c1">//解析PKCS1格式的私钥
+</span><span class="c1"></span>    <span class="nx">priv</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">x509</span><span class="p">.</span><span class="nf">ParsePKCS1PrivateKey</span><span class="p">(</span><span class="nx">block</span><span class="p">.</span><span class="nx">Bytes</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+    <span class="p">}</span>
+    <span class="c1">// 解密
+</span><span class="c1"></span>    <span class="k">return</span> <span class="nx">rsa</span><span class="p">.</span><span class="nf">DecryptPKCS1v15</span><span class="p">(</span><span class="nx">rand</span><span class="p">.</span><span class="nx">Reader</span><span class="p">,</span> <span class="nx">priv</span><span class="p">,</span> <span class="nx">ciphertext</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">data</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nf">RsaEncrypt</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;hello world&#34;</span><span class="p">))</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">base64</span><span class="p">.</span><span class="nx">StdEncoding</span><span class="p">.</span><span class="nf">EncodeToString</span><span class="p">(</span><span class="nx">data</span><span class="p">))</span>
+    <span class="nx">origData</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nf">RsaDecrypt</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">origData</span><span class="p">))</span>
+<span class="p">}</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://missing-semester-cn.github.io/2020/security/">安全和密码学</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-01-14
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/golang/">golang</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/tool/20240114-nginx-reverse-proxy/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Nginx反向代理之路径替换</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/golang/20240114-embed/">
+            <span class="next-text nav-default">Go 1.16新特性-embed包及其使用</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'Go 加密解密算法',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

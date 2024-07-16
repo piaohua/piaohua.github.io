@@ -49,7 +49,7 @@
 <meta itemprop="description" content="MySQL INSERT/INSERT &hellip; ON DUPLICATE KEY UPDATE Affected Rows 问题 问题描述 在INSERT/INSERT ... ON DUPLICATE KEY UPDATE操作时, 会存在MySQL连接client_flag是否设置CL">
 <meta itemprop="datePublished" content="2020-08-05T21:27:39&#43;08:00" />
 <meta itemprop="dateModified" content="2020-08-05T21:27:39&#43;08:00" />
-<meta itemprop="wordCount" content="487">
+<meta itemprop="wordCount" content="496">
 
 
 
@@ -133,7 +133,7 @@
         <div class="post-category">
             <a href="/categories/mysql/"> mysql </a>
             </div>
-          <span class="more-meta"> 487 words </span>
+          <span class="more-meta"> 496 words </span>
           <span class="more-meta"> 1 min read </span>
         
       </div>
@@ -173,10 +173,10 @@ CLIENT_FOUND_ROWS 表示返回匹配到的行数，而不是更改的行数；</
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-mysql" data-lang="mysql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">test_table</span><span class="o">`</span> <span class="p">(</span>
-  <span class="o">`</span><span class="n">id</span><span class="o">`</span> <span class="kt">int</span> <span class="k">unsigned</span> <span class="k">NOT</span> <span class="no">NULL</span> <span class="kp">AUTO_INCREMENT</span> <span class="k">PRIMARY</span> <span class="k">KEY</span><span class="p">,</span>
-  <span class="o">`</span><span class="n">name</span><span class="o">`</span> <span class="kt">varchar</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="k">NOT</span> <span class="no">NULL</span>
- <span class="p">)</span> <span class="n">COMMENT</span><span class="o">=</span><span class="s1">&#39;test&#39;</span> <span class="kp">ENGINE</span><span class="o">=</span><span class="s1">&#39;InnoDB&#39;</span><span class="p">;</span>
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">test_table</span><span class="o">`</span> <span class="p">(</span>
+  <span class="o">`</span><span class="n">id</span><span class="o">`</span> <span class="nb">int</span> <span class="n">unsigned</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="n">AUTO_INCREMENT</span> <span class="k">PRIMARY</span> <span class="k">KEY</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">name</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span>
+ <span class="p">)</span> <span class="k">COMMENT</span><span class="o">=</span><span class="s1">&#39;test&#39;</span> <span class="n">ENGINE</span><span class="o">=</span><span class="s1">&#39;InnoDB&#39;</span><span class="p">;</span>
 
 <span class="k">INSERT</span> <span class="k">INTO</span> <span class="o">`</span><span class="n">test_table</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">name</span><span class="o">`</span><span class="p">)</span> <span class="k">VALUES</span> <span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;Jane&#39;</span><span class="p">);</span>
 </code></pre></td></tr></table>
@@ -184,36 +184,48 @@ CLIENT_FOUND_ROWS 表示返回匹配到的行数，而不是更改的行数；</
 </div><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-mysql" data-lang="mysql"><span class="k">UPDATE</span> <span class="n">test_table</span> <span class="kt">SET</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Tom&#39;</span> <span class="k">WHERE</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">UPDATE</span> <span class="n">test_table</span> <span class="k">SET</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Tom&#39;</span> <span class="k">WHERE</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="n">Query</span> <span class="n">OK</span><span class="p">,</span> <span class="mi">1</span> <span class="k">row</span> <span class="n">affected</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+<span class="k">Rows</span> <span class="n">matched</span><span class="p">:</span> <span class="mi">1</span>  <span class="n">Changed</span><span class="p">:</span> <span class="mi">1</span>  <span class="n">Warnings</span><span class="p">:</span> <span class="mi">0</span>
 </code></pre></td></tr></table>
 </div>
-</div><p>Query OK, 1 row affected (0.00 sec)</p>
-<p>Rows matched: 1  Changed: 1  Warnings: 0</p>
-<div class="highlight"><div class="chroma">
+</div><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-mysql" data-lang="mysql"><span class="k">UPDATE</span> <span class="n">test_table</span> <span class="kt">SET</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Tom&#39;</span> <span class="k">WHERE</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">UPDATE</span> <span class="n">test_table</span> <span class="k">SET</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Tom&#39;</span> <span class="k">WHERE</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="n">Query</span> <span class="n">OK</span><span class="p">,</span> <span class="mi">0</span> <span class="k">rows</span> <span class="n">affected</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+<span class="k">Rows</span> <span class="n">matched</span><span class="p">:</span> <span class="mi">1</span>  <span class="n">Changed</span><span class="p">:</span> <span class="mi">0</span>  <span class="n">Warnings</span><span class="p">:</span> <span class="mi">0</span>
 </code></pre></td></tr></table>
 </div>
-</div><p>Query OK, 0 rows affected (0.00 sec)</p>
-<p>Rows matched: 1  Changed: 0  Warnings: 0</p>
-<p>当重复更新返回结果中 affected rows 是0</p>
+</div><p>当重复更新返回结果中 affected rows 是0</p>
 <h2 id="设置连接">设置连接</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-mysql" data-lang="mysql"><span class="k">UPDATE</span> <span class="n">test_table</span> <span class="kt">SET</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Tom&#39;</span> <span class="k">WHERE</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">UPDATE</span> <span class="n">test_table</span> <span class="k">SET</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Tom&#39;</span> <span class="k">WHERE</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="n">Query</span> <span class="n">OK</span><span class="p">,</span> <span class="mi">1</span> <span class="k">rows</span> <span class="n">affected</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+<span class="k">Rows</span> <span class="n">matched</span><span class="p">:</span> <span class="mi">1</span>  <span class="n">Changed</span><span class="p">:</span> <span class="mi">0</span>  <span class="n">Warnings</span><span class="p">:</span> <span class="mi">0</span>
 </code></pre></td></tr></table>
 </div>
-</div><p>Query OK, 1 rows affected (0.00 sec)</p>
-<p>Rows matched: 1  Changed: 0  Warnings: 0</p>
-<p>当连接时client_flag参数设置了CLIENT_FOUND_ROWS时重复更新返回结果中 affected rows 是1</p>
+</div><p>当连接时client_flag参数设置了CLIENT_FOUND_ROWS时重复更新返回结果中 affected rows 是1</p>
 <p>matched信息是通过info字段返回,和错误信息一样</p>
 <pre><code>affected_rows: 1
 last_insert_id: 0
@@ -301,7 +313,7 @@ the affected-rows value is the number of rows “found”; that is, matched by t
 
     <footer id="footer" class="footer">
       <div class="social-links">
-      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
       <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
       <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
       <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
@@ -334,7 +346,7 @@ the affected-rows value is the number of rows “found”; that is, matched by t
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2023
+    2024
     <span class="heart">
       <i class="iconfont icon-heart"></i>
     </span>

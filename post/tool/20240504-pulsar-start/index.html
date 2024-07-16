@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Pulsar Docker中启动和golang使用示例 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="在Docker中启动用于学习 在Docker中启动 以独立模式standalone启动 Pulsar 1 2 3 4 5 6 7 docker run -it \ -p 6650:6650 \ -p 8080:8080 \ --mount source=pulsardata,target=/pulsar/data \ --mount source=pulsarconf,target=/pulsar/conf \ apachepulsar/pulsar:3.2.2 \ bin/pulsar standalone 启" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/tool/20240504-pulsar-start/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Pulsar Docker中启动和golang使用示例" />
+<meta property="og:description" content="在Docker中启动用于学习 在Docker中启动 以独立模式standalone启动 Pulsar 1 2 3 4 5 6 7 docker run -it \ -p 6650:6650 \ -p 8080:8080 \ --mount source=pulsardata,target=/pulsar/data \ --mount source=pulsarconf,target=/pulsar/conf \ apachepulsar/pulsar:3.2.2 \ bin/pulsar standalone 启" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/tool/20240504-pulsar-start/" />
+<meta property="article:published_time" content="2024-05-04T14:11:59+08:00" />
+<meta property="article:modified_time" content="2024-05-04T14:11:59+08:00" />
+<meta itemprop="name" content="Pulsar Docker中启动和golang使用示例">
+<meta itemprop="description" content="在Docker中启动用于学习 在Docker中启动 以独立模式standalone启动 Pulsar 1 2 3 4 5 6 7 docker run -it \ -p 6650:6650 \ -p 8080:8080 \ --mount source=pulsardata,target=/pulsar/data \ --mount source=pulsarconf,target=/pulsar/conf \ apachepulsar/pulsar:3.2.2 \ bin/pulsar standalone 启">
+<meta itemprop="datePublished" content="2024-05-04T14:11:59&#43;08:00" />
+<meta itemprop="dateModified" content="2024-05-04T14:11:59&#43;08:00" />
+<meta itemprop="wordCount" content="1905">
+
+
+
+<meta itemprop="keywords" content="pulsar,golang,docker,python,colima," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Pulsar Docker中启动和golang使用示例"/>
+<meta name="twitter:description" content="在Docker中启动用于学习 在Docker中启动 以独立模式standalone启动 Pulsar 1 2 3 4 5 6 7 docker run -it \ -p 6650:6650 \ -p 8080:8080 \ --mount source=pulsardata,target=/pulsar/data \ --mount source=pulsarconf,target=/pulsar/conf \ apachepulsar/pulsar:3.2.2 \ bin/pulsar standalone 启"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Pulsar Docker中启动和golang使用示例</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-05-04 </span>
+        <div class="post-category">
+            <a href="/categories/pulsar/"> pulsar </a>
+            </div>
+          <span class="more-meta"> 1905 words </span>
+          <span class="more-meta"> 4 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#在docker中启动">在Docker中启动</a></li>
+    <li><a href="#使用python客户端">使用python客户端</a>
+      <ul>
+        <li><a href="#consume-a-message">Consume a message</a></li>
+        <li><a href="#produce-a-message">Produce a message</a></li>
+        <li><a href="#get-the-topic-statistics">Get the topic statistics</a></li>
+      </ul>
+    </li>
+    <li><a href="#topic">Topic</a></li>
+    <li><a href="#订阅消息模式">订阅消息模式</a></li>
+    <li><a href="#使用golang客户端">使用golang客户端</a>
+      <ul>
+        <li><a href="#create-a-producer">Create a Producer:</a></li>
+        <li><a href="#create-two-consumer">Create two Consumer:</a></li>
+        <li><a href="#运行结果">运行结果</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>在Docker中启动用于学习</p>
+</blockquote>
+<h2 id="在docker中启动">在Docker中启动</h2>
+<p>以独立模式<code>standalone</code>启动 Pulsar</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">docker run -it <span class="se">\
+</span><span class="se"></span>-p 6650:6650 <span class="se">\
+</span><span class="se"></span>-p 8080:8080 <span class="se">\
+</span><span class="se"></span>--mount <span class="nv">source</span><span class="o">=</span>pulsardata,target<span class="o">=</span>/pulsar/data <span class="se">\
+</span><span class="se"></span>--mount <span class="nv">source</span><span class="o">=</span>pulsarconf,target<span class="o">=</span>/pulsar/conf <span class="se">\
+</span><span class="se"></span>apachepulsar/pulsar:3.2.2 <span class="se">\
+</span><span class="se"></span>bin/pulsar standalone
+</code></pre></td></tr></table>
+</div>
+</div><p>启动后发现运行失败</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">docker ps -a
+CONTAINER ID   IMAGE                       COMMAND                   CREATED         STATUS                       PORTS     NAMES
+f4679e187635   apachepulsar/pulsar:3.2.2   <span class="s2">&#34;bin/pulsar standalo…&#34;</span>   <span class="m">2</span> minutes ago   Exited <span class="o">(</span>137<span class="o">)</span> <span class="m">2</span> minutes ago             stoic_liskov
+
+</code></pre></td></tr></table>
+</div>
+</div><p>显示退出信号是137，表示容器是被系统发送的SIGKILL信号所终止。</p>
+<p>这种情况一般是当前docker环境分配的资源有限而导致，比如内存和CPU资源不足，或者容器没有守护进程模式下运行。</p>
+<p>如果是资源不足，修改运行资源，比如：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">docker run -it --memory<span class="o">=</span>4g --cpus<span class="o">=</span><span class="m">4</span> <span class="se">\
+</span><span class="se"></span>-p 6650:6650 <span class="se">\
+</span><span class="se"></span>-p 8080:8080 <span class="se">\
+</span><span class="se"></span>--mount <span class="nv">source</span><span class="o">=</span>pulsardata,target<span class="o">=</span>/pulsar/data <span class="se">\
+</span><span class="se"></span>--mount <span class="nv">source</span><span class="o">=</span>pulsarconf,target<span class="o">=</span>/pulsar/conf <span class="se">\
+</span><span class="se"></span>apachepulsar/pulsar:3.2.2 <span class="se">\
+</span><span class="se"></span>bin/pulsar standalone
+</code></pre></td></tr></table>
+</div>
+</div><p>守护模式如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">docker run -d  f4679e187635  /bin/bash -c <span class="s1">&#39;while true; do sleep 1; done&#39;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>如果是通过colima运行的docker环境，可以这样修改</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">colima start --edit
+INFO<span class="o">[</span>0000<span class="o">]</span> editing in vim
+colima is currently running, restart to apply changes? <span class="o">[</span>y/N<span class="o">]</span> y
+INFO<span class="o">[</span>0013<span class="o">]</span> stopping colima
+INFO<span class="o">[</span>0013<span class="o">]</span> stopping ...                                  <span class="nv">context</span><span class="o">=</span>docker
+INFO<span class="o">[</span>0015<span class="o">]</span> stopping ...                                  <span class="nv">context</span><span class="o">=</span>vm
+INFO<span class="o">[</span>0019<span class="o">]</span> <span class="k">done</span>
+INFO<span class="o">[</span>0022<span class="o">]</span> starting colima
+INFO<span class="o">[</span>0022<span class="o">]</span> runtime: docker
+INFO<span class="o">[</span>0022<span class="o">]</span> starting ...                                  <span class="nv">context</span><span class="o">=</span>vm
+INFO<span class="o">[</span>0049<span class="o">]</span> provisioning ...                              <span class="nv">context</span><span class="o">=</span>docker
+INFO<span class="o">[</span>0050<span class="o">]</span> starting ...                                  <span class="nv">context</span><span class="o">=</span>docker
+INFO<span class="o">[</span>0054<span class="o">]</span> <span class="k">done</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>注意：修改后镜像和容器实例会被删除，需要重新拉取。</strong></p>
+<p>修改后的资源情况如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">colima list
+PROFILE      STATUS     ARCH      CPUS    MEMORY    DISK     RUNTIME    ADDRESS
+default      Running    x86_64    <span class="m">2</span>       4GiB      10GiB    docker
+</code></pre></td></tr></table>
+</div>
+</div><p>重启后重新运行镜像</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">docker ps -a
+CONTAINER ID   IMAGE                       COMMAND                   CREATED              STATUS              PORTS                                                                                  NAMES
+50fa87e4a200   apachepulsar/pulsar:3.2.2   <span class="s2">&#34;bin/pulsar standalo…&#34;</span>   About a minute ago   Up About a minute   0.0.0.0:6650-&gt;6650/tcp, :::6650-&gt;6650/tcp, 0.0.0.0:8080-&gt;8080/tcp, :::8080-&gt;8080/tcp   gifted_cohen
+
+docker images -a
+REPOSITORY            TAG       IMAGE ID       CREATED       SIZE
+apachepulsar/pulsar   3.2.2     821180a05a49   <span class="m">5</span> weeks ago   939MB
+</code></pre></td></tr></table>
+</div>
+</div><p>容器运行成功，当前Pulsar实例的交互URL：</p>
+<ul>
+<li>pulsar://localhost:6650</li>
+<li>http://localhost:8080</li>
+</ul>
+<h2 id="使用python客户端">使用python客户端</h2>
+<p>Install the Pulsar Python client library directly from <a href="https://pypi.org/project/pulsar-client/">PyPI</a>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">pip install pulsar-client
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="consume-a-message">Consume a message</h3>
+<p>Create a consumer and subscribe to the topic:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">import</span> <span class="nn">pulsar</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">pulsar</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s1">&#39;pulsar://localhost:6650&#39;</span><span class="p">)</span>
+<span class="n">consumer</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s1">&#39;my-topic&#39;</span><span class="p">,</span> <span class="n">subscription_name</span><span class="o">=</span><span class="s1">&#39;my-sub&#39;</span><span class="p">)</span>
+
+<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="n">consumer</span><span class="o">.</span><span class="n">receive</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;Received message: &#39;</span><span class="si">%s</span><span class="s2">&#39;&#34;</span> <span class="o">%</span> <span class="n">msg</span><span class="o">.</span><span class="n">data</span><span class="p">())</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="n">acknowledge</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+<span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="produce-a-message">Produce a message</h3>
+<p>Start a producer to send some test messages:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">import</span> <span class="nn">pulsar</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">pulsar</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s1">&#39;pulsar://localhost:6650&#39;</span><span class="p">)</span>
+<span class="n">producer</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_producer</span><span class="p">(</span><span class="s1">&#39;my-topic&#39;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+    <span class="n">producer</span><span class="o">.</span><span class="n">send</span><span class="p">((</span><span class="s1">&#39;hello-pulsar-</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+
+<span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="get-the-topic-statistics">Get the topic statistics</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">curl http://localhost:8080/admin/v2/persistent/public/default/my-topic/stats <span class="p">|</span> python -m json.tool
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="topic">Topic</h2>
+<p>消息数据的载体，在 Pulsar 中 Topic 可以指定分为多个 partition，如果不设置默认只有一个 partition。</p>
+<p>Topic命名URL定义：</p>
+<pre><code>{persistent|non-persistent}://tenant/namespace/topic
+</code></pre>
+<ul>
+<li>
+<p>persistent / non-persistent</p>
+<p>表示主题的类型，主题分为持久化和非持久化主题，默认是持久化的类型。持久化的主题会将消息保存到磁盘上，而非持久化的主题就不会将消息保存到磁盘。</p>
+</li>
+<li>
+<p>tenant</p>
+<p>Pulsar 实例中主题的租户，租户对于 Pulsar 中的多租户至关重要，并且分布在集群中。</p>
+</li>
+<li>
+<p>namespace</p>
+<p>将相关联的 Topic 作为一个组来管理，是管理 Topic 的基本单元。每个租户可以有一个或多个命名空间。</p>
+</li>
+<li>
+<p>topic</p>
+<p>Pulsar 中的主题被命名为通道，用于将消息从生产者传输到消费者。</p>
+</li>
+</ul>
+<h2 id="订阅消息模式">订阅消息模式</h2>
+<ul>
+<li>
+<p>独占模式(Exclusive)</p>
+<p>一个订阅只能与一个消费者关联，只有这个消费者可以接收到主题的全部消息，如果该消费者出现故障，消费过程将停止。</p>
+</li>
+<li>
+<p>共享模式(Shared)</p>
+<p>消息通过轮询机制（或自定义机制）分发给不同的消费者，每个消息只会被分发给一个消费者，如果消费者断开连接，所有发送给它但未被确认的消息将被重新分配给其他存活的消费者。</p>
+</li>
+<li>
+<p>灾备模式(Failover)</p>
+<p>当存在多个消费者时，消息将按字典顺序排序，第一个消费者将作为唯一接收消息的消费者，如果该消费者断开连接，所有未被确认的消息和后续的消息将重新分配给队列中的下一个消费者。</p>
+</li>
+<li>
+<p>键共享模式(Key_Shared)</p>
+<p>当存在多个消费者时，消息将根据其键进行分发，具有相同键的消息只会被分发到同一个消费者。</p>
+</li>
+</ul>
+<h2 id="使用golang客户端">使用golang客户端</h2>
+<p><a href="https://github.com/apache/pulsar-client-go">Go Client</a></p>
+<h3 id="create-a-producer">Create a Producer:</h3>
+<p>创建一个生产者，定时向指定的Topic发送消息</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+	<span class="s">&#34;fmt&#34;</span>
+	<span class="s">&#34;context&#34;</span>
+	<span class="s">&#34;time&#34;</span>
+
+	<span class="s">&#34;github.com/apache/pulsar-client-go/pulsar&#34;</span>
+<span class="p">)</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">client</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">pulsar</span><span class="p">.</span><span class="nf">NewClient</span><span class="p">(</span><span class="nx">pulsar</span><span class="p">.</span><span class="nx">ClientOptions</span><span class="p">{</span>
+		<span class="nx">URL</span><span class="p">:</span> <span class="s">&#34;pulsar://localhost:6650&#34;</span><span class="p">,</span>
+	<span class="p">})</span>
+
+	<span class="k">defer</span> <span class="nx">client</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+
+	<span class="nx">producer</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">CreateProducer</span><span class="p">(</span><span class="nx">pulsar</span><span class="p">.</span><span class="nx">ProducerOptions</span><span class="p">{</span>
+		<span class="nx">Topic</span><span class="p">:</span> <span class="s">&#34;my-topic&#34;</span><span class="p">,</span>
+	<span class="p">})</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Create producer failed&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+		<span class="k">return</span>
+	<span class="p">}</span>
+
+	<span class="k">defer</span> <span class="nx">producer</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+
+
+	<span class="nx">ctx</span><span class="p">,</span> <span class="nx">cancel</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">WithTimeout</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span>
+	<span class="k">defer</span> <span class="nf">cancel</span><span class="p">()</span>
+
+	<span class="nx">tick</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">NewTicker</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+	<span class="k">for</span> <span class="k">range</span> <span class="nx">tick</span><span class="p">.</span><span class="nx">C</span> <span class="p">{</span>
+		<span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">producer</span><span class="p">.</span><span class="nf">Send</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">pulsar</span><span class="p">.</span><span class="nx">ProducerMessage</span><span class="p">{</span>
+			<span class="nx">Payload</span><span class="p">:</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;hello&#34;</span><span class="p">),</span>
+		<span class="p">})</span>
+
+
+		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Failed to publish message&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+			<span class="k">break</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Published message&#34;</span><span class="p">)</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="create-two-consumer">Create two Consumer:</h3>
+<p>创建多个消费者，订阅模式为Shared，通过不同的订阅名称来负载均衡消息。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+	<span class="s">&#34;fmt&#34;</span>
+	<span class="s">&#34;log&#34;</span>
+	<span class="s">&#34;context&#34;</span>
+	<span class="s">&#34;time&#34;</span>
+
+	<span class="s">&#34;github.com/apache/pulsar-client-go/pulsar&#34;</span>
+<span class="p">)</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">client</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">pulsar</span><span class="p">.</span><span class="nf">NewClient</span><span class="p">(</span><span class="nx">pulsar</span><span class="p">.</span><span class="nx">ClientOptions</span><span class="p">{</span>
+		<span class="nx">URL</span><span class="p">:</span> <span class="s">&#34;pulsar://localhost:6650&#34;</span><span class="p">,</span>
+	<span class="p">})</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="k">defer</span> <span class="nx">client</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+
+	<span class="nx">ctx</span><span class="p">,</span> <span class="nx">cancel</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">WithTimeout</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span>
+	<span class="k">defer</span> <span class="nf">cancel</span><span class="p">()</span>
+
+	<span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+		<span class="nx">subName</span> <span class="o">:=</span> <span class="s">&#34;my-sub-1&#34;</span>
+		<span class="nx">consumer</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">Subscribe</span><span class="p">(</span><span class="nx">pulsar</span><span class="p">.</span><span class="nx">ConsumerOptions</span><span class="p">{</span>
+			<span class="nx">Topic</span><span class="p">:</span>            <span class="s">&#34;my-topic&#34;</span><span class="p">,</span>
+			<span class="nx">SubscriptionName</span><span class="p">:</span> <span class="nx">subName</span><span class="p">,</span>
+			<span class="nx">Type</span><span class="p">:</span>             <span class="nx">pulsar</span><span class="p">.</span><span class="nx">Shared</span><span class="p">,</span>
+		<span class="p">})</span>
+		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+			<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+		<span class="p">}</span>
+
+		<span class="k">defer</span> <span class="nx">consumer</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+
+		<span class="k">for</span> <span class="p">{</span>
+			<span class="k">select</span> <span class="p">{</span>
+			<span class="k">case</span> <span class="o">&lt;-</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">Done</span><span class="p">():</span>
+				<span class="k">return</span>
+			<span class="k">default</span><span class="p">:</span>
+			<span class="p">}</span>
+
+			<span class="nx">msg</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">consumer</span><span class="p">.</span><span class="nf">Receive</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">())</span>
+			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+				<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+			<span class="p">}</span>
+
+			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Sub: %s -- Received message msgId: %#v -- content: &#39;%s&#39;\n&#34;</span><span class="p">,</span>
+				<span class="nx">subName</span><span class="p">,</span> <span class="nx">msg</span><span class="p">.</span><span class="nf">ID</span><span class="p">(),</span> <span class="nb">string</span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nf">Payload</span><span class="p">()))</span>
+		<span class="p">}</span>
+	<span class="p">}()</span>
+
+	<span class="nx">subName</span> <span class="o">:=</span> <span class="s">&#34;my-sub-2&#34;</span>
+	<span class="nx">consumer</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">Subscribe</span><span class="p">(</span><span class="nx">pulsar</span><span class="p">.</span><span class="nx">ConsumerOptions</span><span class="p">{</span>
+		<span class="nx">Topic</span><span class="p">:</span>            <span class="s">&#34;my-topic&#34;</span><span class="p">,</span>
+		<span class="nx">SubscriptionName</span><span class="p">:</span> <span class="nx">subName</span><span class="p">,</span>
+		<span class="nx">Type</span><span class="p">:</span>             <span class="nx">pulsar</span><span class="p">.</span><span class="nx">Shared</span><span class="p">,</span>
+	<span class="p">})</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="k">defer</span> <span class="nx">consumer</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+
+	<span class="k">for</span> <span class="p">{</span>
+		<span class="k">select</span> <span class="p">{</span>
+		<span class="k">case</span> <span class="o">&lt;-</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">Done</span><span class="p">():</span>
+			<span class="k">return</span>
+		<span class="k">default</span><span class="p">:</span>
+		<span class="p">}</span>
+
+		<span class="nx">msg</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">consumer</span><span class="p">.</span><span class="nf">Receive</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">())</span>
+		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+			<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+		<span class="p">}</span>
+
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Sub: %s -- Received message msgId: %#v -- content: &#39;%s&#39;\n&#34;</span><span class="p">,</span>
+			<span class="nx">subName</span><span class="p">,</span> <span class="nx">msg</span><span class="p">.</span><span class="nf">ID</span><span class="p">(),</span> <span class="nb">string</span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nf">Payload</span><span class="p">()))</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="运行结果">运行结果</h3>
+<p>启动订阅</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">go run pulsar_consumer.go
+INFO<span class="o">[</span>0000<span class="o">]</span> Connecting to broker                          <span class="nv">remote_addr</span><span class="o">=</span><span class="s2">&#34;pulsar://localhost:6650&#34;</span>
+INFO<span class="o">[</span>0000<span class="o">]</span> TCP connection established                    <span class="nv">local_addr</span><span class="o">=</span><span class="s2">&#34;127.0.0.1:52714&#34;</span> <span class="nv">remote_addr</span><span class="o">=</span><span class="s2">&#34;pulsar://localhost:6650&#34;</span>
+INFO<span class="o">[</span>0000<span class="o">]</span> Connection is ready                           <span class="nv">local_addr</span><span class="o">=</span><span class="s2">&#34;127.0.0.1:52714&#34;</span> <span class="nv">remote_addr</span><span class="o">=</span><span class="s2">&#34;pulsar://localhost:6650&#34;</span>
+INFO<span class="o">[</span>0000<span class="o">]</span> Connected consumer                            <span class="nv">consumerID</span><span class="o">=</span><span class="m">2</span> <span class="nv">name</span><span class="o">=</span>lywal <span class="nv">subscription</span><span class="o">=</span>my-sub-1 <span class="nv">topic</span><span class="o">=</span><span class="s2">&#34;persistent://public/default/my-topic&#34;</span>
+INFO<span class="o">[</span>0000<span class="o">]</span> Created consumer                              <span class="nv">consumerID</span><span class="o">=</span><span class="m">2</span> <span class="nv">name</span><span class="o">=</span>lywal <span class="nv">subscription</span><span class="o">=</span>my-sub-1 <span class="nv">topic</span><span class="o">=</span><span class="s2">&#34;persistent://public/default/my-topic&#34;</span>
+INFO<span class="o">[</span>0000<span class="o">]</span> Connected consumer                            <span class="nv">consumerID</span><span class="o">=</span><span class="m">1</span> <span class="nv">name</span><span class="o">=</span>mtmoa <span class="nv">subscription</span><span class="o">=</span>my-sub-2 <span class="nv">topic</span><span class="o">=</span><span class="s2">&#34;persistent://public/default/my-topic&#34;</span>
+INFO<span class="o">[</span>0000<span class="o">]</span> Created consumer                              <span class="nv">consumerID</span><span class="o">=</span><span class="m">1</span> <span class="nv">name</span><span class="o">=</span>mtmoa <span class="nv">subscription</span><span class="o">=</span>my-sub-2 <span class="nv">topic</span><span class="o">=</span><span class="s2">&#34;persistent://public/default/my-topic&#34;</span>
+Sub: my-sub-1 -- Received message msgId: <span class="p">&amp;</span>pulsar.trackingMessageID<span class="o">{</span>messageID:<span class="o">(</span>*pulsar.messageID<span class="o">)(</span>0xc000222160<span class="o">)</span>, tracker:<span class="o">(</span>*pulsar.ackTracker<span class="o">)(</span>nil<span class="o">)</span>, consumer:<span class="o">(</span>*pulsar.partitionConsumer<span class="o">)(</span>0xc0000e8000<span class="o">)</span>, receivedTime:time.Time<span class="o">{</span>wall:0xc185a6e5906b8d60, ext:37137186794, loc:<span class="o">(</span>*time.Location<span class="o">)(</span>0x100b5c5c0<span class="o">)}}</span> -- content: <span class="s1">&#39;hello&#39;</span>
+Sub: my-sub-2 -- Received message msgId: <span class="p">&amp;</span>pulsar.trackingMessageID<span class="o">{</span>messageID:<span class="o">(</span>*pulsar.messageID<span class="o">)(</span>0xc000222140<span class="o">)</span>, tracker:<span class="o">(</span>*pulsar.ackTracker<span class="o">)(</span>nil<span class="o">)</span>, consumer:<span class="o">(</span>*pulsar.partitionConsumer<span class="o">)(</span>0xc00031fe00<span class="o">)</span>, receivedTime:time.Time<span class="o">{</span>wall:0xc185a6e5906b23e8, ext:37137159841, loc:<span class="o">(</span>*time.Location<span class="o">)(</span>0x100b5c5c0<span class="o">)}}</span> -- content: <span class="s1">&#39;hello&#39;</span>
+Sub: my-sub-1 -- Received message msgId: <span class="p">&amp;</span>pulsar.trackingMessageID<span class="o">{</span>messageID:<span class="o">(</span>*pulsar.messageID<span class="o">)(</span>0xc00002cda0<span class="o">)</span>, tracker:<span class="o">(</span>*pulsar.ackTracker<span class="o">)(</span>nil<span class="o">)</span>, consumer:<span class="o">(</span>*pulsar.partitionConsumer<span class="o">)(</span>0xc0000e8000<span class="o">)</span>, receivedTime:time.Time<span class="o">{</span>wall:0xc185a6e60b2cee70, ext:39049156028, loc:<span class="o">(</span>*time.Location<span class="o">)(</span>0x100b5c5c0<span class="o">)}}</span> -- content: <span class="s1">&#39;hello&#39;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>可以看到消息被均衡到不同订阅者，即每个消息只会被一个订阅者消费。</p>
+<p>启动生产消息</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">go run pulsar_producer.go
+INFO<span class="o">[</span>0000<span class="o">]</span> Connecting to broker                          <span class="nv">remote_addr</span><span class="o">=</span><span class="s2">&#34;pulsar://localhost:6650&#34;</span>
+INFO<span class="o">[</span>0000<span class="o">]</span> TCP connection established                    <span class="nv">local_addr</span><span class="o">=</span><span class="s2">&#34;127.0.0.1:52734&#34;</span> <span class="nv">remote_addr</span><span class="o">=</span><span class="s2">&#34;pulsar://localhost:6650&#34;</span>
+INFO<span class="o">[</span>0000<span class="o">]</span> Connection is ready                           <span class="nv">local_addr</span><span class="o">=</span><span class="s2">&#34;127.0.0.1:52734&#34;</span> <span class="nv">remote_addr</span><span class="o">=</span><span class="s2">&#34;pulsar://localhost:6650&#34;</span>
+INFO<span class="o">[</span>0000<span class="o">]</span> Connected producer                            <span class="nv">cnx</span><span class="o">=</span><span class="s2">&#34;127.0.0.1:52734 -&gt; 127.0.0.1:6650&#34;</span> <span class="nv">epoch</span><span class="o">=</span><span class="m">0</span> <span class="nv">topic</span><span class="o">=</span><span class="s2">&#34;persistent://public/default/my-topic&#34;</span>
+INFO<span class="o">[</span>0000<span class="o">]</span> Created producer                              <span class="nv">cnx</span><span class="o">=</span><span class="s2">&#34;127.0.0.1:52734 -&gt; 127.0.0.1:6650&#34;</span> <span class="nv">producerID</span><span class="o">=</span><span class="m">1</span> <span class="nv">producer_name</span><span class="o">=</span>standalone-0-1 <span class="nv">topic</span><span class="o">=</span><span class="s2">&#34;persistent://public/default/my-topic&#34;</span>
+Published message
+Published message
+Published message
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://pulsar.apache.org/docs/3.2.x/getting-started-docker/">Start Pulsar in Docker</a></li>
+<li><a href="https://pulsar.apache.org/docs/3.2.x/standalone-docker/">Set up a standalone Pulsar in Docker</a></li>
+<li><a href="https://blog.csdn.net/weixin_49015143/article/details/135079277">Pulsar详解1—简介 &amp; 基本概念（示例：Go语言）</a></li>
+<li><a href="https://segmentfault.com/a/1190000041096450?sort=votes">一文读懂 Apache Pulsar</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-05-04
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/pulsar/">pulsar</a>
+          <a href="/tags/golang/">golang</a>
+          <a href="/tags/docker/">docker</a>
+          <a href="/tags/python/">python</a>
+          <a href="/tags/colima/">colima</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/tool/20240505-helm/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[Helm] Kubernetes 包管理器</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/redis/20240501-rate/">
+            <span class="next-text nav-default">[Go] redis 限速器</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'Pulsar Docker中启动和golang使用示例',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

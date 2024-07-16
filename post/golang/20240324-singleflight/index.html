@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Go] 防缓存击穿利器 singleflight - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="Package singleflight provides a duplicate function call suppression mechanism. 原文： Go singleflight：防缓存击穿利器 Documentation 什么是缓存击穿 缓存击穿 是指在高并发的情况下，某个热点的 key 突然过期，导致大" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/golang/20240324-singleflight/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Go] 防缓存击穿利器 singleflight" />
+<meta property="og:description" content="Package singleflight provides a duplicate function call suppression mechanism. 原文： Go singleflight：防缓存击穿利器 Documentation 什么是缓存击穿 缓存击穿 是指在高并发的情况下，某个热点的 key 突然过期，导致大" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20240324-singleflight/" />
+<meta property="article:published_time" content="2024-03-24T18:02:35+08:00" />
+<meta property="article:modified_time" content="2024-03-24T18:02:35+08:00" />
+<meta itemprop="name" content="[Go] 防缓存击穿利器 singleflight">
+<meta itemprop="description" content="Package singleflight provides a duplicate function call suppression mechanism. 原文： Go singleflight：防缓存击穿利器 Documentation 什么是缓存击穿 缓存击穿 是指在高并发的情况下，某个热点的 key 突然过期，导致大">
+<meta itemprop="datePublished" content="2024-03-24T18:02:35&#43;08:00" />
+<meta itemprop="dateModified" content="2024-03-24T18:02:35&#43;08:00" />
+<meta itemprop="wordCount" content="1447">
+
+
+
+<meta itemprop="keywords" content="golang,cache," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Go] 防缓存击穿利器 singleflight"/>
+<meta name="twitter:description" content="Package singleflight provides a duplicate function call suppression mechanism. 原文： Go singleflight：防缓存击穿利器 Documentation 什么是缓存击穿 缓存击穿 是指在高并发的情况下，某个热点的 key 突然过期，导致大"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Go] 防缓存击穿利器 singleflight</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-03-24 </span>
+        <div class="post-category">
+            <a href="/categories/golang/"> golang </a>
+            <a href="/categories/cache/"> cache </a>
+            </div>
+          <span class="more-meta"> 1447 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#什么是缓存击穿">什么是缓存击穿</a>
+      <ul>
+        <li><a href="#常见的解决方案">常见的解决方案：</a></li>
+      </ul>
+    </li>
+    <li><a href="#singleflight">singleflight</a>
+      <ul>
+        <li><a href="#组成部分">组成部分</a></li>
+      </ul>
+    </li>
+    <li><a href="#使用示例">使用示例</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>Package singleflight provides a duplicate function call suppression mechanism.</p>
+</blockquote>
+<p>原文： <a href="https://mp.weixin.qq.com/s/deInGh6vuhlVcmIXJyofpw">Go singleflight：防缓存击穿利器</a></p>
+<p><a href="https://pkg.go.dev/golang.org/x/sync/singleflight">Documentation</a></p>
+<h2 id="什么是缓存击穿">什么是缓存击穿</h2>
+<p>缓存击穿 是指在高并发的情况下，某个热点的 key 突然过期，导致大量的请求直接访问数据库，造成数据库的压力过大，甚至宕机的现象。</p>
+<h3 id="常见的解决方案">常见的解决方案：</h3>
+<ul>
+<li>设置热点数据永不过期：对于一些确定的热点数据，可以将其设置为 永不过期，这样就可以确保不会因为缓存失效而导致请求直接访问数据库。</li>
+<li>设置互斥锁：为了防止缓存失效时所有请求同时查询数据库，可以采用锁机制确保仅有一个请求查询数据库并更新缓存，而其他请求则在缓存更新后再进行访问。</li>
+<li>提前更新：后台监控缓存的使用情况，当缓存即将过期时，异步更新缓存，延长过期时间。</li>
+</ul>
+<p><a href="../learn/20240324-cache">什么是缓存雪崩、缓存击穿、缓存穿透</a></p>
+<h2 id="singleflight">singleflight</h2>
+<p>singleflight 包提供了一种“重复函数调用抑制机制”。</p>
+<p>换句话说，当多个 goroutine 同时尝试调用同一个函数（基于某个给定的 key）时，singleflight 会确保该函数只会被第一个到达的 goroutine 调用，其他 goroutine 会等待这次调用的结果，然后共享这个结果，而不是同时发起多个调用。</p>
+<p>一句话概括就是 singleflight 将多个请求合并成一个请求，多个请求共享同一个结果。</p>
+<h3 id="组成部分">组成部分</h3>
+<ul>
+<li>
+<p>Group：这是 singleflight 包的核心结构体。它管理着所有的请求，确保同一时刻，对同一资源的请求只会被执行一次。Group 对象不需要显式创建，直接声明后即可使用。</p>
+</li>
+<li>
+<p>Do 方法：Group 结构体提供了 Do 方法，这是实现合并请求的主要方法，该方法接收两个参数：一个是字符串 key（用于标识请求资源），另一个是函数 fn，用来执行实际的任务。在调用 Do 方法时，如果已经有一个相同 key 的请求正在执行，那么 Do 方法会等待这个请求完成并共享结果，否则执行 fn 函数，然后返回结果。</p>
+<p>Do 方法有三个返回值，前两个返回值是 fn 函数的返回值，类型分别为 interface{} 和 error，最后一个返回值是一个 bool 类型，表示 Do 方法的返回结果是否被多个调用共享。</p>
+</li>
+<li>
+<p>DoChan：该方法与 Do 方法类似，但它返回的是一个通道，通道在操作完成时接收到结果。返回值是通道，意味着我们能以非阻塞的方式等待结果。</p>
+</li>
+<li>
+<p>Forget：该方法用于从 Group 中删除一个 key 以及相关的请求记录，确保下次用同一 key 调用 Do 时，将立即执行新请求，而不是复用之前的结果。</p>
+</li>
+<li>
+<p>Result：这是 DoChan 方法返回结果时所使用的结构体类型，用于封装请求的结果。这个结构体包含三个字段，具体如下：</p>
+<ul>
+<li>Val（interface{} 类型）：请求返回的结果。</li>
+<li>Err（error 类型）：请求过程中发生的错误信息。</li>
+<li>Shared（bool 类型）：表示这个结果是否被当前请求以外的其他请求共享。</li>
+</ul>
+</li>
+</ul>
+<h2 id="使用示例">使用示例</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// https://github.com/chenmingyong0423/blog/blob/master/tutorial-code/go/singleflight/usage/main.go
+</span><span class="c1"></span><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+    <span class="s">&#34;errors&#34;</span>
+    <span class="s">&#34;fmt&#34;</span>
+    <span class="s">&#34;sync&#34;</span>
+
+    <span class="s">&#34;golang.org/x/sync/singleflight&#34;</span>
+<span class="p">)</span>
+
+<span class="kd">var</span> <span class="nx">errRedisKeyNotFound</span> <span class="p">=</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;redis: key not found&#34;</span><span class="p">)</span>
+
+<span class="kd">func</span> <span class="nf">fetchDataFromCache</span><span class="p">()</span> <span class="p">(</span><span class="nx">any</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;fetch data from cache&#34;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errRedisKeyNotFound</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">fetchDataFromDataBase</span><span class="p">()</span> <span class="p">(</span><span class="nx">any</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;fetch data from database&#34;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s">&#34;value&#34;</span><span class="p">,</span> <span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">fetchData</span><span class="p">()</span> <span class="p">(</span><span class="nx">any</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">cache</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">fetchDataFromCache</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="o">&amp;&amp;</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">Is</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">errRedisKeyNotFound</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">errRedisKeyNotFound</span><span class="p">.</span><span class="nf">Error</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nf">fetchDataFromDataBase</span><span class="p">()</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">cache</span><span class="p">,</span> <span class="nx">err</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="p">(</span>
+        <span class="nx">sg</span> <span class="nx">singleflight</span><span class="p">.</span><span class="nx">Group</span>
+        <span class="nx">wg</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">WaitGroup</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="nx">_</span> <span class="k">range</span> <span class="mi">7</span> <span class="p">{</span>
+        <span class="nx">wg</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">defer</span> <span class="nx">wg</span><span class="p">.</span><span class="nf">Done</span><span class="p">()</span>
+
+            <span class="nx">v</span><span class="p">,</span> <span class="nx">err</span><span class="p">,</span> <span class="nx">shared</span> <span class="o">:=</span> <span class="nx">sg</span><span class="p">.</span><span class="nf">Do</span><span class="p">(</span><span class="s">&#34;key&#34;</span><span class="p">,</span> <span class="nx">fetchData</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+                <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+            <span class="p">}</span>
+            <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;v: %v, shared: %v\n&#34;</span><span class="p">,</span> <span class="nx">v</span><span class="p">,</span> <span class="nx">shared</span><span class="p">)</span>
+        <span class="p">}()</span>
+    <span class="p">}</span>
+    <span class="nx">wg</span><span class="p">.</span><span class="nf">Wait</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这段代码模拟了一个典型的并发访问场景：从缓存获取数据，若缓存未命中，则从数据库检索。在此过程中，singleflight 库起到了至关重要的作用。它确保在多个并发请求尝试同时获取相同数据时，实际的获取操作（不论是访问缓存还是查询数据库）只会执行一次。这样不仅减轻了数据库的压力，还有效防止了高并发环境下可能发生的缓存击穿问题。</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://mp.weixin.qq.com/s/deInGh6vuhlVcmIXJyofpw">Go singleflight：防缓存击穿利器</a></li>
+<li><a href="https://blog.csdn.net/qq_51898139/article/details/134242811">缓解缓存击穿的大杀器之&mdash;singleflight深入浅出</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/518370845">Go并发——singleflight</a></li>
+<li><a href="https://www.jianshu.com/p/cd7134b2f68e">singleflight使用及原理</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-03-24
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/golang/">golang</a>
+          <a href="/tags/cache/">cache</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/python/20240325-basic/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Python基础知识点及使用</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/learn/20240324-cache/">
+            <span class="next-text nav-default">什么是缓存雪崩、缓存击穿、缓存穿透</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: '[Go] 防缓存击穿利器 singleflight',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

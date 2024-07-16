@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[MySQL] delete in select 语句不走索引问题分析 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="delete in (select &amp;hellip;) 语句执行慢，delete语句不走索引。 在清理MySQL中的一些过期数据时，发现delete操作执行非常慢。 问题场景 需要清理的数据查询" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/mysql/20240111-delete-in-select/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[MySQL] delete in select 语句不走索引问题分析" />
+<meta property="og:description" content="delete in (select &hellip;) 语句执行慢，delete语句不走索引。 在清理MySQL中的一些过期数据时，发现delete操作执行非常慢。 问题场景 需要清理的数据查询" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20240111-delete-in-select/" />
+<meta property="article:published_time" content="2024-01-11T23:22:32+08:00" />
+<meta property="article:modified_time" content="2024-01-11T23:22:32+08:00" />
+<meta itemprop="name" content="[MySQL] delete in select 语句不走索引问题分析">
+<meta itemprop="description" content="delete in (select &hellip;) 语句执行慢，delete语句不走索引。 在清理MySQL中的一些过期数据时，发现delete操作执行非常慢。 问题场景 需要清理的数据查询">
+<meta itemprop="datePublished" content="2024-01-11T23:22:32&#43;08:00" />
+<meta itemprop="dateModified" content="2024-01-11T23:22:32&#43;08:00" />
+<meta itemprop="wordCount" content="1121">
+
+
+
+<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[MySQL] delete in select 语句不走索引问题分析"/>
+<meta name="twitter:description" content="delete in (select &hellip;) 语句执行慢，delete语句不走索引。 在清理MySQL中的一些过期数据时，发现delete操作执行非常慢。 问题场景 需要清理的数据查询"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[MySQL] delete in select 语句不走索引问题分析</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-01-11 </span>
+        <div class="post-category">
+            <a href="/categories/mysql/"> mysql </a>
+            </div>
+          <span class="more-meta"> 1121 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#问题场景">问题场景</a></li>
+    <li><a href="#问题分析">问题分析</a></li>
+    <li><a href="#优化方案">优化方案</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>delete in (select &hellip;) 语句执行慢，delete语句不走索引。</p>
+</blockquote>
+<p>在清理MySQL中的一些过期数据时，发现delete操作执行非常慢。</p>
+<h2 id="问题场景">问题场景</h2>
+<p>需要清理的数据查询统计结果如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">from</span> <span class="n">t_strategy_detail</span> <span class="k">where</span> <span class="n">id</span> <span class="k">in</span> <span class="p">(</span><span class="k">select</span> <span class="n">strategy</span> <span class="k">from</span> <span class="n">robots</span> <span class="k">where</span> <span class="n">stop_time</span><span class="o">&lt;</span><span class="mi">1699782290</span> <span class="k">AND</span> <span class="n">stop_kind</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">AND</span> <span class="n">stop_kind</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">);</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span> <span class="k">count</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span>   <span class="mi">503902</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">1</span><span class="p">.</span><span class="mi">75</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>开始以为是清理的数据太多导致，所以把清理范围缩小：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">from</span> <span class="n">t_strategy_detail</span> <span class="k">where</span> <span class="n">id</span> <span class="k">in</span> <span class="p">(</span><span class="k">select</span> <span class="n">strategy</span> <span class="k">from</span> <span class="n">robots</span> <span class="k">where</span> <span class="n">stop_time</span><span class="o">&lt;</span><span class="mi">1629782290</span> <span class="k">AND</span> <span class="n">stop_kind</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">AND</span> <span class="n">stop_kind</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">);</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span> <span class="k">count</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="o">|</span>     <span class="mi">1779</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+
+</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">01</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>缩小清理范围后，发现删除操作执行依然很慢，执行语句如下:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">delete</span> <span class="k">from</span> <span class="n">t_strategy_detail</span> <span class="k">where</span> <span class="n">id</span> <span class="k">in</span> <span class="p">(</span><span class="k">select</span> <span class="n">strategy</span> <span class="k">from</span> <span class="n">robots</span> <span class="k">where</span> <span class="n">stop_time</span><span class="o">&lt;</span><span class="mi">1629782290</span> <span class="k">AND</span> <span class="n">stop_kind</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">AND</span> <span class="n">stop_kind</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">);</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>这个时候意识到和数据大小无关，应该是执行语句存在问题，立即分析执行SQL。</p>
+<h2 id="问题分析">问题分析</h2>
+<p>执行计划分析结果如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">explain</span> <span class="k">delete</span> <span class="k">from</span> <span class="n">t_strategy_detail</span> <span class="k">where</span> <span class="n">id</span> <span class="k">in</span> <span class="p">(</span><span class="k">select</span> <span class="n">strategy</span> <span class="k">from</span> <span class="n">robots</span> <span class="k">where</span> <span class="n">stop_time</span><span class="o">&lt;</span><span class="mi">1629782290</span> <span class="k">AND</span> <span class="n">stop_kind</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">AND</span> <span class="n">stop_kind</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">);</span>
+<span class="o">+</span><span class="c1">----+--------------------+------------------+------------+-------+---------------------------------+-----------------+---------+------+--------+----------+------------------------------------+
+</span><span class="c1"></span><span class="o">|</span> <span class="n">id</span> <span class="o">|</span> <span class="n">select_type</span>        <span class="o">|</span> <span class="k">table</span>            <span class="o">|</span> <span class="n">partitions</span> <span class="o">|</span> <span class="k">type</span>  <span class="o">|</span> <span class="n">possible_keys</span>                   <span class="o">|</span> <span class="k">key</span>             <span class="o">|</span> <span class="n">key_len</span> <span class="o">|</span> <span class="k">ref</span>  <span class="o">|</span> <span class="k">rows</span>   <span class="o">|</span> <span class="n">filtered</span> <span class="o">|</span> <span class="n">Extra</span>                              <span class="o">|</span>
+<span class="o">+</span><span class="c1">----+--------------------+------------------+------------+-------+---------------------------------+-----------------+---------+------+--------+----------+------------------------------------+
+</span><span class="c1"></span><span class="o">|</span>  <span class="mi">1</span> <span class="o">|</span> <span class="k">DELETE</span>             <span class="o">|</span> <span class="n">t_strategy_detail</span> <span class="o">|</span> <span class="k">NULL</span>       <span class="o">|</span> <span class="k">ALL</span>   <span class="o">|</span> <span class="k">NULL</span>                            <span class="o">|</span> <span class="k">NULL</span>            <span class="o">|</span> <span class="k">NULL</span>    <span class="o">|</span> <span class="k">NULL</span> <span class="o">|</span> <span class="mi">454862</span> <span class="o">|</span>   <span class="mi">100</span><span class="p">.</span><span class="mi">00</span> <span class="o">|</span> <span class="k">Using</span> <span class="k">where</span>                        <span class="o">|</span>
+<span class="o">|</span>  <span class="mi">2</span> <span class="o">|</span> <span class="n">DEPENDENT</span> <span class="n">SUBQUERY</span> <span class="o">|</span> <span class="n">robots</span>           <span class="o">|</span> <span class="k">NULL</span>       <span class="o">|</span> <span class="n">range</span> <span class="o">|</span> <span class="n">index_stop_time</span><span class="p">,</span><span class="n">index_stop_kind</span> <span class="o">|</span> <span class="n">index_stop_time</span> <span class="o">|</span> <span class="mi">5</span>       <span class="o">|</span> <span class="k">NULL</span> <span class="o">|</span>   <span class="mi">2180</span> <span class="o">|</span>     <span class="mi">5</span><span class="p">.</span><span class="mi">00</span> <span class="o">|</span> <span class="k">Using</span> <span class="k">index</span> <span class="n">condition</span><span class="p">;</span> <span class="k">Using</span> <span class="k">where</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----+--------------------+------------------+------------+-------+---------------------------------+-----------------+---------+------+--------+----------+------------------------------------+
+</span><span class="c1"></span><span class="mi">2</span> <span class="k">rows</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>可以看到，子查询是有走索引的，可是delete语句是全表扫描，这是为什么呢，delete条件是主键匹配，为什么不走主键索引？</p>
+<p>把语句修改为查询操作分析，查询语句有走索引</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">explain</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">t_strategy_detail</span> <span class="k">where</span> <span class="n">id</span> <span class="k">in</span> <span class="p">(</span><span class="k">select</span> <span class="n">strategy</span> <span class="k">from</span> <span class="n">robots</span> <span class="k">where</span> <span class="n">stop_time</span><span class="o">&lt;</span><span class="mi">1629782290</span> <span class="k">AND</span> <span class="n">stop_kind</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">AND</span> <span class="n">stop_kind</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">);</span>
+
+<span class="o">+</span><span class="c1">----+--------------+------------------+------------+--------+---------------------------------+-----------------+---------+----------------------+------+----------+------------------------------------+
+</span><span class="c1"></span><span class="o">|</span> <span class="n">id</span> <span class="o">|</span> <span class="n">select_type</span>  <span class="o">|</span> <span class="k">table</span>            <span class="o">|</span> <span class="n">partitions</span> <span class="o">|</span> <span class="k">type</span>   <span class="o">|</span> <span class="n">possible_keys</span>                   <span class="o">|</span> <span class="k">key</span>             <span class="o">|</span> <span class="n">key_len</span> <span class="o">|</span> <span class="k">ref</span>                  <span class="o">|</span> <span class="k">rows</span> <span class="o">|</span> <span class="n">filtered</span> <span class="o">|</span> <span class="n">Extra</span>                              <span class="o">|</span>
+<span class="o">+</span><span class="c1">----+--------------+------------------+------------+--------+---------------------------------+-----------------+---------+----------------------+------+----------+------------------------------------+
+</span><span class="c1"></span><span class="o">|</span>  <span class="mi">1</span> <span class="o">|</span> <span class="k">SIMPLE</span>       <span class="o">|</span> <span class="o">&lt;</span><span class="n">subquery2</span><span class="o">&gt;</span>      <span class="o">|</span> <span class="k">NULL</span>       <span class="o">|</span> <span class="k">ALL</span>    <span class="o">|</span> <span class="k">NULL</span>                            <span class="o">|</span> <span class="k">NULL</span>            <span class="o">|</span> <span class="k">NULL</span>    <span class="o">|</span> <span class="k">NULL</span>                 <span class="o">|</span> <span class="k">NULL</span> <span class="o">|</span>   <span class="mi">100</span><span class="p">.</span><span class="mi">00</span> <span class="o">|</span> <span class="k">Using</span> <span class="k">where</span>                        <span class="o">|</span>
+<span class="o">|</span>  <span class="mi">1</span> <span class="o">|</span> <span class="k">SIMPLE</span>       <span class="o">|</span> <span class="n">t_strategy_detail</span> <span class="o">|</span> <span class="k">NULL</span>       <span class="o">|</span> <span class="n">eq_ref</span> <span class="o">|</span> <span class="k">PRIMARY</span>                         <span class="o">|</span> <span class="k">PRIMARY</span>         <span class="o">|</span> <span class="mi">4</span>       <span class="o">|</span> <span class="o">&lt;</span><span class="n">subquery2</span><span class="o">&gt;</span><span class="p">.</span><span class="n">strategy</span> <span class="o">|</span>    <span class="mi">1</span> <span class="o">|</span>   <span class="mi">100</span><span class="p">.</span><span class="mi">00</span> <span class="o">|</span> <span class="k">NULL</span>                               <span class="o">|</span>
+<span class="o">|</span>  <span class="mi">2</span> <span class="o">|</span> <span class="n">MATERIALIZED</span> <span class="o">|</span> <span class="n">robots</span>           <span class="o">|</span> <span class="k">NULL</span>       <span class="o">|</span> <span class="n">range</span>  <span class="o">|</span> <span class="n">index_stop_time</span><span class="p">,</span><span class="n">index_stop_kind</span> <span class="o">|</span> <span class="n">index_stop_time</span> <span class="o">|</span> <span class="mi">5</span>       <span class="o">|</span> <span class="k">NULL</span>                 <span class="o">|</span> <span class="mi">2181</span> <span class="o">|</span>    <span class="mi">50</span><span class="p">.</span><span class="mi">00</span> <span class="o">|</span> <span class="k">Using</span> <span class="k">index</span> <span class="n">condition</span><span class="p">;</span> <span class="k">Using</span> <span class="k">where</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----+--------------+------------------+------------+--------+---------------------------------+-----------------+---------+----------------------+------+----------+------------------------------------+
+</span><span class="c1"></span><span class="mi">3</span> <span class="k">rows</span> <span class="k">in</span> <span class="k">set</span><span class="p">,</span> <span class="mi">1</span> <span class="n">warning</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>修改为select后，可以看到主查询是走主键索引的。</p>
+<p>在网上找到一些相同的问题分析，问题原因大概是，MySQL对UPDATE，DELETE子查询的语句不会优化，推荐改为JOIN的方式执行。</p>
+<h2 id="优化方案">优化方案</h2>
+<p>还有一种简便的方案，就是给表加别名，加别名也会触发MySQL优化策略。</p>
+<p>优化方案执行计划分析结果如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">explain</span> <span class="k">delete</span> <span class="n">s</span> <span class="k">from</span> <span class="n">t_strategy_detail</span> <span class="k">as</span> <span class="n">s</span> <span class="k">where</span> <span class="n">s</span><span class="p">.</span><span class="n">id</span> <span class="k">in</span> <span class="p">(</span><span class="k">select</span> <span class="n">strategy</span> <span class="k">from</span> <span class="n">robots</span> <span class="k">where</span> <span class="n">stop_time</span><span class="o">&lt;</span><span class="mi">1629782290</span> <span class="k">AND</span> <span class="n">stop_kind</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">AND</span> <span class="n">stop_kind</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">);</span>
+<span class="o">+</span><span class="c1">----+--------------+-------------+------------+--------+---------------------------------+-----------------+---------+----------------------+------+----------+-------------+
+</span><span class="c1"></span><span class="o">|</span> <span class="n">id</span> <span class="o">|</span> <span class="n">select_type</span>  <span class="o">|</span> <span class="k">table</span>       <span class="o">|</span> <span class="n">partitions</span> <span class="o">|</span> <span class="k">type</span>   <span class="o">|</span> <span class="n">possible_keys</span>                   <span class="o">|</span> <span class="k">key</span>             <span class="o">|</span> <span class="n">key_len</span> <span class="o">|</span> <span class="k">ref</span>                  <span class="o">|</span> <span class="k">rows</span> <span class="o">|</span> <span class="n">filtered</span> <span class="o">|</span> <span class="n">Extra</span>       <span class="o">|</span>
+<span class="o">+</span><span class="c1">----+--------------+-------------+------------+--------+---------------------------------+-----------------+---------+----------------------+------+----------+-------------+
+</span><span class="c1"></span><span class="o">|</span>  <span class="mi">1</span> <span class="o">|</span> <span class="k">SIMPLE</span>       <span class="o">|</span> <span class="o">&lt;</span><span class="n">subquery2</span><span class="o">&gt;</span> <span class="o">|</span> <span class="k">NULL</span>       <span class="o">|</span> <span class="k">ALL</span>    <span class="o">|</span> <span class="k">NULL</span>                            <span class="o">|</span> <span class="k">NULL</span>            <span class="o">|</span> <span class="k">NULL</span>    <span class="o">|</span> <span class="k">NULL</span>                 <span class="o">|</span> <span class="k">NULL</span> <span class="o">|</span>   <span class="mi">100</span><span class="p">.</span><span class="mi">00</span> <span class="o">|</span> <span class="k">Using</span> <span class="k">where</span> <span class="o">|</span>
+<span class="o">|</span>  <span class="mi">1</span> <span class="o">|</span> <span class="k">DELETE</span>       <span class="o">|</span> <span class="n">s</span>           <span class="o">|</span> <span class="k">NULL</span>       <span class="o">|</span> <span class="n">eq_ref</span> <span class="o">|</span> <span class="k">PRIMARY</span>                         <span class="o">|</span> <span class="k">PRIMARY</span>         <span class="o">|</span> <span class="mi">4</span>       <span class="o">|</span> <span class="o">&lt;</span><span class="n">subquery2</span><span class="o">&gt;</span><span class="p">.</span><span class="n">strategy</span> <span class="o">|</span>    <span class="mi">1</span> <span class="o">|</span>   <span class="mi">100</span><span class="p">.</span><span class="mi">00</span> <span class="o">|</span> <span class="k">NULL</span>        <span class="o">|</span>
+<span class="o">|</span>  <span class="mi">2</span> <span class="o">|</span> <span class="n">MATERIALIZED</span> <span class="o">|</span> <span class="n">robots</span>      <span class="o">|</span> <span class="k">NULL</span>       <span class="o">|</span> <span class="n">range</span>  <span class="o">|</span> <span class="n">index_stop_time</span><span class="p">,</span><span class="n">index_stop_kind</span> <span class="o">|</span> <span class="n">index_stop_time</span> <span class="o">|</span> <span class="mi">5</span>       <span class="o">|</span> <span class="k">NULL</span>                 <span class="o">|</span> <span class="mi">2181</span> <span class="o">|</span>    <span class="mi">50</span><span class="p">.</span><span class="mi">00</span> <span class="o">|</span> <span class="k">Using</span> <span class="k">where</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----+--------------+-------------+------------+--------+---------------------------------+-----------------+---------+----------------------+------+----------+-------------+
+</span><span class="c1"></span><span class="mi">3</span> <span class="k">rows</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>可以看到delete操作是有走索引的。</p>
+<p>修改为别名后执行很快，执行结果如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">delete</span> <span class="n">s</span> <span class="k">from</span> <span class="n">t_strategy_detail</span> <span class="k">as</span> <span class="n">s</span> <span class="k">where</span> <span class="n">s</span><span class="p">.</span><span class="n">id</span> <span class="k">in</span> <span class="p">(</span><span class="k">select</span> <span class="n">strategy</span> <span class="k">from</span> <span class="n">robots</span> <span class="k">where</span> <span class="n">stop_time</span><span class="o">&lt;</span><span class="mi">1629782290</span> <span class="k">AND</span> <span class="n">stop_kind</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">AND</span> <span class="n">stop_kind</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">);</span>
+<span class="n">Query</span> <span class="n">OK</span><span class="p">,</span> <span class="mi">1779</span> <span class="k">rows</span> <span class="n">affected</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">04</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>扩大清理范围相对之前要快很多，执行结果如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">delete</span> <span class="n">s</span> <span class="k">from</span> <span class="n">t_strategy_detail</span> <span class="k">as</span> <span class="n">s</span> <span class="k">where</span> <span class="n">s</span><span class="p">.</span><span class="n">id</span> <span class="k">in</span> <span class="p">(</span><span class="k">select</span> <span class="n">strategy</span> <span class="k">from</span> <span class="n">robots</span> <span class="k">where</span> <span class="n">stop_time</span><span class="o">&lt;</span><span class="mi">1699782290</span> <span class="k">AND</span> <span class="n">stop_kind</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">AND</span> <span class="n">stop_kind</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">);</span>
+<span class="n">Query</span> <span class="n">OK</span><span class="p">,</span> <span class="mi">502123</span> <span class="k">rows</span> <span class="n">affected</span> <span class="p">(</span><span class="mi">9</span><span class="p">.</span><span class="mi">53</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>最后清理子查询数据：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">delete</span> <span class="k">from</span> <span class="n">robots</span> <span class="k">where</span> <span class="n">stop_time</span><span class="o">&lt;</span><span class="mi">1699782290</span> <span class="k">AND</span> <span class="n">stop_kind</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">AND</span> <span class="n">stop_kind</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">;</span>
+<span class="n">Query</span> <span class="n">OK</span><span class="p">,</span> <span class="mi">503902</span> <span class="k">rows</span> <span class="n">affected</span> <span class="p">(</span><span class="mi">33</span><span class="p">.</span><span class="mi">82</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://cloud.tencent.com/developer/article/1884307">生产问题分析！delete in子查询不走索引？！</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-01-11
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/mysql/">mysql</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/tool/20240113-nginx-modsecurity/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Nginx 和 ModSecurity 加强 Web 应用程序的安全性</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/golang/20231230-template/">
+            <span class="next-text nav-default">golang text/template &amp; python Jinja2</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: '[MySQL] delete in select 语句不走索引问题分析',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

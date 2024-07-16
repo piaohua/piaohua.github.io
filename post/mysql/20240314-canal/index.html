@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>阿里巴巴 MySQL binlog 增量订阅&amp;消费组件Canal介绍和使用指南 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="来源 Canal介绍和使用指南 Canal 是阿里开源的一款 MySQL 数据库增量日志解析工具，提供增量数据订阅和消费。使用Canal能够实现异步更新数据，配合MQ" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/mysql/20240314-canal/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="阿里巴巴 MySQL binlog 增量订阅&amp;消费组件Canal介绍和使用指南" />
+<meta property="og:description" content="来源 Canal介绍和使用指南 Canal 是阿里开源的一款 MySQL 数据库增量日志解析工具，提供增量数据订阅和消费。使用Canal能够实现异步更新数据，配合MQ" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20240314-canal/" />
+<meta property="article:published_time" content="2024-03-14T13:14:39+08:00" />
+<meta property="article:modified_time" content="2024-03-14T13:14:39+08:00" />
+<meta itemprop="name" content="阿里巴巴 MySQL binlog 增量订阅&amp;消费组件Canal介绍和使用指南">
+<meta itemprop="description" content="来源 Canal介绍和使用指南 Canal 是阿里开源的一款 MySQL 数据库增量日志解析工具，提供增量数据订阅和消费。使用Canal能够实现异步更新数据，配合MQ">
+<meta itemprop="datePublished" content="2024-03-14T13:14:39&#43;08:00" />
+<meta itemprop="dateModified" content="2024-03-14T13:14:39&#43;08:00" />
+<meta itemprop="wordCount" content="3487">
+
+
+
+<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="阿里巴巴 MySQL binlog 增量订阅&amp;消费组件Canal介绍和使用指南"/>
+<meta name="twitter:description" content="来源 Canal介绍和使用指南 Canal 是阿里开源的一款 MySQL 数据库增量日志解析工具，提供增量数据订阅和消费。使用Canal能够实现异步更新数据，配合MQ"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">阿里巴巴 MySQL binlog 增量订阅&amp;消费组件Canal介绍和使用指南</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-03-14 </span>
+        <div class="post-category">
+            <a href="/categories/mysql/"> mysql </a>
+            </div>
+          <span class="more-meta"> 3487 words </span>
+          <span class="more-meta"> 7 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#canal简介">Canal简介</a></li>
+    <li><a href="#工作原理">工作原理</a>
+      <ul>
+        <li><a href="#mysql主备复制原理">MySQL主备复制原理</a></li>
+        <li><a href="#canal-工作原理">Canal 工作原理</a></li>
+      </ul>
+    </li>
+    <li><a href="#环境准备">环境准备</a>
+      <ul>
+        <li><a href="#开启binlog">开启binlog</a></li>
+        <li><a href="#添加授权">添加授权</a></li>
+      </ul>
+    </li>
+    <li><a href="#安装canal">安装Canal</a></li>
+    <li><a href="#canal-client">Canal Client</a></li>
+    <li><a href="#canal-kafkaroctetmq">Canal Kafka/RoctetMQ</a>
+      <ul>
+        <li><a href="#配置">配置</a></li>
+        <li><a href="#修改instance配置">修改instance配置</a></li>
+        <li><a href="#修改canal-配置文件">修改canal 配置文件</a></li>
+      </ul>
+    </li>
+    <li><a href="#其他">其他</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>来源 <a href="https://mp.weixin.qq.com/s/9jDlMssry-_UWzSm1R-Ypg">Canal介绍和使用指南</a></p>
+</blockquote>
+<p>Canal 是阿里开源的一款 MySQL 数据库增量日志解析工具，提供增量数据订阅和消费。使用Canal能够实现异步更新数据，配合MQ使用可在很多业务场景下发挥巨大作用。</p>
+<h2 id="canal简介">Canal简介</h2>
+<p>canal 是阿里开源的一款 MySQL 数据库增量日志解析工具，提供增量数据订阅和消费。
+<img src="https://camo.githubusercontent.com/0ca0750162f393efbc90830cd8f9e162516e7e0504dd7e38a775a3b379bd0164/68747470733a2f2f696d672d626c6f672e6373646e696d672e636e2f32303139313130343130313733353934372e706e67" alt="canal" title="canal">
+使用Canal能够实现异步更新数据，配合MQ使用可在很多业务场景下发挥巨大作用。</p>
+<h2 id="工作原理">工作原理</h2>
+<h3 id="mysql主备复制原理">MySQL主备复制原理</h3>
+<ul>
+<li>MySQL master 将数据变更写入二进制日志( binary log, 其中记录叫做二进制日志事件binary log events，可以通过 show binlog events 进行查看)</li>
+<li>MySQL slave 将 master 的 binary log events 拷贝到它的中继日志(relay log)</li>
+<li>MySQL slave 重放 relay log 中事件，将数据变更反映它自己的数据</li>
+</ul>
+<p><img src="https://avisheksharma.wordpress.com/2015/01/07/step-wise-guide-to-setup-mysql-replication/" alt="mysql_replication"></p>
+<h3 id="canal-工作原理">Canal 工作原理</h3>
+<ul>
+<li>Canal 模拟 MySQL slave 的交互协议，伪装自己为 MySQL slave ，向 MySQL master 发送 dump 协议</li>
+<li>MySQL master 收到 dump 请求，开始推送 binary log 给 slave (即 Canal )</li>
+<li>Canal 解析 binary log 对象(原始为 byte 流)</li>
+</ul>
+<h2 id="环境准备">环境准备</h2>
+<p>先准备好一个MySQL环境，并按以下步骤进行设置。</p>
+<h3 id="开启binlog">开启binlog</h3>
+<p>需要先开启MySQL的 Binlog 写入功能，配置 binlog-format 为 ROW 模式，具体my.cnf 中配置如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">[mysqld]
+log-bin=mysql-bin # 开启 binlog
+binlog-format=ROW # 选择 ROW 模式
+server_id=1 # 配置 MySQL replaction 需要定义，不要和 canal 的 slaveId 重复
+</code></pre></td></tr></table>
+</div>
+</div><p>修改配置文件之后，重启MySQL。</p>
+<p>使用命令查看是否打开binlog模式，如输出以下内容则说明binlog已开启。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="n">variables</span> <span class="k">like</span> <span class="s1">&#39;log_bin&#39;</span><span class="p">;</span>
+<span class="o">+</span><span class="c1">---------------+-------+
+</span><span class="c1"></span><span class="o">|</span> <span class="n">Variable_name</span> <span class="o">|</span> <span class="n">Value</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">---------------+-------+
+</span><span class="c1"></span><span class="o">|</span> <span class="n">log_bin</span>       <span class="o">|</span> <span class="k">ON</span>    <span class="o">|</span>
+<span class="o">+</span><span class="c1">---------------+-------+
+</span></code></pre></td></tr></table>
+</div>
+</div><p>查看binlog_format配置是否正确。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="n">variables</span> <span class="k">like</span> <span class="s1">&#39;binlog_format&#39;</span><span class="p">;</span>
+<span class="o">+</span><span class="c1">---------------+-------+
+</span><span class="c1"></span><span class="o">|</span> <span class="n">Variable_name</span> <span class="o">|</span> <span class="n">Value</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">---------------+-------+
+</span><span class="c1"></span><span class="o">|</span> <span class="n">binlog_format</span> <span class="o">|</span> <span class="k">ROW</span>   <span class="o">|</span>
+<span class="o">+</span><span class="c1">---------------+-------+
+</span></code></pre></td></tr></table>
+</div>
+</div><h3 id="添加授权">添加授权</h3>
+<p>Canal的原理是模拟自己为MySQL slave，所以一定要为账号授予做为MySQL slave的相关权限。
+下面的命令是先创建一个名为canal的账号，再对其进行授权，如果已有账户可直接 grant。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">USER</span> <span class="n">canal</span> <span class="n">IDENTIFIED</span> <span class="k">BY</span> <span class="s1">&#39;canal&#39;</span><span class="p">;</span>  
+
+<span class="k">GRANT</span> <span class="k">SELECT</span><span class="p">,</span> <span class="n">REPLICATION</span> <span class="n">SLAVE</span><span class="p">,</span> <span class="n">REPLICATION</span> <span class="n">CLIENT</span> <span class="k">ON</span> <span class="o">*</span><span class="p">.</span><span class="o">*</span> <span class="k">TO</span> <span class="s1">&#39;canal&#39;</span><span class="o">@</span><span class="s1">&#39;%&#39;</span><span class="p">;</span>
+<span class="c1">-- GRANT ALL PRIVILEGES ON *.* TO &#39;canal&#39;@&#39;%&#39; ;
+</span><span class="c1"></span>
+<span class="n">FLUSH</span> <span class="k">PRIVILEGES</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="安装canal">安装Canal</h2>
+<p>打开官方<a href="https://github.com/alibaba/canal/releases">release</a>页面，根据需要选择对应的软件包下载即可。</p>
+<p>将下载后的软件包解压，可看到以下目录。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">bin
+conf
+lib
+logs
+</code></pre></td></tr></table>
+</div>
+</div><p>修改配置文件：<code>canal-server/conf/example/instance.properties</code>。</p>
+<p>将<code>canal.instance.master.address</code>修改为你的MySQL地址。</p>
+<p>将<code>canal.instance.tsdb.dbUsername</code>修改为你上面授权的账号。</p>
+<p>将<code>canal.instance.tsdb.dbPassword</code>修改为你上面授权账号的密码。</p>
+<p>配置示例如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">#################################################
+## mysql serverId , v1.0.26+ will autoGen
+# canal.instance.mysql.slaveId=0
+
+# enable gtid use true/false
+canal.instance.gtidon=false
+
+# position info
+canal.instance.master.address=127.0.0.1:3306
+canal.instance.master.journal.name=
+canal.instance.master.position=
+canal.instance.master.timestamp=
+canal.instance.master.gtid=
+
+# rds oss binlog
+canal.instance.rds.accesskey=
+canal.instance.rds.secretkey=
+canal.instance.rds.instanceId=
+
+# table meta tsdb info
+canal.instance.tsdb.enable=true
+#canal.instance.tsdb.url=jdbc:mysql://127.0.0.1:3306/canal_tsdb
+canal.instance.tsdb.dbUsername=canal
+canal.instance.tsdb.dbPassword=canal
+</code></pre></td></tr></table>
+</div>
+</div><p>当然我还是推荐开发和测试阶段使用Docker搭建环境。</p>
+<p>执行以下命令，拉取canal-server最新镜像。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">docker pull canal/canal-server:latest
+</code></pre></td></tr></table>
+</div>
+</div><p>如果因网络问题无法直接拉取Docker镜像，也可以选择clone代码到本地编译。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">git clone git@github.com:alibaba/canal.git
+<span class="nb">cd</span> canal/docker <span class="o">&amp;&amp;</span> sh build.sh
+</code></pre></td></tr></table>
+</div>
+</div><p>启动容器。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">docker run -d --name canal-server -p 11111:11111 canal/canal-server
+</code></pre></td></tr></table>
+</div>
+</div><p>进入容器。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">docker <span class="nb">exec</span> -it canal-server /bin/bash
+</code></pre></td></tr></table>
+</div>
+</div><p>修改配置。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">vi canal-server/conf/example/instance.properties
+</code></pre></td></tr></table>
+</div>
+</div><pre><code>注意：如果是macOS平台容器内使用host.docker.internal表示localhost。
+即：canal.instance.master.address=host.docker.internal:3306
+</code></pre>
+<p>修改完配置后重启容器。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">docker container restart canal-server
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="canal-client">Canal Client</h2>
+<p>Canal 特别设计了 Client-Server 模式，交互协议使用 protobuf v3 , Client 端可采用不同语言实现不同的消费逻辑。
+启动Canal Server之后，我们可以使用Canal客户端连接Canal进行消费，本文以Go客户端canal-go为例，演示如何从canal-server消费数据。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span><span class="lnt">84
+</span><span class="lnt">85
+</span><span class="lnt">86
+</span><span class="lnt">87
+</span><span class="lnt">88
+</span><span class="lnt">89
+</span><span class="lnt">90
+</span><span class="lnt">91
+</span><span class="lnt">92
+</span><span class="lnt">93
+</span><span class="lnt">94
+</span><span class="lnt">95
+</span><span class="lnt">96
+</span><span class="lnt">97
+</span><span class="lnt">98
+</span><span class="lnt">99
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+ <span class="s">&#34;fmt&#34;</span>
+ <span class="s">&#34;time&#34;</span>
+
+ <span class="nx">pbe</span> <span class="s">&#34;github.com/withlin/canal-go/protocol/entry&#34;</span>
+
+ <span class="s">&#34;github.com/golang/protobuf/proto&#34;</span>
+ <span class="s">&#34;github.com/withlin/canal-go/client&#34;</span>
+<span class="p">)</span>
+
+<span class="c1">// canal-go client demo
+</span><span class="c1"></span>
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+ <span class="c1">// 连接canal-server
+</span><span class="c1"></span> <span class="nx">connector</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">NewSimpleCanalConnector</span><span class="p">(</span>
+  <span class="s">&#34;127.0.0.1&#34;</span><span class="p">,</span> <span class="mi">11111</span><span class="p">,</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="s">&#34;example&#34;</span><span class="p">,</span> <span class="mi">60000</span><span class="p">,</span> <span class="mi">60</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span>
+ <span class="nx">err</span> <span class="o">:=</span> <span class="nx">connector</span><span class="p">.</span><span class="nf">Connect</span><span class="p">()</span>
+ <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+  <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+ <span class="p">}</span>
+
+ <span class="c1">// mysql 数据解析关注的表，Perl正则表达式.
+</span><span class="c1"></span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">connector</span><span class="p">.</span><span class="nf">Subscribe</span><span class="p">(</span><span class="s">&#34;.*\\..*&#34;</span><span class="p">)</span>
+ <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;connector.Subscribe failed, err:%v\n&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+  <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+ <span class="p">}</span>
+
+ <span class="c1">// 消费消息
+</span><span class="c1"></span> <span class="k">for</span> <span class="p">{</span>
+  <span class="nx">message</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">connector</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+  <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+   <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;connector.Get failed, err:%v\n&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+   <span class="k">continue</span>
+  <span class="p">}</span>
+  <span class="nx">batchId</span> <span class="o">:=</span> <span class="nx">message</span><span class="p">.</span><span class="nx">Id</span>
+  <span class="k">if</span> <span class="nx">batchId</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="o">||</span> <span class="nb">len</span><span class="p">(</span><span class="nx">message</span><span class="p">.</span><span class="nx">Entries</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="p">{</span>
+   <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+   <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;===暂无数据===&#34;</span><span class="p">)</span>
+   <span class="k">continue</span>
+  <span class="p">}</span>
+  <span class="nf">printEntry</span><span class="p">(</span><span class="nx">message</span><span class="p">.</span><span class="nx">Entries</span><span class="p">)</span>
+ <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">printEntry</span><span class="p">(</span><span class="nx">entries</span> <span class="p">[]</span><span class="nx">pbe</span><span class="p">.</span><span class="nx">Entry</span><span class="p">)</span> <span class="p">{</span>
+ <span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">entry</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">entries</span> <span class="p">{</span>
+  <span class="c1">// 忽略事务开启和事务关闭类型
+</span><span class="c1"></span>  <span class="k">if</span> <span class="nx">entry</span><span class="p">.</span><span class="nf">GetEntryType</span><span class="p">()</span> <span class="o">==</span> <span class="nx">pbe</span><span class="p">.</span><span class="nx">EntryType_TRANSACTIONBEGIN</span> <span class="o">||</span> <span class="nx">entry</span><span class="p">.</span><span class="nf">GetEntryType</span><span class="p">()</span> <span class="o">==</span> <span class="nx">pbe</span><span class="p">.</span><span class="nx">EntryType_TRANSACTIONEND</span> <span class="p">{</span>
+   <span class="k">continue</span>
+  <span class="p">}</span>
+  <span class="c1">// RowChange对象，包含了一行数据变化的所有特征
+</span><span class="c1"></span>  <span class="nx">rowChange</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">pbe</span><span class="p">.</span><span class="nx">RowChange</span><span class="p">)</span>
+  <span class="c1">// protobuf解析
+</span><span class="c1"></span>  <span class="nx">err</span> <span class="o">:=</span> <span class="nx">proto</span><span class="p">.</span><span class="nf">Unmarshal</span><span class="p">(</span><span class="nx">entry</span><span class="p">.</span><span class="nf">GetStoreValue</span><span class="p">(),</span> <span class="nx">rowChange</span><span class="p">)</span>
+  <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+   <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;proto.Unmarshal failed, err:%v\n&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+  <span class="p">}</span>
+  <span class="k">if</span> <span class="nx">rowChange</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+   <span class="k">continue</span>
+  <span class="p">}</span>
+  <span class="c1">// 获取并打印Header信息
+</span><span class="c1"></span>  <span class="nx">header</span> <span class="o">:=</span> <span class="nx">entry</span><span class="p">.</span><span class="nf">GetHeader</span><span class="p">()</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;binlog[%s : %d],name[%s,%s], eventType: %s\n&#34;</span><span class="p">,</span>
+   <span class="nx">header</span><span class="p">.</span><span class="nf">GetLogfileName</span><span class="p">(),</span>
+   <span class="nx">header</span><span class="p">.</span><span class="nf">GetLogfileOffset</span><span class="p">(),</span>
+   <span class="nx">header</span><span class="p">.</span><span class="nf">GetSchemaName</span><span class="p">(),</span>
+   <span class="nx">header</span><span class="p">.</span><span class="nf">GetTableName</span><span class="p">(),</span>
+   <span class="nx">header</span><span class="p">.</span><span class="nf">GetEventType</span><span class="p">(),</span>
+  <span class="p">)</span>
+  <span class="c1">//判断是否为DDL语句
+</span><span class="c1"></span>  <span class="k">if</span> <span class="nx">rowChange</span><span class="p">.</span><span class="nf">GetIsDdl</span><span class="p">()</span> <span class="p">{</span>
+   <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;isDdl:true, sql:%v\n&#34;</span><span class="p">,</span> <span class="nx">rowChange</span><span class="p">.</span><span class="nf">GetSql</span><span class="p">())</span>
+  <span class="p">}</span>
+
+  <span class="c1">// 获取操作类型：insert/update/delete等
+</span><span class="c1"></span>  <span class="nx">eventType</span> <span class="o">:=</span> <span class="nx">rowChange</span><span class="p">.</span><span class="nf">GetEventType</span><span class="p">()</span>
+  <span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">rowData</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">rowChange</span><span class="p">.</span><span class="nf">GetRowDatas</span><span class="p">()</span> <span class="p">{</span>
+   <span class="k">if</span> <span class="nx">eventType</span> <span class="o">==</span> <span class="nx">pbe</span><span class="p">.</span><span class="nx">EventType_DELETE</span> <span class="p">{</span>
+    <span class="nf">printColumn</span><span class="p">(</span><span class="nx">rowData</span><span class="p">.</span><span class="nf">GetBeforeColumns</span><span class="p">())</span>
+   <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="nx">eventType</span> <span class="o">==</span> <span class="nx">pbe</span><span class="p">.</span><span class="nx">EventType_INSERT</span> <span class="o">||</span> <span class="nx">eventType</span> <span class="o">==</span> <span class="nx">pbe</span><span class="p">.</span><span class="nx">EventType_UPDATE</span> <span class="p">{</span>
+    <span class="nf">printColumn</span><span class="p">(</span><span class="nx">rowData</span><span class="p">.</span><span class="nf">GetAfterColumns</span><span class="p">())</span>
+   <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;---before---&#34;</span><span class="p">)</span>
+    <span class="nf">printColumn</span><span class="p">(</span><span class="nx">rowData</span><span class="p">.</span><span class="nf">GetBeforeColumns</span><span class="p">())</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;---after---&#34;</span><span class="p">)</span>
+    <span class="nf">printColumn</span><span class="p">(</span><span class="nx">rowData</span><span class="p">.</span><span class="nf">GetAfterColumns</span><span class="p">())</span>
+   <span class="p">}</span>
+  <span class="p">}</span>
+ <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">printColumn</span><span class="p">(</span><span class="nx">columns</span> <span class="p">[]</span><span class="o">*</span><span class="nx">pbe</span><span class="p">.</span><span class="nx">Column</span><span class="p">)</span> <span class="p">{</span>
+ <span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">col</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">columns</span> <span class="p">{</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s:%s  update=%v\n&#34;</span><span class="p">,</span> <span class="nx">col</span><span class="p">.</span><span class="nf">GetName</span><span class="p">(),</span> <span class="nx">col</span><span class="p">.</span><span class="nf">GetValue</span><span class="p">(),</span> <span class="nx">col</span><span class="p">.</span><span class="nf">GetUpdated</span><span class="p">())</span>
+ <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="canal-kafkaroctetmq">Canal Kafka/RoctetMQ</h2>
+<p>Canal 1.1.1版本之后，默认支持将Canal Server接收到的binlog数据直接投递到MQ，目前默认支持的MQ系统有Kafka、RocketMQ、RabbitMQ、PulsarMQ。
+这里以介绍使用Canal Server将binlog数据投递到Kafka为例。</p>
+<h3 id="配置">配置</h3>
+<p>请事先准备好Kafka环境，可参考我之前写的Go操作Kafka之kafka-go使用Docker快速搭建本地Kafka环境。</p>
+<h3 id="修改instance配置">修改instance配置</h3>
+<p>在<code>instance.properties</code>配置文件中设置MQ相关配置。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">#  按需修改成自己的数据库信息
+#################################################
+...
+canal.instance.master.address=127.0.0.1:3306
+# username/password,数据库的用户名和密码
+...
+canal.instance.dbUsername = canal
+canal.instance.dbPassword = canal
+...
+# mq config
+# 设置默认的topic
+canal.mq.topic=example
+# 针对库名或者表名发送动态topic
+#canal.mq.dynamicTopic=mytest,.*,mytest.user,mytest\\..*,.*\\..*
+canal.mq.partition=0
+# hash partition config
+#canal.mq.partitionsNum=3
+#库名.表名: 唯一主键，多个表之间用逗号分隔
+#canal.mq.partitionHash=mytest.person:id,mytest.role:id
+#################################################
+</code></pre></td></tr></table>
+</div>
+</div><p>其中，<code>canal.mq.dynamicTopic</code>配置说明。</p>
+<p>Canal 1.1.3版本之后, 支持配置格式为：schema 或 schema.table，多个配置之间使用逗号或分号分隔。</p>
+<ul>
+<li>例子1：test\.test 指定匹配的单表，发送到以test_test为名字的topic上</li>
+<li>例子2：.<em>\..</em> 匹配所有表，则每个表都会发送到各自表名的topic上</li>
+<li>例子3：test 指定匹配对应的库，一个库的所有表都会发送到库名的topic上</li>
+<li>例子4：test\..* 指定匹配的表达式，针对匹配的表会发送到各自表名的topic上</li>
+<li>例子5：test,test1\.test1，指定多个表达式，会将test库的表都发送到test的topic上，test1\.test1的表发送到对应的test1_test1 topic上，其余的表发送到默认的canal.mq.topic值</li>
+</ul>
+<p>为满足更大的灵活性，Canal还允许对匹配条件的规则指定发送的topic名字，配置格式：topicName:schema 或 topicName:schema.table。</p>
+<ul>
+<li>例子1: test:test\.test 指定匹配的单表，发送到以test为名字的topic上</li>
+<li>例子2: test:.<em>\..</em> 匹配所有表，因为有指定topic，则每个表都会发送到test的topic下</li>
+<li>例子3: test:test 指定匹配对应的库，一个库的所有表都会发送到test的topic下</li>
+<li>例子4：testA:test\..* 指定匹配的表达式，针对匹配的表会发送到testA的topic下</li>
+<li>例子5：test0:test,test1:test1\.test1，指定多个表达式，会将test库的表都发送到test0的topic下，test1\.test1的表发送到对应的test1的topic下，其余的表发送到默认的canal.mq.topic值</li>
+</ul>
+<h3 id="修改canal-配置文件">修改canal 配置文件</h3>
+<p>默认配置文件路径为<code>/usr/local/canal/conf/canal.properties</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback"># ...
+# 可选项: tcp(默认), kafka,RocketMQ,rabbitmq,pulsarmq
+canal.serverMode = kafka
+# ...
+
+# 是否为flat json格式对象
+canal.mq.flatMessage = true
+# Canal的batch size, 默认50K, 由于kafka最大消息体限制请勿超过1M(900K以下)
+canal.mq.canalBatchSize = 50
+# Canal get数据的超时时间, 单位: 毫秒, 空为不限超时
+canal.mq.canalGetTimeout = 100
+canal.mq.accessChannel = local
+
+...
+
+##################################################
+#########                    Kafka                   #############
+##################################################
+# 此处配置修改为你的Kafka环境地址
+kafka.bootstrap.servers = 127.0.0.1:9092
+kafka.acks = all
+kafka.compression.type = none
+kafka.batch.size = 16384
+kafka.linger.ms = 1
+kafka.max.request.size = 1048576
+kafka.buffer.memory = 33554432
+kafka.max.in.flight.requests.per.connection = 1
+kafka.retries = 0
+
+kafka.kerberos.enable = false
+kafka.kerberos.krb5.file = ../conf/kerberos/krb5.conf
+kafka.kerberos.jaas.file = ../conf/kerberos/jaas.conf
+
+# sasl demo
+# kafka.sasl.jaas.config = org.apache.kafka.common.security.scram.ScramLoginModule required \\n username=\&#34;alice\&#34; \\npassword=&#34;alice-secret\&#34;;
+# kafka.sasl.mechanism = SCRAM-SHA-512
+# kafka.security.protocol = SASL_PLAINTEXT
+</code></pre></td></tr></table>
+</div>
+</div><pre><code>更多详细内容请查看Canal-Kafka-RocketMQ-QuickStart。
+</code></pre>
+<p>按上述修改Canal配置后，重启Canal服务即可。</p>
+<h2 id="其他">其他</h2>
+<p>此外，Canal也支持HA模式和多节点MySQL，Canal1.14+版本还提供了Admin管理界面，读者可以根据Canal-Admin-QuickStart自行尝试。</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://github.com/alibaba/canal">canal</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-03-14
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/mysql/">mysql</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/mysql/20240315-prometheus/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Prometheus监控MySQL</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/mysql/20240314-diff-s-x-locks/">
+            <span class="next-text nav-default">mysql读取已提交(RC)和可重复读(RR)级别下的共享锁和排他锁有什么区别吗？</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: '阿里巴巴 MySQL binlog 增量订阅\x26消费组件Canal介绍和使用指南',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

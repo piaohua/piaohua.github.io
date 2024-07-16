@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Go] 互斥锁实现原理 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="互斥锁（Mutex）是一种关键的并发控制机制，用于保护共享资源免受多个Goroutine的并发访问。 互斥锁(sync.Mutex)的基本操作" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/golang/20240330-lock/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Go] 互斥锁实现原理" />
+<meta property="og:description" content="互斥锁（Mutex）是一种关键的并发控制机制，用于保护共享资源免受多个Goroutine的并发访问。 互斥锁(sync.Mutex)的基本操作" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20240330-lock/" />
+<meta property="article:published_time" content="2024-03-30T16:11:19+08:00" />
+<meta property="article:modified_time" content="2024-03-30T16:11:19+08:00" />
+<meta itemprop="name" content="[Go] 互斥锁实现原理">
+<meta itemprop="description" content="互斥锁（Mutex）是一种关键的并发控制机制，用于保护共享资源免受多个Goroutine的并发访问。 互斥锁(sync.Mutex)的基本操作">
+<meta itemprop="datePublished" content="2024-03-30T16:11:19&#43;08:00" />
+<meta itemprop="dateModified" content="2024-03-30T16:11:19&#43;08:00" />
+<meta itemprop="wordCount" content="1436">
+
+
+
+<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Go] 互斥锁实现原理"/>
+<meta name="twitter:description" content="互斥锁（Mutex）是一种关键的并发控制机制，用于保护共享资源免受多个Goroutine的并发访问。 互斥锁(sync.Mutex)的基本操作"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Go] 互斥锁实现原理</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-03-30 </span>
+        <div class="post-category">
+            <a href="/categories/golang/"> golang </a>
+            </div>
+          <span class="more-meta"> 1436 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#互斥锁的实现原理">互斥锁的实现原理</a></li>
+    <li><a href="#互斥锁的注意事项">互斥锁的注意事项</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>互斥锁（Mutex）是一种关键的并发控制机制，用于保护共享资源免受多个Goroutine的并发访问。</p>
+</blockquote>
+<p>互斥锁(sync.Mutex)的基本操作包括加锁（Lock）和解锁（Unlock）。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">var</span> <span class="nx">mu</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">Mutex</span>
+
+<span class="kd">func</span> <span class="nf">A</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">mu</span><span class="p">.</span><span class="nf">Lock</span><span class="p">()</span>
+    <span class="k">defer</span> <span class="nx">mu</span><span class="p">.</span><span class="nf">Unlock</span><span class="p">()</span> 
+
+    <span class="c1">// 操作锁住一些共享资源
+</span><span class="c1"></span><span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="互斥锁的实现原理">互斥锁的实现原理</h2>
+<ol>
+<li>互斥锁的零值是未加锁状态，即初始状态下没有任何Goroutine拥有锁。</li>
+<li>当一个Goroutine尝试获取锁时，如果锁处于未加锁状态，它会立即获得锁，将锁状态置为已加锁，并继续执行。</li>
+<li>如果锁已经被其他Goroutine持有，那么当前Goroutine将被阻塞，直到锁被释放。</li>
+<li>当一个Goroutine释放锁时，锁的状态将被设置为未加锁，此时等待的Goroutine中的一个将被唤醒并获得锁。</li>
+</ol>
+<p>加锁时如何发现锁已被抢占或锁已被释放，能用的有两个针对不同场景的解决方案：</p>
+<ul>
+<li>
+<p><strong>阻塞/唤醒</strong>：将当前 goroutine 阻塞挂起，直到锁被释放后，以回调的方式将阻塞 goroutine 重新唤醒，进行锁争夺；</p>
+</li>
+<li>
+<p><strong>自旋 + CAS</strong>：基于自旋结合 CAS (<code>atomic.CompareAndSwapInt32</code>) 的方式，重复校验锁的状态并尝试获取锁，始终把主动权握在手中.</p>
+</li>
+</ul>
+<p>两种方案各有优劣，且有其适用的场景：</p>
+<table>
+<thead>
+<tr>
+<th>锁竞争方案</th>
+<th>优势</th>
+<th>劣势</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>阻塞/唤醒</td>
+<td>精准打击，不浪费 CPU 时间片</td>
+<td>需要挂起协程，进行上下文切换，操作较重</td>
+<td>并发竞争激烈的场景</td>
+</tr>
+<tr>
+<td>自旋+CAS</td>
+<td>无需阻塞协程，短期来看操作较轻</td>
+<td>长时间争而不得，会浪费 CPU 时间片</td>
+<td>并发竞争强度低的场景</td>
+</tr>
+</tbody>
+</table>
+<p>sync.Mutex 结合两种方案的使用场景，制定了一个锁升级的过程，反映了面对并发环境通过持续试探逐渐由乐观逐渐转为悲观的态度，具体方案如下：</p>
+<ul>
+<li>
+<p>首先保持乐观，goroutine 采用自旋 + CAS 的策略争夺锁；</p>
+</li>
+<li>
+<p>尝试持续受挫达到一定条件后，判定当前过于激烈，则由自旋转为 阻塞/挂起模式.</p>
+</li>
+</ul>
+<p>上面谈及到的由自旋模式转为阻塞模式的具体条件拆解如下：</p>
+<ul>
+<li>
+<p>自旋累计达到 4 次仍未取得战果；</p>
+</li>
+<li>
+<p>CPU 单核或仅有单个 P 调度器；（此时自旋，其他 goroutine 根本没机会释放锁，自旋纯属空转）；</p>
+</li>
+<li>
+<p>当前 P 的执行队列中仍有待执行的 G. （避免因自旋影响到 GMP 调度效率）.</p>
+</li>
+</ul>
+<p>饥饿模式见<a href="https://mp.weixin.qq.com/s/5o0pR0RDaasKh4veXTctVg">Golang 单机锁实现原理</a></p>
+<p>互斥锁对应的是底层结构是<code>sync.Mutex</code>结构体，，位于 <code>src/sync/mutex.go</code> 中</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Mutex</span> <span class="kd">struct</span> <span class="p">{</span>  
+  <span class="nx">state</span> <span class="kt">int32</span>  
+  <span class="nx">sema</span>  <span class="kt">uint32</span>
+ <span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>state表示锁的状态，有锁定、被唤醒、饥饿模式等，并且是用state的二进制位来标识的，不同模式下会有不同的处理方式，不同 bit 位分别存储了 mutexLocked(是否上锁)、mutexWoken（是否有 goroutine 从阻塞队列中被唤醒）、mutexStarving（是否处于饥饿模式）的信息</p>
+</li>
+<li>
+<p>sema表示信号量，mutex阻塞队列的定位是通过这个变量来实现的，从而实现goroutine的阻塞和唤醒</p>
+</li>
+</ul>
+<p><strong>加锁</strong>：通过原子操作cas加锁，如果加锁不成功，根据不同的场景选择自旋重试加锁或者阻塞等待被唤醒后加锁</p>
+<p><strong>解锁</strong>：通过原子操作add解锁，如果仍有goroutine在等待，唤醒等待的goroutine</p>
+<h2 id="互斥锁的注意事项">互斥锁的注意事项</h2>
+<ul>
+<li>在 Lock() 之前使用 Unlock() 会导致 panic 异常</li>
+<li>使用 Lock() 加锁后，再次 Lock() 会导致死锁（不支持重入），需Unlock()解锁后才能再加锁</li>
+<li>锁定状态与 goroutine 没有关联，一个 goroutine 可以 Lock，另一个 goroutine 可以 Unlock</li>
+<li>在高度竞争的情况下，多个Goroutine争夺锁可能导致性能下降。为了提高性能，可以考虑使用更轻量级的同步原语，如读写锁（sync.RWMutex）或通道（chan），以根据需求进行读或写的并发控制。</li>
+<li>互斥锁不适合用于允许多个线程同时读取共享资源的情况。如果您的应用程序需要支持多个线程并发读取但在写入时仍然需要互斥访问，可以考虑使用读写锁</li>
+</ul>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://mp.weixin.qq.com/s/rE1Ztd4FweCu2eOwEUzQ0g">Go 互斥锁实现原理</a></li>
+<li><a href="https://mp.weixin.qq.com/s/5o0pR0RDaasKh4veXTctVg">Golang 单机锁实现原理</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-03-30
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/golang/">golang</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/golang/20240331-copy/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[Go] 深入理解深拷贝与浅拷贝</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/redis/20240328-persistence/">
+            <span class="next-text nav-default">Redis 持久化机制</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: '[Go] 互斥锁实现原理',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Docker 部署 Jenkins 并实现项目的自动构建与部署 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="原文： https://mp.weixin.qq.com/s/Tof1fDJkckIMTMZplSYizA Jenkins 是开源 CI&amp;amp;CD 软件的佼佼者，提供超过 1000 个插件，支持构建、部署和自动化，满足各种项目的需求。 部署 Jenkins 编写 docker-compose.yml" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/tool/20240323-jenkins/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Docker 部署 Jenkins 并实现项目的自动构建与部署" />
+<meta property="og:description" content="原文： https://mp.weixin.qq.com/s/Tof1fDJkckIMTMZplSYizA Jenkins 是开源 CI&amp;CD 软件的佼佼者，提供超过 1000 个插件，支持构建、部署和自动化，满足各种项目的需求。 部署 Jenkins 编写 docker-compose.yml" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/tool/20240323-jenkins/" />
+<meta property="article:published_time" content="2024-03-23T20:58:55+08:00" />
+<meta property="article:modified_time" content="2024-03-23T20:58:55+08:00" />
+<meta itemprop="name" content="Docker 部署 Jenkins 并实现项目的自动构建与部署">
+<meta itemprop="description" content="原文： https://mp.weixin.qq.com/s/Tof1fDJkckIMTMZplSYizA Jenkins 是开源 CI&amp;CD 软件的佼佼者，提供超过 1000 个插件，支持构建、部署和自动化，满足各种项目的需求。 部署 Jenkins 编写 docker-compose.yml">
+<meta itemprop="datePublished" content="2024-03-23T20:58:55&#43;08:00" />
+<meta itemprop="dateModified" content="2024-03-23T20:58:55&#43;08:00" />
+<meta itemprop="wordCount" content="895">
+
+
+
+<meta itemprop="keywords" content="jenkins," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Docker 部署 Jenkins 并实现项目的自动构建与部署"/>
+<meta name="twitter:description" content="原文： https://mp.weixin.qq.com/s/Tof1fDJkckIMTMZplSYizA Jenkins 是开源 CI&amp;CD 软件的佼佼者，提供超过 1000 个插件，支持构建、部署和自动化，满足各种项目的需求。 部署 Jenkins 编写 docker-compose.yml"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Docker 部署 Jenkins 并实现项目的自动构建与部署</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-03-23 </span>
+        <div class="post-category">
+            <a href="/categories/jenkins/"> jenkins </a>
+            </div>
+          <span class="more-meta"> 895 words </span>
+          <span class="more-meta"> 2 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#部署-jenkins">部署 Jenkins</a></li>
+    <li><a href="#初始化-jenkins">初始化 Jenkins</a></li>
+    <li><a href="#github-凭证添加">Github 凭证添加</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>原文： <a href="https://mp.weixin.qq.com/s/Tof1fDJkckIMTMZplSYizA">https://mp.weixin.qq.com/s/Tof1fDJkckIMTMZplSYizA</a></p>
+</blockquote>
+<p>Jenkins 是开源 CI&amp;CD 软件的佼佼者，提供超过 1000 个插件，支持构建、部署和自动化，满足各种项目的需求。</p>
+<h2 id="部署-jenkins">部署 Jenkins</h2>
+<p>编写 docker-compose.yml：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="k">version</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;3.9&#39;</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="k">services</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">jenkins</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span><span class="k">image</span><span class="p">:</span><span class="w"> </span>jenkins/jenkins<span class="p">:</span>latest<span class="w"> </span><span class="c"># 软件镜像</span><span class="w">
+</span><span class="w">        </span><span class="k">container_name</span><span class="p">:</span><span class="w"> </span>jenkins<span class="w">
+</span><span class="w">        </span><span class="k">privileged</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="w">        </span><span class="k">ports</span><span class="p">:</span><span class="w">  </span><span class="c"># 端口映射到宿主机，注意避免冲突</span><span class="w">
+</span><span class="w">            </span>- <span class="s2">&#34;127.0.0.1:18080:8080&#34;</span><span class="w"> </span><span class="c"># 控制台端口</span><span class="w">
+</span><span class="w">            </span>- <span class="s2">&#34;29090:50000&#34;</span><span class="w"> </span><span class="c"># 对外暴露的 TCP 通信端口，注意安全！</span><span class="w">
+</span><span class="w">        </span><span class="k">volumes</span><span class="p">:</span><span class="w">
+</span><span class="w">            </span>- /opt/jenkins<span class="p">:</span>/var/jenkins_home<span class="w"> </span><span class="c"># 文件系统映射到宿主机（可选）</span><span class="w">
+</span><span class="w">            </span>- /opt/jdk1<span class="m">.8.0</span><span class="p">:</span>/usr/local/jdk1<span class="m">.8.0</span><span class="w"> </span><span class="c"># 指向宿主机的 JDK 路径</span><span class="w">
+</span><span class="w">            </span>- /usr/bin/docker<span class="p">:</span>/usr/local/bin/docker<span class="w"> </span><span class="c"># 指向宿主机的 Docker 路径</span><span class="w">
+</span><span class="w">            </span>- /var/run/docker.sock<span class="p">:</span>/var/run/docker.sock<span class="w">
+</span><span class="w">        </span><span class="k">restart</span><span class="p">:</span><span class="w"> </span>unless-stopped<span class="w">
+</span></code></pre></td></tr></table>
+</div>
+</div><pre><code>警告：如果选择将 /var/jenkins_home 映射到宿主机 /opt/jenkins，可能会报错 xxx Permission denied，此时修改 /opt/jenkins 的权限为 777 即可。
+</code></pre>
+<p>Jenkins Docker 服务启动后，完成 Nginx 的反向代理：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">location / {
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Server $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $host;
+    proxy_pass http://127.0.0.1:18080; # 为上述 docker 映射的控制台端口
+}
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="初始化-jenkins">初始化 Jenkins</h2>
+<p>Nginx 启动后，通过浏览器访问控制台，会提示解锁 Jenkins，根据提示去 /var/jenkins_home/secrets/initialAdminPassword 文件中获取解锁码。按照上述 docker-compose 的配置，该文件已经被映射到了宿主机 /opt/jenkins/secrets/ 下，可以直接访问到</p>
+<p>接下来，按照提示安装插件（比如：Maven、Docker 插件），创建管理员账户并成功登录，即可进入控制台。</p>
+<p>插件安装完成后，勾选“安装完成后重启 Jenkins（空闲时）”，使插件生效。</p>
+<p>插件安装成功后，进入 Dashboard &gt; 系统管理 &gt; 全局工具配置 完成 SpringBoot 项目的环境配置，url 地址为 https://{$jenkins-host}/manage/configureTools/：</p>
+<h2 id="github-凭证添加">Github 凭证添加</h2>
+<p>Jenkins 需要从 Git 仓库拉取代码，所以这里需要配置连接凭证。首先登录 Github Developer Settings，遵循最小权限原则，创建一个专供 Jenkins 使用的 Token</p>
+<p>然后回到 Jenkins 控制台，创建一个 Username with password 类型的凭据：</p>
+<p>用户名为 Github 用户名，密码为刚刚创建的 Token；</p>
+<p>设置路径为 Dashboard &gt; 系统管理 &gt; 凭据管理 &gt; 全局凭据 (unrestricted)；</p>
+<p>url 地址为 https://{$jenkins-host}/manage/credentials/store/system/domain/_/。</p>
+<p>至此，Jenkins 的服务端就配置完成了，接下来开始正式运维项目。</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://www.jenkins.io/">Jenkins</a></li>
+<li><a href="https://mp.weixin.qq.com/s/Tof1fDJkckIMTMZplSYizA">如何通过 Jenkins 实现项目的自动构建与部署</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/157592663">Jenkins详细教程</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/56038065">jenkins使用</a></li>
+<li><a href="https://mp.weixin.qq.com/s/ZQ6woHimkhjzD3hpw7A7nA">基于 Jenkins 搭建一套 CI/CD 系统</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-03-23
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/jenkins/">jenkins</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/golang/20240323-validator/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[Go] 数据校验工具Validator</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/mysql/20240323-master-master-keepalived/">
+            <span class="next-text nav-default">MySQL高可用集群搭建 (主主&#43;keepalived)</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'Docker 部署 Jenkins 并实现项目的自动构建与部署',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

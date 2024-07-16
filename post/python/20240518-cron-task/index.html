@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Python定时任务 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="原文： Python定时任务8种实现方式 使用 threading.Timer 实现 threading.Timer类允许你安排一个函数在指定时间后执行。 它通过创建一个新的线程来" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/python/20240518-cron-task/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Python定时任务" />
+<meta property="og:description" content="原文： Python定时任务8种实现方式 使用 threading.Timer 实现 threading.Timer类允许你安排一个函数在指定时间后执行。 它通过创建一个新的线程来" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/python/20240518-cron-task/" />
+<meta property="article:published_time" content="2024-05-18T15:49:38+08:00" />
+<meta property="article:modified_time" content="2024-05-18T15:49:38+08:00" />
+<meta itemprop="name" content="Python定时任务">
+<meta itemprop="description" content="原文： Python定时任务8种实现方式 使用 threading.Timer 实现 threading.Timer类允许你安排一个函数在指定时间后执行。 它通过创建一个新的线程来">
+<meta itemprop="datePublished" content="2024-05-18T15:49:38&#43;08:00" />
+<meta itemprop="dateModified" content="2024-05-18T15:49:38&#43;08:00" />
+<meta itemprop="wordCount" content="3283">
+
+
+
+<meta itemprop="keywords" content="python," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Python定时任务"/>
+<meta name="twitter:description" content="原文： Python定时任务8种实现方式 使用 threading.Timer 实现 threading.Timer类允许你安排一个函数在指定时间后执行。 它通过创建一个新的线程来"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Python定时任务</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-05-18 </span>
+        <div class="post-category">
+            <a href="/categories/python/"> python </a>
+            </div>
+          <span class="more-meta"> 3283 words </span>
+          <span class="more-meta"> 7 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#使用-threadingtimer-实现">使用 threading.Timer 实现</a>
+      <ul>
+        <li><a href="#定时任务管理与取消策略">定时任务管理与取消策略</a></li>
+      </ul>
+    </li>
+    <li><a href="#schedule库自动化">Schedule库自动化</a></li>
+    <li><a href="#apscheduler框架">APScheduler框架</a>
+      <ul>
+        <li><a href="#不同类型的触发器介绍">不同类型的触发器介绍</a></li>
+      </ul>
+    </li>
+    <li><a href="#基于unix-cron的python实现">基于Unix Cron的Python实现</a>
+      <ul>
+        <li><a href="#linux-crontab语法">Linux Crontab语法</a></li>
+        <li><a href="#python脚本与系统cron结合">Python脚本与系统Cron结合</a></li>
+      </ul>
+    </li>
+    <li><a href="#tornado异步定时任务">Tornado异步定时任务</a>
+      <ul>
+        <li><a href="#周期性定时任务示例">周期性定时任务示例</a></li>
+      </ul>
+    </li>
+    <li><a href="#celery分布式任务队列">Celery分布式任务队列</a>
+      <ul>
+        <li><a href="#定时任务调度与监控">定时任务调度与监控</a></li>
+      </ul>
+    </li>
+    <li><a href="#使用asyncio实现异步定时">使用asyncio实现异步定时</a>
+      <ul>
+        <li><a href="#asyncio实现定时执行案例">asyncio实现定时执行案例</a></li>
+      </ul>
+    </li>
+    <li><a href="#基于django的cronjobs管理后台">基于Django的CronJobs管理后台</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>原文： <a href="https://mp.weixin.qq.com/s/WxKsIbkqfM5PZ5vw7UoFgg">Python定时任务8种实现方式</a></p>
+</blockquote>
+<h2 id="使用-threadingtimer-实现">使用 threading.Timer 实现</h2>
+<p>threading.Timer类允许你安排一个函数在指定时间后执行。</p>
+<p>它通过创建一个新的线程来实现 ，使得定时任务不会阻塞程序的其他部分。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">import</span> <span class="nn">threading</span>
+
+<span class="k">def</span> <span class="nf">hello</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;Hello, this is a timed message!&#34;</span><span class="p">)</span>
+
+<span class="c1"># 创建定时器 ，5秒后执行hello函数</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Timer</span><span class="p">(</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">hello</span><span class="p">)</span>
+<span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>  <span class="c1"># 开始计时</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>每5秒执行一次hello函数。</p>
+<h3 id="定时任务管理与取消策略">定时任务管理与取消策略</h3>
+<p>threading.Timer对象提供了cancel()方法来取消尚未启动的任务：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="n">t</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Timer</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">hello</span><span class="p">)</span>  <span class="c1"># 改为10秒后执行</span>
+<span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="c1"># 假设在5秒后决定取消这个定时任务</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>  <span class="c1"># 检查定时器是否还在运行</span>
+    <span class="n">t</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;The timer has been cancelled.&#34;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;The timer has already executed.&#34;</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="schedule库自动化">Schedule库自动化</h2>
+<p>安装</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">pip install schedule
+</code></pre></td></tr></table>
+</div>
+</div><p>使用示例：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">import</span> <span class="nn">schedule</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="k">def</span> <span class="nf">job</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;Hello, Schedule!&#34;</span><span class="p">)</span>
+
+<span class="c1"># 每隔10秒执行一次job函数</span>
+<span class="n">schedule</span><span class="o">.</span><span class="n">every</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">seconds</span><span class="o">.</span><span class="n">do</span><span class="p">(</span><span class="n">job</span><span class="p">)</span>
+
+<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="n">schedule</span><span class="o">.</span><span class="n">run_pending</span><span class="p">()</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>特定时间执行，及任务异常处理</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="k">def</span> <span class="nf">safe_job</span><span class="p">():</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># 假设这是可能会抛出异常的代码</span>
+        <span class="o">...</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&#34;An error occurred: {e}&#34;</span><span class="p">)</span>
+
+<span class="n">schedule</span><span class="o">.</span><span class="n">every</span><span class="p">()</span><span class="o">.</span><span class="n">day</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="s2">&#34;10:30&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">do</span><span class="p">(</span><span class="n">saft_job</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>指定每天10:30执行，执行任务内使用try-except捕获异常，保护定时任务不会因为异常崩溃。</p>
+<h2 id="apscheduler框架">APScheduler框架</h2>
+<p>APScheduler（Advanced Python Scheduler）是一个功能全面且高度可定制的定时任务库，适用于Python 3.5及更高版本。它支持cron风格的时间表达式、日期时间以及固定间隔等多种触发方式，同时具备持久化任务、错误处理、任务存储插件等高级特性，非常适合构建复杂且健壮的定时任务系统。</p>
+<p>安装：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">pip install apscheduler
+</code></pre></td></tr></table>
+</div>
+</div><p>使用示例：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">from</span> <span class="nn">apscheduler.schedulers.blocking</span> <span class="kn">import</span> <span class="n">BlockingScheduler</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="k">def</span> <span class="nf">my_job</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;Job executed at &#34;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
+
+<span class="n">scheduler</span> <span class="o">=</span> <span class="n">BlockingScheduler</span><span class="p">()</span>
+<span class="n">scheduler</span><span class="o">.</span><span class="n">add_job</span><span class="p">(</span><span class="n">my_job</span><span class="p">,</span> <span class="s1">&#39;interval&#39;</span><span class="p">,</span> <span class="n">seconds</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">scheduler</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>每5秒执行一次my_job函数。</p>
+<h3 id="不同类型的触发器介绍">不同类型的触发器介绍</h3>
+<p>APScheduler提供了多种触发器来适应不同场景的需求：</p>
+<ul>
+<li>IntervalTrigger：用于在固定时间间隔后重复执行任务。例如，每隔5秒执行一次。</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">from</span> <span class="nn">apscheduler.schedulers.blocking</span> <span class="kn">import</span> <span class="n">BlockingScheduler</span>
+
+<span class="n">scheduler</span> <span class="o">=</span> <span class="n">BlockingScheduler</span><span class="p">()</span>
+<span class="n">scheduler</span><span class="o">.</span><span class="n">add_job</span><span class="p">(</span><span class="n">my_job</span><span class="p">,</span> <span class="s1">&#39;interval&#39;</span><span class="p">,</span> <span class="n">seconds</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>CronTrigger：类似于Linux的cron，支持复杂的周期性计划，如每天凌晨1点执行。</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">from</span> <span class="nn">apscheduler.triggers.cron</span> <span class="kn">import</span> <span class="n">CronTrigger</span>
+<span class="kn">from</span> <span class="nn">apscheduler.schedulers.blocking</span> <span class="kn">import</span> <span class="n">BlockingScheduler</span>
+
+<span class="n">trigger</span> <span class="o">=</span> <span class="n">CronTrigger</span><span class="p">(</span><span class="n">hour</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">minute</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># 每天凌晨1点执行</span>
+<span class="n">scheduler</span> <span class="o">=</span> <span class="n">BlockingScheduler</span><span class="p">()</span>
+<span class="n">scheduler</span><span class="o">.</span><span class="n">add_job</span><span class="p">(</span><span class="n">my_job</span><span class="p">,</span> <span class="n">trigger</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>DateTrigger：在特定的日期和时间只执行一次。</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">from</span> <span class="nn">apscheduler.triggers.date</span> <span class="kn">import</span> <span class="n">DateTrigger</span>
+<span class="kn">from</span> <span class="nn">apscheduler.schedulers.blocking</span> <span class="kn">import</span> <span class="n">BlockingScheduler</span>
+
+<span class="n">trigger</span> <span class="o">=</span> <span class="n">DateTrigger</span><span class="p">(</span><span class="n">run_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># 在2023年4月1日执行</span>
+<span class="n">scheduler</span> <span class="o">=</span> <span class="n">BlockingScheduler</span><span class="p">()</span>
+<span class="n">scheduler</span><span class="o">.</span><span class="n">add_job</span><span class="p">(</span><span class="n">my_job</span><span class="p">,</span> <span class="n">trigger</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这些触发器使得APScheduler能够灵活适应各种定时任务需求，从简单的定时提醒到复杂的业务逻辑定时处理，都能轻松应对。通过合理选择触发器类型和配置 ，可以构建出既高效又可靠的定时任务解决方案。</p>
+<h2 id="基于unix-cron的python实现">基于Unix Cron的Python实现</h2>
+<h3 id="linux-crontab语法">Linux Crontab语法</h3>
+<p>Cron是Unix/Linux系统中用于定时执行任务的强大工具。Crontab文件包含了定时任务的列表，每个任务都遵循一个特定的语法来定义何时执行。Cron语法由六个字段组成，分别代表分钟、小时、一天中的哪一天、月份、一周中的哪一天和命令。字段之间用空格分隔，其格式如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">* * * * * command_to_execute
+- - - - -
+| | | | |
+| | | | +--- 星期几 (0 - 6) ，0 和 7 都代表周日
+| | | +----- 月份 (1 - 12)
+| | +------- 一个月中的哪一天 (1 - 31)
+| +--------- 小时 (0 - 23)
++----------- 分钟 (0 - 59)
+</code></pre></td></tr></table>
+</div>
+</div><p>特殊符号含义：</p>
+<ul>
+<li>
+<ul>
+<li>表示任何值都匹配，如*在分钟字段意味着“每分钟”。</li>
+</ul>
+</li>
+<li>
+<p>, 用于分隔多个值 ，如3,15表示第3分钟和第15分钟。</p>
+</li>
+<li>
+<ul>
+<li>表示范围，如1-5表示从第1到第5分钟。</li>
+</ul>
+</li>
+<li>
+<p>/ 表示间隔，如*/2表示每隔2分钟。</p>
+</li>
+</ul>
+<h3 id="python脚本与系统cron结合">Python脚本与系统Cron结合</h3>
+<p>在crontab -e中编辑配置定时任务，定时执行python脚本。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">0 6 * * * /path/to/your/my_script.py
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="tornado异步定时任务">Tornado异步定时任务</h2>
+<p>Tornado是一个Python网络库，以其异步非阻塞IO和高并发能力著称，特别适合构建高性能的Web服务和实时应用。其核心在于IOLoop ，这是一个事件循环 ，负责监听和处理I/O事件，如网络连接、超时、信号等，以及调度回调函数。</p>
+<p>Tornado的IOLoop提供了call_later、call_at等方法，可以方便地安排一次性或周期性的定时任务。这些方法不阻塞主事件循环，因此非常适合在异步环境中执行定时操作。</p>
+<p>使用IOLoop.call_later在5秒后执行一个函数：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">import</span> <span class="nn">tornado.ioloop</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="k">def</span> <span class="nf">print_time</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;Current time:&#34;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">ctime</span><span class="p">())</span>
+
+<span class="n">tornado</span><span class="o">.</span><span class="n">ioloop</span><span class="o">.</span><span class="n">IOLoop</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">call_later</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">print_time</span><span class="p">)</span>  <span class="c1"># 5秒后执行print_time</span>
+<span class="n">tornado</span><span class="o">.</span><span class="n">ioloop</span><span class="o">.</span><span class="n">IOLoop</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="周期性定时任务示例">周期性定时任务示例</h3>
+<p>若要实现周期性执行，可以结合call_later和函数自身调用来重新安排下一次执行。下面是一个每两秒打印时间的示例：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">import</span> <span class="nn">tornado.ioloop</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="k">def</span> <span class="nf">periodic_callback</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;Current time:&#34;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">ctime</span><span class="p">())</span>
+    <span class="n">tornado</span><span class="o">.</span><span class="n">ioloop</span><span class="o">.</span><span class="n">IOLoop</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">call_later</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">periodic_callback</span><span class="p">)</span>  <span class="c1"># 每2秒调用一次</span>
+
+<span class="n">tornado</span><span class="o">.</span><span class="n">ioloop</span><span class="o">.</span><span class="n">IOLoop</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">call_later</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">periodic_callback</span><span class="p">)</span>  <span class="c1"># 首次调度</span>
+<span class="n">tornado</span><span class="o">.</span><span class="n">ioloop</span><span class="o">.</span><span class="n">IOLoop</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>通过上述示例 ，可以看出Tornado的IOLoop为异步定时任务提供了一种高效、灵活的解决方案，尤其适合那些需要在高性能服务器端应用中集成定时处理逻辑的场景。</p>
+<h2 id="celery分布式任务队列">Celery分布式任务队列</h2>
+<p>Celery是一款广泛使用的分布式任务队列系统，适用于处理大量消息和后台任务，特别是那些需要异步处理或定时执行的任务。它支持多种消息中间件（如RabbitMQ、Redis）作为任务代理，确保了任务的可靠传递与高可用性。</p>
+<p>安装</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">pip install celery<span class="o">[</span>redis<span class="o">]</span>  <span class="c1"># 以Redis为消息中间件安装</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="定时任务调度与监控">定时任务调度与监控</h3>
+<p>Celery提供了丰富的定时任务功能，主要通过beat服务和crontab风格的调度表达式来实现。</p>
+<p><strong>定时任务配置</strong></p>
+<p>在项目目录下创建一个celery.py文件，配置定时任务：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">from</span> <span class="nn">celery</span> <span class="kn">import</span> <span class="n">Celery</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">Celery</span><span class="p">(</span><span class="s1">&#39;tasks&#39;</span><span class="p">,</span> <span class="n">broker</span><span class="o">=</span><span class="s1">&#39;redis://localhost:6379/0&#39;</span><span class="p">)</span>
+
+<span class="nd">@app.task</span>
+<span class="k">def</span> <span class="nf">send_email_report</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;Sending email report...&#34;</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>然后，在另一个文件中配置定时任务调度（例如在tasks.py中）：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">from</span> <span class="nn">celery.schedules</span> <span class="kn">import</span> <span class="n">crontab</span>
+<span class="kn">from</span> <span class="nn">.celery</span> <span class="kn">import</span> <span class="n">app</span>
+
+<span class="n">app</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">beat_schedule</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;send-email-every-day&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;task&#39;</span><span class="p">:</span> <span class="s1">&#39;tasks.send_email_report&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;schedule&#39;</span><span class="p">:</span> <span class="n">crontab</span><span class="p">(</span><span class="n">hour</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">minute</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>  <span class="c1"># 每天凌晨执行</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>运行Celery服务</strong></p>
+<p>启动Celery worker处理任务：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">celery -A tasks worker --loglevel<span class="o">=</span>info
+</code></pre></td></tr></table>
+</div>
+</div><p>同时，启动beat服务以驱动定时任务：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">celery beat -A tasks --loglevel<span class="o">=</span>info
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>监控</strong></p>
+<p>Celery提供了实时监控工具Flower，可以查看任务状态、进度和结果。安装Flower并运行：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">pip install flower
+flower -A tasks --port<span class="o">=</span><span class="m">5555</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>访问http://localhost:5555即可查看监控界面。</p>
+<p>通过上述步骤，你可以有效地在Python应用中集成Celery实现分布式定时任务处理 ，不仅提高了任务处理的效率和可靠性，还便于监控和管理。</p>
+<h2 id="使用asyncio实现异步定时">使用asyncio实现异步定时</h2>
+<p>在Python中，asyncio是一个用于编写并发代码的库，利用协程(coroutine)、事件循环(event loop)和任务(task)等概念 ，实现了异步IO操作。协程是一种轻量级的子例程，可以在等待IO操作（如网络请求、磁盘读写）期间挂起，从而使其他任务得以执行，提高了程序的效率和响应速度。</p>
+<h3 id="asyncio实现定时执行案例">asyncio实现定时执行案例</h3>
+<p>要使用asyncio来实现定时任务，通常涉及asyncio.sleep()函数配合事件循环。下面是一个简单的定时打印消息的例子：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">import</span> <span class="nn">asyncio</span>
+
+<span class="n">async</span> <span class="k">def</span> <span class="nf">print_every_three_seconds</span><span class="p">():</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;This message is printed every three seconds.&#34;</span><span class="p">)</span>
+        <span class="n">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="n">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># 创建一个任务并启动</span>
+    <span class="n">task</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">print_every_three_seconds</span><span class="p">())</span>
+    
+    <span class="c1"># 保持主程序运行，否则事件循环一旦执行完就会结束</span>
+    <span class="n">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>  <span class="c1"># 示例中让主程序等待10秒后自然结束</span>
+    
+<span class="c1"># 运行主函数</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这段代码定义了一个异步函数print_every_three_seconds，它会无限循环每隔3秒打印一次消息。main函数中通过asyncio.create_task创建了这个任务并在事件循环中启动。为了使主程序维持运行一段时间以观察输出效果，我们使用了await asyncio.sleep(10)。实际上，生产环境中可能需要根据具体需求调整或采用更复杂的机制来控制主循环的生命周期。</p>
+<p>请注意，实际应用中可能需要考虑任务的取消、异常处理等高级特性，以确保程序的健壮性。</p>
+<h2 id="基于django的cronjobs管理后台">基于Django的CronJobs管理后台</h2>
+<p>Django-Cron是专为Django框架设计的库，旨在简化定时任务的管理和调度 ，特别是将其集成到Django的管理后台。它允许开发者通过Django的Admin界面来创建、编辑和删除定时任务 ，而无需直接操作服务器的cron作业。这样 ，定时任务的管理变得更加直观和便捷，特别适合Django项目的维护团队协作。</p>
+<p>安装Django-Cron</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">pip install django-cron
+</code></pre></td></tr></table>
+</div>
+</div><p>使用示例：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">from</span> <span class="nn">django_cron</span> <span class="kn">import</span> <span class="n">CronJobBase</span><span class="p">,</span> <span class="n">Schedule</span>
+
+<span class="k">class</span> <span class="nc">MyCronJob</span><span class="p">(</span><span class="n">CronJobBase</span><span class="p">):</span>
+    <span class="n">RUN_EVERY_MINS</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># 每分钟运行一次</span>
+    <span class="n">schedule</span> <span class="o">=</span> <span class="n">Schedule</span><span class="p">(</span><span class="n">run_every_mins</span><span class="o">=</span><span class="n">RUN_EVERY_MINS</span><span class="p">)</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="s1">&#39;my_cron.my_cron_job&#39;</span>    <span class="c1"># 任务唯一标识</span>
+
+    <span class="k">def</span> <span class="nf">do</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;Cron Job Running&#34;</span><span class="p">)</span>
+        <span class="c1"># 在这里执行你的任务逻辑</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>通常 ，Django-Cron通过管理命令python manage.py runcrons来执行任务。</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-05-18
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/python/">python</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/python/20240518-decorator/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Python 装饰器</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/python/20240518-merge-dict/">
+            <span class="next-text nav-default">Python中合并两个字典</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'Python定时任务',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

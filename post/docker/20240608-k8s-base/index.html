@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>kubernetes 基础组件及作用 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="Kubernetes documentation 什么是 Kubernetes？ Kubernetes 是一个开源容器管理工具，负责容器部署，容器扩缩容以及负载平衡。它提供了出色的社区，并与所有云提供商合作。因" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/docker/20240608-k8s-base/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="kubernetes 基础组件及作用" />
+<meta property="og:description" content="Kubernetes documentation 什么是 Kubernetes？ Kubernetes 是一个开源容器管理工具，负责容器部署，容器扩缩容以及负载平衡。它提供了出色的社区，并与所有云提供商合作。因" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/docker/20240608-k8s-base/" />
+<meta property="article:published_time" content="2024-06-08T16:23:53+08:00" />
+<meta property="article:modified_time" content="2024-06-08T16:23:53+08:00" />
+<meta itemprop="name" content="kubernetes 基础组件及作用">
+<meta itemprop="description" content="Kubernetes documentation 什么是 Kubernetes？ Kubernetes 是一个开源容器管理工具，负责容器部署，容器扩缩容以及负载平衡。它提供了出色的社区，并与所有云提供商合作。因">
+<meta itemprop="datePublished" content="2024-06-08T16:23:53&#43;08:00" />
+<meta itemprop="dateModified" content="2024-06-08T16:23:53&#43;08:00" />
+<meta itemprop="wordCount" content="1642">
+
+
+
+<meta itemprop="keywords" content="kubernetes,docker," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="kubernetes 基础组件及作用"/>
+<meta name="twitter:description" content="Kubernetes documentation 什么是 Kubernetes？ Kubernetes 是一个开源容器管理工具，负责容器部署，容器扩缩容以及负载平衡。它提供了出色的社区，并与所有云提供商合作。因"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">kubernetes 基础组件及作用</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-06-08 </span>
+        <div class="post-category">
+            <a href="/categories/docker/"> docker </a>
+            <a href="/categories/kubernetes/"> kubernetes </a>
+            </div>
+          <span class="more-meta"> 1642 words </span>
+          <span class="more-meta"> 4 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#什么是-kubernetes">什么是 Kubernetes？</a></li>
+    <li><a href="#kubernetes-如何简化容器化部署">Kubernetes 如何简化容器化部署？</a></li>
+    <li><a href="#什么是-kubectl">什么是 kubectl？</a></li>
+    <li><a href="#什么是-kubelet">什么是 kubelet？</a></li>
+    <li><a href="#k8s-有哪些组件">k8s 有哪些组件？</a></li>
+    <li><a href="#什么是-ingress它是如何工作的">什么是 Ingress，它是如何工作的？</a></li>
+    <li><a href="#service的类型有哪几种">service的类型有哪几种</a></li>
+    <li><a href="#pod到service的通信">Pod到Service的通信？</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p><a href="https://kubernetes.io/docs/reference/">Kubernetes documentation</a></p>
+</blockquote>
+<h2 id="什么是-kubernetes">什么是 Kubernetes？</h2>
+<p>Kubernetes 是一个开源容器管理工具，负责容器部署，容器扩缩容以及负载平衡。它提供了出色的社区，并与所有云提供商合作。因此，可以说 Kubernetes 不是一个容器化平台，而是一个多容器管理解决方案。</p>
+<p>其目标是让部署容器化的应用简单并且高效（powerful）,Kubernetes提供了应用部署，规划，更新，维护的一种机制。</p>
+<h2 id="kubernetes-如何简化容器化部署">Kubernetes 如何简化容器化部署？</h2>
+<p>跨主机的容器都需要相互通信。因此，要做到这一点，需要一些能够负载平衡，扩展和监控容器的东西。由于 Kubernetes 与云无关并且可以在任何公共/私有提供商上运行，因此可以简化容器化部署程序。</p>
+<h2 id="什么是-kubectl">什么是 kubectl？</h2>
+<p>Kubectl 是一个平台，可以使用该平台将命令传递给集群。因此，它基本上为CLI 提供了针对 Kubernetes 集群运行命令的方法，以及创建和管理 Kubernetes组件的各种方法。</p>
+<h2 id="什么是-kubelet">什么是 kubelet？</h2>
+<p>kubelet是一个代理服务，它在每个节点上运行，并使从服务器与主服务器通信。因此，Kubelet 处理 PodSpec 中提供给它的容器的描述，并确保 PodSpec 中描述的容器运行正常。可以创建 pod、删除 pod。</p>
+<h2 id="k8s-有哪些组件">k8s 有哪些组件？</h2>
+<ol>
+<li>etcd 保存了整个集群的状态；</li>
+<li>apiserver 提供了资源操作的唯一入口，并提供认证、授权、访问控制、API 注册和发现等机制；</li>
+<li>controller manager 负责维护集群的状态，比如故障检测、自动扩展、滚动更新等；</li>
+<li>scheduler 负责资源的调度，按照预定的调度策略将 Pod 调度到相应的机器上；</li>
+<li>kubelet 负责维护容器的生命周期，同时也负责 Volume（CVI）和网络（CNI）的管理；</li>
+<li>Container runtime 负责镜像管理以及 Pod 和容器的真正运行（CRI）；</li>
+<li>kube-proxy 负责为 Service 提供 cluster 内部的服务发现和负载均衡。</li>
+</ol>
+<h2 id="什么是-ingress它是如何工作的">什么是 Ingress，它是如何工作的？</h2>
+<p>Ingress 网络是一组规则，充当 Kubernetes 集群的入口点。这允许入站连接，可以将其配置为通过可访问的 URL，负载平衡流量或通过提供基于名称的虚拟主机从外部提供服务。因此，Ingress 是一个 API 对象，通常通过 HTTP 管理集群中服务的外部访问，是暴露服务的最有效方式。</p>
+<h2 id="service的类型有哪几种">service的类型有哪几种</h2>
+<p>service的类型一般有4中，分别是：</p>
+<ul>
+<li>
+<p>ClusterIP：表示service仅供集群内部使用，默认值就是ClusterIP类型</p>
+</li>
+<li>
+<p>NodePort：表示service可以对外访问应用，会在每个节点上暴露一个端口，这样外部浏览器访问地址为：任意节点的IP：NodePort就能连上service了</p>
+</li>
+<li>
+<p>LoadBalancer：表示service对外访问应用，这种类型的service是公有云环境下的service，此模式需要外部云厂商的支持，需要有一个公网IP地址</p>
+</li>
+<li>
+<p>ExternalName：这种类型的service会把集群外部的服务引入集群内部，这样集群内直接访问service就可以间接的使用集群外部服务了</p>
+</li>
+</ul>
+<p>一般情况下，service都是ClusterIP类型的，通过ingress接入的外部流量。</p>
+<h2 id="pod到service的通信">Pod到Service的通信？</h2>
+<ol>
+<li>
+<p>k8s在创建服务时为服务分配一个虚拟IP，客户端通过该IP访问服务，服务则负责将请求转发到后端Pod上；</p>
+</li>
+<li>
+<p>Service是通过kube-proxy服务进程实现，该进程在每个Node上均运行可以看作一个透明代理兼负载均衡器；</p>
+</li>
+<li>
+<p>对每个TCP类型Service，kube-proxy都会在本地Node上建立一个SocketServer来负责接受请求，然后均匀发送到后端Pod默认采用Round Robin负载均衡算法；</p>
+</li>
+<li>
+<p>Service的Cluster IP与NodePort等概念是kube-proxy通过Iptables的NAT转换实现，kube-proxy进程动态创建与Service相关的Iptables规则；</p>
+</li>
+<li>
+<p>kube-proxy通过查询和监听API Server中Service与Endpoints的变化来实现其主要功能，包括为新创建的Service打开一个本地代理对象，接收请求针对针对发生变化的Service列表，kube-proxy会逐个处理；</p>
+</li>
+</ol>
+<p>更多k8s基础知识及问题解答见：</p>
+<p><a href="https://mp.weixin.qq.com/s/NbbI0zj81Zx759RPtfnyIQ">kuberntes架构师200题大全</a></p>
+<p><a href="https://mp.weixin.qq.com/s/8TNCVZ5jSYmJxXimI5XbkQ">K8S面试题</a></p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://kubernetes.io/docs/reference/">Kubernetes documentation</a></li>
+<li><a href="https://www.kubernetes.org.cn/">Kubernetes 社区</a></li>
+<li><a href="https://kubernetes.feisky.xyz/">kubernetes 指南</a></li>
+<li><a href="https://jimmysong.io/book/kubernetes-handbook/">Kubernetes 基础教程</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-06-08
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/kubernetes/">kubernetes</a>
+          <a href="/tags/docker/">docker</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/python/20240609-pytest-install/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Mac pytest install error: externally-managed-environment</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/python/20240608-snowflake-fastapi/">
+            <span class="next-text nav-default">Python Fastapi 实现获取 Snowflake ID 接口</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'kubernetes 基础组件及作用',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

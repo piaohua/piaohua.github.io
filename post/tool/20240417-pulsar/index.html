@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Apache Pulsar 基本概念学习 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="Apache Pulsar 是灵活的发布-订阅消息系统（Flexible Pub/Sub messaging），采用计算与存储分离的架构。雅虎在 2013 年开始开发 Pulsar ，于 2016 年首次开源，目前" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/tool/20240417-pulsar/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Apache Pulsar 基本概念学习" />
+<meta property="og:description" content="Apache Pulsar 是灵活的发布-订阅消息系统（Flexible Pub/Sub messaging），采用计算与存储分离的架构。雅虎在 2013 年开始开发 Pulsar ，于 2016 年首次开源，目前" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/tool/20240417-pulsar/" />
+<meta property="article:published_time" content="2024-04-17T22:02:29+08:00" />
+<meta property="article:modified_time" content="2024-04-17T22:02:29+08:00" />
+<meta itemprop="name" content="Apache Pulsar 基本概念学习">
+<meta itemprop="description" content="Apache Pulsar 是灵活的发布-订阅消息系统（Flexible Pub/Sub messaging），采用计算与存储分离的架构。雅虎在 2013 年开始开发 Pulsar ，于 2016 年首次开源，目前">
+<meta itemprop="datePublished" content="2024-04-17T22:02:29&#43;08:00" />
+<meta itemprop="dateModified" content="2024-04-17T22:02:29&#43;08:00" />
+<meta itemprop="wordCount" content="2567">
+
+
+
+<meta itemprop="keywords" content="pulsar," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Apache Pulsar 基本概念学习"/>
+<meta name="twitter:description" content="Apache Pulsar 是灵活的发布-订阅消息系统（Flexible Pub/Sub messaging），采用计算与存储分离的架构。雅虎在 2013 年开始开发 Pulsar ，于 2016 年首次开源，目前"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Apache Pulsar 基本概念学习</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-04-17 </span>
+        <div class="post-category">
+            <a href="/categories/pulsar/"> pulsar </a>
+            </div>
+          <span class="more-meta"> 2567 words </span>
+          <span class="more-meta"> 6 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#pulsar-组件">Pulsar 组件</a>
+      <ul>
+        <li><a href="#层级存储">层级存储</a></li>
+        <li><a href="#pulsar-functions">Pulsar Functions</a></li>
+        <li><a href="#pulsar-io">Pulsar IO</a></li>
+      </ul>
+    </li>
+    <li><a href="#pulsar-基本概念">Pulsar 基本概念</a>
+      <ul>
+        <li><a href="#producer4--consumer5"><a href="https://pulsar.apache.org/docs/3.2.x/schema-overview/#producer-side">Producer</a> &amp; <a href="https://pulsar.apache.org/docs/3.2.x/schema-overview/#consumer-side">Consumer</a></a></li>
+        <li><a href="#subscription">Subscription</a></li>
+        <li><a href="#exclusive">Exclusive</a></li>
+        <li><a href="#failover">Failover</a></li>
+        <li><a href="#shared">Shared</a></li>
+        <li><a href="#key_shared">Key_Shared</a></li>
+        <li><a href="#存储模型">存储模型</a></li>
+        <li><a href="#ack-机制">Ack 机制</a></li>
+        <li><a href="#消息生命周期">消息生命周期</a></li>
+        <li><a href="#持久topic6--非持久topic7"><a href="https://pulsar.apache.org/docs/3.2.x/concepts-architecture-overview/#persistent-storage">持久topic</a> &amp; <a href="https://pulsar.apache.org/docs/3.2.x/concepts-messaging/#non-persistent-topics">非持久topic</a></a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p><a href="https://pulsar.apache.org/">Apache Pulsar</a> 是灵活的发布-订阅消息系统（Flexible Pub/Sub messaging），采用计算与存储分离的架构。雅虎在 2013 年开始开发 Pulsar ，于 2016 年首次开源，目前是 Apache 软件基金会的顶级项目。Pulsar 具有支持多租户、持久化存储、多机房跨区域数据复制、高吞吐、低延迟等特性。</p>
+</blockquote>
+<h2 id="pulsar-组件">Pulsar 组件</h2>
+<p>Pulsar 集群主要由以下三部分组成：</p>
+<ul>
+<li><strong>Broker</strong>：Pulsar 的 broker 是一个无状态组件，本身不存储数据。主要负责处理 producer 和 consumer 的请求，消息的复制与分发，数据的计算。</li>
+<li><strong>Zookeeper</strong>：主要用于存储元数据、集群配置，任务的协调（例如哪个 broker 负责哪个 topic），服务的发现（例如 broker 发现 bookie 的地址）。</li>
+<li><strong>Bookeeper</strong>：主要用于数据的持久化存储。除了消息数据，cursors 也会被持久化到 Bookeeper，cursors 是消费端订阅消费的位移。Bookeeper 中每一个存储节点叫做 bookie。</li>
+</ul>
+<p><img src="https://pulsar.apache.org/assets/images/pulsar-service-discovery-82df27ebfa89540d04bf34dfa4fa1b8d.png" alt="concepts-architecture-overview" title="pulsar-service-discovery"></p>
+<h3 id="层级存储">层级存储</h3>
+<p>层级存储的优势：</p>
+<ul>
+<li>Inﬁnite Stream: 以流的方式永久保存原始数据</li>
+<li>分区的容量不再受限</li>
+<li>充分利⽤云存储或现有的廉价存储 ( 例如 HDFS)</li>
+<li>数据统⼀表征：客户端无需关⼼数据究竟存储在哪⾥</li>
+</ul>
+<h3 id="pulsar-functions">Pulsar Functions</h3>
+<p><a href="https://pulsar.apache.org/docs/3.2.x/functions-overview/">Pulsar Functions</a> 是一个轻量级的计算框架，可以给用户提供一个部署简单、运维简单、API 简单的 FASS（Function as a service）平台。Pulsar Functions 提供基于事件的服务，支持有状态与无状态的多语言计算，是对复杂的大数据处理框架的有力补充。</p>
+<p><img src="https://pulsar.apache.org/assets/images/function-overview-df56ee014ed344f64e7e0f807bd576c2.svg" alt="pulsar functions"></p>
+<h3 id="pulsar-io">Pulsar IO</h3>
+<p><a href="https://pulsar.apache.org/docs/3.2.x/io-overview/">Pulsar IO</a> 分为输入（Input）和输出（Output）两个模块，输入代表数据从哪里来，通过 Source 实现数据输入。输出代表数据要往哪里去，通过 Sink 实现数据输出。</p>
+<p><img src="https://pulsar.apache.org/assets/images/pulsar-io-8e834df5eaed9d5b0a7e0ffa162e850a.png" alt="plusar sink"></p>
+<h2 id="pulsar-基本概念">Pulsar 基本概念</h2>
+<h3 id="producer4--consumer5"><a href="https://pulsar.apache.org/docs/3.2.x/schema-overview/#producer-side">Producer</a> &amp; <a href="https://pulsar.apache.org/docs/3.2.x/schema-overview/#consumer-side">Consumer</a></h3>
+<p>身为⼀个 Pub/Sub 系统，⾸先的存在要素必然是 producer（⽣产者）。producer 发送数据给 Pulsar，将消息以 append 的形式追加到 topic 中。发送的数据是 key/value 形式的，并且数据会上 schema 的信息。Pulsar 会确保⼀个 producer 往 topic 发送的消息满⾜⼀定的 schema 格式。</p>
+<h3 id="subscription">Subscription</h3>
+<p>Pulsar ⾥将 consumer 接收消息的过程称之为：subscription（订阅），类似于 Kafka 的 consumer group（消费组）。⼀个订阅⾥的所有 consumer，会作为⼀个整体去消费这个 topic ⾥的所有消息。Pulsar 有四种订阅模式：独占（exclusive）、故障转移（failover）、共享（shared）、共享键（key_shared）。</p>
+<h3 id="exclusive">Exclusive</h3>
+<p>在 exclusive 模式下，一个 subscription 只允许被一个 consumer 用于订阅 topic ，如果多个 consumer 使用相同的 subscription 去订阅同一个 topic，则会发生错误。exclusive 是默认的订阅模式。如下图所示，Consumer A-0 和 Consumer A-1 都使用了相同的 subscription（相同的消费组），只有 Consumer A-0 被允许消费消息。</p>
+<h3 id="failover">Failover</h3>
+<p>在 failover 模式下，多个 consumer 允许使用同一个 subscription 去订阅 topic。但是对于给定的 topic，broker 将选择⼀个 consumer 作为该 topic 的主 consumer ，其他 consumer 将被指定为故障转移 consumer 。当主 consumer 失去连接时，topic 将被重新分配给其中⼀个故障转移 consumer ，⽽新分配的 consumer 将成为新的主 consumer 。发⽣这种情况时，所有未确认的消息都将传递给新的主 consumer ，这个过程类似于 Kafka 中的 consumer 组重平衡（rebalance）。</p>
+<h3 id="shared">Shared</h3>
+<p>在 shared 模式下，多个 consumer 可以使用同一个 subscription 去订阅 topic。消息以轮询的方式分发给 consumer ，并且每条消费仅发送给一个 consumer 。当有 consumer 失去连接时，所有发送给该 consumer 但未被确认的消息将被重新安排，以便发送给该 subscription 上剩余的 consumer 。</p>
+<p>shared 模式有以下限制：</p>
+<ul>
+<li>消息不能保证有序。</li>
+<li>不支持批量 ack。</li>
+</ul>
+<h3 id="key_shared">Key_Shared</h3>
+<p>key_shared 是 Pulsar 2.4.0 以后⼀个新订阅模式。在 shared 模式下，多个 consumer 可以使用同一个 subscription 去订阅 topic。消息按照 key 分发给 consumer ，含有相同 key 的消息只被发送给同一个 consumer 。</p>
+<p>key_shared 模式有以下限制：</p>
+<ul>
+<li>需要为每条消息指定一个 key 或者 orderingKey。</li>
+<li>不支持批量 ack。</li>
+<li>producer 应该禁用 batch 或者使用基于 key 的 batch。</li>
+</ul>
+<h3 id="存储模型">存储模型</h3>
+<ul>
+<li>第一层抽象是 topic（partition），topic 是一个逻辑的概念，topic 是消息的集合，所有⽣产者的消息，都会归属到指定的 topic ⾥。所有在 topic ⾥的消息，会按照⼀定的规则，被切分成不同的分区（partition）。在 Kafka 中 partition 是真正的物理单元，但是在 Pulsar 中 partition 仍然是一个逻辑的概念。</li>
+<li>Pulsar 把 partition 进一步分成多个分片（segment），segment 是 Pulsar 中真正的物理单元，Pulsar 中的数据是持久化在 Bookeeper 中的，segment 其实对应的就是 Bookeeper 中的 ledger。</li>
+<li>在分片中存储了更小粒度的 entry，entry 存储的是一条或者一个 batch 的消息，batch 是一次性批量提交多条消息。</li>
+</ul>
+<h3 id="ack-机制">Ack 机制</h3>
+<p>在 Pulsar 中支持了两种 ack 的机制，分别是单条 ack 和批量 ack。单条 ack（AckIndividual）是指 consumer 可以根据消息的 messageID 来针对某一个特定的消息进行 ack 操作；批量 ack（AckCumulative）是指一次 ack 多条消息。</p>
+<h3 id="消息生命周期">消息生命周期</h3>
+<p>默认情况下，Pulsar Broker 会对消息做如下处理：</p>
+<ul>
+<li>当消息被 consumer 确认之后，会立即执行删除操作。</li>
+<li>对于未被确认的消息会存储到 backlog 中。</li>
+</ul>
+<p>但是，很多线上的生产环境下，这种默认行为并不能满足我们的生产需求，所以，Pulsar 提供了如下配置策略来覆盖这些行为：</p>
+<ul>
+<li>Retention 策略：用户可以将 consumer 已经确认的消息保留下来。</li>
+<li>TTL 策略：对于未确认的消息，用户可以通过设置 TTL 来使未确认的消息到达已经确认的状态。</li>
+</ul>
+<p>上述两种策略的设置都是在 NameSpace 的级别进行设置。</p>
+<h3 id="持久topic6--非持久topic7"><a href="https://pulsar.apache.org/docs/3.2.x/concepts-architecture-overview/#persistent-storage">持久topic</a> &amp; <a href="https://pulsar.apache.org/docs/3.2.x/concepts-messaging/#non-persistent-topics">非持久topic</a></h3>
+<ul>
+<li>持久topic: 持久topic是指存储在Pulsar中的消息将持久保存，即使没有消费者订阅该topic，消息仍然会被保留。这使得消费者在稍后加入时可以接收到之前发布的消息。</li>
+<li>非持久topic:  非持久topic则不会保存消息，如果没有活跃的订阅者，消息将会被丢弃。这种类型的topic适用于实时性要求高、不需要历史消息的场景。</li>
+</ul>
+<p>使用Pulsar Python API的简单示例，演示如何创建生产者和消费者。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">from</span> <span class="nn">pulsar</span> <span class="kn">import</span> <span class="n">Client</span>
+ 
+<span class="c1"># Pulsar 服务地址</span>
+<span class="n">service_url</span> <span class="o">=</span> <span class="s1">&#39;pulsar://localhost:6650&#39;</span>
+ 
+<span class="c1"># 创建Pulsar客户端</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">service_url</span><span class="p">)</span>
+ 
+<span class="c1"># 创建一个生产者，发送消息到&#34;persistent://public/default/my-topic&#34;</span>
+<span class="n">producer</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_producer</span><span class="p">(</span><span class="s1">&#39;persistent://public/default/my-topic&#39;</span><span class="p">)</span>
+ 
+<span class="c1"># 发送一条消息</span>
+<span class="n">producer</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s1">&#39;Hello, Pulsar!&#39;</span><span class="p">)</span>
+ 
+<span class="c1"># 关闭生产者</span>
+<span class="n">producer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+ 
+<span class="c1"># 创建一个消费者，从&#34;persistent://public/default/my-topic&#34;接收消息</span>
+<span class="n">consumer</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_consumer</span><span class="p">(</span><span class="s1">&#39;persistent://public/default/my-topic&#39;</span><span class="p">)</span>
+ 
+<span class="c1"># 接收消息</span>
+<span class="n">msg</span> <span class="o">=</span> <span class="n">consumer</span><span class="o">.</span><span class="n">receive</span><span class="p">()</span>
+ 
+<span class="c1"># 打印接收到的消息内容</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&#34;Received message: &#34;</span><span class="p">,</span> <span class="n">msg</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+ 
+<span class="c1"># 关闭消费者</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+ 
+<span class="c1"># 关闭客户端</span>
+<span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://pulsar.apache.org/">Apache Pulsar</a></li>
+<li><a href="https://mp.weixin.qq.com/s/N7UZchlkkJLB6BsBuOny1g">Apache Pulsar 从入门到实践</a></li>
+<li><a href="https://mp.weixin.qq.com/s/Fb4FReqSGfHZfINY9Ws9LA">200+ 精选 Apache Pulsar 资料合集</a></li>
+<li><a href="https://mp.weixin.qq.com/s/nAiFA_yGGwrra_CYLsR2lg">下一代消息系统 Apache Pulsar 中文入门指南</a></li>
+<li><a href="http://github.com/apache/pulsar/">github pulsar</a></li>
+<li><a href="https://segmentfault.com/a/1190000041096450?sort=votes">一文读懂 Apache Pulsar</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-04-17
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/pulsar/">pulsar</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/tool/20240424-mongodb/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">了解 MongoDB 看这一篇就够了【华为云技术分享】</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/golang/20240417-go-list/">
+            <span class="next-text nav-default">[Go] go list 命令</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'Apache Pulsar 基本概念学习',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

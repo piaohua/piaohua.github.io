@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>完全二叉树的复原 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="完全二叉树的复原 完全二叉树是一种特殊的二叉树，其中除了最后一层之外，其他层的节点都是满的，且最后一层的节点都集中在左侧。要复原一个完全二叉树" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/python/20240314-build-tree/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="完全二叉树的复原" />
+<meta property="og:description" content="完全二叉树的复原 完全二叉树是一种特殊的二叉树，其中除了最后一层之外，其他层的节点都是满的，且最后一层的节点都集中在左侧。要复原一个完全二叉树" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/python/20240314-build-tree/" />
+<meta property="article:published_time" content="2024-03-14T11:01:07+08:00" />
+<meta property="article:modified_time" content="2024-03-14T11:01:07+08:00" />
+<meta itemprop="name" content="完全二叉树的复原">
+<meta itemprop="description" content="完全二叉树的复原 完全二叉树是一种特殊的二叉树，其中除了最后一层之外，其他层的节点都是满的，且最后一层的节点都集中在左侧。要复原一个完全二叉树">
+<meta itemprop="datePublished" content="2024-03-14T11:01:07&#43;08:00" />
+<meta itemprop="dateModified" content="2024-03-14T11:01:07&#43;08:00" />
+<meta itemprop="wordCount" content="945">
+
+
+
+<meta itemprop="keywords" content="python," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="完全二叉树的复原"/>
+<meta name="twitter:description" content="完全二叉树的复原 完全二叉树是一种特殊的二叉树，其中除了最后一层之外，其他层的节点都是满的，且最后一层的节点都集中在左侧。要复原一个完全二叉树"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">完全二叉树的复原</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-03-14 </span>
+        <div class="post-category">
+            <a href="/categories/python/"> python </a>
+            </div>
+          <span class="more-meta"> 945 words </span>
+          <span class="more-meta"> 2 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>完全二叉树的复原</p>
+</blockquote>
+<p>完全二叉树是一种特殊的二叉树，其中除了最后一层之外，其他层的节点都是满的，且最后一层的节点都集中在左侧。要复原一个完全二叉树，通常需要其前序遍历或中序遍历以及后序遍历的结果。但由于完全二叉树的特殊性质，通常只需要前序遍历和中序遍历的结果就可以唯一确定一棵完全二叉树。</p>
+<p>下面是一个基于前序遍历和中序遍历复原完全二叉树的简单算法：</p>
+<ul>
+<li>前序遍历结果：首先访问根节点，然后遍历左子树，最后遍历右子树。</li>
+<li>中序遍历结果：首先遍历左子树，然后访问根节点，最后遍历右子树。</li>
+</ul>
+<p>算法步骤：</p>
+<ol>
+<li>从前序遍历的结果中，可以确定第一个节点是根节点。</li>
+<li>在中序遍历的结果中，找到根节点的位置。它将中序遍历结果分为两部分：左子树和右子树。</li>
+<li>使用根节点和中序遍历中根节点的位置，将前序遍历结果分为两部分：左子树的前序遍历和右子树的前序遍历。</li>
+<li>递归地执行上述步骤，为左子树和右子树建立完全二叉树。</li>
+</ol>
+<p>下面是一个Python示例代码：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">TreeNode</span><span class="p">:</span>  
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>  
+        <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">=</span> <span class="n">val</span>  
+        <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">left</span>  
+        <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">right</span>  
+  
+<span class="k">def</span> <span class="nf">buildTree</span><span class="p">(</span><span class="n">preorder</span><span class="p">,</span> <span class="n">inorder</span><span class="p">):</span>  
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">preorder</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">inorder</span><span class="p">:</span>  
+        <span class="k">return</span> <span class="bp">None</span>  
+  
+    <span class="c1"># 前序遍历的第一个节点是根节点  </span>
+    <span class="n">root_val</span> <span class="o">=</span> <span class="n">preorder</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  
+    <span class="n">root</span> <span class="o">=</span> <span class="n">TreeNode</span><span class="p">(</span><span class="n">root_val</span><span class="p">)</span>  
+  
+    <span class="c1"># 在中序遍历中找到根节点的位置  </span>
+    <span class="n">root_index</span> <span class="o">=</span> <span class="n">inorder</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">root_val</span><span class="p">)</span>  
+  
+    <span class="c1"># 切割左子树和右子树的前序遍历和中序遍历结果  </span>
+    <span class="n">left_inorder</span> <span class="o">=</span> <span class="n">inorder</span><span class="p">[:</span><span class="n">root_index</span><span class="p">]</span>  
+    <span class="n">right_inorder</span> <span class="o">=</span> <span class="n">inorder</span><span class="p">[</span><span class="n">root_index</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>  
+    <span class="n">left_preorder</span> <span class="o">=</span> <span class="n">preorder</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">root_index</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>  
+    <span class="n">right_preorder</span> <span class="o">=</span> <span class="n">preorder</span><span class="p">[</span><span class="n">root_index</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>  
+  
+    <span class="c1"># 递归地构建左子树和右子树  </span>
+    <span class="n">root</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">buildTree</span><span class="p">(</span><span class="n">left_preorder</span><span class="p">,</span> <span class="n">left_inorder</span><span class="p">)</span>  
+    <span class="n">root</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">buildTree</span><span class="p">(</span><span class="n">right_preorder</span><span class="p">,</span> <span class="n">right_inorder</span><span class="p">)</span>  
+  
+    <span class="k">return</span> <span class="n">root</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>假设有棵完全二叉树的结构如下:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">    1  
+   / \  
+  2   3  
+ / \ / \  
+4  5 6
+</code></pre></td></tr></table>
+</div>
+</div><p>前序遍历（preorder）: [1, 2, 4, 5, 3, 6]
+中序遍历（inorder）: [4, 2, 5, 1, 6, 3]</p>
+<p>复原这棵完全二叉树:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># 定义前序遍历和中序遍历结果  </span>
+<span class="n">preorder</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">]</span>  
+<span class="n">inorder</span> <span class="o">=</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>  
+  
+<span class="c1"># 调用buildTree函数来复原完全二叉树  </span>
+<span class="n">root</span> <span class="o">=</span> <span class="n">buildTree</span><span class="p">(</span><span class="n">preorder</span><span class="p">,</span> <span class="n">inorder</span><span class="p">)</span>  
+  
+<span class="c1"># 打印复原后的完全二叉树（这里只是简单地打印节点值，实际上可能需要递归地打印整棵树）  </span>
+<span class="k">def</span> <span class="nf">print_tree</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>  
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="p">:</span>  
+        <span class="k">return</span>  
+    <span class="k">print</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>  
+    <span class="n">print_tree</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">left</span><span class="p">)</span>  
+    <span class="n">print_tree</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>  
+  
+<span class="n">print_tree</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>运行上面的代码时，它将输出复原后的完全二叉树的节点值，按照层次遍历的顺序（左到右，上到下）：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">1  
+2  
+4  
+5  
+3  
+6
+</code></pre></td></tr></table>
+</div>
+</div><p>创建一个二叉树，并遍历二叉树</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="c1"># 前序遍历</span>
+<span class="k">def</span> <span class="nf">preorderTraversal</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>  
+    <span class="k">if</span> <span class="n">root</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>  
+        <span class="k">return</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="n">preorderTraversal</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">left</span><span class="p">)</span>
+    <span class="n">preorderTraversal</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
+
+<span class="c1"># 中序遍历</span>
+<span class="k">def</span> <span class="nf">inorderTraversal</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">root</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>  
+        <span class="k">return</span>
+    <span class="n">inorderTraversal</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">left</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="n">inorderTraversal</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
+
+<span class="c1"># 后序遍历</span>
+<span class="k">def</span> <span class="nf">postorderTraversal</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">root</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>  
+        <span class="k">return</span>
+    <span class="n">postorderTraversal</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">left</span><span class="p">)</span>
+    <span class="n">postorderTraversal</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+<span class="c1"># 创建二叉树</span>
+<span class="n">left</span> <span class="o">=</span> <span class="n">TreeNode</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">TreeNode</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span><span class="n">TreeNode</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">right</span> <span class="o">=</span> <span class="n">TreeNode</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="n">TreeNode</span><span class="p">(</span><span class="mi">6</span><span class="p">),</span><span class="n">TreeNode</span><span class="p">(</span><span class="mi">7</span><span class="p">))</span>
+<span class="n">root</span> <span class="o">=</span> <span class="n">TreeNode</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
+
+<span class="n">preorderTraversal</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">&#34;</span><span class="p">)</span>
+<span class="n">inorderTraversal</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">&#34;</span><span class="p">)</span>
+<span class="n">postorderTraversal</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://mp.weixin.qq.com/s/7uWheJkqO68iO1Dt7BQqew">美团面试官：你对二叉树后续遍历一无所知</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-03-14
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/python/">python</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/mysql/20240314-diff-varchar-size/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">varchar(50)和varchar(500)有什么区别？</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/python/20240314-linked-list-delete-nth-from-end/">
+            <span class="next-text nav-default">删除链表倒数第n个元素</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: '完全二叉树的复原',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

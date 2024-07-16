@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>将对象上传到aws s3存储桶方案 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="将对象上传到aws s3存储桶方案 aws s3提供多种文件上传方式： 业务服务器中转，即业务客户端上传对象到业务服务器，业务服务器接收并上传到s3。 这" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/golang/20240117-aws-s3-uploading/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="将对象上传到aws s3存储桶方案" />
+<meta property="og:description" content="将对象上传到aws s3存储桶方案 aws s3提供多种文件上传方式： 业务服务器中转，即业务客户端上传对象到业务服务器，业务服务器接收并上传到s3。 这" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20240117-aws-s3-uploading/" />
+<meta property="article:published_time" content="2024-01-17T15:05:09+08:00" />
+<meta property="article:modified_time" content="2024-01-17T15:05:09+08:00" />
+<meta itemprop="name" content="将对象上传到aws s3存储桶方案">
+<meta itemprop="description" content="将对象上传到aws s3存储桶方案 aws s3提供多种文件上传方式： 业务服务器中转，即业务客户端上传对象到业务服务器，业务服务器接收并上传到s3。 这">
+<meta itemprop="datePublished" content="2024-01-17T15:05:09&#43;08:00" />
+<meta itemprop="dateModified" content="2024-01-17T15:05:09&#43;08:00" />
+<meta itemprop="wordCount" content="737">
+
+
+
+<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="将对象上传到aws s3存储桶方案"/>
+<meta name="twitter:description" content="将对象上传到aws s3存储桶方案 aws s3提供多种文件上传方式： 业务服务器中转，即业务客户端上传对象到业务服务器，业务服务器接收并上传到s3。 这"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">将对象上传到aws s3存储桶方案</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-01-17 </span>
+        <div class="post-category">
+            <a href="/categories/golang/"> golang </a>
+            <a href="/categories/s3/"> s3 </a>
+            </div>
+          <span class="more-meta"> 737 words </span>
+          <span class="more-meta"> 2 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#服务器sdk上传示例">服务器SDK上传示例</a></li>
+    <li><a href="#生成预签名url">生成预签名URL</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>将对象上传到aws s3存储桶方案</p>
+</blockquote>
+<p>aws s3提供多种文件上传方式：</p>
+<ol>
+<li>业务服务器中转，即业务客户端上传对象到业务服务器，业务服务器接收并上传到s3。
+这个方案缺点非常明显，上传链路变长，耗时也就长，同时对业务服务器资源和入口流量有要求。</li>
+<li>客户端直接上传到s3，即s3提供的PresignedUrl上传方式。
+业务服务器生成一个有使用次数和时间限制的URL给客户端，客户端直接使用URL上传，上传完成后将响应url上报服务器效验及后续处理。
+客户端上传需要解决跨域问题，在对象桶权限中编辑设置。</li>
+</ol>
+<h2 id="服务器sdk上传示例">服务器SDK上传示例</h2>
+<p>使用AWS Go SDK上传文件到S3存储桶的示例代码</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+    <span class="s">&#34;fmt&#34;</span>
+    <span class="s">&#34;os&#34;</span>
+
+    <span class="s">&#34;github.com/aws/aws-sdk-go/aws&#34;</span>
+    <span class="s">&#34;github.com/aws/aws-sdk-go/aws/session&#34;</span>
+    <span class="s">&#34;github.com/aws/aws-sdk-go/service/s3&#34;</span>
+<span class="p">)</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// 配置AWS会话
+</span><span class="c1"></span>    <span class="nx">sess</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">session</span><span class="p">.</span><span class="nf">NewSession</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">aws</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+        <span class="nx">Region</span><span class="p">:</span> <span class="nx">aws</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="s">&#34;us-west-2&#34;</span><span class="p">),</span>
+    <span class="p">})</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;无法创建AWS会话&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="p">}</span>
+
+    <span class="c1">// 创建S3服务客户端
+</span><span class="c1"></span>    <span class="nx">svc</span> <span class="o">:=</span> <span class="nx">s3</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">sess</span><span class="p">)</span>
+
+    <span class="c1">// 指定要上传的文件
+</span><span class="c1"></span>    <span class="nx">file</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="s">&#34;example.txt&#34;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;无法打开文件&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="p">}</span>
+    <span class="k">defer</span> <span class="nx">file</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+
+    <span class="c1">// 配置S3对象
+</span><span class="c1"></span>    <span class="nx">key</span> <span class="o">:=</span> <span class="s">&#34;example.txt&#34;</span>
+    <span class="nx">bucket</span> <span class="o">:=</span> <span class="s">&#34;my-bucket&#34;</span>
+
+    <span class="c1">// 上传文件到S3存储桶
+</span><span class="c1"></span>    <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">svc</span><span class="p">.</span><span class="nf">PutObject</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">s3</span><span class="p">.</span><span class="nx">PutObjectInput</span><span class="p">{</span>
+        <span class="nx">Body</span><span class="p">:</span>   <span class="nx">file</span><span class="p">,</span>
+        <span class="nx">Bucket</span><span class="p">:</span> <span class="nx">aws</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="nx">bucket</span><span class="p">),</span>
+        <span class="nx">Key</span><span class="p">:</span>    <span class="nx">aws</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="nx">key</span><span class="p">),</span>
+    <span class="p">})</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;无法上传文件到S3&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="p">}</span>
+
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;文件上传成功&#34;</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="生成预签名url">生成预签名URL</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+    <span class="s">&#34;github.com/aws/aws-sdk-go/aws&#34;</span>
+    <span class="s">&#34;github.com/aws/aws-sdk-go/aws/session&#34;</span>
+    <span class="s">&#34;github.com/aws/aws-sdk-go/service/s3&#34;</span>
+    <span class="s">&#34;log&#34;</span>
+    <span class="s">&#34;strings&#34;</span>
+    <span class="s">&#34;time&#34;</span>
+<span class="p">)</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// Initialize a session in us-west-2 that the SDK will use to load
+</span><span class="c1"></span>    <span class="c1">// credentials from the shared credentials file ~/.aws/credentials.
+</span><span class="c1"></span>    <span class="nx">sess</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">session</span><span class="p">.</span><span class="nf">NewSession</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">aws</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+        <span class="nx">Region</span><span class="p">:</span> <span class="nx">aws</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="s">&#34;us-west-2&#34;</span><span class="p">)},</span>
+    <span class="p">)</span>
+
+    <span class="c1">// Create S3 service client
+</span><span class="c1"></span>    <span class="nx">svc</span> <span class="o">:=</span> <span class="nx">s3</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">sess</span><span class="p">)</span>
+
+    <span class="nx">req</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">svc</span><span class="p">.</span><span class="nf">PutObjectRequest</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">s3</span><span class="p">.</span><span class="nx">PutObjectInput</span><span class="p">{</span>
+        <span class="nx">Bucket</span><span class="p">:</span> <span class="nx">aws</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="s">&#34;myBucket&#34;</span><span class="p">),</span>
+        <span class="nx">Key</span><span class="p">:</span>    <span class="nx">aws</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="s">&#34;myKey&#34;</span><span class="p">),</span>
+        <span class="nx">Body</span><span class="p">:</span>   <span class="nx">strings</span><span class="p">.</span><span class="nf">NewReader</span><span class="p">(</span><span class="s">&#34;EXPECTED CONTENTS&#34;</span><span class="p">),</span>
+    <span class="p">})</span>
+    <span class="nx">str</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">req</span><span class="p">.</span><span class="nf">Presign</span><span class="p">(</span><span class="mi">15</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Minute</span><span class="p">)</span>
+
+    <span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;The URL is:&#34;</span><span class="p">,</span> <span class="nx">str</span><span class="p">,</span> <span class="s">&#34; err:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+<span class="p">}</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://docs.aws.amazon.com/zh_cn/AmazonS3/latest/userguide/using-presigned-url.html">使用预签名 URL</a></li>
+<li><a href="https://docs.aws.amazon.com/zh_cn/AmazonS3/latest/userguide/RESTAuthentication.html">签署和对 REST 请求进行身份验证</a></li>
+<li><a href="https://juejin.cn/s/aws%20go%20sdk%20s3%20upload">aws go sdk s3 upload</a></li>
+<li><a href="https://aws.amazon.com/cn/blogs/china/upload-url-files-directly-to-s3-through-lambda/">通过Lambda实现URL文件直接上传到S3</a></li>
+<li><a href="https://docs.aws.amazon.com/zh_cn/sdk-for-go/v1/developer-guide/s3-example-presigned-urls.html">Creating Pre-Signed URLs for Amazon S3 Buckets</a></li>
+<li><a href="https://ronen-niv.medium.com/aws-s3-handling-presigned-urls-2718ab247d57">AWS S3 Bucket — presigned URL APIs with Go</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-01-17
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/golang/">golang</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/mysql/20240118-mysql8-install/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">MySQL 8.0 安装</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/tool/20240114-nginx-reverse-proxy/">
+            <span class="next-text nav-default">Nginx反向代理之路径替换</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: '将对象上传到aws s3存储桶方案',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

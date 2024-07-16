@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>TCP 与 UDP 的区别？ - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="TCP 与 UDP 的区别？ TCP 基于连接 UDP 无连接； 对系统资源的要求(TCP较多，UDP少)； TCP 流模式，UDP 数据报模式； TCP 保证数据正确性且保证数据顺序； UDP 可" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/learn/20240316-tcp-udp/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="TCP 与 UDP 的区别？" />
+<meta property="og:description" content="TCP 与 UDP 的区别？ TCP 基于连接 UDP 无连接； 对系统资源的要求(TCP较多，UDP少)； TCP 流模式，UDP 数据报模式； TCP 保证数据正确性且保证数据顺序； UDP 可" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/learn/20240316-tcp-udp/" />
+<meta property="article:published_time" content="2024-03-16T22:49:30+08:00" />
+<meta property="article:modified_time" content="2024-03-16T22:49:30+08:00" />
+<meta itemprop="name" content="TCP 与 UDP 的区别？">
+<meta itemprop="description" content="TCP 与 UDP 的区别？ TCP 基于连接 UDP 无连接； 对系统资源的要求(TCP较多，UDP少)； TCP 流模式，UDP 数据报模式； TCP 保证数据正确性且保证数据顺序； UDP 可">
+<meta itemprop="datePublished" content="2024-03-16T22:49:30&#43;08:00" />
+<meta itemprop="dateModified" content="2024-03-16T22:49:30&#43;08:00" />
+<meta itemprop="wordCount" content="1975">
+
+
+
+<meta itemprop="keywords" content="tcp,udp," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="TCP 与 UDP 的区别？"/>
+<meta name="twitter:description" content="TCP 与 UDP 的区别？ TCP 基于连接 UDP 无连接； 对系统资源的要求(TCP较多，UDP少)； TCP 流模式，UDP 数据报模式； TCP 保证数据正确性且保证数据顺序； UDP 可"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">TCP 与 UDP 的区别？</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-03-16 </span>
+        <div class="post-category">
+            <a href="/categories/tcp/"> tcp </a>
+            <a href="/categories/udp/"> udp </a>
+            </div>
+          <span class="more-meta"> 1975 words </span>
+          <span class="more-meta"> 4 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tcp-报文段结构">TCP 报文段结构</a></li>
+    <li><a href="#udp-报文结构">UDP 报文结构</a></li>
+    <li><a href="#tcp-是如何实现数据的可靠性">TCP 是如何实现数据的可靠性？</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p><a href="https://mp.weixin.qq.com/s/MYqwrzFiNrU-SK8Ma0E7BQ">TCP 与 UDP 的区别？</a></p>
+</blockquote>
+<ul>
+<li>TCP 基于连接 UDP 无连接；</li>
+<li>对系统资源的要求(TCP较多，UDP少)；</li>
+<li>TCP 流模式，UDP 数据报模式；</li>
+<li>TCP 保证数据正确性且保证数据顺序；</li>
+<li>UDP 可能丢包且不保证数据顺序；</li>
+</ul>
+<h2 id="tcp-报文段结构">TCP 报文段结构</h2>
+<p>TCP 的报文段结构，如下图所示</p>
+<p><img src="/linux/tcp.png" alt="tcp" title="tcp"></p>
+<p>TCP 报文段结构相比 UDP 报文结构多了很多内容。但是前两个 32 比特的字段是一样的。它们是 源端口号 和 目标端口号，我们知道，这两个字段是用于多路复用和多路分解的。另外，和 UDP 一样，TCP 也包含校验和(checksum field) ，除此之外，TCP 报文段首部还有下面这些</p>
+<ul>
+<li>
+<p>32 比特的序号字段(sequence number field) 和 32 比特的确认号字段(acknowledgment number field) 。这些字段被 TCP 发送方和接收方用来实现可靠的数据传输。</p>
+</li>
+<li>
+<p>4 比特的首部字段长度字段(header length field)，这个字段指示了以 32 比特的字为单位的 TCP 首部长度。TCP 首部的长度是可变的，但是通常情况下，选项字段为空，所以 TCP 首部字段的长度是 20 字节。</p>
+</li>
+<li>
+<p>16 比特的 接受窗口字段(receive window field) ，这个字段用于流量控制。它用于指示接收方能够/愿意接受的字节数量</p>
+</li>
+<li>
+<p>可变的选项字段(options field)，这个字段用于发送方和接收方协商最大报文长度，也就是 MSS 时使用</p>
+</li>
+<li>
+<p>6 比特的 标志字段(flag field)， ACK 标志用于指示确认字段中的值是有效的，这个报文段包括一个对已被成功接收报文段的确认；RST、SYN、FIN 标志用于连接的建立和关闭；CWR 和 ECE 用于拥塞控制；PSH 标志用于表示立刻将数据交给上层处理；URG 标志用来表示数据中存在需要被上层处理的 紧急 数据。紧急数据最后一个字节由 16 比特的紧急数据指针字段(urgeent data pointer field) 指出。一般情况下，PSH 和 URG 并没有使用。</p>
+</li>
+</ul>
+<h2 id="udp-报文结构">UDP 报文结构</h2>
+<p>UDP 的报文结构，每个 UDP 报文分为 UDP 报头和 UDP 数据区两部分。报头由 4 个 16 位长（2 字节）字段组成，分别说明该报文的源端口、目的端口、报文长度和校验值。</p>
+<p><img src="/linux/udp.png" alt="udp" title="udp"></p>
+<ul>
+<li>
+<p><strong>源端口号(Source Port)</strong> :这个字段占据 UDP 报文头的前 16 位，通常包含发送数据报的应用程序所使用的 UDP 端口。接收端的应用程序利用这个字段的值作为发送响应的目的地址。这个字段是可选项，有时不会设置源端口号。没有源端口号就默认为 0 ，通常用于不需要返回消息的通信中。</p>
+</li>
+<li>
+<p><strong>目标端口号(Destination Port):</strong> 表示接收端端口，字段长为 16 位</p>
+</li>
+<li>
+<p><strong>长度(Length):</strong> 该字段占据 16 位，表示 UDP 数据报长度，包含 UDP 报文头和 UDP 数据长度。因为 UDP 报文头长度是 8 个字节，所以这个值最小为 8，最大长度为 65535 字节。</p>
+</li>
+<li>
+<p>**校验和(Checksum)：**UDP 使用校验和来保证数据安全性，UDP 的校验和也提供了差错检测功能，差错检测用于校验报文段从源到目标主机的过程中，数据的完整性是否发生了改变。发送方的 UDP 对报文段中的 16 比特字的和进行反码运算，求和时遇到的位溢出都会被忽略，比如下面这个例子，三个 16 比特的数字进行相加</p>
+</li>
+</ul>
+<h2 id="tcp-是如何实现数据的可靠性">TCP 是如何实现数据的可靠性？</h2>
+<p>一句话：通过校验和、序列号、确认应答、超时重传、连接管理、流量控制、拥塞控制等机制来保证可靠性。</p>
+<p>（1）校验和</p>
+<p>在数据传输过程中，将发送的数据段都当做一个16位的整数，将这些整数加起来，并且前面的进位不能丢弃，补在最后，然后取反，得到校验和。</p>
+<p>发送方：在发送数据之前计算校验和，并进行校验和的填充。接收方：收到数据后，对数据以同样的方式进行计算，求出校验和，与发送方进行比较。</p>
+<p>（2）序列号</p>
+<p>TCP 传输时将每个字节的数据都进行了编号，这就是序列号。序列号的作用不仅仅是应答作用，有了序列号能够将接收到的数据根据序列号进行排序，并且去掉重复的数据。</p>
+<p>（3）ACK 确认应答</p>
+<p>当消息接收方接收到消息，返回一个对应的 ACK，发送方就知道这个消息已经处理完成，这个 ACK 报文中带有对应的确认序列号，告诉发送方，接收了哪些数据，下一次数据从哪里传。</p>
+<p>（4）超时重传</p>
+<p>消息超时也就是说没有在等待时间内收到对方的 ACK 消息。这个时候，为了保证消息对方能够正确收到，我们需要将这个消息进行重新传输，如果尝试成功，则继续发送接下来的包。若尝试几次均失败，那么 TCP 会强行断开连接，发送 RST 信息。并告知应用程序连接错误。</p>
+<p>（5）连接可靠</p>
+<p>三次握手、四次挥手的过程。</p>
+<p>（6）流量控制</p>
+<p>如果发送方的发送速度太快，会导致接收方的接收缓冲区填充满了，这时候继续传输数据，就会造成大量丢包，进而引起丢包重传等等一系列问题。TCP 支持根据接收端的处理能力来决定发送端的发送速度，这就是流量控制机制。</p>
+<p>具体实现方式：接收端将自己的接收缓冲区大小放入 TCP 首部的『窗口大小』字段中，通过 ACK 通知发送端。</p>
+<p>（7）拥塞控制</p>
+<p>拥塞控制就是当网络拥堵严重时，发送端减少数据发送。拥塞控制是通过发送端维护一个拥塞窗口来实现的。可以得出，发送端的发送速度，受限于滑动窗口和拥塞窗口中的最小值。拥塞控制方法分为：慢开始，拥塞避免、快重传和快恢复。</p>
+<p><a href="https://mp.weixin.qq.com/s/YCc_K_4ruVnA5Jqj5tkVug">拥塞控制展开</a></p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://mp.weixin.qq.com/s/Bp7Fzoh-DR4IuIRbeX_-xw">40 张图带你搞懂 TCP 和 UDP</a></li>
+<li><a href="https://mp.weixin.qq.com/s/MYqwrzFiNrU-SK8Ma0E7BQ">计算机网络八股文</a></li>
+<li><a href="https://mp.weixin.qq.com/s/jmvBWQf35B73WofqI252VA">为什么 TCP 会被 UDP 取代</a></li>
+<li><a href="https://mp.weixin.qq.com/s/YCc_K_4ruVnA5Jqj5tkVug">怎么保证TCP的可靠？</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-03-16
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/tcp/">tcp</a>
+          <a href="/tags/udp/">udp</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/learn/20240316-http/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">HTTP协议</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/mysql/20240316-pt-query-digest/">
+            <span class="next-text nav-default">MySQL慢查询分析工具pt-query-digest</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'TCP 与 UDP 的区别？',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

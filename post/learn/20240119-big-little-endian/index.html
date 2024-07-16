@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>网络传输：大小端 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="网络传输：大小端 什么是大端序(Big-Endian)和小端序(Little-Endian) Little-Endian 就是低位字节排放在内存的低地址端，高位字节排放在" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/learn/20240119-big-little-endian/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="网络传输：大小端" />
+<meta property="og:description" content="网络传输：大小端 什么是大端序(Big-Endian)和小端序(Little-Endian) Little-Endian 就是低位字节排放在内存的低地址端，高位字节排放在" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/learn/20240119-big-little-endian/" />
+<meta property="article:published_time" content="2024-01-19T17:18:04+08:00" />
+<meta property="article:modified_time" content="2024-01-19T17:18:04+08:00" />
+<meta itemprop="name" content="网络传输：大小端">
+<meta itemprop="description" content="网络传输：大小端 什么是大端序(Big-Endian)和小端序(Little-Endian) Little-Endian 就是低位字节排放在内存的低地址端，高位字节排放在">
+<meta itemprop="datePublished" content="2024-01-19T17:18:04&#43;08:00" />
+<meta itemprop="dateModified" content="2024-01-19T17:18:04&#43;08:00" />
+<meta itemprop="wordCount" content="682">
+
+
+
+<meta itemprop="keywords" content="big-endian,little-endian," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="网络传输：大小端"/>
+<meta name="twitter:description" content="网络传输：大小端 什么是大端序(Big-Endian)和小端序(Little-Endian) Little-Endian 就是低位字节排放在内存的低地址端，高位字节排放在"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">网络传输：大小端</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-01-19 </span>
+        <div class="post-category">
+            <a href="/categories/big-endian/"> big-endian </a>
+            <a href="/categories/little-endian/"> little-endian </a>
+            </div>
+          <span class="more-meta"> 682 words </span>
+          <span class="more-meta"> 2 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#什么是大端序big-endian和小端序little-endian">什么是大端序(Big-Endian)和小端序(Little-Endian)</a>
+      <ul>
+        <li><a href="#网络传输是大端还是小端">网络传输是大端还是小端？</a></li>
+        <li><a href="#x86是大端还是小端">X86是大端还是小端？</a></li>
+      </ul>
+    </li>
+    <li><a href="#大小端转换">大小端转换</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p><a href="https://blog.csdn.net/weixin_40292830/article/details/95618771">网络传输：大小端</a></p>
+</blockquote>
+<h2 id="什么是大端序big-endian和小端序little-endian">什么是大端序(Big-Endian)和小端序(Little-Endian)</h2>
+<ul>
+<li><strong>Little-Endian</strong> 就是低位字节排放在内存的低地址端，高位字节排放在内存的高地址端，从高地址开始读取数据。</li>
+<li><strong>Big-Endian</strong> 就是高位字节排放在内存的低地址端，低位字节排放在内存的高地址端，从低地址开始读取数据。</li>
+</ul>
+<p>示例：
+数据：0x12345678
+低字节：0x78
+高字节：0x12</p>
+<p>小端序：
+内存地址顺序(低-高): 0x0000,0x0001,0x0002,0x0003
+数据在内存存储顺序:  0x78,0x56,0x34,0x12
+数据读取顺序(高-低): 0x12,0x34,0x56,0x78</p>
+<p>大端序：
+内存地址顺序(低-高): 0x0000,0x0001,0x0002,0x0003
+数据在内存存储顺序:  0x12,0x34,0x56,0x78
+数据读取顺序(低-高): 0x12,0x34,0x56,0x78</p>
+<h3 id="网络传输是大端还是小端">网络传输是大端还是小端？</h3>
+<p><strong>网络传输采用的是大端字节序</strong>。这是因为网络传输的标准，如TCP/IP协议中的字节序，规定数据要以大端形式进行传输。这样做的好处是与任何一端的计算机系统无关，确保了数据的正确性和一致性。无论是在发送还是接收数据时，都需要对数据进行相应的字节序转换，以便在整个网络通信过程中保持统一的字节序标准。</p>
+<h3 id="x86是大端还是小端">X86是大端还是小端？</h3>
+<p>x86 架构是小端字节序（Little-Endian），<strong>大多数现代计算机体系结构都采用小端字节序</strong>，而不仅仅是 x86 架构。在 x86 架构中，最低有效字节（Least Significant Byte，LSB）存储在最低地址处，最高有效字节（Most Significant Byte，MSB）存储在最高地址处。</p>
+<h2 id="大小端转换">大小端转换</h2>
+<p>可以使用函数如 htonl、htons、ntohl、ntohs 等来进行字节序的转换</p>
+<p>对于小于等于32位的数字来说，C语言有库进行转换，例如：</p>
+<ul>
+<li>ntohl: 将一个无符号长整形数从网络字节顺序转换为主机字节顺序</li>
+<li>htonl: 将一个32位数从主机字节顺序转换成网络字节顺序</li>
+</ul>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://blog.csdn.net/weixin_40292830/article/details/95618771">网络传输：大小端</a></li>
+<li><a href="https://www.cnblogs.com/FBsharl/p/17502296.html">大端模式与小端模式简介</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-01-19
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/big-endian/">big-endian</a>
+          <a href="/tags/little-endian/">little-endian</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/golang/20240119-cgo/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[Go] CGO使用方法和示例</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/tool/20240119-minio-on-docker-compose/">
+            <span class="next-text nav-default">Minio on Docker Compose</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: '网络传输：大小端',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

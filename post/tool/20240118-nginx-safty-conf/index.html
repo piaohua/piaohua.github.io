@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Nginx 生产环境下的安全配置 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="Nginx 生产环境下的安全配置 典型配置示例 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 # ma" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/tool/20240118-nginx-safty-conf/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Nginx 生产环境下的安全配置" />
+<meta property="og:description" content="Nginx 生产环境下的安全配置 典型配置示例 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 # ma" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/tool/20240118-nginx-safty-conf/" />
+<meta property="article:published_time" content="2024-01-18T23:32:08+08:00" />
+<meta property="article:modified_time" content="2024-01-18T23:32:08+08:00" />
+<meta itemprop="name" content="Nginx 生产环境下的安全配置">
+<meta itemprop="description" content="Nginx 生产环境下的安全配置 典型配置示例 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 # ma">
+<meta itemprop="datePublished" content="2024-01-18T23:32:08&#43;08:00" />
+<meta itemprop="dateModified" content="2024-01-18T23:32:08&#43;08:00" />
+<meta itemprop="wordCount" content="3985">
+
+
+
+<meta itemprop="keywords" content="nginx," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Nginx 生产环境下的安全配置"/>
+<meta name="twitter:description" content="Nginx 生产环境下的安全配置 典型配置示例 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 # ma"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Nginx 生产环境下的安全配置</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-01-18 </span>
+        <div class="post-category">
+            <a href="/categories/nginx/"> nginx </a>
+            </div>
+          <span class="more-meta"> 3985 words </span>
+          <span class="more-meta"> 8 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#典型配置示例">典型配置示例</a></li>
+    <li><a href="#nginx降权">Nginx降权</a></li>
+    <li><a href="#日志配置">日志配置</a></li>
+    <li><a href="#nginx日志切割">Nginx日志切割</a></li>
+    <li><a href="#黑白名单设置">黑白名单设置</a></li>
+    <li><a href="#屏蔽非常见蜘蛛爬虫">屏蔽非常见蜘蛛（爬虫）</a></li>
+    <li><a href="#禁止某个目录执行脚本">禁止某个目录执行脚本</a></li>
+    <li><a href="#防止文件被下载">防止文件被下载</a></li>
+    <li><a href="#防盗链">防盗链</a></li>
+    <li><a href="#防止xss攻击server">防止XSS攻击：server</a></li>
+    <li><a href="#其他请求头的安全配置server">其他请求头的安全配置：server</a></li>
+    <li><a href="#关闭不必要的目录列表">关闭不必要的目录列表</a></li>
+    <li><a href="#添加账号认证httpserverlocation">添加账号认证：http、server、location</a></li>
+    <li><a href="#防止恶意请求和攻击">防止恶意请求和攻击</a></li>
+    <li><a href="#限制请求方法serverlocation">限制请求方法：server、location</a></li>
+    <li><a href="#拒绝user-agentserverlocation">拒绝User-Agent：server、location</a></li>
+    <li><a href="#防止常见攻击">防止常见攻击</a></li>
+    <li><a href="#设置缓冲区">设置缓冲区</a></li>
+    <li><a href="#限制并发速度">限制并发速度</a></li>
+    <li><a href="#控制超时时间timeout">控制超时时间timeout</a></li>
+    <li><a href="#nginx配置waf模块">Nginx配置WAF模块</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p><a href="https://blog.51cto.com/u_14249042/7633794">Nginx 生产环境下的安全配置</a></p>
+</blockquote>
+<h2 id="典型配置示例">典型配置示例</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback"># main段配置信息
+user  nginx;                        # 运行用户，默认即是nginx，可以不进行设置
+worker_processes  auto;             # Nginx 进程数，一般设置为和 CPU 核数一样
+error_log  /var/log/nginx/error.log warn;   # Nginx 的错误日志存放目录
+pid        /var/run/nginx.pid;      # Nginx 服务启动时的 pid 存放位置
+
+# events段配置信息
+events {
+    use epoll;     # 使用epoll的I/O模型(如果你不知道Nginx该使用哪种轮询方法，会自动选择一个最适合你操作系统的)
+    worker_connections 1024;   # 每个进程允许最大并发数
+}
+
+# http段配置信息
+# 配置使用最频繁的部分，代理、缓存、日志定义等绝大多数功能和第三方模块的配置都在这里设置
+http { 
+    # 设置日志模式
+    log_format  main  &#39;$remote_addr - $remote_user [$time_local] &#34;$request&#34; &#39;
+                      &#39;$status $body_bytes_sent &#34;$http_referer&#34; &#39;
+                      &#39;&#34;$http_user_agent&#34; &#34;$http_x_forwarded_for&#34;&#39;;
+
+    access_log  /var/log/nginx/access.log  main;   # Nginx访问日志存放位置
+
+    sendfile            on;   # 开启高效传输模式
+    tcp_nopush          on;   # 减少网络报文段的数量
+    tcp_nodelay         on;
+    keepalive_timeout   65;   # 保持连接的时间，也叫超时时间，单位秒
+    types_hash_max_size 2048;
+
+    include             /etc/nginx/mime.types;      # 文件扩展名与类型映射表
+    default_type        application/octet-stream;   # 默认文件类型
+
+    include /etc/nginx/conf.d/*.conf;   # 加载子配置项
+    
+    # server段配置信息
+    server {
+      listen       80;       # 配置监听的端口
+      server_name  localhost;    # 配置的域名
+      
+      # location段配置信息
+      location / {
+        root   /usr/share/nginx/html;  # 网站根目录
+        index  index.html index.htm;   # 默认首页文件
+        deny 172.168.22.11;   # 禁止访问的ip地址，可以为all
+        allow 172.168.33.44；# 允许访问的ip地址，可以为all
+      }
+      
+      error_page 500 502 503 504 /50x.html;  # 默认50x对应的访问页面
+      error_page 400 404 error.html;   # 同上
+    }
+}
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>main 全局配置，对全局生效；</li>
+<li>events 配置影响 Nginx 服务器与用户的网络连接；</li>
+<li>http 配置代理，缓存，日志定义等绝大多数功能和第三方模块的配置；</li>
+<li>server 配置虚拟主机的相关参数，一个 http 块中可以有多个 server 块；</li>
+<li>location 用于配置匹配的 uri ；</li>
+<li>upstream 配置后端服务器具体地址，负载均衡配置不可或缺的部分；</li>
+</ul>
+<p>nginx.conf 配置文件的语法规则：</p>
+<ol>
+<li>配置文件由指令与指令块构成</li>
+<li>每条指令以 “;” 分号结尾，指令与参数间以空格符号分隔</li>
+<li>指令块以 {} 大括号将多条指令组织在一起</li>
+<li>include 语句允许组合多个配置文件以提升可维护性</li>
+<li>通过 # 符号添加注释，提高可读性</li>
+<li>通过 $ 符号使用变量</li>
+<li>部分指令的参数支持正则表达式，例如常用的 location 指令基础防护设置</li>
+</ol>
+<p>nginx 版本信息隐藏</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">server_tokens off; 
+</code></pre></td></tr></table>
+</div>
+</div><p>隐藏Nginx后端服务X-Powered-By头
+在http下配置proxy_hide_header项；
+增加或修改为</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">proxy_hide_header X-Powered-By;
+proxy_hide_header Server;
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="nginx降权">Nginx降权</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">user nobody;
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="日志配置">日志配置</h2>
+<p>统一使用规定好的日志格式</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">#编辑nginx配置文件,在http模块中添加如下参数
+log_format  main 
+&#39;$remote_addr - $remote_user [$time_local] &#34;$request&#34; &#39; 
+&#39;$status $body_bytes_sent &#34;$http_referer&#34; &#39;  
+&#39;&#34;$http_user_agent&#34; &#34;$http_x_forwarded_for&#34;&#39;
+access_log logs/host.access.log main;
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="nginx日志切割">Nginx日志切割</h2>
+<p>切割nginx日志，避免日志文件过大</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh"><span class="c1">#新建日志切割脚本 如下:</span>
+<span class="c1">#!/bin/bash</span>
+<span class="c1">#设置日志文件存放目录</span>
+<span class="nv">logspath</span><span class="o">=</span><span class="s2">&#34;/usr/local/nginx/logs/&#34;</span>
+<span class="c1">#设置pid文件</span>
+<span class="nv">pidpath</span><span class="o">=</span><span class="s2">&#34;/usr/local/nginx/nginx.pid&#34;</span>
+<span class="c1">#重命名日志文件</span>
+mv <span class="si">${</span><span class="nv">logspath</span><span class="si">}</span>access.log <span class="si">${</span><span class="nv">logspath</span><span class="si">}</span>access<span class="k">$(</span>date -d <span class="s2">&#34;yesterday&#34;</span> +<span class="s2">&#34;%Y%m%d&#34;</span><span class="k">)</span>.log
+<span class="c1">#向nginx主进程发信号重新打开日志</span>
+<span class="nb">kill</span> -USR1 <span class="sb">`</span>cat <span class="si">${</span><span class="nv">pidpath</span><span class="si">}</span><span class="sb">`</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="黑白名单设置">黑白名单设置</h2>
+<p>如果网站被恶意灌水或 CC 攻 击，可从网站日志中分析特征 IP，将其 IP 或 IP 段进行屏蔽。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">#语法
+#allow address | CIDR | all;
+#deny address | CIDR | all;
+
+#模块：http/server/location
+#参数说明：
+#allow：允许访问。
+#deny：禁止访问。
+#address：具体的ip地址。
+#CIDR：ip加掩码形式地址。
+#all：所有ip地址。
+
+白名单：
+
+# 只允许192.168.1.0/24网段的主机访问，拒绝其他所有
+
+location /path/ {
+
+    allow 192.168.1.0/24;
+
+    deny all;
+
+}
+
+黑名单：
+
+location /path/ {
+
+    deny 192.168.1.0/24;
+
+    allow all;
+
+}
+
+更多的时候客户端请求会经过层层代理，我们需要通过$http_x_forwarded_for来进行限制，可以这样写
+
+set $allow false;
+
+if ($http_x_forwarded_for = &#34;211.144.204.2&#34;) { set $allow true; }
+
+if ($http_x_forwarded_for ~ &#34;108.2.66.[89]&#34;) { set $allow true; }
+
+if ($allow = false) { return 404; }
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="屏蔽非常见蜘蛛爬虫">屏蔽非常见蜘蛛（爬虫）</h2>
+<p>分析网站日志发现，一些奇怪的 UA (user-agent) 总是频繁的来访问，而这些 UA 对网站毫无意义，反而给服务器增加压力，可以直接将其屏蔽。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">if ($http_user_agent ~(SemrushBot|python|MJ12bot|AhrefsBot|AhrefsBot|hubspot|opensiteexplorer|leiki|webmeup)) {
+    return 444;
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>上面规则报错 444 状态码而不是 403。444 状态码在 nginx 的中有特殊含义，nginx 的 444 状态是直接由服务器中断连接，不会向客户端再返回任何消息。比返回 403 更加暴力。</p>
+<h2 id="禁止某个目录执行脚本">禁止某个目录执行脚本</h2>
+<p>网站目录，通常存放的都是静态文件，如果因程序验证不严谨被上传木马程序，导致网站被黑。以下规则请根据自身情况改为您自己的目录，需要禁止的脚本后缀也可以自行添加。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">#uploads|templets|data 这些目录禁止执行php
+
+location ~* ^/(uploads|templets|data)/.*.(php|php5)$ {
+    return 444;
+}
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="防止文件被下载">防止文件被下载</h2>
+<p>比如将网站数据库导出到站点根目录进行备份，很有可能也会被别人下载，从而导致数据丢失的风险。以下规则可以防止一些常规的文件被下载，可根据实际情况增减。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">location ~ \.(zip|rar|sql|bak|gz|7z)$ {
+    return 444;
+} 
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="防盗链">防盗链</h2>
+<p>防止第三方引用链接访问我们的图片，消耗服务器资源和网络流量</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">location ~* ^.+\.(gif|jpg|png|swf|flv|rar|zip)$ {
+    valid_referers none blocked server_names *.nsfocus.com http://localhost baidu.com;
+    if ($invalid_referer) {
+        rewrite ^/ [img]http://www.XXX.com/images/default/logo.gif[/img];
+        # return 403;
+    }
+}
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="防止xss攻击server">防止XSS攻击：server</h2>
+<p>在通常的请求响应中，浏览器会根据Content-Type来分辨响应的类型，但当响应类型未指定或错误指定时，浏览会尝试启用MIME-sniffing来猜测资源的响应类型，这是非常危险的,例如一个.jpg的图片文件被恶意嵌入了可执行的js代码，在开启资源类型猜测的情况下，浏览器将执行嵌入的js代码，可能会有意想不到的后果。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">add_header X-Frame-Options &#34;SAMEORIGIN&#34;;
+
+add_header X-XSS-Protection &#34;1; mode=block&#34;;
+
+add_header X-Content-Type-Options &#34;nosniff&#34;;
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>X-Frame-Options： 响应头表示是否允许浏览器加载frame等属性，有三个配置</p>
+<p>DENY：禁止任何网页被嵌入;</p>
+<p>SAMEORIGIN: 只允许本网站的嵌套;</p>
+<p>ALLOW-FROM: 允许指定地址的嵌套;</p>
+</li>
+<li>
+<p>X-XSS-Protection： 表示启用XSS过滤（禁用过滤为X-XSS-Protection: 0），mode=block表示若检查到XSS攻击则停止渲染页面</p>
+</li>
+<li>
+<p>X-Content-Type-Options： 响应头用来指定浏览器对未指定或错误指定Content-Type资源真正类型的猜测行为，nosniff 表示不允许任何猜测;</p>
+</li>
+</ul>
+<h2 id="其他请求头的安全配置server">其他请求头的安全配置：server</h2>
+<p>定义页面可以加载哪些资源，上边的配置会限制所有的外部资源，都只能从当前域名加载，其中default-src定义针对所有类型资源的默认加载策略，self允许来自相同来源的内容</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">add_header Content-Security-Policy &#34;default-src https://*.amazonaws.com &#39;self&#39;&#34;;
+add_header Strict-Transport-Security &#34;max-age=31536000; includeSubDomains&#34;;
+</code></pre></td></tr></table>
+</div>
+</div><p>会告诉浏览器用HTTPS协议代替HTTP来访问目标站点，上边的配置表示当用户第一次访问后，会返回一个包含了Strict-Transport-Security响应头的字段，这个字段会告诉浏览器，在接下来的31536000秒内，当前网站的所有请求都使用https协议访问，参数includeSubDomains是可选的，表示所有子域名也将采用同样的规则</p>
+<h2 id="关闭不必要的目录列表">关闭不必要的目录列表</h2>
+<p>如果Nginx的目录没有默认的index文件，会自动展示目录下的文件列表，这可能会暴露敏感信息。我们可以通过禁止自动目录列表的方式来阻止此行为。
+示例代码：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">location / {
+    autoindex off;
+}
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="添加账号认证httpserverlocation">添加账号认证：http、server、location</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">server {
+    location / {
+        auth_basic &#34;please input user&amp;passwd&#34;;
+        auth_basic_user_file key/auth.key;
+    }
+}
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="防止恶意请求和攻击">防止恶意请求和攻击</h2>
+<p>恶意请求包括大量的请求、大文件上传、恶意脚本等等，这会导致服务器负载过高。我们可以通过设置请求限制，来防止这种情况发生。
+示例代码：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">http {
+    limit_req_zone $binary_remote_addr zone=req_limit:10m rate=1r/s;
+    
+    server {
+        location / {
+            limit_req zone=req_limit burst=5 nodelay;
+            # 其他配置
+        }
+    }
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>使用&quot;limit_req_zone&quot;指令来定义请求限制区域，设置限制的大小和速率（每秒最多允许1个请求）。然后，在相应的&quot;server&quot;配置中使用&quot;limit_req&quot;指令来应用该限制区域。</p>
+<h2 id="限制请求方法serverlocation">限制请求方法：server、location</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">if ($request_method !~ ^(GET|POST)$ ) {
+    return 405;
+}
+</code></pre></td></tr></table>
+</div>
+</div><p><code>$request_method</code> 能够获取到请求nginx的method</p>
+<p>配置只允许GET\POST方法访问，其他的method返回405</p>
+<h2 id="拒绝user-agentserverlocation">拒绝User-Agent：server、location</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">if ($http_user_agent ~* LWP::Simple|BBBike|wget|curl) {
+
+    return 444;
+
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>可能有一些不法者会利用wget/curl等工具扫描我们的网站，我们可以通过禁止相应的user-agent来简单的防范</p>
+<p>Nginx的444状态比较特殊，如果返回444那么客户端将不会收到服务端返回的信息，就像是网站无法连接一样</p>
+<h2 id="防止常见攻击">防止常见攻击</h2>
+<p>Nginx默认提供了一些防止常见攻击的配置选项，例如：</p>
+<ol>
+<li>防止缓冲区溢出攻击：proxy_buffer_size 和 proxy_buffers 配置选项</li>
+<li>防止HTTP请求头过大攻击：large_client_header_buffers 配置选项</li>
+<li>防止URI长度过大攻击：large_client_header_buffers 配置选项</li>
+<li>防止恶意请求：client_max_body_size 配置选项</li>
+<li>防止DDoS攻击：limit_conn 和 limit_req 配置选项</li>
+</ol>
+<p>DDOS 攻击是指利用多个主机向目标服务器发送大量请求，以达到消耗服务器资源、拒绝服务等目的。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">limit_conn_zone $binary_remote_addr zone=addr:10m;
+limit_conn addr 100;
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="设置缓冲区">设置缓冲区</h2>
+<p>防止缓冲区溢出攻击</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">#编辑nginx配置文件，在server模块中需要限制的location中添加以下参数
+client_body_buffer_size  1K;
+client_header_buffer_size 1k;
+client_max_body_size 1k;
+large_client_header_buffers 2 1k;
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="限制并发速度">限制并发速度</h2>
+<p>限制用户连接数及速度来预防DOS攻击</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">limit_zone one $binary_remote_addr 10m;
+server
+{
+     listen   80;
+     server_name down.test.com;
+     index index.html index.htm index.php;
+     root  /usr/local/www;
+     #Zone limit;
+     location / {
+         limit_conn one 1;
+         limit_rate 20k;
+     }
+    ………
+}
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="控制超时时间timeout">控制超时时间timeout</h2>
+<p>设低来防御DOS攻击，保护服务器资源，硬件cpu、mem</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">#在http模块下，配置如下配置，具体时间根据业务需要进行调整;
+client_body_timeout 10;  #设置客户端请求主体读取超时时间
+client_header_timeout 10;  #设置客户端请求头读取超时时间
+keepalive_timeout 5 5;  #第一个参数指定客户端连接保持活动的超时时间，第二个参数是可选的，它指定了消息头保持活动的有效时间
+send_timeout10;  #指定响应客户端的超时时间
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="nginx配置waf模块">Nginx配置WAF模块</h2>
+<p>nginx配置waf模块，提升服务器的安全性</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">#下载waf模块，wget https://github.com/loveshell/ngx_lua_waf/archive/master.zip
+#配置waf相关Lua规则、目录、脚本等，
+(nginx需要加载nginx_lua_module模块)
+#编辑nginx配置文件，在http模块中添加如下参数:
+lua_package_path “/usr/local/nginx/conf/waf/?.lua”;
+lua_shared_dict limit 10m;
+init_by_lua_file /usr/local/nginx/conf/waf/init.lua;
+access_by_lua_file /usr/local/nginx/conf/waf/waf.lua;
+#新建攻击日志目录
+mkdir -p /data/logs/hack/
+chown -R nobody:nobody /data/logs/hack/
+chmod -R 755 /data/logs/hack/
+#重启Nignx服务
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://blog.51cto.com/u_14249042/7633794">Nginx 生产环境下的安全配置</a></li>
+<li><a href="https://mp.weixin.qq.com/s/5yZdnj9j9rcgFCVelxH-rg">Nginx 安全加固配置规范</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-01-18
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/nginx/">nginx</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/mysql/20240119-mysql-mgr-on-docker-compose/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">MySQL-router MGR on Docker Compose</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/docker/20240118-nginx-docker-compose/">
+            <span class="next-text nav-default">使用 Docker Compose 安装 nginx</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'Nginx 生产环境下的安全配置',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

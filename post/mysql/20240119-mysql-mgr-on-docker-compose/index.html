@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>MySQL-router MGR on Docker Compose - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="docker-compose之mysql-router(MGR单主模式) MGR介绍 MGR 即 MySQL Group Replication MGR 的特点 高一致性，基于原生复制及 paxos 协议的组复制技" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/mysql/20240119-mysql-mgr-on-docker-compose/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="MySQL-router MGR on Docker Compose" />
+<meta property="og:description" content="docker-compose之mysql-router(MGR单主模式) MGR介绍 MGR 即 MySQL Group Replication MGR 的特点 高一致性，基于原生复制及 paxos 协议的组复制技" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20240119-mysql-mgr-on-docker-compose/" />
+<meta property="article:published_time" content="2024-01-19T16:44:48+08:00" />
+<meta property="article:modified_time" content="2024-01-19T16:44:48+08:00" />
+<meta itemprop="name" content="MySQL-router MGR on Docker Compose">
+<meta itemprop="description" content="docker-compose之mysql-router(MGR单主模式) MGR介绍 MGR 即 MySQL Group Replication MGR 的特点 高一致性，基于原生复制及 paxos 协议的组复制技">
+<meta itemprop="datePublished" content="2024-01-19T16:44:48&#43;08:00" />
+<meta itemprop="dateModified" content="2024-01-19T16:44:48&#43;08:00" />
+<meta itemprop="wordCount" content="2347">
+
+
+
+<meta itemprop="keywords" content="mysql,docker," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="MySQL-router MGR on Docker Compose"/>
+<meta name="twitter:description" content="docker-compose之mysql-router(MGR单主模式) MGR介绍 MGR 即 MySQL Group Replication MGR 的特点 高一致性，基于原生复制及 paxos 协议的组复制技"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">MySQL-router MGR on Docker Compose</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-01-19 </span>
+        <div class="post-category">
+            <a href="/categories/mysql/"> mysql </a>
+            <a href="/categories/docker/"> docker </a>
+            </div>
+          <span class="more-meta"> 2347 words </span>
+          <span class="more-meta"> 5 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#mgr介绍">MGR介绍</a>
+      <ul>
+        <li><a href="#mgr-的特点">MGR 的特点</a></li>
+        <li><a href="#主从复制分析">主从复制分析</a></li>
+        <li><a href="#mgr优点">MGR优点</a></li>
+        <li><a href="#mgr要求">MGR要求</a></li>
+        <li><a href="#扩展什么是-gtid">扩展：什么是 GTID？</a></li>
+        <li><a href="#mgr使用限制">MGR使用限制</a></li>
+      </ul>
+    </li>
+    <li><a href="#部署mgr集群">部署MGR集群</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p><a href="https://www.cnblogs.com/ll409546297/p/17012060.html">docker-compose之mysql-router(MGR单主模式)</a></p>
+</blockquote>
+<h2 id="mgr介绍">MGR介绍</h2>
+<p>MGR 即 MySQL Group Replication</p>
+<h3 id="mgr-的特点">MGR 的特点</h3>
+<p>高一致性，基于原生复制及 paxos 协议的组复制技术，并以插件的方式提供，提供一致数据安全保证</p>
+<h3 id="主从复制分析">主从复制分析</h3>
+<p>传统主从复制，一主多从，主库提供读写功能，从库提供写功能。当一个事务在 master 提交成功时，会把 binlog 文件同步到从库服务器上落地为 relay log 给 slave 端执行，这个过程主库是不考虑从库是否有接收到 binlog 文件，有可能当主库 commit 一个事务后，数据库发生宕机，刚好它的 binlog 还没来得及传送到 slave 端，这个时候任何一个 slave 端都会丢失这个事务，造成数据不一致情况</p>
+<p>为了避免出现主从数据不一致的情况，MySQL 引入了半同步复制，添加了从库反馈机制，反馈机制有两种方式：</p>
+<ol>
+<li>
+<p>主库执行完事务后，同步 binlog 给从库，从库 ack 反馈接收到 binlog，主库提交 commit 反馈给客户端，释放会话</p>
+</li>
+<li>
+<p>主库执行完事务后，主库提交 commit，同步 binlog 给从库，从库 ack 反馈接收到 binlog 反馈给客户端，释放会话
+但还是有问题，虽然满足了一主多从、读写分离、数据一致，依旧有两个弊端：</p>
+</li>
+<li>
+<p>写操作集中在 master 服务器上</p>
+</li>
+<li>
+<p>master 宕机后，需要人为选择新主并重新给其它的 slave 端执行 change master（可自行写第三方工具实现，但是 mysql 的复制就是没提供，所以也算是弊端）</p>
+</li>
+</ol>
+<p>于是官方于 2016 年 12月 12 日正式发布了 MySQL Group Replication</p>
+<h3 id="mgr优点">MGR优点</h3>
+<ol>
+<li>
+<p>可以有多个主节点，在同一个 group 里边的所有实例，每一个实例都可以执行读写操作，需要注意的是，多主情况下，当执行一个事务时，需要确保同个组内的每个实例都认可这个事务无冲突异常，才可以 commit，如果设置的是单主，其它实例 ReadOnly，则不需要进行上面的判断。多主情况下，事务并发冲突问题就凸显出来了，如何避免呢？数据库内部有一个认证程序，当不同实例并发对同一行发起修改，在同个组内广播认可时，会出现并发冲突，那么会按照先执行的提交，后执行的回滚</p>
+</li>
+<li>
+<p>弹性，同个 Group Replication 中，节点的加入或者移除都是自动调整，如果新加入一个节点，该节点会自动从 Group 的其他节点同步数据，直到与其他节点一致。如果移除一个节点，那么剩下的实例会自动更新，不再向这个节点广播事务操作，当然，这里要注意，假设一个 Group 的节点有 n 个（max (n) =9，同个 Group 最多节点数为 9）移除或者宕机的节点数应该小于等于( (n-1)/2) 并且是向下取整。如果是单主模式，宕机的是单主，则需要人为选择新主后，其它节点也会自动从新主同步数据</p>
+</li>
+<li>
+<p>更高性能的同步机制</p>
+</li>
+</ol>
+<p>一个复制组由若干个节点（数据库实例）组成，组内各个节点维护各自的数据副本（Share Nothing）通过一致性协议 paxos 实现原子消息和全局有序消息，来实现组内实例数据的一致</p>
+<p>扩展：paxos 协议，paxos 用于解决分布式系统中一致性问题。分布式一致性算法（Consensus Algorithm）是一个分布式计算领域的基础性问题，其最基本的功能是为了在多个进程之间对某个（某些）值达成一致（强一致）简单来说就是确定一个值，一旦被写入就不可改变。paxos 用来实现多节点写入来完成一件事情。paxos 协议只是一个协议，不是具体的一套解决方案。目的是解决多节点写入问题。paxos 协议用来解决的问题可以用一句话来简化：将所有节点都写入同一个值，且被写入后不再更改</p>
+<ol start="4">
+<li>
+<p>高容错性，只要不是大多数节点坏掉就可以继续工作，有自动检测机制，当不同节点产生资源争用冲突时，不会出现错误，按照先到者优先原则进行处理，并且内置了自动化脑裂防护机制</p>
+</li>
+<li>
+<p>高扩展性，节点的新增和移除都是自动的，新节点加入后，会自动从其他节点上同步状态，直到新节点和其他节点保持一致，如果某节点被移除了，其它节点自动更新组信息，自动维护新的组信息</p>
+</li>
+<li>
+<p>高灵活性，有单主模式和多主模式，单主模式下，会自动选主，所有更新操作都在主上进行；多主模式下，所有 server 都可以同时处理更新操作</p>
+</li>
+</ol>
+<h3 id="mgr要求">MGR要求</h3>
+<ol>
+<li>引擎必须为 innodb，因为需事务支持在 commit 时对各节点进行冲突检查</li>
+<li>每个表必须有主键，在进行事务冲突检测时需要利用主键值对比</li>
+<li>必须开启 binlog 且为 row 格式</li>
+<li>开启 GTID，且主从状态信息存于表中（&ndash;master-info-repository=TABLE 、&ndash;relay-log-info-repository=TABLE）&ndash;log-slave-updates 打开</li>
+<li>一致性检测设置 &ndash;transaction-write-set-extraction=XXHASH64</li>
+</ol>
+<h3 id="扩展什么是-gtid">扩展：什么是 GTID？</h3>
+<p>GTID (Global Transaction ID) 是对于一个已提交事务的编号，并且是一个全局唯一的编号。GTID 实际上是由 UUID+TID 组成的。其中 UUID 是一个 MySQL 实例的唯一标识。TID 代表了该实例上已经提交的事务数量，并且随着事务提交单递增。GTID 的具体形式如：3E11FA47-71CA-11E1-9E33-C80AA9429562:23</p>
+<h3 id="mgr使用限制">MGR使用限制</h3>
+<ol>
+<li>和普通复制 binlog 校验不能共存，需设置 &ndash;binlog-checksum=none</li>
+<li>不支持 gap lock（间隙锁）隔离级别需设置为 read_committed</li>
+<li>不支持对表进行锁操作（lock/unlock table）不会发送到其他节点执行，影响需要对表进行加锁操作的情况，列入 mysqldump 全表备份恢复操作</li>
+<li>不支持 serializable（序列化）隔离级别</li>
+<li>DDL 语句不支持原子性，不能检测冲突，执行后需自行校验是否一致</li>
+<li>多主模式下不支持外键，单主模式不存在此问题</li>
+<li>最多支持 9 个节点，超过 9 台 server 无法加入组</li>
+</ol>
+<h2 id="部署mgr集群">部署MGR集群</h2>
+<p>docker-compose.yaml</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="k">version</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;2&#34;</span><span class="w">
+</span><span class="w"></span><span class="k">services</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">xbd-cluster-1</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">build</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="k">context</span><span class="p">:</span><span class="w"> </span>./<span class="w">
+</span><span class="w">      </span><span class="k">dockerfile</span><span class="p">:</span><span class="w"> </span>./config/Dockerfile/Dockerfile-cluster<span class="w">
+</span><span class="w">    </span><span class="k">image</span><span class="p">:</span><span class="w"> </span>xbd-cluster<span class="m">-1</span><span class="w">
+</span><span class="w">    </span><span class="k">restart</span><span class="p">:</span><span class="w"> </span>always<span class="w">
+</span><span class="w">    </span><span class="k">container_name</span><span class="p">:</span><span class="w"> </span>xbd-cluster<span class="m">-1</span><span class="w">
+</span><span class="w">    </span><span class="k">volumes</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- /var/lib/mysql/xbd-cluster<span class="m">-1</span><span class="p">:</span>/var/lib/mysql<span class="w">
+</span><span class="w">    </span><span class="k">ports</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- <span class="m">3306</span><span class="p">:</span><span class="m">3306</span><span class="w">
+</span><span class="w">    </span><span class="k">environment</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- TZ=Asia/Shanghai<span class="w">
+</span><span class="w">      </span>- MYSQL_ROOT_PASSWORD=root<span class="w">
+</span><span class="w">    </span><span class="k">privileged</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="w">    </span><span class="k">command</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;--server-id=1&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--gtid_mode=ON&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--enforce_gtid_consistency=ON&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--master_info_repository=TABLE&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--relay_log_info_repository=TABLE&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--binlog_checksum=NONE&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--log_slave_updates=ON&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--log-bin=xbd-cluster-1-bin&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--binlog_format=ROW&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--transaction_write_set_extraction=XXHASH64&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--plugin_load_add=group_replication.so&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--loose-group_replication_group_name=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--loose-group_replication_start_on_boot=off&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--loose-group_replication_local_address=xbd-cluster-1:33061&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--loose-group_replication_group_seeds=xbd-cluster-1:33061,xbd-cluster-2:33062,xbd-cluster-3:33063&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--loose-group_replication_bootstrap_group=off&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--loose-group_replication_single_primary_mode=on&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--loose-group_replication_enforce_update_everywhere_checks=off&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--lower_case_table_names=1&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--character-set-server=utf8&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--collation-server=utf8_general_ci&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION&#39;</span><span class="p">]</span><span class="w">
+</span><span class="w">
+</span><span class="w">  </span><span class="k">xbd-cluster-2</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">build</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="k">context</span><span class="p">:</span><span class="w"> </span>./<span class="w">
+</span><span class="w">      </span><span class="k">dockerfile</span><span class="p">:</span><span class="w"> </span>./config/Dockerfile/Dockerfile-cluster<span class="w">
+</span><span class="w">    </span><span class="k">image</span><span class="p">:</span><span class="w"> </span>xbd-cluster<span class="m">-2</span><span class="w">
+</span><span class="w">    </span><span class="k">restart</span><span class="p">:</span><span class="w"> </span>always<span class="w">
+</span><span class="w">    </span><span class="k">container_name</span><span class="p">:</span><span class="w"> </span>xbd-cluster<span class="m">-2</span><span class="w">
+</span><span class="w">    </span><span class="k">volumes</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- /var/lib/mysql/xbd-cluster<span class="m">-2</span><span class="p">:</span>/var/lib/mysql<span class="w">
+</span><span class="w">    </span><span class="k">ports</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- <span class="m">3307</span><span class="p">:</span><span class="m">3306</span><span class="w">
+</span><span class="w">    </span><span class="k">environment</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- TZ=Asia/Shanghai<span class="w">
+</span><span class="w">      </span>- MYSQL_ROOT_PASSWORD=root<span class="w">
+</span><span class="w">    </span><span class="k">privileged</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="w">    </span><span class="k">command</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;--server-id=2&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--gtid_mode=ON&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--enforce_gtid_consistency=ON&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--master_info_repository=TABLE&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--relay_log_info_repository=TABLE&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--binlog_checksum=NONE&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--log_slave_updates=ON&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--log-bin=xbd-cluster-2-bin&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--binlog_format=ROW&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--transaction_write_set_extraction=XXHASH64&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--plugin_load_add=group_replication.so&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--loose-group_replication_group_name=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--loose-group_replication_start_on_boot=off&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--loose-group_replication_local_address=xbd-cluster-2:33062&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--loose-group_replication_group_seeds=xbd-cluster-1:33061,xbd-cluster-2:33062,xbd-cluster-3:33063&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--loose-group_replication_bootstrap_group=off&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--loose-group_replication_single_primary_mode=on&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--loose-group_replication_enforce_update_everywhere_checks=off&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--lower_case_table_names=1&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--character-set-server=utf8&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--collation-server=utf8_general_ci&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION&#39;</span><span class="p">]</span><span class="w">
+</span><span class="w">
+</span><span class="w">  </span><span class="k">xbd-cluster-3</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">build</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="k">context</span><span class="p">:</span><span class="w"> </span>./<span class="w">
+</span><span class="w">      </span><span class="k">dockerfile</span><span class="p">:</span><span class="w"> </span>./config/Dockerfile/Dockerfile-cluster<span class="w">
+</span><span class="w">    </span><span class="k">image</span><span class="p">:</span><span class="w"> </span>xbd-cluster<span class="m">-3</span><span class="w">
+</span><span class="w">    </span><span class="k">restart</span><span class="p">:</span><span class="w"> </span>always<span class="w">
+</span><span class="w">    </span><span class="k">container_name</span><span class="p">:</span><span class="w"> </span>xbd-cluster<span class="m">-3</span><span class="w">
+</span><span class="w">    </span><span class="k">volumes</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- /var/lib/mysql/xbd-cluster<span class="m">-3</span><span class="p">:</span>/var/lib/mysql<span class="w">
+</span><span class="w">    </span><span class="k">ports</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- <span class="m">3308</span><span class="p">:</span><span class="m">3306</span><span class="w">
+</span><span class="w">    </span><span class="k">environment</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- TZ=Asia/Shanghai<span class="w">
+</span><span class="w">      </span>- MYSQL_ROOT_PASSWORD=root<span class="w">
+</span><span class="w">    </span><span class="k">privileged</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="w">    </span><span class="k">command</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;--server-id=3&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--gtid_mode=ON&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--enforce_gtid_consistency=ON&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--master_info_repository=TABLE&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--relay_log_info_repository=TABLE&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--binlog_checksum=NONE&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--log_slave_updates=ON&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--log-bin=xbd-cluster-3-bin&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--binlog_format=ROW&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--transaction_write_set_extraction=XXHASH64&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--plugin_load_add=group_replication.so&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--loose-group_replication_group_name=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--loose-group_replication_start_on_boot=off&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--loose-group_replication_local_address=xbd-cluster-3:33063&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--loose-group_replication_group_seeds=xbd-cluster-1:33061,xbd-cluster-2:33062,xbd-cluster-3:33063&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--loose-group_replication_bootstrap_group=off&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--loose-group_replication_single_primary_mode=on&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--loose-group_replication_enforce_update_everywhere_checks=off&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--lower_case_table_names=1&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--character-set-server=utf8&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--collation-server=utf8_general_ci&#39;</span><span class="p">,</span><span class="w">
+</span><span class="w">              </span><span class="s1">&#39;--sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION&#39;</span><span class="p">]</span><span class="w">
+</span><span class="w">
+</span><span class="w">  </span><span class="k">xbd-mysql-router</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">build</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="k">context</span><span class="p">:</span><span class="w"> </span>./<span class="w">
+</span><span class="w">      </span><span class="k">dockerfile</span><span class="p">:</span><span class="w"> </span>./config/Dockerfile/Dockerfile-router<span class="w">
+</span><span class="w">    </span><span class="k">image</span><span class="p">:</span><span class="w"> </span>xbd-mysql-router<span class="w">
+</span><span class="w">    </span><span class="k">restart</span><span class="p">:</span><span class="w"> </span>always<span class="w">
+</span><span class="w">    </span><span class="k">container_name</span><span class="p">:</span><span class="w"> </span>xbd-mysql-router<span class="w">
+</span><span class="w">    </span><span class="k">ports</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- <span class="m">6446</span><span class="p">:</span><span class="m">6446</span><span class="w">
+</span><span class="w">      </span>- <span class="m">6447</span><span class="p">:</span><span class="m">6447</span><span class="w">
+</span><span class="w">    </span><span class="k">environment</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- TZ=Asia/Shanghai<span class="w">
+</span><span class="w">      </span>- MYSQL_HOST=xbd-cluster<span class="m">-1</span><span class="w">
+</span><span class="w">      </span>- MYSQL_PORT=<span class="m">3306</span><span class="w">
+</span><span class="w">      </span>- MYSQL_USER=root<span class="w">
+</span><span class="w">      </span>- MYSQL_PASSWORD=root<span class="w">
+</span><span class="w">      </span>- MYSQL_INNODB_CLUSTER_MEMBERS=<span class="m">3</span><span class="w">
+</span><span class="w">    </span><span class="k">privileged</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="w">    </span><span class="k">depends_on</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- xbd-cluster<span class="m">-1</span><span class="w">
+</span><span class="w">      </span>- xbd-cluster<span class="m">-2</span><span class="w">
+</span><span class="w">      </span>- xbd-cluster<span class="m">-3</span><span class="w">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>部署：<code>docker-compose build</code>
+运行：<code>docker-compose up -d xbd-cluster-1 xbd-cluster-2 xbd-cluster-3</code></p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://zhuanlan.zhihu.com/p/444729702">mysql5.7搭建MGR集群</a></li>
+<li><a href="https://www.cnblogs.com/ll409546297/p/17012060.html">docker-compose之mysql-router(MGR单主模式)</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-01-19
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/mysql/">mysql</a>
+          <a href="/tags/docker/">docker</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/tool/20240119-minio-on-docker-compose/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Minio on Docker Compose</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/tool/20240118-nginx-safty-conf/">
+            <span class="next-text nav-default">Nginx 生产环境下的安全配置</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'MySQL-router MGR on Docker Compose',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

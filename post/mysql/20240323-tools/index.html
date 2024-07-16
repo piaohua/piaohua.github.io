@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>MySQL常用工具 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="MySQL 有很多周边工具，用这些工具提高日常维护管理 MySQL 的效率。 原文： https://mp.weixin.qq.com/s/6IvA-rKhFO4ikRg0Ks43LA Percona Toolkit 官方地址： https://docs.percona.com/percona-toolkit/ 常用的有这些： pt-query-digest，分析MySQL查" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/mysql/20240323-tools/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="MySQL常用工具" />
+<meta property="og:description" content="MySQL 有很多周边工具，用这些工具提高日常维护管理 MySQL 的效率。 原文： https://mp.weixin.qq.com/s/6IvA-rKhFO4ikRg0Ks43LA Percona Toolkit 官方地址： https://docs.percona.com/percona-toolkit/ 常用的有这些： pt-query-digest，分析MySQL查" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20240323-tools/" />
+<meta property="article:published_time" content="2024-03-23T18:18:45+08:00" />
+<meta property="article:modified_time" content="2024-03-23T18:18:45+08:00" />
+<meta itemprop="name" content="MySQL常用工具">
+<meta itemprop="description" content="MySQL 有很多周边工具，用这些工具提高日常维护管理 MySQL 的效率。 原文： https://mp.weixin.qq.com/s/6IvA-rKhFO4ikRg0Ks43LA Percona Toolkit 官方地址： https://docs.percona.com/percona-toolkit/ 常用的有这些： pt-query-digest，分析MySQL查">
+<meta itemprop="datePublished" content="2024-03-23T18:18:45&#43;08:00" />
+<meta itemprop="dateModified" content="2024-03-23T18:18:45&#43;08:00" />
+<meta itemprop="wordCount" content="1615">
+
+
+
+<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="MySQL常用工具"/>
+<meta name="twitter:description" content="MySQL 有很多周边工具，用这些工具提高日常维护管理 MySQL 的效率。 原文： https://mp.weixin.qq.com/s/6IvA-rKhFO4ikRg0Ks43LA Percona Toolkit 官方地址： https://docs.percona.com/percona-toolkit/ 常用的有这些： pt-query-digest，分析MySQL查"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">MySQL常用工具</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-03-23 </span>
+        <div class="post-category">
+            <a href="/categories/mysql/"> mysql </a>
+            </div>
+          <span class="more-meta"> 1615 words </span>
+          <span class="more-meta"> 4 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#percona-toolkit">Percona Toolkit</a></li>
+    <li><a href="#备份工具">备份工具</a></li>
+    <li><a href="#闪回工具">闪回工具</a>
+      <ul>
+        <li><a href="#binlog2sql">binlog2sql</a></li>
+        <li><a href="#my2sql">my2sql</a></li>
+        <li><a href="#mysqlbinlog_flashback">mysqlbinlog_flashback</a></li>
+      </ul>
+    </li>
+    <li><a href="#数据同步工具">数据同步工具</a></li>
+    <li><a href="#otter">otter</a>
+      <ul>
+        <li><a href="#go-mysql-transfer">go-mysql-transfer</a></li>
+      </ul>
+    </li>
+    <li><a href="#监控工具">监控工具</a></li>
+    <li><a href="#sql分析审核工具">SQL分析审核工具</a>
+      <ul>
+        <li><a href="#soar">Soar</a></li>
+        <li><a href="#sqladvisor">SQLAdvisor</a></li>
+        <li><a href="#yearning">Yearning</a></li>
+        <li><a href="#archery">Archery</a></li>
+      </ul>
+    </li>
+    <li><a href="#分库分表工具">分库分表工具</a>
+      <ul>
+        <li><a href="#mycat2">MyCAT2</a></li>
+        <li><a href="#dble">DBLE</a></li>
+        <li><a href="#shardingsphere">shardingsphere</a></li>
+      </ul>
+    </li>
+    <li><a href="#online-ddl工具">Online DDL工具</a></li>
+    <li><a href="#mysql高可用工具">MySQL高可用工具</a>
+      <ul>
+        <li><a href="#mha">MHA</a></li>
+        <li><a href="#orchestrator">Orchestrator</a></li>
+        <li><a href="#xenon">Xenon</a></li>
+        <li><a href="#mgr">MGR</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>MySQL 有很多周边工具，用这些工具提高日常维护管理 MySQL 的效率。</p>
+</blockquote>
+<p>原文： <a href="https://mp.weixin.qq.com/s/6IvA-rKhFO4ikRg0Ks43LA">https://mp.weixin.qq.com/s/6IvA-rKhFO4ikRg0Ks43LA</a></p>
+<h2 id="percona-toolkit">Percona Toolkit</h2>
+<p>官方地址： <a href="https://docs.percona.com/percona-toolkit/">https://docs.percona.com/percona-toolkit/</a></p>
+<p>常用的有这些：</p>
+<ul>
+<li>
+<p>pt-query-digest，分析MySQL查询，常用于分析 MySQL 慢查询。</p>
+</li>
+<li>
+<p>pt-online-schema-change，可在线修改表结构，常用于生产环境大表修改表结构。</p>
+</li>
+<li>
+<p>pt-table-checksum，验证MySQL复制完整性，常用于主从架构数据一致性校验。</p>
+</li>
+<li>
+<p>pt-table-sync，同步 MySQL 表数据，多数情况与 pt-table-checksum 结合使用，用于修复不一致的数据。</p>
+</li>
+<li>
+<p>pt-kill，kill掉符合特定条件的MySQL查询，通常用来查询或者 KILL 掉执行时间超过多少秒的 SQL。</p>
+</li>
+<li>
+<p>pt-archiver，MySQL数据归档，常用来归档大表。</p>
+</li>
+</ul>
+<h2 id="备份工具">备份工具</h2>
+<p>除了官方的备份工具 mysqldump，其他常用的有： xtrabackup，物理备份</p>
+<p>官方链接： <a href="https://www.percona.com/software/mysql-database/percona-xtrabackup">https://www.percona.com/software/mysql-database/percona-xtrabackup</a></p>
+<p>mydumper，逻辑备份</p>
+<p>GitHub 地址： <a href="https://github.com/mydumper/mydumper">https://github.com/mydumper/mydumper</a></p>
+<h2 id="闪回工具">闪回工具</h2>
+<p>可以借助一些工具实现 MySQL 闪回，比如：</p>
+<h3 id="binlog2sql">binlog2sql</h3>
+<p>binlog2sql，除了闪回功能，还支持主从切换后新 master 数据补偿，并且支持从 Binlog 中生成标准 SQL。</p>
+<p>GitHub 地址： <a href="https://github.com/danfengcao/binlog2sql">https://github.com/danfengcao/binlog2sql</a></p>
+<h3 id="my2sql">my2sql</h3>
+<p>my2sql，解析出回滚语句，我们前面写的：MySQL执行delete误删除数据恢复，就讲了my2sql的用法。</p>
+<p>GitHub地址： <a href="https://github.com/liuhr/my2sql">https://github.com/liuhr/my2sql</a></p>
+<h3 id="mysqlbinlog_flashback">mysqlbinlog_flashback</h3>
+<p>mysqlbinlog_flashback，产生Binlog中的回滚SQL</p>
+<p>GitHub 地址： <a href="https://github.com/58daojia-dba/mysqlbinlog_flashback">https://github.com/58daojia-dba/mysqlbinlog_flashback</a></p>
+<h2 id="数据同步工具">数据同步工具</h2>
+<h2 id="otter">otter</h2>
+<p>Otter，基于数据库增量日志解析，能将MySQL的数据同步到其他MySQL或者Oracle。</p>
+<p>GitHub 地址： <a href="https://github.com/alibaba/otter">https://github.com/alibaba/otter</a></p>
+<h3 id="go-mysql-transfer">go-mysql-transfer</h3>
+<p>go-mysql-transfer，MySQL数据库实时增量同步工具，支持多种接收端，比如：Redis、MongoDB、Elasticsearch、RocketMQ、Kafka、RabbitMQ、HTTP API等，</p>
+<p>GitHub地址： <a href="https://github.com/wj596/go-mysql-transfer">https://github.com/wj596/go-mysql-transfer</a></p>
+<h2 id="监控工具">监控工具</h2>
+<p>Prometheus，目前比较流行的监控工具，前面也写过一篇文章：Prometheus+Grafana 监控 MySQL。</p>
+<p>官方链接： <a href="https://prometheus.io/">https://prometheus.io/</a></p>
+<p><a href="../20240315-prometheus">Prometheus监控MySQL</a></p>
+<p>PMM，PMM（Percona Monitoring and Management ）是一款免费的开源监控工具，可以用来监控 MySQL、MongoDB 和 PostgreSQL 等数据库。是对  Prometheus 和 Grafana 这些组件做了二次开发，监控数据更加丰富，部署也方便很多。</p>
+<p><a href="https://mp.weixin.qq.com/s/asQwm_pKAIkASxDZN_Qq1A">PMM 监控 MySQL</a>。</p>
+<p>官方链接： <a href="https://www.percona.com/software/database-tools/percona-monitoring-and-management">https://www.percona.com/software/database-tools/percona-monitoring-and-management</a></p>
+<p>Zabbix，Zabbix 算是历史悠久的监控工具了。</p>
+<p><a href="https://mp.weixin.qq.com/s/O-mY3i8tdNT3PBMvtIh4CA">Zabbix 监控 MySQL</a>。</p>
+<p>官方链接：https://www.zabbix.com/</p>
+<h2 id="sql分析审核工具">SQL分析审核工具</h2>
+<h3 id="soar">Soar</h3>
+<p>Soar，SOAR(SQL Optimizer And Rewriter) 是一个对 SQL 进行优化和改写的自动化工具，</p>
+<p>GitHub 地址： <a href="https://github.com/XiaoMi/soar">https://github.com/XiaoMi/soar</a></p>
+<h3 id="sqladvisor">SQLAdvisor</h3>
+<p>SQLAdvisor，通过分析 SQL，可以给出索引优化建议，</p>
+<p>GitHub 地址： <a href="https://github.com/Meituan-Dianping/SQLAdvisor">https://github.com/Meituan-Dianping/SQLAdvisor</a></p>
+<h3 id="yearning">Yearning</h3>
+<p>Yearning，SQL 审核平台，基于 Go 语言编写，</p>
+<p>GitHub 地址： <a href="https://github.com/cookieY/Yearning">https://github.com/cookieY/Yearning</a></p>
+<h3 id="archery">Archery</h3>
+<p>Archery，SQL 审核平台，基于 Python 语言编写，</p>
+<p>GitHub 地址： <a href="https://github.com/hhyo/Archery">https://github.com/hhyo/Archery</a></p>
+<h2 id="分库分表工具">分库分表工具</h2>
+<h3 id="mycat2">MyCAT2</h3>
+<p>MyCAT2，遵守 MySQL 原生协议、基于心跳的自动故障切换、支持读写分离等。</p>
+<p>GitHub 地址： <a href="https://github.com/MyCATApache/Mycat2">https://github.com/MyCATApache/Mycat2</a></p>
+<h3 id="dble">DBLE</h3>
+<p>DBLE，基于MyCAT二次开发，在兼容性、复杂查询和分布式事务方面做了改进和优化，并修复了一些Bug。</p>
+<p>GitHub 地址： <a href="https://github.com/actiontech/dble">https://github.com/actiontech/dble</a></p>
+<h3 id="shardingsphere">shardingsphere</h3>
+<p>shardingsphere，分布式SQL事务和查询引擎，可在任何数据库上进行数据分片、扩展、加密等，</p>
+<p>GitHub地址： <a href="https://github.com/apache/shardingsphere">https://github.com/apache/shardingsphere</a></p>
+<h2 id="online-ddl工具">Online DDL工具</h2>
+<p>gh-ost，是一款用Go语言开发的MySQL在线改表工具，</p>
+<p>GitHub 地址： <a href="https://github.com/github/gh-ost">https://github.com/github/gh-ost</a></p>
+<p>pt-online-schema-change，Percona开源的在线修改表结构工具。</p>
+<p>地址： <a href="https://docs.percona.com/percona-toolkit/pt-online-schema-change.html">https://docs.percona.com/percona-toolkit/pt-online-schema-change.html</a></p>
+<h2 id="mysql高可用工具">MySQL高可用工具</h2>
+<h3 id="mha">MHA</h3>
+<p>MHA，可以根据需要扩展MySQL节点，支持任何存储引擎。</p>
+<p>GitHub 地址： <a href="https://github.com/yoshinorim/mha4mysql-manager/">https://github.com/yoshinorim/mha4mysql-manager/</a></p>
+<h3 id="orchestrator">Orchestrator</h3>
+<p>Orchestrator，支持拓扑发现、集群重塑等功能。</p>
+<p><a href="https://mp.weixin.qq.com/s/3j2Fly-Tq1sd48aKWtTAJA">Orchestrator实现MySQL故障切换</a></p>
+<p>GitHub 地址： <a href="https://github.com/openark/orchestrator">https://github.com/openark/orchestrator</a></p>
+<h3 id="xenon">Xenon</h3>
+<p>Xenon，使用Raft协议的MySQL HA和复制管理工具。</p>
+<p>GitHub 地址： <a href="https://github.com/radondb/xenon">https://github.com/radondb/xenon</a></p>
+<h3 id="mgr">MGR</h3>
+<p>InnoDB Cluster（MGR），官方高可用解决方案，支持多节点写入，支持强一致性，这篇文章讲了MGR的部署：<a href="https://mp.weixin.qq.com/s/Z0G2hjj3bJ1mPThaIPwvmA">MySQL 高可用方案&ndash;MGR 第02期：部署</a>。</p>
+<p>官方文档： <a href="https://dev.mysql.com/doc/mysql-shell/8.0/en/mysql-innodb-cluster.html">https://dev.mysql.com/doc/mysql-shell/8.0/en/mysql-innodb-cluster.html</a></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-03-23
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/mysql/">mysql</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/mysql/20240323-master-master-keepalived/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">MySQL高可用集群搭建 (主主&#43;keepalived)</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/mysql/20240323-heidisql/">
+            <span class="next-text nav-default">HeidiSQL: 一个开源的数据库管理工具</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'MySQL常用工具',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

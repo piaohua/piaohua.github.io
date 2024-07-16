@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>进制转换及位运算 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="在计算机中，除了二进制，比较常用的还有八进制和十六进制。 常用进制 二进制：只有0，1两个数，满2进1，以0b开头表示 八进制：0-7表示，满8进" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/learn/20240120-math-base/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="进制转换及位运算" />
+<meta property="og:description" content="在计算机中，除了二进制，比较常用的还有八进制和十六进制。 常用进制 二进制：只有0，1两个数，满2进1，以0b开头表示 八进制：0-7表示，满8进" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/learn/20240120-math-base/" />
+<meta property="article:published_time" content="2024-01-20T10:44:15+08:00" />
+<meta property="article:modified_time" content="2024-01-20T10:44:15+08:00" />
+<meta itemprop="name" content="进制转换及位运算">
+<meta itemprop="description" content="在计算机中，除了二进制，比较常用的还有八进制和十六进制。 常用进制 二进制：只有0，1两个数，满2进1，以0b开头表示 八进制：0-7表示，满8进">
+<meta itemprop="datePublished" content="2024-01-20T10:44:15&#43;08:00" />
+<meta itemprop="dateModified" content="2024-01-20T10:44:15&#43;08:00" />
+<meta itemprop="wordCount" content="1709">
+
+
+
+<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="进制转换及位运算"/>
+<meta name="twitter:description" content="在计算机中，除了二进制，比较常用的还有八进制和十六进制。 常用进制 二进制：只有0，1两个数，满2进1，以0b开头表示 八进制：0-7表示，满8进"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">进制转换及位运算</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-01-20 </span>
+        <div class="post-category">
+            <a href="/categories/golang/"> golang </a>
+            </div>
+          <span class="more-meta"> 1709 words </span>
+          <span class="more-meta"> 4 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#常用进制">常用进制</a></li>
+    <li><a href="#进制转换">进制转换</a></li>
+    <li><a href="#位运算">位运算</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>在计算机中，除了二进制，比较常用的还有八进制和十六进制。</p>
+</blockquote>
+<h2 id="常用进制">常用进制</h2>
+<ol>
+<li>二进制：只有0，1两个数，满2进1，以0b开头表示</li>
+<li>八进制：0-7表示，满8进1，以数字0o开头表示</li>
+<li>十进制：0-9表示，满10进1</li>
+<li>十六进制：0-9 A-F表示，满16进1，以数字0x开头表示</li>
+</ol>
+<p><a href="https://go.dev/ref/spec#Integer_literals">Integer literals in golang</a></p>
+<p>在golang中使用二进制和十六进制</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="s">&#34;fmt&#34;</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">byte</span><span class="p">(</span><span class="mi">0</span><span class="nx">b00010100</span><span class="p">)</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%08b %02x\n&#34;</span><span class="p">,</span> <span class="nx">b</span><span class="p">,</span> <span class="nx">b</span><span class="p">)</span>
+    <span class="nx">x</span> <span class="o">:=</span> <span class="nb">byte</span><span class="p">(</span><span class="mh">0x14</span><span class="p">)</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%08b %02x\n&#34;</span><span class="p">,</span> <span class="nx">x</span><span class="p">,</span> <span class="nx">x</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="进制转换">进制转换</h2>
+<p><strong>十进制转二进制</strong></p>
+<p>整数部分，把十进制数不断执行除 2 操作，直至商数为 0。读余数从下读到上，即是二进制的整数部分数字。小数部分，则用其乘 2，取其整数部分的结果，再用计算后的小数部分依此重复计算，算到小数部分全为 0 为止，之后从上到下，读所有计算后整数部分的数字，即为二进制的小数部分数字。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">将33.25转化为二进制数
+整数部分：
+33/2=16 ......1
+16/2=8  ......0
+8/2=4   ......0
+4/2=2   ......0
+2/2=1   ......0
+1/2=0   ......1
+小数部分：
+0.25*2=0.5  0
+0.5*2=1     1
+</code></pre></td></tr></table>
+</div>
+</div><p>即33.25 = 100001.01
+其他进制原理相同。</p>
+<p><strong>二进制转十进制</strong></p>
+<p>二进制数转换为十进制数，只需将每个位的值，乘以 2^i 次即可，其中 i 为当前位的位数，个位的位数为 0。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">将二进制数 11010.01 转换为十进制数
+11010.01=1*2^4+1*2^3+0*2^2+1*2^1+0*2^0+0*2^(-1)+1*2(-2)
+        =26.25
+</code></pre></td></tr></table>
+</div>
+</div><p>即 11010.01 = 26.25
+其他进制原理相同。</p>
+<p><strong>二进制/八进制/十六进制间的相互转换</strong></p>
+<p>一个八进制位可以用 3 个二进制位来表示（因为 2^3 =8），一个十六进制位可以用 4 个二进制位来表示（2^4 = 16），反之同理。</p>
+<p>二进制 -&gt; 八进制：从右往左，每三位转成八进制；111101的八进制就是75：7=1<em>2^2+1</em>2^1+1<em>2^0，5=1</em>2^2+1*2^0</p>
+<p>二进制 -&gt; 十六进制：从右往左，每四位转成十六进制；11111011的十六进制就是FB (1111=16=F,1011=11=B)</p>
+<p>八进制 -&gt; 二进制：依次将每一位转为3位的二进制</p>
+<p>十六进制 -&gt; 二进制：依次将每一位转成4位的二进制</p>
+<p>在golang中将十进制数字转换为其他进制（比如二进制、八进制或者十六进制）</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+ 
+<span class="kn">import</span> <span class="p">(</span>
+    <span class="s">&#34;fmt&#34;</span>
+    <span class="s">&#34;strconv&#34;</span>
+<span class="p">)</span>
+ 
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">decimal</span> <span class="o">:=</span> <span class="nb">int64</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="c1">// 十进制数字
+</span><span class="c1"></span>    <span class="nx">binary</span> <span class="o">:=</span> <span class="nx">strconv</span><span class="p">.</span><span class="nf">FormatInt</span><span class="p">(</span><span class="nx">decimal</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>   <span class="c1">// 转换成二进制
+</span><span class="c1"></span>    <span class="nx">octal</span> <span class="o">:=</span> <span class="nx">strconv</span><span class="p">.</span><span class="nf">FormatInt</span><span class="p">(</span><span class="nx">decimal</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>     <span class="c1">// 转换成八进制
+</span><span class="c1"></span>    <span class="nx">hexadecimal</span> <span class="o">:=</span> <span class="nx">strconv</span><span class="p">.</span><span class="nf">FormatInt</span><span class="p">(</span><span class="nx">decimal</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span> <span class="c1">// 转换成十六进制
+</span><span class="c1"></span> 
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Binary:&#34;</span><span class="p">,</span> <span class="nx">binary</span><span class="p">)</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Octal:&#34;</span><span class="p">,</span> <span class="nx">octal</span><span class="p">)</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Hexadecimal:&#34;</span><span class="p">,</span> <span class="nx">hexadecimal</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// output:
+</span><span class="c1">// Binary: 1010
+</span><span class="c1">// Octal: 12
+</span><span class="c1">// Hexadecimal: a
+</span></code></pre></td></tr></table>
+</div>
+</div><p>在golang中将其他进制（比如二进制、八进制或者十六进制）转换为十进制数字</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+ 
+<span class="kn">import</span> <span class="p">(</span>
+    <span class="s">&#34;fmt&#34;</span>
+    <span class="s">&#34;strconv&#34;</span>
+<span class="p">)</span>
+ 
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">binaryString</span> <span class="o">:=</span> <span class="s">&#34;1010&#34;</span>    <span class="c1">// 二进制字符串
+</span><span class="c1"></span>    <span class="nx">octalString</span> <span class="o">:=</span> <span class="s">&#34;12&#34;</span>       <span class="c1">// 八进制字符串
+</span><span class="c1"></span>    <span class="nx">hexadecimalString</span> <span class="o">:=</span> <span class="s">&#34;a&#34;</span>  <span class="c1">// 十六进制字符串
+</span><span class="c1"></span> 
+    <span class="nx">decimalFromBinary</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">strconv</span><span class="p">.</span><span class="nf">ParseInt</span><span class="p">(</span><span class="nx">binaryString</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>      <span class="c1">// 从二进制转换为十进制
+</span><span class="c1"></span>    <span class="nx">decimalFromOctal</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">strconv</span><span class="p">.</span><span class="nf">ParseInt</span><span class="p">(</span><span class="nx">octalString</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>        <span class="c1">// 从八进制转换为十进制
+</span><span class="c1"></span>    <span class="nx">decimalFromHexadecimal</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">strconv</span><span class="p">.</span><span class="nf">ParseInt</span><span class="p">(</span><span class="nx">hexadecimalString</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span> <span class="c1">// 从十六进制转换为十进制
+</span><span class="c1"></span> 
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Decimal from Binary:&#34;</span><span class="p">,</span> <span class="nx">decimalFromBinary</span><span class="p">)</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Decimal from Octal:&#34;</span><span class="p">,</span> <span class="nx">decimalFromOctal</span><span class="p">)</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Decimal from Hexadecimal:&#34;</span><span class="p">,</span> <span class="nx">decimalFromHexadecimal</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// output
+</span><span class="c1">// Decimal from Binary: 10
+</span><span class="c1">// Decimal from Octal: 10
+</span><span class="c1">// Decimal from Hexadecimal: 10
+</span></code></pre></td></tr></table>
+</div>
+</div><h2 id="位运算">位运算</h2>
+<p>位运算就是基于整数的二进制表示进行的运算。由于计算机内部就是以二进制来存储数据，位运算是相当快的。</p>
+<p>基本的位运算共 6 种，分别为按位与、按位或、按位异或、按位取反、左移和右移。</p>
+<p><strong>原码、反码、补码</strong></p>
+<p>原码、反码、补码的产生过程就是为了解决计算机做减法和引入符号位的问题。</p>
+<p><strong>原码</strong>：用最高位表示符号位，其他位存放该数的二进制的绝对值。
+<strong>反码</strong>：正数的反码还是等于原码；负数的反码就是它的原码除符号位外，按位取反。
+<strong>补码</strong>：正数的补码等于它的原码；负数的补码等于反码+1</p>
+<p>1）对于有符号而言：</p>
+<ul>
+<li>二进制的最高位是符号位：0表示正数，1表示负数</li>
+<li>正数的原码、反码、补码都一样</li>
+<li>负数的反码=除符号位以外的取反</li>
+<li>负数的补码=反码+1</li>
+<li>0的反码、补码都是0</li>
+<li>在计算机运算的时候，都是以补码的方式进行运算的</li>
+</ul>
+<p><strong>与、或、异或</strong></p>
+<p>按位&amp;：两位全为1，则为1，否则为0</p>
+<p>按位|：两位中有一个为1，则为1，否则为0</p>
+<p>按位^：两位一个为1，一个为0，结果为1，否则为0</p>
+<p>例如: 2的原码、反码和补码都是：0000 0010
+　　  3的原码、反码和补码都是：0000 0011</p>
+<p>则有 2 &amp; 3 = 0000 0010 = 2
+　　 2 | 3 = 0000 0011 = 3
+　　 2 ^ 3 = 0000 0001 = 1</p>
+<p><strong>取反</strong></p>
+<p>再看-2的原码：1 000 0010，其反码为1 111 1101，补码为1 111 1110</p>
+<p>则有-2^2 =1 111 1110 ^ 0 000 0010 = 1 111 1100，必须转换成原码才能知道它的值，则有：结果-1再取反</p>
+<p>1 111 1100 - 1 = 1 111 1011 符号位不变再取反 1 000 0100，则-2^2的值是：-4</p>
+<p><strong>左移和右移</strong></p>
+<p><code>&gt;&gt;</code>：符号位不变，低位溢出，用符号位补高位</p>
+<p><code>&lt;&lt;</code>：符号位不变，低位补0</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://go.dev/ref/spec#Integer_literals">Integer literals in golang</a></li>
+<li><a href="https://oi-wiki.org/math/base/">进位制</a></li>
+<li><a href="https://oi-wiki.org/math/balanced-ternary/">平衡三进制</a></li>
+<li><a href="https://oi-wiki.org/math/bit/">位运算</a></li>
+<li><a href="https://blog.csdn.net/Elked/article/details/115529792">【Golang基础】三、进制及位运算</a></li>
+<li><a href="https://cloud.tencent.com/developer/article/1686577">golang&ndash;进制和位运算</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-01-20
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/golang/">golang</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/golang/20240120-io-teereader/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[Go] io.TeeReader()函数使用</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/golang/20240120-slog/">
+            <span class="next-text nav-default">[Go] slog日志库使用</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: '进制转换及位运算',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

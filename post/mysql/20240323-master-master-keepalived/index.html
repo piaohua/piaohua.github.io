@@ -1,0 +1,2274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>MySQL高可用集群搭建 (主主&#43;keepalived) - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="MySQL高可用集群的搭建(主主&#43;keepalived) 先做主从复制 修改主库和从库的参数文件(/etc/my.cnf) master1：192" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/mysql/20240323-master-master-keepalived/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="MySQL高可用集群搭建 (主主&#43;keepalived)" />
+<meta property="og:description" content="MySQL高可用集群的搭建(主主&#43;keepalived) 先做主从复制 修改主库和从库的参数文件(/etc/my.cnf) master1：192" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20240323-master-master-keepalived/" />
+<meta property="article:published_time" content="2024-03-23T20:32:46+08:00" />
+<meta property="article:modified_time" content="2024-03-23T20:32:46+08:00" />
+<meta itemprop="name" content="MySQL高可用集群搭建 (主主&#43;keepalived)">
+<meta itemprop="description" content="MySQL高可用集群的搭建(主主&#43;keepalived) 先做主从复制 修改主库和从库的参数文件(/etc/my.cnf) master1：192">
+<meta itemprop="datePublished" content="2024-03-23T20:32:46&#43;08:00" />
+<meta itemprop="dateModified" content="2024-03-23T20:32:46&#43;08:00" />
+<meta itemprop="wordCount" content="6151">
+
+
+
+<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="MySQL高可用集群搭建 (主主&#43;keepalived)"/>
+<meta name="twitter:description" content="MySQL高可用集群的搭建(主主&#43;keepalived) 先做主从复制 修改主库和从库的参数文件(/etc/my.cnf) master1：192"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">MySQL高可用集群搭建 (主主&#43;keepalived)</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-03-23 </span>
+        <div class="post-category">
+            <a href="/categories/mysql/"> mysql </a>
+            </div>
+          <span class="more-meta"> 6151 words </span>
+          <span class="more-meta"> 13 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#先做主从复制">先做主从复制</a></li>
+    <li><a href="#再做主主">再做主主</a></li>
+    <li><a href="#安装keepalived">安装keepalived</a></li>
+    <li><a href="#测试集群是否搭建成功">测试集群是否搭建成功</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>MySQL高可用集群的搭建(主主+keepalived)</p>
+</blockquote>
+<h2 id="先做主从复制">先做主从复制</h2>
+<p>修改主库和从库的参数文件(/etc/my.cnf)</p>
+<p>master1：192.168.1.1</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">[mysqld]
+
+user=mysql
+
+basedir=/usr/local/mysql
+
+datadir=/data/mysql
+
+socket=/tmp/mysql.sock
+
+log-error=/data/mysql/mysql.err
+
+pid-file=/data/mysql/mysql.pid
+
+server_id=1
+
+port=3306
+
+character-set-server=utf8
+
+innodb_rollback_on_timeout = ON
+
+character-set-server = utf8
+
+collation-server=utf8_general_ci
+
+sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
+
+lower_case_table_names=1
+
+max_connections=10000
+
+sync_binlog=1
+
+binlog_format=row
+
+secure-file-priv=/tmp 
+
+autocommit=0
+
+log_bin=/data/mysql/master20-bin
+
+gtid-mode=on
+
+enforce-gtid-consistency=true
+
+log-slave-updates=1
+
+[mysql]
+
+socket=/tmp/mysql.sock
+
+default-character-set=utf8
+
+[client]
+</code></pre></td></tr></table>
+</div>
+</div><p>master2：192.168.1.2</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">[mysqld]
+
+user=mysql
+
+basedir=/usr/local/mysql
+
+datadir=/data/mysql
+
+socket=/tmp/mysql.sock
+
+log-error=/data/mysql/mysql.err
+
+pid-file=/data/mysql/mysql.pid
+
+server_id=2
+
+port=3306
+
+character-set-server=utf8
+
+innodb_rollback_on_timeout = ON
+
+character-set-server = utf8
+
+collation-server=utf8_general_ci
+
+sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
+
+lower_case_table_names=1
+
+max_connections=10000
+
+sync_binlog=1
+
+binlog_format=row
+
+secure-file-priv=/tmp
+
+autocommit=0
+
+log_bin=/data/mysql/slave21-bin
+
+gtid-mode=on
+
+enforce-gtid-consistency=true
+
+log-slave-updates=1
+
+[mysql]
+
+socket=/tmp/mysql.sock
+
+default-character-set=utf8
+
+[client]
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>master1</strong>
+创建用AB复制所需的用户</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">grant</span> <span class="n">replication</span> <span class="n">slave</span>  <span class="k">on</span> <span class="o">*</span><span class="p">.</span><span class="o">*</span> <span class="k">to</span> <span class="n">repl</span><span class="o">@</span><span class="s1">&#39;%&#39;</span> <span class="n">identified</span> <span class="k">by</span> <span class="s1">&#39;123123&#39;</span><span class="p">;</span>
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="n">flush</span> <span class="k">privileges</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>master2</strong></p>
+<p>建立复制关系</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span><span class="n">change</span> <span class="n">master</span> <span class="k">to</span> 
+
+<span class="n">master_host</span><span class="o">=</span><span class="s1">&#39;192.168.1.1&#39;</span><span class="p">,</span>
+
+<span class="n">MASTER_PORT</span><span class="o">=</span><span class="mi">3306</span><span class="p">,</span>
+
+<span class="n">master_user</span><span class="o">=</span><span class="s1">&#39;repl&#39;</span><span class="p">,</span>
+
+<span class="n">master_password</span><span class="o">=</span><span class="s1">&#39;123123&#39;</span> <span class="p">,</span>
+
+<span class="n">MASTER_AUTO_POSITION</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>    
+
+<span class="c1">-- 该参数会自动读取relaylog中的最后一个gtid号,来向主库申请日志, 如未从relaylog中读取到,则从第一个gtid开始同步
+</span><span class="c1"></span>
+<span class="c1">-- 该参数值代表从哪个gtid号开始请求, 如从库是使用xbk物理恢复的,则此处值需要是恢复文件中最后一个gtid号+1
+</span><span class="c1"></span>
+<span class="k">start</span> <span class="n">slave</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="再做主主">再做主主</h2>
+<p>重启上述的动作就可以完成主主搭建（反向做复制关系）。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="n">master</span> <span class="n">status</span><span class="p">;</span>
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="n">slave</span> <span class="n">status</span> <span class="err">\</span><span class="k">G</span><span class="p">;</span>
+
+<span class="n">Slave_IO_Running</span><span class="p">:</span> <span class="n">Yes</span> <span class="o">#</span><span class="n">I</span><span class="o">/</span><span class="n">O线程状态OK</span>
+
+<span class="n">Slave_SQL_Running</span><span class="p">:</span> <span class="n">Yes</span> <span class="o">#</span><span class="n">SQL线程状态OK</span>
+
+<span class="n">Seconds_Behind_Master</span><span class="p">:</span> <span class="mi">0</span> <span class="o">#</span><span class="err">同步效率非常好</span><span class="p">,</span><span class="err">没有延迟</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>master1 模拟产生数据</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">create</span> <span class="k">database</span> <span class="n">slave</span><span class="p">;</span> <span class="o">#</span><span class="err">创建数据库</span>
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="n">use</span> <span class="n">slave</span><span class="p">;</span> <span class="o">#</span><span class="err">选择数据库</span>
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">create</span> <span class="k">table</span> <span class="n">a</span><span class="p">(</span><span class="n">a</span> <span class="nb">int</span><span class="p">);</span> <span class="o">#</span><span class="err">创建表</span>
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">insert</span> <span class="k">into</span> <span class="n">a</span> <span class="k">values</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span> <span class="o">#</span><span class="err">插入数据</span>
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">insert</span> <span class="k">into</span> <span class="n">a</span> <span class="k">values</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span> <span class="o">#</span><span class="err">插入数据</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>master2 查看数据同步状态（可以互相查看）</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="n">databases</span><span class="p">;</span> <span class="o">#</span><span class="err">查看当前有哪些数据库</span><span class="p">(</span><span class="err">主库新建的</span><span class="n">slave库同步过来了</span><span class="p">)</span>
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="n">use</span> <span class="n">slave</span><span class="p">;</span> <span class="o">#</span><span class="err">选择数据库</span>
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">a</span><span class="p">;</span> <span class="o">#</span><span class="err">查看</span><span class="n">a表数据</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="安装keepalived">安装keepalived</h2>
+<p>本次安装采用yum的方式进行安装（两台主机都安装）</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">yum -y install keepalived
+</code></pre></td></tr></table>
+</div>
+</div><p>keepalived的启动与停止</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">service keepalived start
+
+service keepalived stop
+
+service keepalived restart
+</code></pre></td></tr></table>
+</div>
+</div><p>192.168.1.1配置文件：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">! Configuration File for keepalived 
+
+global_defs { 
+
+   notification_email { 
+
+     acassen@firewall.loc 
+
+     failover@firewall.loc 
+
+     sysadmin@firewall.loc 
+
+   } 
+
+   notification_email_from Alexandre.Cassen@firewall.loc 
+
+   #smtp_server 127.0.0.1 
+
+   #smtp_connect_timeout 30 
+
+   router_id MYCAT_HA # 定义名称
+
+}
+
+
+
+#检测mycat脚本
+
+vrrp_script chk_mycat_alive {
+
+    script &#34;/etc/keepalived/mysql_check.sh&#34;    # 返回状态码为0表示正常,检测脚本为true;返回状态码非0表示异常,检测脚本为false
+
+    interval 2                                 # 检测脚本执行的间隔，单位是秒
+
+    weight 20
+
+}
+
+
+
+vrrp_instance VI_1 { 
+
+    state MASTER 
+
+    interface ens33  
+
+    virtual_router_id 88  
+
+    priority 100    
+
+    advert_int 1   
+
+    authentication { 
+
+        auth_type PASS 
+
+        auth_pass qwert 
+
+    }
+
+    track_script {
+
+        chk_mycat_alive            # 调用检测脚本
+
+    }
+
+    virtual_ipaddress { 
+
+        192.168.1.60/24            # 定义虚拟ip(VIP)
+
+    } 
+
+} 
+</code></pre></td></tr></table>
+</div>
+</div><p>192.168.1.2配置文件：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">! Configuration File for keepalived 
+
+global_defs { 
+
+   notification_email { 
+
+     acassen@firewall.loc 
+
+     failover@firewall.loc 
+
+     sysadmin@firewall.loc 
+
+   } 
+
+   notification_email_from Alexandre.Cassen@firewall.loc 
+
+   #smtp_server 127.0.0.1 
+
+   #smtp_connect_timeout 30 
+
+   router_id MYCAT_HA 
+
+}
+
+
+
+#检测mycat脚本
+
+vrrp_script chk_mycat_alive {
+
+    script &#34;/etc/keepalived/mysql_check.sh&#34;    # 返回状态码为1表示正常,检测脚本为true;返回状态码0表示异常,检测脚本为false
+
+    interval 2                                 # 检测脚本执行的间隔，单位是秒
+
+    weight 20
+
+}
+
+
+
+vrrp_instance VI_1 { 
+
+    state BACKUP 
+
+    interface ens33
+
+    virtual_router_id 88 
+
+    priority 90    
+
+    advert_int 1   
+
+    authentication { 
+
+        auth_type PASS 
+
+        auth_pass qwer 
+
+    } 
+
+    track_script {
+
+        chk_mycat_alive            # 调用检测脚本
+
+    }
+
+    virtual_ipaddress { 
+
+        192.168.1.60/24            # 定义虚拟ip(VIP)
+
+    } 
+
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>编写mysql_check.sh 服务拉起脚本(两个节点都设置)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh"><span class="cp">#!/bin/bash
+</span><span class="cp"></span>
+<span class="nv">count</span><span class="o">=</span><span class="sb">`</span>ps -C mysqld --no-heading<span class="p">|</span>wc -l<span class="sb">`</span>
+
+<span class="nv">time</span><span class="o">=</span><span class="k">$(</span>date <span class="s2">&#34;+%Y-%m-%d %H:%M:%S&#34;</span><span class="k">)</span>
+
+<span class="k">if</span> <span class="o">[</span> <span class="nv">$count</span> <span class="o">=</span> <span class="m">0</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+
+    <span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$time</span><span class="s2"> : count=</span><span class="nv">$count</span><span class="s2">, mysql is not running...&#34;</span> &gt;&gt; /var/log/keepalived_check.log
+
+    <span class="nb">exit</span> <span class="m">1</span> <span class="c1"># 返回1说明脚本非正常执行,mysql不在运行中</span>
+
+<span class="k">else</span>
+
+    <span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$time</span><span class="s2"> : count=</span><span class="nv">$count</span><span class="s2">, mysql is running...&#34;</span> &gt;&gt; /var/log/keepalived_check.log
+
+    <span class="nb">exit</span> <span class="m">0</span> <span class="c1"># 返回0说明脚本正常执行,mysql正在运行中</span>
+
+<span class="k">fi</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="测试集群是否搭建成功">测试集群是否搭建成功</h2>
+<p>登录两台主机查看VIP地址在哪台机器，然后通过vip登录Mysql服务器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span> <span class="o">-</span><span class="n">h</span> <span class="mi">192</span><span class="p">.</span><span class="mi">168</span><span class="p">.</span><span class="mi">1</span><span class="p">.</span><span class="mi">60</span> <span class="o">-</span><span class="n">uxtgss</span> <span class="o">-</span><span class="n">pXtgss</span><span class="o">@</span><span class="mi">123</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>主从巡检脚本</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span><span class="lnt">141
+</span><span class="lnt">142
+</span><span class="lnt">143
+</span><span class="lnt">144
+</span><span class="lnt">145
+</span><span class="lnt">146
+</span><span class="lnt">147
+</span><span class="lnt">148
+</span><span class="lnt">149
+</span><span class="lnt">150
+</span><span class="lnt">151
+</span><span class="lnt">152
+</span><span class="lnt">153
+</span><span class="lnt">154
+</span><span class="lnt">155
+</span><span class="lnt">156
+</span><span class="lnt">157
+</span><span class="lnt">158
+</span><span class="lnt">159
+</span><span class="lnt">160
+</span><span class="lnt">161
+</span><span class="lnt">162
+</span><span class="lnt">163
+</span><span class="lnt">164
+</span><span class="lnt">165
+</span><span class="lnt">166
+</span><span class="lnt">167
+</span><span class="lnt">168
+</span><span class="lnt">169
+</span><span class="lnt">170
+</span><span class="lnt">171
+</span><span class="lnt">172
+</span><span class="lnt">173
+</span><span class="lnt">174
+</span><span class="lnt">175
+</span><span class="lnt">176
+</span><span class="lnt">177
+</span><span class="lnt">178
+</span><span class="lnt">179
+</span><span class="lnt">180
+</span><span class="lnt">181
+</span><span class="lnt">182
+</span><span class="lnt">183
+</span><span class="lnt">184
+</span><span class="lnt">185
+</span><span class="lnt">186
+</span><span class="lnt">187
+</span><span class="lnt">188
+</span><span class="lnt">189
+</span><span class="lnt">190
+</span><span class="lnt">191
+</span><span class="lnt">192
+</span><span class="lnt">193
+</span><span class="lnt">194
+</span><span class="lnt">195
+</span><span class="lnt">196
+</span><span class="lnt">197
+</span><span class="lnt">198
+</span><span class="lnt">199
+</span><span class="lnt">200
+</span><span class="lnt">201
+</span><span class="lnt">202
+</span><span class="lnt">203
+</span><span class="lnt">204
+</span><span class="lnt">205
+</span><span class="lnt">206
+</span><span class="lnt">207
+</span><span class="lnt">208
+</span><span class="lnt">209
+</span><span class="lnt">210
+</span><span class="lnt">211
+</span><span class="lnt">212
+</span><span class="lnt">213
+</span><span class="lnt">214
+</span><span class="lnt">215
+</span><span class="lnt">216
+</span><span class="lnt">217
+</span><span class="lnt">218
+</span><span class="lnt">219
+</span><span class="lnt">220
+</span><span class="lnt">221
+</span><span class="lnt">222
+</span><span class="lnt">223
+</span><span class="lnt">224
+</span><span class="lnt">225
+</span><span class="lnt">226
+</span><span class="lnt">227
+</span><span class="lnt">228
+</span><span class="lnt">229
+</span><span class="lnt">230
+</span><span class="lnt">231
+</span><span class="lnt">232
+</span><span class="lnt">233
+</span><span class="lnt">234
+</span><span class="lnt">235
+</span><span class="lnt">236
+</span><span class="lnt">237
+</span><span class="lnt">238
+</span><span class="lnt">239
+</span><span class="lnt">240
+</span><span class="lnt">241
+</span><span class="lnt">242
+</span><span class="lnt">243
+</span><span class="lnt">244
+</span><span class="lnt">245
+</span><span class="lnt">246
+</span><span class="lnt">247
+</span><span class="lnt">248
+</span><span class="lnt">249
+</span><span class="lnt">250
+</span><span class="lnt">251
+</span><span class="lnt">252
+</span><span class="lnt">253
+</span><span class="lnt">254
+</span><span class="lnt">255
+</span><span class="lnt">256
+</span><span class="lnt">257
+</span><span class="lnt">258
+</span><span class="lnt">259
+</span><span class="lnt">260
+</span><span class="lnt">261
+</span><span class="lnt">262
+</span><span class="lnt">263
+</span><span class="lnt">264
+</span><span class="lnt">265
+</span><span class="lnt">266
+</span><span class="lnt">267
+</span><span class="lnt">268
+</span><span class="lnt">269
+</span><span class="lnt">270
+</span><span class="lnt">271
+</span><span class="lnt">272
+</span><span class="lnt">273
+</span><span class="lnt">274
+</span><span class="lnt">275
+</span><span class="lnt">276
+</span><span class="lnt">277
+</span><span class="lnt">278
+</span><span class="lnt">279
+</span><span class="lnt">280
+</span><span class="lnt">281
+</span><span class="lnt">282
+</span><span class="lnt">283
+</span><span class="lnt">284
+</span><span class="lnt">285
+</span><span class="lnt">286
+</span><span class="lnt">287
+</span><span class="lnt">288
+</span><span class="lnt">289
+</span><span class="lnt">290
+</span><span class="lnt">291
+</span><span class="lnt">292
+</span><span class="lnt">293
+</span><span class="lnt">294
+</span><span class="lnt">295
+</span><span class="lnt">296
+</span><span class="lnt">297
+</span><span class="lnt">298
+</span><span class="lnt">299
+</span><span class="lnt">300
+</span><span class="lnt">301
+</span><span class="lnt">302
+</span><span class="lnt">303
+</span><span class="lnt">304
+</span><span class="lnt">305
+</span><span class="lnt">306
+</span><span class="lnt">307
+</span><span class="lnt">308
+</span><span class="lnt">309
+</span><span class="lnt">310
+</span><span class="lnt">311
+</span><span class="lnt">312
+</span><span class="lnt">313
+</span><span class="lnt">314
+</span><span class="lnt">315
+</span><span class="lnt">316
+</span><span class="lnt">317
+</span><span class="lnt">318
+</span><span class="lnt">319
+</span><span class="lnt">320
+</span><span class="lnt">321
+</span><span class="lnt">322
+</span><span class="lnt">323
+</span><span class="lnt">324
+</span><span class="lnt">325
+</span><span class="lnt">326
+</span><span class="lnt">327
+</span><span class="lnt">328
+</span><span class="lnt">329
+</span><span class="lnt">330
+</span><span class="lnt">331
+</span><span class="lnt">332
+</span><span class="lnt">333
+</span><span class="lnt">334
+</span><span class="lnt">335
+</span><span class="lnt">336
+</span><span class="lnt">337
+</span><span class="lnt">338
+</span><span class="lnt">339
+</span><span class="lnt">340
+</span><span class="lnt">341
+</span><span class="lnt">342
+</span><span class="lnt">343
+</span><span class="lnt">344
+</span><span class="lnt">345
+</span><span class="lnt">346
+</span><span class="lnt">347
+</span><span class="lnt">348
+</span><span class="lnt">349
+</span><span class="lnt">350
+</span><span class="lnt">351
+</span><span class="lnt">352
+</span><span class="lnt">353
+</span><span class="lnt">354
+</span><span class="lnt">355
+</span><span class="lnt">356
+</span><span class="lnt">357
+</span><span class="lnt">358
+</span><span class="lnt">359
+</span><span class="lnt">360
+</span><span class="lnt">361
+</span><span class="lnt">362
+</span><span class="lnt">363
+</span><span class="lnt">364
+</span><span class="lnt">365
+</span><span class="lnt">366
+</span><span class="lnt">367
+</span><span class="lnt">368
+</span><span class="lnt">369
+</span><span class="lnt">370
+</span><span class="lnt">371
+</span><span class="lnt">372
+</span><span class="lnt">373
+</span><span class="lnt">374
+</span><span class="lnt">375
+</span><span class="lnt">376
+</span><span class="lnt">377
+</span><span class="lnt">378
+</span><span class="lnt">379
+</span><span class="lnt">380
+</span><span class="lnt">381
+</span><span class="lnt">382
+</span><span class="lnt">383
+</span><span class="lnt">384
+</span><span class="lnt">385
+</span><span class="lnt">386
+</span><span class="lnt">387
+</span><span class="lnt">388
+</span><span class="lnt">389
+</span><span class="lnt">390
+</span><span class="lnt">391
+</span><span class="lnt">392
+</span><span class="lnt">393
+</span><span class="lnt">394
+</span><span class="lnt">395
+</span><span class="lnt">396
+</span><span class="lnt">397
+</span><span class="lnt">398
+</span><span class="lnt">399
+</span><span class="lnt">400
+</span><span class="lnt">401
+</span><span class="lnt">402
+</span><span class="lnt">403
+</span><span class="lnt">404
+</span><span class="lnt">405
+</span><span class="lnt">406
+</span><span class="lnt">407
+</span><span class="lnt">408
+</span><span class="lnt">409
+</span><span class="lnt">410
+</span><span class="lnt">411
+</span><span class="lnt">412
+</span><span class="lnt">413
+</span><span class="lnt">414
+</span><span class="lnt">415
+</span><span class="lnt">416
+</span><span class="lnt">417
+</span><span class="lnt">418
+</span><span class="lnt">419
+</span><span class="lnt">420
+</span><span class="lnt">421
+</span><span class="lnt">422
+</span><span class="lnt">423
+</span><span class="lnt">424
+</span><span class="lnt">425
+</span><span class="lnt">426
+</span><span class="lnt">427
+</span><span class="lnt">428
+</span><span class="lnt">429
+</span><span class="lnt">430
+</span><span class="lnt">431
+</span><span class="lnt">432
+</span><span class="lnt">433
+</span><span class="lnt">434
+</span><span class="lnt">435
+</span><span class="lnt">436
+</span><span class="lnt">437
+</span><span class="lnt">438
+</span><span class="lnt">439
+</span><span class="lnt">440
+</span><span class="lnt">441
+</span><span class="lnt">442
+</span><span class="lnt">443
+</span><span class="lnt">444
+</span><span class="lnt">445
+</span><span class="lnt">446
+</span><span class="lnt">447
+</span><span class="lnt">448
+</span><span class="lnt">449
+</span><span class="lnt">450
+</span><span class="lnt">451
+</span><span class="lnt">452
+</span><span class="lnt">453
+</span><span class="lnt">454
+</span><span class="lnt">455
+</span><span class="lnt">456
+</span><span class="lnt">457
+</span><span class="lnt">458
+</span><span class="lnt">459
+</span><span class="lnt">460
+</span><span class="lnt">461
+</span><span class="lnt">462
+</span><span class="lnt">463
+</span><span class="lnt">464
+</span><span class="lnt">465
+</span><span class="lnt">466
+</span><span class="lnt">467
+</span><span class="lnt">468
+</span><span class="lnt">469
+</span><span class="lnt">470
+</span><span class="lnt">471
+</span><span class="lnt">472
+</span><span class="lnt">473
+</span><span class="lnt">474
+</span><span class="lnt">475
+</span><span class="lnt">476
+</span><span class="lnt">477
+</span><span class="lnt">478
+</span><span class="lnt">479
+</span><span class="lnt">480
+</span><span class="lnt">481
+</span><span class="lnt">482
+</span><span class="lnt">483
+</span><span class="lnt">484
+</span><span class="lnt">485
+</span><span class="lnt">486
+</span><span class="lnt">487
+</span><span class="lnt">488
+</span><span class="lnt">489
+</span><span class="lnt">490
+</span><span class="lnt">491
+</span><span class="lnt">492
+</span><span class="lnt">493
+</span><span class="lnt">494
+</span><span class="lnt">495
+</span><span class="lnt">496
+</span><span class="lnt">497
+</span><span class="lnt">498
+</span><span class="lnt">499
+</span><span class="lnt">500
+</span><span class="lnt">501
+</span><span class="lnt">502
+</span><span class="lnt">503
+</span><span class="lnt">504
+</span><span class="lnt">505
+</span><span class="lnt">506
+</span><span class="lnt">507
+</span><span class="lnt">508
+</span><span class="lnt">509
+</span><span class="lnt">510
+</span><span class="lnt">511
+</span><span class="lnt">512
+</span><span class="lnt">513
+</span><span class="lnt">514
+</span><span class="lnt">515
+</span><span class="lnt">516
+</span><span class="lnt">517
+</span><span class="lnt">518
+</span><span class="lnt">519
+</span><span class="lnt">520
+</span><span class="lnt">521
+</span><span class="lnt">522
+</span><span class="lnt">523
+</span><span class="lnt">524
+</span><span class="lnt">525
+</span><span class="lnt">526
+</span><span class="lnt">527
+</span><span class="lnt">528
+</span><span class="lnt">529
+</span><span class="lnt">530
+</span><span class="lnt">531
+</span><span class="lnt">532
+</span><span class="lnt">533
+</span><span class="lnt">534
+</span><span class="lnt">535
+</span><span class="lnt">536
+</span><span class="lnt">537
+</span><span class="lnt">538
+</span><span class="lnt">539
+</span><span class="lnt">540
+</span><span class="lnt">541
+</span><span class="lnt">542
+</span><span class="lnt">543
+</span><span class="lnt">544
+</span><span class="lnt">545
+</span><span class="lnt">546
+</span><span class="lnt">547
+</span><span class="lnt">548
+</span><span class="lnt">549
+</span><span class="lnt">550
+</span><span class="lnt">551
+</span><span class="lnt">552
+</span><span class="lnt">553
+</span><span class="lnt">554
+</span><span class="lnt">555
+</span><span class="lnt">556
+</span><span class="lnt">557
+</span><span class="lnt">558
+</span><span class="lnt">559
+</span><span class="lnt">560
+</span><span class="lnt">561
+</span><span class="lnt">562
+</span><span class="lnt">563
+</span><span class="lnt">564
+</span><span class="lnt">565
+</span><span class="lnt">566
+</span><span class="lnt">567
+</span><span class="lnt">568
+</span><span class="lnt">569
+</span><span class="lnt">570
+</span><span class="lnt">571
+</span><span class="lnt">572
+</span><span class="lnt">573
+</span><span class="lnt">574
+</span><span class="lnt">575
+</span><span class="lnt">576
+</span><span class="lnt">577
+</span><span class="lnt">578
+</span><span class="lnt">579
+</span><span class="lnt">580
+</span><span class="lnt">581
+</span><span class="lnt">582
+</span><span class="lnt">583
+</span><span class="lnt">584
+</span><span class="lnt">585
+</span><span class="lnt">586
+</span><span class="lnt">587
+</span><span class="lnt">588
+</span><span class="lnt">589
+</span><span class="lnt">590
+</span><span class="lnt">591
+</span><span class="lnt">592
+</span><span class="lnt">593
+</span><span class="lnt">594
+</span><span class="lnt">595
+</span><span class="lnt">596
+</span><span class="lnt">597
+</span><span class="lnt">598
+</span><span class="lnt">599
+</span><span class="lnt">600
+</span><span class="lnt">601
+</span><span class="lnt">602
+</span><span class="lnt">603
+</span><span class="lnt">604
+</span><span class="lnt">605
+</span><span class="lnt">606
+</span><span class="lnt">607
+</span><span class="lnt">608
+</span><span class="lnt">609
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh"><span class="cp">#!/bin/bash
+</span><span class="cp"></span>
+<span class="nv">host</span><span class="o">=</span><span class="s2">&#34;192.168.1.1&#34;</span>
+
+<span class="nv">port</span><span class="o">=</span><span class="s2">&#34;3306&#34;</span>
+
+<span class="nv">userName</span><span class="o">=</span><span class="s2">&#34;root&#34;</span>
+
+<span class="nv">password</span><span class="o">=</span><span class="s2">&#34;123456&#34;</span>
+
+<span class="nv">dbname</span><span class="o">=</span><span class="s2">&#34;mysql&#34;</span>
+
+<span class="nv">base</span><span class="o">=</span><span class="s1">&#39;/usr/local/mysql&#39;</span>
+
+<span class="c1">##数据文件位置##</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;================= mysql配置信息 ===============================&#34;</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;========= 基本配置信息 ===========&#34;</span>
+
+<span class="nv">lower_case_table_names</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;lower_case_table_names&#39;;&#34;</span>
+
+<span class="nv">lower_case_table_names_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">lower_case_table_names</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;不区分大小写：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">lower_case_table_names_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">_port</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;port&#39;;&#34;</span>
+
+<span class="nv">_port_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">_port</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;端口：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">_port_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">socket</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;socket&#39;;&#34;</span>
+
+<span class="nv">socket_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">socket</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;socket的值：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">socket_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">skip_name_resolve</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;skip_name_resolve&#39;;&#34;</span>
+
+<span class="nv">skip_name_resolve_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">skip_name_resolve</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;域名解析skip_name_resolve：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">skip_name_resolve_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">character_set_server</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;character_set_server&#39;;&#34;</span>
+
+<span class="nv">character_set_server_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">character_set_server</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;数据库字符集character_set_server：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">character_set_server_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">interactive_timeout</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;interactive_timeout&#39;;&#34;</span>
+
+<span class="nv">interactive_timeout_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">interactive_timeout</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;交互式连接超时时间(mysql工具、mysqldump等)interactive_timeout(秒)：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">interactive_timeout_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">wait_timeout</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;wait_timeout&#39;;&#34;</span>
+
+<span class="nv">wait_timeout_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">wait_timeout</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;非交互式连接超时时间，默认的连接mysql api程序,jdbc连接数据库等wait_timeout(秒)：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">wait_timeout_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">query_cache_type</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;query_cache_type&#39;;&#34;</span>
+
+<span class="nv">query_cache_type_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">query_cache_type</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;查询缓存query_cache_type：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">query_cache_type_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">innodb_version</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;innodb_version&#39;;&#34;</span>
+
+<span class="nv">innodb_version_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">innodb_version</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;数据库版本：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">innodb_version_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">trx_isolation</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;tx_isolation&#39;;&#34;</span>
+
+<span class="nv">trx_isolation_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">trx_isolation</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;mysql5.6隔离级别trx_isolation：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">trx_isolation_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">transaction_isolation</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;transaction_isolation&#39;;&#34;</span>
+
+<span class="nv">transaction_isolation_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">transaction_isolation</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;隔离级别transaction_isolation：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">transaction_isolation_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">datadir</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;%datadir%&#39;;&#34;</span>
+
+<span class="nv">datadir_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">datadir</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;mysql 数据文件存放位置：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">datadir_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;========= 连接数配置信息 ===========&#34;</span>
+
+<span class="nv">max_connections</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;max_connections&#39;;&#34;</span>
+
+<span class="nv">max_connections_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">max_connections</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;最大连接数（max_connections）：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">max_connections_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">Max_used_connections</span><span class="o">=</span><span class="s2">&#34;show status like &#39;Max_used_connections&#39;;&#34;</span>
+
+<span class="nv">Max_used_connections_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">Max_used_connections</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;当前连接数（Max_used_connections）：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">Max_used_connections_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">max_connect_errors</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;max_connect_errors&#39;;&#34;</span>
+
+<span class="nv">max_connect_errors_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">max_connect_errors</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;最大错误连接数（max_connect_errors）：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">max_connect_errors_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;========= binlog配置信息 ===========&#34;</span>
+
+<span class="nv">sync_binlog</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;sync_binlog&#39;;&#34;</span>
+
+<span class="nv">sync_binlog_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">sync_binlog</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;sync_binlog(0|1|n，查看是否采用双1模式)：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">sync_binlog_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">binlog_format</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;binlog_format&#39;;&#34;</span>
+
+<span class="nv">binlog_format_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">binlog_format</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;binlog格式：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">binlog_format_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">log_bin</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;log-bin&#39;;&#34;</span>
+
+<span class="nv">log_bin_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">log</span><span class="p">-bin</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;binlog文件（log-bin）：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">log_bin_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">expire_logs_days</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;expire_logs_days&#39;;&#34;</span>
+
+<span class="nv">expire_logs_days_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">expire_logs_days</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;binlog文件过期时间：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">expire_logs_days_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">binlog_cache_size</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;binlog_cache_size&#39;;&#34;</span>
+
+<span class="nv">binlog_cache_size_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">binlog_cache_size</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;binlog_cache_size：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">binlog_cache_size_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">max_binlog_cache_size</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;max_binlog_cache_size&#39;;&#34;</span>
+
+<span class="nv">max_binlog_cache_size_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">max_binlog_cache_size</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;max_binlog_cache_size：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">max_binlog_cache_size_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">max_binlog_size</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;max_binlog_size&#39;;&#34;</span>
+
+<span class="nv">max_binlog_size_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">max_binlog_size</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;binlog文件大小：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">max_binlog_size_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">master_info_repository</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;master_info_repository&#39;;&#34;</span>
+
+<span class="nv">master_info_repository_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">master_info_repository</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;master_info_repository(table|file,建议用table)：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">master_info_repository_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">relay_log_info_repository</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;relay_log_info_repository&#39;;&#34;</span>
+
+<span class="nv">relay_log_info_repository_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">relay_log_info_repository</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;relay_log_info_repository(table|file,建议用table)：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">relay_log_info_repository_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">relay_log_recovery</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;relay_log_recovery&#39;;&#34;</span>
+
+<span class="nv">relay_log_recovery_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">relay_log_recovery</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;relay_log_info_repository(建议开启)：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">relay_log_recovery_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;========= GTID配置信息 ===========&#34;</span>
+
+<span class="nv">gtid_mode</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;gtid_mode&#39;;&#34;</span>
+
+<span class="nv">gtid_mode_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">gtid_mode</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;是否开启gtid_mode：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">gtid_mode_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">enforce_gtid_consistency</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;enforce_gtid_consistency&#39;;&#34;</span>
+
+<span class="nv">enforce_gtid_consistency_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">enforce_gtid_consistency</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;enforce_gtid_consistency是否开启：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">enforce_gtid_consistency_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;（MySQL官方解释说当启用enforce_gtid_consistency功能的时候，MySQL只允许能够保障事务安全，并且能够被日志记录的SQL语句被执行，像create table … select 和 create temporary table语句，以及同时更新事务表和非事务表的SQL语句或事务都不允许执行）&#34;</span>
+
+<span class="nv">log_slave_updates</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;log_slave_updates&#39;;&#34;</span>
+
+<span class="nv">log_slave_updates_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">log_slave_updates</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;级联复制是否开启log_slave_updates：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">log_slave_updates_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;======== innodb配置信息 =========&#34;</span>
+
+<span class="nv">innodb_data_home_dir</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;innodb_data_home_dir&#39;;&#34;</span>
+
+<span class="nv">innodb_data_home_dir_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">innodb_data_home_dir</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;innodb_data_home_dir：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">innodb_data_home_dir_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">innodb_buffer_pool_size</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;innodb_buffer_pool_size&#39;;&#34;</span>
+
+<span class="nv">innodb_buffer_pool_size_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">innodb_buffer_pool_size</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;innodb_buffer_pool_size（不超过内存的75%）：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">innodb_buffer_pool_size_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">innodb_buffer_pool_instances</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;innodb_buffer_pool_instances&#39;;&#34;</span>
+
+<span class="nv">innodb_buffer_pool_instances_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">innodb_buffer_pool_instances</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;innodb_buffer_pool_instances(innodb_buffer_pool_size小于8G实例个数建议为1)：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">innodb_buffer_pool_instances_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">innodb_log_file_size</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;innodb_log_file_size&#39;;&#34;</span>
+
+<span class="nv">innodb_log_file_size_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">innodb_log_file_size</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;redo文件的大小innodb_log_file_size：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">innodb_log_file_size_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">innodb_log_files_in_group</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;innodb_log_files_in_group&#39;;&#34;</span>
+
+<span class="nv">innodb_log_files_in_group_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">innodb_log_files_in_group</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;redo文件的个数innodb_log_files_in_group：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">innodb_log_files_in_group_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">innodb_flush_log_at_trx_commit</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;innodb_flush_log_at_trx_commit&#39;;&#34;</span>
+
+<span class="nv">innodb_flush_log_at_trx_commit_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">innodb_flush_log_at_trx_commit</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;innodb_flush_log_at_trx_commit（0|1|2，跟sync_binlog双1）：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">innodb_flush_log_at_trx_commit_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">innodb_io_capacity</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;innodb_io_capacity&#39;;&#34;</span>
+
+<span class="nv">innodb_io_capacity_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">innodb_io_capacity</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;innodb_io_capacity（机械硬盘200，固态2000，闪存20000）：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">innodb_io_capacity_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">transaction_isolation</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;transaction_isolation&#39;;&#34;</span>
+
+<span class="nv">transaction_isolation_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">transaction_isolation</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;隔离级别transaction_isolation：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">transaction_isolation_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">trx_isolation</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;tx_isolation&#39;;&#34;</span>
+
+<span class="nv">trx_isolation_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">trx_isolation</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;mysql5.6隔离级别trx_isolation：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">trx_isolation_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">innodb_max_undo_log_size</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;innodb_max_undo_log_size&#39;;&#34;</span>
+
+<span class="nv">innodb_max_undo_log_size_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">innodb_max_undo_log_size</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;undo大小innodb_max_undo_log_size：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">innodb_max_undo_log_size_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">innodb_undo_tablespaces</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;innodb_undo_tablespaces&#39;;&#34;</span>
+
+<span class="nv">innodb_undo_tablespaces_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">innodb_max_undo_log_size</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;undo个数innodb_undo_tablespaces：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">innodb_undo_tablespaces_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;========= rep配置信息 ===========&#34;</span>
+
+<span class="nv">slave_parallel_type</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;slave-parallel-type&#39;;&#34;</span>
+
+<span class="nv">slave_parallel_type_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">slave_parallel_type</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;slave复制模式：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">slave_parallel_type_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">slave_parallel_workers</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;slave-parallel-workers&#39;;&#34;</span>
+
+<span class="nv">slave_parallel_workers_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">slave_parallel_workers</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;slave并发复制：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">slave_parallel_workers_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;================= 内存配置情况 ===============================&#34;</span>
+
+<span class="nv">mem_dis_1</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;innodb_buffer_pool_size&#39;;&#34;</span>
+
+<span class="nv">mem_dis_1_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">mem_dis_1</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nv">mem_dis_1_val_1</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">mem_dis_1_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">mem_dis_1_val_2</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="p">|</span> awk <span class="s2">&#34;{print </span><span class="nv">$mem_dis_1_val_1</span><span class="s2">/1024/1024}&#34;</span><span class="sb">`</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;InnoDB 数据和索引缓存：&#34;</span> <span class="nv">$mem_dis_1_val_1</span>
+
+<span class="nv">mem_dis_2</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;innodb_log_buffer_size&#39;;&#34;</span>
+
+<span class="nv">mem_dis_2_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">mem_dis_2</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nv">mem_dis_2_val_1</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">mem_dis_2_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">mem_dis_2_val_2</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="p">|</span> awk <span class="s2">&#34;{print </span><span class="nv">$mem_dis_2_val_1</span><span class="s2">/1024/1024}&#34;</span><span class="sb">`</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;InnoDB 日志缓冲区：&#34;</span> <span class="nv">$mem_dis_2_val_1</span>
+
+<span class="nv">mem_dis_3</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;binlog_cache_size&#39;;&#34;</span>
+
+<span class="nv">mem_dis_3_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">mem_dis_3</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nv">mem_dis_3_val_1</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">mem_dis_3_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">mem_dis_3_val_2</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="p">|</span> awk <span class="s2">&#34;{print </span><span class="nv">$mem_dis_3_val_1</span><span class="s2">/1024/1024}&#34;</span><span class="sb">`</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;二进制日志缓冲区：&#34;</span> <span class="nv">$mem_dis_3_val_1</span>
+
+<span class="nv">mem_dis_4</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;thread_cache_size&#39;;&#34;</span>
+
+<span class="nv">mem_dis_4_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">mem_dis_4</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;连接线程缓存：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="nv">$mem_dis_4_val</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">mem_dis_5</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;query_cache_size&#39;;&#34;</span>
+
+<span class="nv">mem_dis_5_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">mem_dis_5</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;查询缓存：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">mem_dis_5_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">mem_dis_6</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;table_open_cache&#39;;&#34;</span>
+
+<span class="nv">mem_dis_6_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">mem_dis_6</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;表缓存：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">mem_dis_6_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">mem_dis_7</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;table_definition_cache&#39;;&#34;</span>
+
+<span class="nv">mem_dis_7_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">mem_dis_7</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;表定义缓存：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">mem_dis_7_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">mem_dis_8</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;max_connections&#39;;&#34;</span>
+
+<span class="nv">mem_dis_8_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">mem_dis_8</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;最大线程数：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">mem_dis_8_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">mem_dis_9</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;thread_stack&#39;;&#34;</span>
+
+<span class="nv">mem_dis_9_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">mem_dis_9</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;线程栈信息使用内存：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">mem_dis_9_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">mem_dis_10</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;sort_buffer_size&#39;;&#34;</span>
+
+<span class="nv">mem_dis_10_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">mem_dis_10</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;排序使用内存：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">mem_dis_10_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">mem_dis_11</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;join_buffer_size&#39;;&#34;</span>
+
+<span class="nv">mem_dis_11_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">mem_dis_11</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;Join操作使用内存：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">mem_dis_11_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">mem_dis_12</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;read_buffer_size&#39;;&#34;</span>
+
+<span class="nv">mem_dis_12_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">mem_dis_12</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;顺序读取数据缓冲区使用内存：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">mem_dis_12_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">mem_dis_13</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;read_rnd_buffer_size&#39;;&#34;</span>
+
+<span class="nv">mem_dis_13_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">mem_dis_13</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;随机读取数据缓冲区使用内存：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">mem_dis_13_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">mem_dis_14</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;tmp_table_size&#39;;&#34;</span>
+
+<span class="nv">mem_dis_14_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">mem_dis_14</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;临时表使用内存：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">mem_dis_14_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;================= QPS ===============================&#34;</span>
+
+<span class="nv">Questions1</span><span class="o">=</span><span class="s2">&#34;show global status like &#39;Questions&#39;;&#34;</span>
+
+<span class="nv">Questions1_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">Questions1</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+sleep <span class="m">1</span>
+
+<span class="nv">Questions2</span><span class="o">=</span><span class="s2">&#34;show global status like &#39;Questions&#39;;&#34;</span>
+
+<span class="nv">Questions2_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">Questions2</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;QPS：</span><span class="k">$((</span><span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">Questions2_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span><span class="o">-</span><span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">Questions1_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span><span class="k">))</span><span class="s2">&#34;</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;================= TPS ===============================&#34;</span>
+
+<span class="nv">Com_commit</span><span class="o">=</span><span class="s2">&#34;show  global status like &#39;Com_commit&#39;;&#34;</span>
+
+<span class="nv">Com_commit_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">Com_commit</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nv">Com_rollback</span><span class="o">=</span><span class="s2">&#34;show global status like &#39;Com_rollback&#39;;&#34;</span>
+
+<span class="nv">Com_rollback_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">Com_rollback</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;TPS：&#34;</span> <span class="k">$((</span><span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">Com_commit_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span> <span class="o">+</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">Com_rollback_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span><span class="k">))</span>
+
+<span class="c1">##缓存命中率##</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;================= 缓存命中情况 ===============================&#34;</span>
+
+<span class="nv">cache_hits</span><span class="o">=</span><span class="s2">&#34;show global status like &#39;QCache_hits&#39;;&#34;</span>
+
+<span class="nv">hits</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">cache_hits</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nv">hits_val</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">hits</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;缓存命中次数：&#34;</span> <span class="si">${</span><span class="nv">hits_val</span><span class="si">}</span>
+
+<span class="nv">cache_not_hits</span><span class="o">=</span><span class="s2">&#34;show global status like  &#39;Qcache_inserts&#39;;&#34;</span>
+
+<span class="nv">not_hits</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">cache_not_hits</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nv">not_hits_val</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">not_hits</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;缓存未命中次数：&#34;</span> <span class="si">${</span><span class="nv">not_hits_val</span><span class="si">}</span>
+
+<span class="nv">cache_hits_rate_1</span><span class="o">=</span><span class="k">$((</span><span class="nv">$hits_val</span> <span class="o">-</span> <span class="nv">$not_hits_val</span><span class="k">))</span>
+
+<span class="nv">cache_hits_rate_2</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="p">|</span> awk <span class="s2">&#34;{print </span><span class="nv">$cache_hits_rate_1</span><span class="s2">/</span><span class="nv">$hits_val</span><span class="s2"> * 100}&#34;</span><span class="sb">`</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;缓存命中率：&#34;</span> <span class="si">${</span><span class="nv">cache_hits_rate_2</span><span class="si">}</span> <span class="s2">&#34;%&#34;</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;================= 主从复制 =============================&#34;</span>
+
+<span class="nv">slave_parallel_type</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;slave-parallel-type&#39;;&#34;</span>
+
+<span class="nv">slave_parallel_type_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">slave_parallel_type</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;slave复制模式：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">slave_parallel_type_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="nv">slave_parallel_workers</span><span class="o">=</span><span class="s2">&#34;show variables like &#39;slave-parallel-workers&#39;;&#34;</span>
+
+<span class="nv">slave_parallel_workers_val</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">slave_parallel_workers</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;slave并发复制：&#34;</span> <span class="sb">`</span><span class="nb">echo</span> <span class="si">${</span><span class="nv">slave_parallel_workers_val</span><span class="si">}</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f4<span class="sb">`</span>
+
+<span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;show master status\G;&#34;</span>
+
+<span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;show slave status\G;&#34;</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;================= 半同步复制 ===============================&#34;</span>
+
+<span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;show variables like &#39;%semi%&#39;;&#34;</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;================= 慢查询 ===============================&#34;</span>
+
+<span class="nv">slow_query_log_file</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;show variables like &#39;slow_query_log_file&#39;;&#34;</span><span class="p">|</span>grep <span class="s1">&#39;slow&#39;</span><span class="p">|</span>awk <span class="s1">&#39;{print $2}&#39;</span><span class="k">)</span>
+
+<span class="nv">slow_query_log</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;show variables like &#39;slow_query_log&#39;;&#34;</span><span class="p">|</span>grep <span class="s1">&#39;slow&#39;</span><span class="p">|</span>awk <span class="s1">&#39;{print $2}&#39;</span><span class="k">)</span>
+
+<span class="nv">long_query_time</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;show variables like &#39;long_query_time&#39;;&#34;</span><span class="p">|</span>grep <span class="s1">&#39;long_query_time&#39;</span><span class="p">|</span>awk <span class="s1">&#39;{print $2}&#39;</span><span class="k">)</span>
+
+<span class="nv">log_queries_not_using_indexes</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;show variables like &#39;log_queries_not_using_indexes&#39;;&#34;</span><span class="p">|</span>grep <span class="s1">&#39;log_queries_not_using_indexes&#39;</span><span class="p">|</span>awk <span class="s1">&#39;{print $2}&#39;</span><span class="k">)</span>
+
+<span class="k">if</span> <span class="o">[</span> <span class="si">${</span><span class="nv">slow_query_log</span><span class="si">}</span> <span class="o">==</span> <span class="s2">&#34;ON&#34;</span> <span class="o">]</span><span class="p">;</span><span class="k">then</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;慢查询状态(slow_query_log)：</span><span class="si">${</span><span class="nv">slow_query_log</span><span class="si">}</span><span class="s2"> ;long_query_time(s) : </span><span class="si">${</span><span class="nv">long_query_time</span><span class="si">}</span><span class="s2">;log_queries_not_using_indexes: </span><span class="si">${</span><span class="nv">log_queries_not_using_indexes</span><span class="si">}</span><span class="s2">;慢查询top10，如下：&#34;</span>
+
+mysqldumpslow -s c -t <span class="m">10</span> <span class="si">${</span><span class="nv">slow_query_log_file</span><span class="si">}</span><span class="p">;</span>
+
+<span class="k">else</span>
+
+    <span class="nb">echo</span> <span class="s2">&#34;慢查询状态(slow_query_log)：</span><span class="si">${</span><span class="nv">slow_query_log</span><span class="si">}</span><span class="s2"> ，未开启慢查询。&#34;</span>
+
+<span class="k">fi</span>
+
+<span class="c1">##等待事件##</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;================= 数据库大小 ===============================&#34;</span>
+
+<span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;SELECT
+</span><span class="s2">
+</span><span class="s2">table_schema,
+</span><span class="s2">
+</span><span class="s2">sum( data_length )/ 1024 / 1024 / 1024 AS data_length,
+</span><span class="s2">
+</span><span class="s2">sum( index_length )/ 1024 / 1024 / 1024 AS index_length,
+</span><span class="s2">
+</span><span class="s2">sum( data_length + index_length )/ 1024 / 1024 / 1024 AS sum_data_index
+</span><span class="s2">
+</span><span class="s2">FROM
+</span><span class="s2">
+</span><span class="s2">information_schema.TABLES
+</span><span class="s2">
+</span><span class="s2">WHERE
+</span><span class="s2">
+</span><span class="s2">table_schema NOT IN ( &#39;mysql&#39;, &#39;information_schema&#39;, &#39;performance_schema&#39;, &#39;sys&#39; )
+</span><span class="s2">
+</span><span class="s2">GROUP BY
+</span><span class="s2">
+</span><span class="s2">table_schema;&#34;</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;================= 数据碎片 ===============================&#34;</span>
+
+<span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;SELECT
+</span><span class="s2">
+</span><span class="s2">TABLE_SCHEMA,
+</span><span class="s2">
+</span><span class="s2">TABLE_NAME,
+</span><span class="s2">
+</span><span class="s2">ENGINE,
+</span><span class="s2">
+</span><span class="s2">concat( splinter, &#39;G&#39; ) &#39;碎片(G)&#39;
+</span><span class="s2">
+</span><span class="s2">FROM
+</span><span class="s2">
+</span><span class="s2">(
+</span><span class="s2">
+</span><span class="s2">SELECT
+</span><span class="s2">
+</span><span class="s2">TABLE_SCHEMA,
+</span><span class="s2">
+</span><span class="s2">TABLE_NAME,
+</span><span class="s2">
+</span><span class="s2">ENGINE,
+</span><span class="s2">
+</span><span class="s2">ROUND(( DATA_LENGTH + INDEX_LENGTH - TABLE_ROWS * AVG_ROW_LENGTH )/ 1024 / 1024 / 1024 ) splinter
+</span><span class="s2">
+</span><span class="s2">FROM
+</span><span class="s2">
+</span><span class="s2">information_schema.TABLES
+</span><span class="s2">
+</span><span class="s2">WHERE
+</span><span class="s2">
+</span><span class="s2">TABLE_TYPE = &#39;BASE TABLE&#39;
+</span><span class="s2">
+</span><span class="s2">) a
+</span><span class="s2">
+</span><span class="s2">WHERE
+</span><span class="s2">
+</span><span class="s2">splinter &gt; 1
+</span><span class="s2">
+</span><span class="s2">ORDER BY
+</span><span class="s2">
+</span><span class="s2">splinter DESC;&#34;</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;================= 锁查询 ===============================&#34;</span>
+
+<span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;SELECT
+</span><span class="s2">
+</span><span class="s2">r.trx_isolation_level,
+</span><span class="s2">
+</span><span class="s2">r.trx_id waiting_trx_id,
+</span><span class="s2">
+</span><span class="s2">r.trx_mysql_thread_id waiting_trx_thread,
+</span><span class="s2">
+</span><span class="s2">r.trx_state waiting_trx_state,
+</span><span class="s2">
+</span><span class="s2">lr.lock_mode waiting_trx_lock_mode,
+</span><span class="s2">
+</span><span class="s2">lr.lock_type waiting_trx_lock_type,
+</span><span class="s2">
+</span><span class="s2">lr.lock_table waiting_trx_lock_table,
+</span><span class="s2">
+</span><span class="s2">lr.lock_index waiting_trx_lock_index,
+</span><span class="s2">
+</span><span class="s2">r.trx_query waiting_trx_query,
+</span><span class="s2">
+</span><span class="s2">b.trx_id blocking_trx_id,
+</span><span class="s2">
+</span><span class="s2">b.trx_mysql_thread_id blocking_trx_thread,
+</span><span class="s2">
+</span><span class="s2">b.trx_state blocking_trx_state,
+</span><span class="s2">
+</span><span class="s2">lb.lock_mode blocking_trx_lock_mode,
+</span><span class="s2">
+</span><span class="s2">lb.lock_type blocking_trx_lock_type,
+</span><span class="s2">
+</span><span class="s2">lb.lock_table blocking_trx_lock_table,
+</span><span class="s2">
+</span><span class="s2">lb.lock_index blocking_trx_lock_index,
+</span><span class="s2">
+</span><span class="s2">b.trx_query blocking_query
+</span><span class="s2">
+</span><span class="s2">FROM
+</span><span class="s2">
+</span><span class="s2">information_schema.innodb_lock_waits w
+</span><span class="s2">
+</span><span class="s2">INNER JOIN information_schema.innodb_trx b ON b.trx_id = w.blocking_trx_id
+</span><span class="s2">
+</span><span class="s2">INNER JOIN information_schema.innodb_trx r ON r.trx_id = w.requesting_trx_id
+</span><span class="s2">
+</span><span class="s2">INNER JOIN information_schema.innodb_locks lb ON lb.lock_trx_id = w.blocking_trx_id
+</span><span class="s2">
+</span><span class="s2">INNER JOIN information_schema.innodb_locks lr ON lr.lock_trx_id = w.requesting_trx_id \G;&#34;</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;================= 等待事件 ===============================&#34;</span>
+
+<span class="nv">top_event_10</span><span class="o">=</span><span class="s2">&#34;select event_name, count_star, sum_timer_wait from performance_schema.events_waits_summary_global_by_event_name where count_star &gt; 0 order by sum_timer_wait desc limit 10;&#34;</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;等待事件 TOP 10：&#34;</span>
+
+<span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;</span><span class="si">${</span><span class="nv">top_event_10</span><span class="si">}</span><span class="s2">&#34;</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;==================最近一周的错误日志 ==========================&#34;</span>
+
+<span class="nv">_time</span><span class="o">=</span><span class="k">$(</span>date -d <span class="s1">&#39;6 days ago&#39;</span> +%Y-%m-%d<span class="k">)</span><span class="se">\|</span><span class="k">$(</span>date -d <span class="s1">&#39;5 days ago&#39;</span> +%Y-%m-%d<span class="k">)</span><span class="se">\|</span><span class="k">$(</span>date -d <span class="s1">&#39;4 days ago&#39;</span> +%Y-%m-%d<span class="k">)</span><span class="se">\|</span><span class="k">$(</span>date -d <span class="s1">&#39;3 days ago&#39;</span> +%Y-%m-%d<span class="k">)</span><span class="se">\|</span><span class="k">$(</span>date -d <span class="s1">&#39;2 days ago&#39;</span> +%Y-%m-%d<span class="k">)</span><span class="se">\|</span><span class="k">$(</span>date -d <span class="s1">&#39;1 days ago&#39;</span> +%Y-%m-%d<span class="k">)</span><span class="se">\|</span><span class="k">$(</span>date -d <span class="s1">&#39;0 days ago&#39;</span> +%Y-%m-%d<span class="k">)</span>
+
+<span class="nv">log_error</span><span class="o">=</span><span class="k">$(</span><span class="si">${</span><span class="nv">base</span><span class="si">}</span>/bin/mysql -h<span class="si">${</span><span class="nv">host</span><span class="si">}</span> -u<span class="si">${</span><span class="nv">userName</span><span class="si">}</span> -p<span class="si">${</span><span class="nv">password</span><span class="si">}</span> <span class="si">${</span><span class="nv">dbname</span><span class="si">}</span> -P<span class="si">${</span><span class="nv">port</span><span class="si">}</span> -e <span class="s2">&#34;show variables like &#39;log_error&#39;;&#34;</span><span class="p">|</span>grep  <span class="s1">&#39;log_error&#39;</span><span class="p">|</span>awk <span class="s1">&#39;{print $2}&#39;</span><span class="k">)</span>
+
+<span class="c1">#grep -i -E &#39;error&#39; /home/logs/mysql/mysqld.err* | grep -E &#39;2024-01-28|2024-02-14&#39;</span>
+
+grep -i -E <span class="s2">&#34;error&#34;</span> <span class="si">${</span><span class="nv">log_error</span><span class="si">}</span><span class="p">|</span> grep -E <span class="s2">&#34;</span><span class="si">${</span><span class="nv">_time</span><span class="si">}</span><span class="s2">&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://mp.weixin.qq.com/s/BAmC5dZAuv2QRDKuKRqH8g">如何实现mysql高可用集群</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-03-23
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/mysql/">mysql</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/tool/20240323-jenkins/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Docker 部署 Jenkins 并实现项目的自动构建与部署</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/mysql/20240323-tools/">
+            <span class="next-text nav-default">MySQL常用工具</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'MySQL高可用集群搭建 (主主\x2bkeepalived)',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

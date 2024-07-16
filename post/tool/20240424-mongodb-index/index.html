@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>MongoDB索引使用 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="MongoDB索引使用 分类 MongoDB 中的索引与其他数据库系统中的索引类似。 MongoDB 在集合级别定义索引，并支持 MongoDB 集合中文档的任何字段或子字段的索引。 常见的有" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/tool/20240424-mongodb-index/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="MongoDB索引使用" />
+<meta property="og:description" content="MongoDB索引使用 分类 MongoDB 中的索引与其他数据库系统中的索引类似。 MongoDB 在集合级别定义索引，并支持 MongoDB 集合中文档的任何字段或子字段的索引。 常见的有" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/tool/20240424-mongodb-index/" />
+<meta property="article:published_time" content="2024-04-24T22:02:14+08:00" />
+<meta property="article:modified_time" content="2024-04-24T22:02:14+08:00" />
+<meta itemprop="name" content="MongoDB索引使用">
+<meta itemprop="description" content="MongoDB索引使用 分类 MongoDB 中的索引与其他数据库系统中的索引类似。 MongoDB 在集合级别定义索引，并支持 MongoDB 集合中文档的任何字段或子字段的索引。 常见的有">
+<meta itemprop="datePublished" content="2024-04-24T22:02:14&#43;08:00" />
+<meta itemprop="dateModified" content="2024-04-24T22:02:14&#43;08:00" />
+<meta itemprop="wordCount" content="1667">
+
+
+
+<meta itemprop="keywords" content="mongodb," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="MongoDB索引使用"/>
+<meta name="twitter:description" content="MongoDB索引使用 分类 MongoDB 中的索引与其他数据库系统中的索引类似。 MongoDB 在集合级别定义索引，并支持 MongoDB 集合中文档的任何字段或子字段的索引。 常见的有"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">MongoDB索引使用</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-04-24 </span>
+        <div class="post-category">
+            <a href="/categories/mongodb/"> mongodb </a>
+            </div>
+          <span class="more-meta"> 1667 words </span>
+          <span class="more-meta"> 4 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#分类">分类</a>
+      <ul>
+        <li><a href="#创建删除隐藏">创建/删除/隐藏</a></li>
+        <li><a href="#复合索引">复合索引</a></li>
+      </ul>
+    </li>
+    <li><a href="#索引分析">索引分析</a></li>
+    <li><a href="#避免回表">避免回表</a></li>
+    <li><a href="#索引限制">索引限制</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p><a href="https://zhuanlan.zhihu.com/p/693012058">MongoDB索引使用</a></p>
+</blockquote>
+<h2 id="分类">分类</h2>
+<p>MongoDB 中的索引与其他数据库系统中的索引类似。 MongoDB 在集合级别定义索引，并支持 MongoDB 集合中文档的任何字段或子字段的索引。 常见的有以下类型： 键索引、复合索引、多键索引、地理空间索引、全文本索引和哈希索引。</p>
+<ol>
+<li>
+<p>单键索引：在单个字段上面建立索引；</p>
+</li>
+<li>
+<p>复合索引：复合索引支持在多个字段建立索引匹配查询；</p>
+</li>
+<li>
+<p>多键索引：对数组或者嵌套文档的字段进行索引；</p>
+</li>
+<li>
+<p>地理空间索引：对包含地理坐标的字段进行索引；</p>
+</li>
+<li>
+<p>文本索引：对文本字段进行全文索引；</p>
+</li>
+<li>
+<p>哈希索引：将字段值进行哈希处理后进行索引；</p>
+</li>
+<li>
+<p>通配符索引：使用通配符对任意字段进行索引；</p>
+</li>
+</ol>
+<p><a href="https://www.mongodb.com/docs/manual/indexes/">Indexes</a></p>
+<h3 id="创建删除隐藏">创建/删除/隐藏</h3>
+<p>MongoDB 使用 createIndex() 方法来创建索引：</p>
+<p><code>db.collection.createIndex(keys, options)</code>
+语法中 Key 值为你要创建的索引字段，1 为指定按升序创建索引，如果你想按降序来创建索引指定为 -1 即可。</p>
+<p><code>db.col.createIndex({&quot;a&quot;:1})</code>
+createIndex() 方法中你也可以设置使用多个字段创建索引（关系型数据库中称作复合索引）。</p>
+<p><code>db.col.createIndex({&quot;a&quot;:1,&quot;b&quot;:-1})</code>
+删除索引：</p>
+<p><code>db.collection.dropIndex</code>
+删除索引在底层直接删除文件，然后修改元数据</p>
+<p>从 4.4 开始支持隐藏索引</p>
+<p><code>db.collection.hideIndex(&lt;index&gt;)</code>
+在删除索引前，可以先隐藏索引，查看集群是否异常后，才真正删除索引， 可有效帮助业务判断索引是否可以删除。</p>
+<p><a href="https://www.mongodb.com/docs/manual/crud/">MongoDB CRUD Operations</a></p>
+<h3 id="复合索引">复合索引</h3>
+<p>针对单复合索引，索引中key的排序顺序决定了索引是否支持排序操作:</p>
+<p>举例子:</p>
+<p>假如:一个对象包含username和date两个属性,如果创建索引如下:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">db.events.createIndex( { “username” : 1, “date” : -1 } )
+</code></pre></td></tr></table>
+</div>
+</div><p>则查询支持</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">db.events.find().sort( { username: -1, date: 1 } )
+</code></pre></td></tr></table>
+</div>
+</div><p>和</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">db.events.find().sort( { username: 1, date: -1 } ).
+</code></pre></td></tr></table>
+</div>
+</div><p>但是不支持如下查询:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">db.events.find().sort( { username: 1, date: 1 } ).
+</code></pre></td></tr></table>
+</div>
+</div><p>详细信息：https://docs.mongodb.com/manual/core/index-compound/ 。</p>
+<h2 id="索引分析">索引分析</h2>
+<p><a href="https://www.cnblogs.com/ricklz/p/17758672.html">MongoDB 中的索引分析 </a></p>
+<h2 id="避免回表">避免回表</h2>
+<p>通俗的讲就是，如果索引的列在所需获得的列中（因为索引是根据索引列的值进行排序的，所以索引节点中存在该列中的部分值）或者根据一次索引查询就能获得记录就不需要回表，mongo 默认的查询过程中， 在索引 b 树上找到对应的 RecorId 上， 还需在数据 b 树找对应的文档，然后进行 bson 解析。 实际上如果用户所需要的信息在索引 b 树的 key 内已经包括了，后面的回表操作是多余的，尤其是在大文档的条件下， BSON 解析比较消耗性能。</p>
+<p>那么 MongoDB 如何去避免回表呢？</p>
+<p>我们可以在 MongoDB 中可以通过使用 project 来选择需要返回的字段，保证所需字段在 project 条件内，特别注意 MongoDB 默认_id 字段是需要返回的，如果确定不需要_id 字段，需要显式的指定_id 为 0，可以通过判断 explain 内是否包括 FETCH 阶段来判断是否发生了回表行为。</p>
+<h2 id="索引限制">索引限制</h2>
+<ol>
+<li>
+<p>如果MongoDB的索引项超过索引限制，即1024 bytes，MongoDB将不会创建该索引，注:2.6版本之前能够创建索引，但是不能够对该documents进行索引；</p>
+</li>
+<li>
+<p>当试图插入一个包含索引项的属性超过1024 bytes的documents时，MongoDB将插入documents失败，并返回错误；注:2.6版本之前能够插入成功，但是不能够对该documents进行索引；</p>
+</li>
+<li>
+<p>当试图更新documents的属性时时，如果索引项的属性超过1024 bytes的，MongoDB将插入documents失败，并返回错误；注:2.6版本之前能够插入成功，但是不能够对该documents进行索引；</p>
+</li>
+<li>
+<p>如果documents存在某索引，其索引属性超过了索引限制，则任何更新该documents将会失败；</p>
+</li>
+<li>
+<p>针对分片的collections，当数据迁移时，如果数据块中包含索引属性超过了索引限制，数据块的迁移将会失败；</p>
+</li>
+<li>
+<p>一个collections最多能够有64个索引；</p>
+</li>
+<li>
+<p>针对索引的全名，包含命名空间和“.”分隔符,如:<!-- raw HTML omitted -->.<!-- raw HTML omitted -->.$<!-- raw HTML omitted -->,最多不超过128 characters;</p>
+</li>
+<li>
+<p>针对复合索引,包含的索引属性不能够超过31个属性;</p>
+</li>
+<li>
+<p>查询不能够同时使用文本索引和地理空间索引(Queries cannot use both text and Geospatial Indexes);</p>
+</li>
+<li>
+<p>包含2d sphere属性的索引，只能够针对地理空间属性；</p>
+</li>
+<li>
+<p>如果通过覆盖索引查询得到的属性值是NaN（Not a Number），则NaN的类型总是double类型；</p>
+<p>(if the value of a field returned from a query that is covered by an index is NaN, the type of that NaN value isalways double）；</p>
+</li>
+<li>
+<p>multikey index不支持covered query。</p>
+</li>
+</ol>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://www.cnblogs.com/ricklz/p/17758672.html">MongoDB 中的索引分析 </a></li>
+<li><a href="https://cloud.tencent.com/developer/article/2040695">MongoDB 索引详解</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/693012058">MongoDB索引使用总结</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-04-24
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/mongodb/">mongodb</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/git/20240424-push/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[Git] git push 使用</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/tool/20240424-mongodb/">
+            <span class="next-text nav-default">了解 MongoDB 看这一篇就够了【华为云技术分享】</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'MongoDB索引使用',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

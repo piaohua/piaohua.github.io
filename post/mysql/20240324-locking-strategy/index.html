@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>MySQL锁机制 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="鹅厂T12详解MySQL加锁机制 锁机制 InnoDB使用不同的锁策略(Locking Strategy)以及MVCC机制来实现不同的隔离级别。 读" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/mysql/20240324-locking-strategy/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="MySQL锁机制" />
+<meta property="og:description" content="鹅厂T12详解MySQL加锁机制 锁机制 InnoDB使用不同的锁策略(Locking Strategy)以及MVCC机制来实现不同的隔离级别。 读" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20240324-locking-strategy/" />
+<meta property="article:published_time" content="2024-03-24T16:11:48+08:00" />
+<meta property="article:modified_time" content="2024-03-24T16:11:48+08:00" />
+<meta itemprop="name" content="MySQL锁机制">
+<meta itemprop="description" content="鹅厂T12详解MySQL加锁机制 锁机制 InnoDB使用不同的锁策略(Locking Strategy)以及MVCC机制来实现不同的隔离级别。 读">
+<meta itemprop="datePublished" content="2024-03-24T16:11:48&#43;08:00" />
+<meta itemprop="dateModified" content="2024-03-24T16:11:48&#43;08:00" />
+<meta itemprop="wordCount" content="1230">
+
+
+
+<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="MySQL锁机制"/>
+<meta name="twitter:description" content="鹅厂T12详解MySQL加锁机制 锁机制 InnoDB使用不同的锁策略(Locking Strategy)以及MVCC机制来实现不同的隔离级别。 读"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">MySQL锁机制</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-03-24 </span>
+        <div class="post-category">
+            <a href="/categories/mysql/"> mysql </a>
+            </div>
+          <span class="more-meta"> 1230 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#锁机制">锁机制</a></li>
+    <li><a href="#锁分类">锁分类</a></li>
+    <li><a href="#行锁">行锁</a></li>
+    <li><a href="#锁优化建议">锁优化建议</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p><a href="https://mp.weixin.qq.com/s/P2h2sa8EwyrNOA_eBrtTVA">鹅厂T12详解MySQL加锁机制</a></p>
+</blockquote>
+<h2 id="锁机制">锁机制</h2>
+<p>InnoDB使用不同的锁策略(Locking Strategy)以及MVCC机制来实现不同的隔离级别。</p>
+<ul>
+<li>
+<p>读未提交(Read Uncommitted)</p>
+<p>事务在读数据的时候不对数据加锁。</p>
+<p>事务在修改数据的时候只对数据增加行级共享锁。</p>
+</li>
+<li>
+<p>读已提交(Read Committed)</p>
+<p>普通读是快照读，这是一种不加锁的一致性读，底层使用MVCC实现。</p>
+<p>加锁的select, update, delete等语句，除了在外键约束检查(foreign-key constraint checking)以及重复键检查(duplicate-key checking)时会封锁区间，其他时刻都只使用记录锁。</p>
+</li>
+<li>
+<p>可重复读(Repeatable Read)</p>
+<p>普通的select使用快照读。</p>
+<p>加锁的select（select…in share mode/select…for update），update，delete等语句，它们的锁，依赖于它们是否在唯一索引上使用了唯一的查询条件，或者范围查询条件：</p>
+<p>1）在唯一索引上使用唯一的查询条件，会使用记录锁，而不会封锁记录之间的间隔，即不会使用间隙锁与临键锁。</p>
+<p>2）范围查询条件为非唯一值时，会使用临键锁，锁住索引记录之间的范围，避免范围间插入记录，以避免产生幻读，以及避免不可重复读。</p>
+</li>
+<li>
+<p>串行化（Serializable）
+这种事务隔离级别下，所有select语句会被隐式的转化为select…in share mode。</p>
+<p>这会导致，如果有未提交的事务正在修改某些行，所有读取这些行的操作都会被阻塞。</p>
+</li>
+</ul>
+<h2 id="锁分类">锁分类</h2>
+<ul>
+<li>
+<p>从性能上分为乐观锁(用版本对比来实现)和悲观锁</p>
+</li>
+<li>
+<p>从对数据库操作的类型分，分为读锁和写锁(都属于悲观锁)</p>
+<p>读锁（共享锁，S锁(Shared)）：针对同一份数据，多个读操作可以同时进行而不会互相影响</p>
+<p>写锁（排它锁，X锁(eXclusive)）：当前写操作没有完成前，它会阻断其他写锁和读锁</p>
+</li>
+<li>
+<p>从对数据操作的粒度分，分为表锁和行锁</p>
+<p>表锁：每次操作锁住整张表。开销小，加锁快；不会出现死锁；锁定粒度大，发生锁冲突的概率最高，并发度最低；一般用在整表数据迁移的场景。</p>
+<p>无索引行锁会升级为表锁(RR级别会升级为表锁，RC级别不会升级为表锁)。</p>
+</li>
+</ul>
+<h2 id="行锁">行锁</h2>
+<p>每次操作锁住一行数据。开销大，加锁慢；会出现死锁；锁定粒度最小，发生锁冲突的概率最低，并发度最高。</p>
+<p>间隙锁，锁的就是两个值之间的空隙。间隙锁是在可重复读隔离级别下才会生效。</p>
+<p>临键锁(Next-key Locks)是行锁与间隙锁的组合。</p>
+<p><a href="https://mp.weixin.qq.com/s/QhtwEgUfxsYlZBsIfLGIgg">保姆级教程！2 万字 + 30 张图搞懂 MySQL 是怎么加行级锁的？</a></p>
+<h2 id="锁优化建议">锁优化建议</h2>
+<ul>
+<li>
+<p>尽可能让所有数据检索都通过索引来完成，避免无索引行锁升级为表锁</p>
+</li>
+<li>
+<p>合理设计索引，尽量缩小锁的范围</p>
+</li>
+<li>
+<p>尽可能减少检索条件范围，避免间隙锁</p>
+</li>
+<li>
+<p>尽量控制事务大小，减少锁定资源量和时间长度，涉及事务加锁的sql尽量放在事务最后执行</p>
+</li>
+<li>
+<p>尽可能低级别事务隔离</p>
+</li>
+</ul>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://mp.weixin.qq.com/s/QhtwEgUfxsYlZBsIfLGIgg">保姆级教程！2 万字 + 30 张图搞懂 MySQL 是怎么加行级锁的？</a></li>
+<li><a href="https://mp.weixin.qq.com/s/P2h2sa8EwyrNOA_eBrtTVA">鹅厂T12详解MySQL加锁机制</a></li>
+<li><a href="https://mp.weixin.qq.com/s/JtYj3DWL_VNtf4pBpnGRDQ">InnoDB事务隔离级别实现原理</a></li>
+<li><a href="https://mp.weixin.qq.com/s/rTwT5YFxcxz4A91QSPh3qg">面试官：讲讲MySQL的锁？</a></li>
+<li><a href="https://mp.weixin.qq.com/s/eRYvWoUzbrcX0RsYNaobWg">MySQL锁的分类,MySQL死锁 是什么，如何解决？</a></li>
+<li><a href="https://mp.weixin.qq.com/s/VTK03xFSfTlFxECC_xhJcw">mysql innodb 锁机制实现原理</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-03-24
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/mysql/">mysql</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/mysql/20240324-optimize-steps/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">MySQL优化步骤</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/tool/20240324-web-check/">
+            <span class="next-text nav-default">web-check 一款网站检查工具</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'MySQL锁机制',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>redis的底层数据结构 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="redis有String、List、Hash、Set、Sorted Set这五大基本数据类型，不同的数据类型适用不同的场景。 redis数据类型" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/redis/20240327-type-struct/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="redis的底层数据结构" />
+<meta property="og:description" content="redis有String、List、Hash、Set、Sorted Set这五大基本数据类型，不同的数据类型适用不同的场景。 redis数据类型" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/redis/20240327-type-struct/" />
+<meta property="article:published_time" content="2024-03-27T23:02:18+08:00" />
+<meta property="article:modified_time" content="2024-03-27T23:02:18+08:00" />
+<meta itemprop="name" content="redis的底层数据结构">
+<meta itemprop="description" content="redis有String、List、Hash、Set、Sorted Set这五大基本数据类型，不同的数据类型适用不同的场景。 redis数据类型">
+<meta itemprop="datePublished" content="2024-03-27T23:02:18&#43;08:00" />
+<meta itemprop="dateModified" content="2024-03-27T23:02:18&#43;08:00" />
+<meta itemprop="wordCount" content="1943">
+
+
+
+<meta itemprop="keywords" content="redis," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="redis的底层数据结构"/>
+<meta name="twitter:description" content="redis有String、List、Hash、Set、Sorted Set这五大基本数据类型，不同的数据类型适用不同的场景。 redis数据类型"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">redis的底层数据结构</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-03-27 </span>
+        <div class="post-category">
+            <a href="/categories/redis/"> redis </a>
+            </div>
+          <span class="more-meta"> 1943 words </span>
+          <span class="more-meta"> 4 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#redis数据类型和底层数据结构的对应关系">redis数据类型和底层数据结构的对应关系</a></li>
+    <li><a href="#简单动态字符串">简单动态字符串</a></li>
+    <li><a href="#双向链表doubly-linked-list">双向链表（Doubly Linked List）</a></li>
+    <li><a href="#压缩列表ziplist">压缩列表（Ziplist）</a></li>
+    <li><a href="#跳跃表skip-list">跳跃表（Skip List）</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>redis有String、List、Hash、Set、Sorted Set这五大基本数据类型，不同的数据类型适用不同的场景。</p>
+</blockquote>
+<h2 id="redis数据类型和底层数据结构的对应关系">redis数据类型和底层数据结构的对应关系</h2>
+<p>为了实现从键到值的快速访问，Redis 使用了一个哈希表来保存所有键值对。</p>
+<p>Redis全局哈希表（Global Hash Table）是指在Redis数据库内部用于存储所有键值对的主要数据结构。</p>
+<ul>
+<li>String: 简单动态字符串</li>
+<li>List: 双向链表，压缩列表</li>
+<li>Hash: 哈希表，压缩列表</li>
+<li>Sorted Set: 跳表，压缩列表</li>
+<li>Set: 整数数组，哈希表</li>
+</ul>
+<h2 id="简单动态字符串">简单动态字符串</h2>
+<p>Redis中存储字符串时，Redis使用了一种称为简单动态字符串（Simple Dynamic String，SDS）的数据结构来表示字符串。</p>
+<p>它有int、embstr和raw这三种编码模式:</p>
+<ol>
+<li>int编码：当保存的是 Long 类型整数时，RedisObject 中的指针就直接赋值为整数数据了，这样就不用额外的指针再指向整数了，节省了指针的空间开销。</li>
+<li>embstr编码：当保存的是字符串数据，并且字符串小于等于 44 字节时，RedisObject 中的元数据、指针和 SDS 是一块连续的内存区域，这样就可以避免内存碎片。</li>
+<li>raw编码：当字符串大于 44 字节时，SDS 的数据量就开始变多了，Redis 就不再把 SDS 和 RedisObject 布局在一起了，而是会给 SDS 分配独立的空间，并用指针指向 SDS 结构。</li>
+</ol>
+<p>优势和特点:</p>
+<ol>
+<li>动态调整大小：SDS可以根据字符串的长度动态调整内存大小。这意味着当我们向SDS中添加更多的字符时，SDS会自动分配更多的内存空间来容纳新的字符，而不需要手动管理内存分配和释放。这样可以避免频繁的内存重新分配操作，提高了性能。</li>
+<li>O(1)时间复杂度的长度获取：SDS在内部维护了字符串的长度信息。因此，无论字符串的长度是多少，我们都可以在常数时间内获取字符串的长度，而不需要遍历整个字符串。这使得获取字符串长度的操作非常高效。</li>
+<li>二进制安全：SDS可以存储任意二进制数据，而不仅仅局限于文本字符串。这意味着我们可以在SDS中存储包含空字符（'\0&rsquo;）在内的任意二进制数据，而不会导致字符串的截断或错误解析。</li>
+<li>缓冲区溢出保护：SDS在内部维护了字符串的长度信息，这使得Redis能够有效地防止缓冲区溢出的问题。当我们向SDS中添加新的字符时，Redis会检查是否有足够的空间来容纳新的字符，如果没有足够的空间，Redis会自动分配更多的内存空间，以避免溢出。</li>
+<li>兼容C字符串：SDS可以通过转换函数与C字符串进行互相转换。这意味着我们可以在Redis中使用SDS来存储字符串，然后将其转换为C字符串，以便与现有的C代码进行交互。反之，我们也可以将C字符串转换为SDS，以便在Redis中使用更多的字符串操作功能。</li>
+</ol>
+<h2 id="双向链表doubly-linked-list">双向链表（Doubly Linked List）</h2>
+<p>在 Redis 中，链表节点的结构拥有指向前置节点和后置节点的属性。</p>
+<p>链表结构则包含链表表头节点、表尾节点、节点长度等属性，便于快速获取链表相关信息。</p>
+<p>双向链表的优势在于它可以高效地进行插入、删除和遍历操作。通过指针，可以快速地在链表中移动，并且在任意位置插入或删除节点的开销较小。</p>
+<h2 id="压缩列表ziplist">压缩列表（Ziplist）</h2>
+<p>当列表、哈希、有序集合存储的数据量较少时，redis就会考虑用ziplist来存储。</p>
+<p>压缩列表实际上类似于一个数组，数组中的每一个元素都对应保存一个数据。和数组不同的是，ziplist每个元素长度可以不同，并且在表头有三个字段 zlbytes、zltail 和 zllen，分别表示列表长度、列表尾的偏移量和列表中的 entry 个数；压缩列表在表尾还有一个 zlend，表示列表结束。</p>
+<p>在压缩列表中，如果我们要查找第一个元素和最后一个元素，可以通过表头三个字段的长度直接定位，复杂度是 O(1)。而查找其他元素时，只能逐个查找，此时的复杂度就是 O(N) 。</p>
+<h2 id="跳跃表skip-list">跳跃表（Skip List）</h2>
+<p>跳表（skiplist）是在有序链表的基础上，增加了多级索引，通过索引位置的几个跳转，实现数据的快速定位。建立索引可以每隔2个数据建立索引，也可以隔3个或5个。</p>
+<p>整数数组和压缩列表在查找时间复杂度方面并没有很大的优势，那为什么Redis还会把它们作为底层数据结构呢？主要出于以下两点考虑：</p>
+<ul>
+<li>内存利用率，数组和压缩列表都是非常紧凑的数据结构，它比链表占用的内存要更少。Redis是内存数据库，大量数据存到内存中，此时需要做尽可能的优化，提高内存的利用率。</li>
+<li>数组对CPU高速缓存支持更友好，所以Redis在设计时，集合数据元素较少情况下，默认采用内存紧凑排列的方式存储，同时利用CPU高速缓存不会降低访问速度。当数据元素超过设定阈值后，避免查询时间复杂度太高，转为哈希和跳表数据结构存储，保证查询效率。</li>
+</ul>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://redis.io/docs/data-types/">Understand Redis data types</a></li>
+<li><a href="https://mp.weixin.qq.com/s/Td1jsEqN_Ol9_hc64U4ebw">深入了解Redis数据类型和底层数据结构</a></li>
+<li><a href="https://mp.weixin.qq.com/s/ug-mc-Ui-chNQCvtx28QHQ">Redis对象的数据结构及其底层实现原理汇总</a></li>
+<li><a href="https://mp.weixin.qq.com/s/tv0Q4Fopn43jS0dely7JEw">redis的底层数据结构</a></li>
+<li><a href="https://mp.weixin.qq.com/s/nhAvFNjxjwXLvHB5NChvqA">Redis 的跳表</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-03-27
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/redis/">redis</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/redis/20240328-persistence/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Redis 持久化机制</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/redis/20240327-hashmap/">
+            <span class="next-text nav-default">Redis 和 HashMap 的区别</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'redis的底层数据结构',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

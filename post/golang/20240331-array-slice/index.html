@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Go] 数组与切片 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="原文：Go语言进阶：数组与切片 Array （数组） 数组 Array 是一片连续的内存区域，存储相同类型的元素，元素的个数固定。在Go语言中，数组Array不能进行" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/golang/20240331-array-slice/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Go] 数组与切片" />
+<meta property="og:description" content="原文：Go语言进阶：数组与切片 Array （数组） 数组 Array 是一片连续的内存区域，存储相同类型的元素，元素的个数固定。在Go语言中，数组Array不能进行" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20240331-array-slice/" />
+<meta property="article:published_time" content="2024-03-31T20:20:39+08:00" />
+<meta property="article:modified_time" content="2024-03-31T20:20:39+08:00" />
+<meta itemprop="name" content="[Go] 数组与切片">
+<meta itemprop="description" content="原文：Go语言进阶：数组与切片 Array （数组） 数组 Array 是一片连续的内存区域，存储相同类型的元素，元素的个数固定。在Go语言中，数组Array不能进行">
+<meta itemprop="datePublished" content="2024-03-31T20:20:39&#43;08:00" />
+<meta itemprop="dateModified" content="2024-03-31T20:20:39&#43;08:00" />
+<meta itemprop="wordCount" content="1918">
+
+
+
+<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Go] 数组与切片"/>
+<meta name="twitter:description" content="原文：Go语言进阶：数组与切片 Array （数组） 数组 Array 是一片连续的内存区域，存储相同类型的元素，元素的个数固定。在Go语言中，数组Array不能进行"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Go] 数组与切片</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-03-31 </span>
+        <div class="post-category">
+            <a href="/categories/golang/"> golang </a>
+            </div>
+          <span class="more-meta"> 1918 words </span>
+          <span class="more-meta"> 4 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#array-数组">Array （数组）</a>
+      <ul>
+        <li><a href="#数组array声明">数组Array声明</a></li>
+        <li><a href="#数组array的优缺点分析">数组Array的优缺点分析</a></li>
+      </ul>
+    </li>
+    <li><a href="#slice切片">Slice（切片）</a>
+      <ul>
+        <li><a href="#slice切片声明与初始化">Slice（切片）声明与初始化</a></li>
+        <li><a href="#slice切片扩容的实现原理">Slice（切片）扩容的实现原理</a></li>
+        <li><a href="#slice切片的优缺点">Slice（切片）的优缺点</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>原文：<a href="https://mp.weixin.qq.com/s/kyPji8AEsHAMzrQqs1LyjA">Go语言进阶：数组与切片</a></p>
+</blockquote>
+<h2 id="array-数组">Array （数组）</h2>
+<p>数组 Array 是一片连续的内存区域，存储相同类型的元素，元素的个数固定。在Go语言中，数组Array不能进行扩容、在复制和传递时为值复制。且数组的长度决定了其容量。数组的长度可以通过内置函数len()来获取。</p>
+<h3 id="数组array声明">数组Array声明</h3>
+<p>Go语言中，数组声明主要有三种方式（其他方式一般为以下三种方式的变种）</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">var</span> <span class="nx">arr1</span> <span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="kt">int</span> <span class="c1">// 默认方式，定义一个长度为5的int类型数组，元素自动初始化为0
+</span><span class="c1"></span><span class="kd">var</span> <span class="nx">arr2</span> <span class="p">=</span> <span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="kt">int</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">}</span> <span class="c1">// 声明并初始化一个长度为5的int类型数组
+</span><span class="c1"></span><span class="nx">arr3</span> <span class="o">:=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span><span class="kt">int</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">}</span> <span class="c1">// 使用...让Go自动计算数组长度
+</span></code></pre></td></tr></table>
+</div>
+</div><h3 id="数组array的优缺点分析">数组Array的优缺点分析</h3>
+<p><strong>优点</strong>：</p>
+<ol>
+<li><strong>类型安全</strong>：数组中的所有元素都是同一类型，这有助于确保类型的一致性和安全性。</li>
+<li><strong>内存连续</strong>：数组在内存中占用连续的空间，这使得访问数组元素非常高效。</li>
+<li><strong>性能可预测</strong>：由于数组的大小是固定的，因此其性能表现是可预测的，没有切片可能带来的扩容开销。</li>
+</ol>
+<p><strong>缺点</strong>：</p>
+<ol>
+<li><strong>固定长度</strong>：数组的长度在创建后不能改变，这限制了其灵活性。</li>
+<li><strong>使用不便</strong>：在实际编程中，经常需要动态调整集合的大小，而数组无法满足这一需求，因此切片通常更受欢迎。</li>
+<li><strong>传递开销</strong>：当数组作为参数传递给函数时，如果数组很大，将发生值的完整复制，可能导致不必要的性能开销。虽然可以通过指针传递数组来避免这个问题，但这增加了代码的复杂性。</li>
+</ol>
+<h2 id="slice切片">Slice（切片）</h2>
+<p>Slice本身并不存储数据，而是对底层数组的引用，并包含指向数组起始元素的指针、切片长度以及切片的容量等信息。</p>
+<p>由于Slice的这种特性，它可以在不改变底层数组的情况下进行动态地增长和缩小，使得在处理可变大小的集合时更加高效和灵活。</p>
+<h3 id="slice切片声明与初始化">Slice（切片）声明与初始化</h3>
+<p>下面是slice的常见声明方式</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">slice1</span> <span class="o">:=</span> <span class="p">[]</span><span class="kt">int</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">}</span> <span class="c1">// 声明并初始化Slice
+</span><span class="c1"></span><span class="kd">var</span> <span class="nx">slice2</span> <span class="p">[]</span><span class="kt">int</span>         <span class="c1">// 声明Slice但不分配空间
+</span><span class="c1"></span><span class="nx">slice3</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="c1">// 使用make函数声明Slice
+</span><span class="c1"></span><span class="nx">slice4</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span> <span class="c1">// 使用make函数声明Slice, 长度为3， 容量为5
+</span></code></pre></td></tr></table>
+</div>
+</div><h3 id="slice切片扩容的实现原理">Slice（切片）扩容的实现原理</h3>
+<p>切片使用append函数添加元素，但不是使用了append函数就需要进行扩容，如下代码向长度为3，容量为4的切片a中添加元素后不需要扩容。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">slice</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span> <span class="c1">// 使用make函数声明Slice, 长度为3， 容量为4
+</span></code></pre></td></tr></table>
+</div>
+</div><p>当你向切片中添加元素，而切片的容量不足以容纳更多元素时，Go 会创建一个新的、容量更大的底层数组，并将原有元素复制到新数组中，这个过程即为扩容。</p>
+<p>切片扩容的实现原理涉及以下几个步骤：</p>
+<ol>
+<li>计算新容量：当你向切片追加元素时，如果容量不足，Go 会根据当前容量计算一个新的容量。新容量的计算方式通常是将当前容量翻倍，但这不是绝对的。如果当前容量小于1024个元素，那么通常会翻倍；如果大于1024个元素，增长因子会逐渐减小，增长到原来的1.25倍左右。</li>
+<li>分配新数组：根据计算出的新容量，Go 会分配一个新的底层数组。</li>
+<li>复制元素：将原切片中的元素复制到新的底层数组中。</li>
+<li>更新切片数组指针：切片在Go中是由一个结构体表示的，包含指向底层数组的指针array、切片的长度len和容量cap。在扩容后，需要更新这个结构体的信息，指向新的底层数组，并更新长度和容量的值。</li>
+</ol>
+<h3 id="slice切片的优缺点">Slice（切片）的优缺点</h3>
+<p><strong>优点</strong>：</p>
+<ol>
+<li><strong>动态大小</strong>：与数组不同，切片的长度是动态的，可以根据需要增长或缩小。这使得切片非常灵活，适用于不确定大小的数据集合。</li>
+<li><strong>内存效率</strong>：切片背后是数组，它们可以共享同一个底层数组，这意味着在多个切片之间传递数据时，可以避免数据的复制，提高内存使用效率。</li>
+<li><strong>便捷操作</strong>：Go语言为切片提供了许多内置函数，如append、copy等，使得对切片的操作非常方便。</li>
+<li><strong>引用类型</strong>：切片是引用类型，这意味着当你将切片传递给函数或从函数返回切片时，传递的是引用而不是整个数据的副本。</li>
+<li><strong>内置函数支持</strong>：Go语言的内置函数可以直接作用于切片，例如len可以获取切片的长度，cap可以获取切片的容量。</li>
+</ol>
+<p><strong>缺点</strong>：</p>
+<ol>
+<li><strong>非线程安全</strong>：切片不是线程安全的，如果在多个goroutine中同时操作同一个切片（特别是进行写操作），可能会导致竞态条件。需要外部同步机制来保证并发安全。</li>
+<li><strong>内存泄漏风险</strong>：由于切片是对底层数组的引用，如果切片的某个元素指向了一个大的内存块，即使只有一个小的切片在使用它，整个内存块也不会被垃圾回收，可能导致内存泄漏。</li>
+<li><strong>性能开销</strong>：切片的动态扩容可能会导致性能开销，因为每次扩容都需要分配新的数组并复制数据。如果不合理地使用切片，可能会导致频繁的内存分配和复制。</li>
+<li><strong>容量管理</strong>：虽然切片的动态扩容提供了便利，但是对于性能敏感的应用，开发者需要仔细管理切片的容量，以避免不必要的扩容操作。</li>
+<li><strong>隐式行为</strong>：切片的一些行为可能不是很直观，比如切片的扩容规则、切片之间共享底层数组的行为等，这可能会导致一些难以发现的bug。</li>
+</ol>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-03-31
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/golang/">golang</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/chinese/20240415-poetry-tai/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[清] 《苔》</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/golang/20240331-copy/">
+            <span class="next-text nav-default">[Go] 深入理解深拷贝与浅拷贝</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: '[Go] 数组与切片',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Nginx反向代理之路径替换 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="原文：Nginx反向代理之路径替换 在使用nginx进行反向代理时，有时需要使用别名，或者说需要进行路径的替换。 代理静态资源 nginx默认是通" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/tool/20240114-nginx-reverse-proxy/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Nginx反向代理之路径替换" />
+<meta property="og:description" content="原文：Nginx反向代理之路径替换 在使用nginx进行反向代理时，有时需要使用别名，或者说需要进行路径的替换。 代理静态资源 nginx默认是通" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/tool/20240114-nginx-reverse-proxy/" />
+<meta property="article:published_time" content="2024-01-14T17:13:47+08:00" />
+<meta property="article:modified_time" content="2024-01-14T17:13:47+08:00" />
+<meta itemprop="name" content="Nginx反向代理之路径替换">
+<meta itemprop="description" content="原文：Nginx反向代理之路径替换 在使用nginx进行反向代理时，有时需要使用别名，或者说需要进行路径的替换。 代理静态资源 nginx默认是通">
+<meta itemprop="datePublished" content="2024-01-14T17:13:47&#43;08:00" />
+<meta itemprop="dateModified" content="2024-01-14T17:13:47&#43;08:00" />
+<meta itemprop="wordCount" content="1755">
+
+
+
+<meta itemprop="keywords" content="nginx," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Nginx反向代理之路径替换"/>
+<meta name="twitter:description" content="原文：Nginx反向代理之路径替换 在使用nginx进行反向代理时，有时需要使用别名，或者说需要进行路径的替换。 代理静态资源 nginx默认是通"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Nginx反向代理之路径替换</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-01-14 </span>
+        <div class="post-category">
+            <a href="/categories/nginx/"> nginx </a>
+            </div>
+          <span class="more-meta"> 1755 words </span>
+          <span class="more-meta"> 4 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#代理静态资源">代理静态资源</a></li>
+    <li><a href="#代理动态服务">代理动态服务</a></li>
+    <li><a href="#关于斜杆的案例对比">关于斜杆&rdquo;/&ldquo;的案例对比</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>原文：<a href="https://www.cnblogs.com/zys2019/p/16858300.html">Nginx反向代理之路径替换</a></p>
+</blockquote>
+<p>在使用nginx进行反向代理时，有时需要使用别名，或者说需要进行路径的替换。</p>
+<h2 id="代理静态资源">代理静态资源</h2>
+<p>nginx默认是通过配置root来代理静态资源, 通过真实的目录做为路径去访问，在root上配置路径即可。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">    server {
+        listen       80;
+        server_name  127.0.0.1;
+        
+        location /img/ {
+            root  /data/www;
+            index  index.html index.htm;
+        }
+
+    }
+</code></pre></td></tr></table>
+</div>
+</div><p>这里相当于nginx代理到目录data/www下，然后即可访问到/data/www/img目录下的所有文件。其中img也可以配置为在后面不加 &ldquo;/&quot;，为 location /img，此处后面加不加 &ldquo;/&rdquo; 效果一样，但为了规范，建议都加。</p>
+<p>设置别名访问。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">    server {
+        listen       80;
+        server_name  127.0.0.1;
+        
+        location /file/ {
+            alias  /data/www/img/;
+            index  index.html index.htm;
+        }
+
+    }
+</code></pre></td></tr></table>
+</div>
+</div><p>此时root路径下并没有file目录，在alias后指定的路径，最后一定要加 &ldquo;/&quot;，即可在访问路径中用file替换img</p>
+<h2 id="代理动态服务">代理动态服务</h2>
+<p>直接将请求转发到后端服务</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">    server {
+        listen       80;
+        server_name  127.0.0.1;
+        
+        location /api/ {
+            proxy_pass http://127.0.0.1:8080;
+        }
+    }
+</code></pre></td></tr></table>
+</div>
+</div><p>用proxy_pass指定后端真实服务,此时/api/请求会转发到8080。</p>
+<p>添加转发前缀</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">    server {
+        listen       80;
+        server_name  127.0.0.1;
+        
+        location /test/ {
+            proxy_pass http://127.0.0.1:8080/;
+        }
+
+    }
+</code></pre></td></tr></table>
+</div>
+</div><p>和直接路径转发的区别就是，proxy_pass地址后面的 &ldquo;/&quot;，此时请求的路径由原来的<code>/api/</code>变为<code>/test/api/</code>，但在转发的过程中是没有前缀的。</p>
+<h2 id="关于斜杆的案例对比">关于斜杆&rdquo;/&ldquo;的案例对比</h2>
+<p>以服务地址http://127.0.0.1:8080/api/user/getById进行说明，访问地址是http://127.0.0.1/api/user/getById。location后斜杆与proxy_pass后斜杆问题如下：</p>
+<p>1）location、proxy_pass都不加斜杠</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">location /api {
+　　proxy_pass http://127.0.0.1:8080;
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>实际代理地址：http://127.0.0.1:8080/api/user/getById。正确的</p>
+<p>2）location加斜杠，proxy_pass不加斜杠</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">location /api/ {
+　　proxy_pass http://127.0.0.1:8080;
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>实际代理地址：http://127.0.0.1:8080/api/user/getById。正确的</p>
+<p>3）location不加斜杠，proxy_pass加斜杠</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">location /api {
+　　proxy_pass http://127.0.0.1:8080/;
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>实际代理地址：http://127.0.0.1:8080//user/getById。错误的，也出现了双斜杠</p>
+<p>4）location、proxy_pass都加斜杠</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">location /api/ {
+　　proxy_pass http://127.0.0.1:8080/;
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>实际代理地址：http://127.0.0.1:8080/user/getById</p>
+<p>5）location不加斜杠，proxy_pass加&quot;api&rdquo;</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">location /api {
+   proxy_pass http://127.0.0.1:8080/api;
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>实际代理地址：http://127.0.0.1:8080/api/user/getById。正确的</p>
+<p>6）location加斜杠，proxy_pass加&quot;api&rdquo;</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">location /api/ {
+   proxy_pass http://127.0.0.1:8080/api;
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>实际代理地址：http://127.0.0.1:8080/apiuser/getById。错误的，少了一个斜杆</p>
+<p>7）location不加斜杠，proxy_pass加&quot;api/&rdquo;</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">location /api {
+   proxy_pass http://127.0.0.1:8080/api/;
+</code></pre></td></tr></table>
+</div>
+</div><p>实际代理地址：http://127.0.0.1:8080/api//user/getById。这种情况会出现双斜杠问题，后端在认证请求时会校验失败。</p>
+<p>8）location加斜杠，proxy_pass加&quot;api/&rdquo;</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">location /api/ {
+   proxy_pass http://127.0.0.1:8080/api/;
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>实际代理地址：http://127.0.0.1:8080/api/user/getById。正确的</p>
+<p>可以看出，两者加不加斜杆的区别还是很大的，不同的场景使用不同的配置即可，但我建议要么两者都加斜杆，要么都不加，这样转发的地址一般不会错。</p>
+<p>使用一句标准的话来说，总结如下：（与location是否有斜杆关系不大）</p>
+<p>第一，若proxy_pass代理地址端口后无任何字符，则转发后地址为：代理地址+访问的uri。例如第1、2种情况</p>
+<p>第二，若proxy_pass代理地址端口后有目录（包括&rdquo;/&quot;），则转发后地址为：代理地址+访问的uri去除location匹配的路径。例如第3-8种情况，但有些情况可能是错的，配置时需要谨慎。</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://mp.weixin.qq.com/s/fBtAIKLltfB5EMaE_BuhBg">Nginx中proxy_pass路径拼接规则，神级避坑指南</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-01-14
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/nginx/">nginx</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/golang/20240117-aws-s3-uploading/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">将对象上传到aws s3存储桶方案</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/golang/20240114-crypto/">
+            <span class="next-text nav-default">Go 加密解密算法</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'Nginx反向代理之路径替换',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

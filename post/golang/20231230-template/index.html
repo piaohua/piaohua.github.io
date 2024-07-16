@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>golang text/template &amp; python Jinja2 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="golang text/template &amp;amp; python Jinja2 模板语法 模板语法都包含在{{和}}中间，其中{{.}}中的点表示当前对象。 如果想清除左右的空格，则需要添加-符号，{{- 清除左边空" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/golang/20231230-template/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="golang text/template &amp; python Jinja2" />
+<meta property="og:description" content="golang text/template &amp; python Jinja2 模板语法 模板语法都包含在{{和}}中间，其中{{.}}中的点表示当前对象。 如果想清除左右的空格，则需要添加-符号，{{- 清除左边空" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20231230-template/" />
+<meta property="article:published_time" content="2024-01-02T19:47:04+08:00" />
+<meta property="article:modified_time" content="2024-01-02T19:47:04+08:00" />
+<meta itemprop="name" content="golang text/template &amp; python Jinja2">
+<meta itemprop="description" content="golang text/template &amp; python Jinja2 模板语法 模板语法都包含在{{和}}中间，其中{{.}}中的点表示当前对象。 如果想清除左右的空格，则需要添加-符号，{{- 清除左边空">
+<meta itemprop="datePublished" content="2024-01-02T19:47:04&#43;08:00" />
+<meta itemprop="dateModified" content="2024-01-02T19:47:04&#43;08:00" />
+<meta itemprop="wordCount" content="523">
+
+
+
+<meta itemprop="keywords" content="template,jinja2," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="golang text/template &amp; python Jinja2"/>
+<meta name="twitter:description" content="golang text/template &amp; python Jinja2 模板语法 模板语法都包含在{{和}}中间，其中{{.}}中的点表示当前对象。 如果想清除左右的空格，则需要添加-符号，{{- 清除左边空"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">golang text/template &amp; python Jinja2</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-01-02 </span>
+        <div class="post-category">
+            <a href="/categories/golang/"> golang </a>
+            <a href="/categories/python/"> python </a>
+            </div>
+          <span class="more-meta"> 523 words </span>
+          <span class="more-meta"> 2 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#模板语法">模板语法</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>golang text/template &amp; python Jinja2</p>
+</blockquote>
+<h2 id="模板语法">模板语法</h2>
+<p>模板语法都包含在{{和}}中间，其中{{.}}中的点表示当前对象。</p>
+<p>如果想清除左右的空格，则需要添加<code>-</code>符号，<code>{{- </code> 清除左边空格
+<code> -}}</code> 清除右边的空格。</p>
+<p>text/template示例：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+	<span class="s">&#34;log&#34;</span>
+	<span class="s">&#34;os&#34;</span>
+	<span class="s">&#34;text/template&#34;</span>
+<span class="p">)</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="kd">const</span> <span class="nx">temp</span> <span class="p">=</span> <span class="s">`#</span><span class="cp">{{</span><span class="na">.Symbol</span><span class="cp">}}</span><span class="s">
+</span><span class="s">⏰  Period: </span><span class="cp">{{</span><span class="na">.Period</span><span class="cp">}}</span><span class="s">
+</span><span class="s">💰  Price: $</span><span class="cp">{{</span><span class="na">.Price</span><span class="cp">}}</span><span class="s">
+</span><span class="s"></span><span class="cp">{{-</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="o">(</span><span class="k">gt</span><span class="w"> </span><span class="na">.Chg</span><span class="w"> </span><span class="nx">0</span><span class="na">.0</span><span class="o">)</span><span class="cp">}}</span><span class="s">
+</span><span class="s">📈  24h Chg: </span><span class="cp">{{</span><span class="na">.Chg</span><span class="cp">}}</span><span class="s">%
+</span><span class="s"></span><span class="cp">{{-</span><span class="w"> </span><span class="k">else</span><span class="cp">}}</span><span class="s">
+</span><span class="s">📉  24h Chg: </span><span class="cp">{{</span><span class="na">.Chg</span><span class="cp">}}</span><span class="s">%
+</span><span class="s"></span><span class="cp">{{-</span><span class="w"> </span><span class="k">end</span><span class="cp">}}</span><span class="s">
+</span><span class="s">`</span>
+
+	<span class="kd">type</span> <span class="nx">Temp</span> <span class="kd">struct</span> <span class="p">{</span>
+		<span class="nx">Symbol</span> <span class="kt">string</span>  <span class="s">`json:&#34;symbol&#34;`</span>
+		<span class="nx">Period</span> <span class="kt">string</span>  <span class="s">`json:&#34;period&#34;`</span>
+		<span class="nx">Price</span>  <span class="kt">float64</span> <span class="s">`json:&#34;price&#34;`</span>
+		<span class="nx">Chg</span>    <span class="kt">float64</span> <span class="s">`json:&#34;chg&#34;`</span>
+	<span class="p">}</span>
+
+	<span class="nx">t2</span> <span class="o">:=</span> <span class="nx">template</span><span class="p">.</span><span class="nf">Must</span><span class="p">(</span><span class="nx">template</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;temp&#34;</span><span class="p">).</span><span class="nf">Parse</span><span class="p">(</span><span class="nx">temp</span><span class="p">))</span>
+	<span class="kd">var</span> <span class="nx">rs</span> <span class="p">=</span> <span class="p">[]</span><span class="nx">Temp</span><span class="p">{</span>
+		<span class="p">{</span>
+			<span class="nx">Symbol</span><span class="p">:</span> <span class="s">&#34;BTC&#34;</span><span class="p">,</span>
+			<span class="nx">Period</span><span class="p">:</span> <span class="s">&#34;24Hour&#34;</span><span class="p">,</span>
+			<span class="nx">Price</span><span class="p">:</span>  <span class="mf">45289.38</span><span class="p">,</span>
+			<span class="nx">Chg</span><span class="p">:</span>    <span class="mf">0.09</span><span class="p">,</span>
+		<span class="p">},</span>
+	<span class="p">}</span>
+	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">rs</span> <span class="p">{</span>
+		<span class="nx">err</span> <span class="o">:=</span> <span class="nx">t2</span><span class="p">.</span><span class="nf">Execute</span><span class="p">(</span><span class="nx">os</span><span class="p">.</span><span class="nx">Stdout</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
+		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+			<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;executing template:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Jinja2 是一个 Python 的功能齐全的模板引擎。它有完整的 unicode 支持，一个可选 的集成沙箱执行环境，被广泛使用，以 BSD 许可证授权。</p>
+<p>特性:</p>
+<ul>
+<li>沙箱中执行</li>
+<li>强大的 HTML 自动转义系统保护系统免受 XSS</li>
+<li>模板继承</li>
+<li>及时编译最优的 python 代码</li>
+<li>可选提前编译模板的时间</li>
+<li>易于调试。异常的行数直接指向模板中的对应行。</li>
+<li>可配置的语法</li>
+</ul>
+<p>用Jinja2实现上面go的模板效果如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="n">temp</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;#{{Symbol}}
+</span><span class="s1">⏰  Period: {{Period}}
+</span><span class="s1">💰  Price: ${{Price}}
+</span><span class="s1">{</span><span class="si">%- i</span><span class="s1">f Chg &gt; 0.0 %}
+</span><span class="s1">📈  24h Chg: {{ Chg }}%
+</span><span class="s1">{</span><span class="si">%- e</span><span class="s1">lse%}
+</span><span class="s1">📉  24h Chg: {{ Chg }}%
+</span><span class="s1">{</span><span class="si">%- e</span><span class="s1">ndif %}
+</span><span class="s1">&#39;&#39;&#39;</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">Symbol</span><span class="o">=</span><span class="s2">&#34;BTC&#34;</span><span class="p">,</span><span class="n">Period</span><span class="o">=</span><span class="s2">&#34;24Hour&#34;</span><span class="p">,</span><span class="n">Price</span><span class="o">=</span><span class="mf">45289.38</span><span class="p">,</span><span class="n">Chg</span><span class="o">=</span><span class="mf">0.09</span><span class="p">))</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&#34;__main__&#34;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://pkg.go.dev/text/template@go1.21.5">text/template</a></li>
+<li><a href="https://docs.jinkan.org/docs/jinja2/">Jinja2</a></li>
+<li><a href="https://www.calhoun.io/intro-to-templates-p3-functions/">Using Functions Inside Go Templates</a></li>
+<li><a href="https://www.topgoer.com/%E5%B8%B8%E7%94%A8%E6%A0%87%E5%87%86%E5%BA%93/template.html">Template</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-01-02
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/template/">template</a>
+          <a href="/tags/jinja2/">jinja2</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/mysql/20240111-delete-in-select/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">[MySQL] delete in select 语句不走索引问题分析</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/python/20231231-yfinance/">
+            <span class="next-text nav-default">金融数据分析库yfinance使用</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'golang text\/template \x26 python Jinja2',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

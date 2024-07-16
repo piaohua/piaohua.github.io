@@ -163,6 +163,7 @@
 <p>master 节点的 binary log dump 线程将指定的 binary log 信息推送给 slave 节点。</p>
 <p>slave 节点的 IO 线程接收到消息后，将日志内容写入 relay log 文件。</p>
 <p>slave 节点的 SQL 线程检测到 relay log 新增了内容，马上解析 relay log 文件生成相应的 SQL 语句，并将这些 SQL 语句重放到数据库，保证主从数据一致性。</p>
+<p><img src="/mysql/master-slave.png" alt="Binlog同步" title="binlog"></p>
 <h2 id="通过dockerfile构建一主一从">通过Dockerfile构建一主一从</h2>
 <p>创建目录结构</p>
 <div class="highlight"><div class="chroma">
@@ -651,10 +652,10 @@ read_only           =   1
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-mysql" data-lang="mysql"><span class="o">&gt;</span> <span class="n">docker</span> <span class="n">exec</span> <span class="o">-</span><span class="n">it</span> <span class="n">mysql</span><span class="o">-</span><span class="n">master</span> <span class="n">bash</span>
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="o">&gt;</span> <span class="n">docker</span> <span class="k">exec</span> <span class="o">-</span><span class="n">it</span> <span class="n">mysql</span><span class="o">-</span><span class="n">master</span> <span class="n">bash</span>
 <span class="o">&gt;</span> <span class="n">mysql</span> <span class="o">-</span><span class="n">uroot</span> <span class="o">-</span><span class="n">p</span>
 
-<span class="o">&gt;</span> <span class="k">create</span> <span class="k">user</span> <span class="s1">&#39;repl&#39;</span><span class="o">@</span><span class="s1">&#39;%&#39;</span> <span class="k">identified</span> <span class="k">by</span> <span class="s1">&#39;repl&#39;</span><span class="p">;</span>
+<span class="o">&gt;</span> <span class="k">create</span> <span class="k">user</span> <span class="s1">&#39;repl&#39;</span><span class="o">@</span><span class="s1">&#39;%&#39;</span> <span class="n">identified</span> <span class="k">by</span> <span class="s1">&#39;repl&#39;</span><span class="p">;</span>
 <span class="o">&gt;</span> <span class="k">grant</span> <span class="n">replication</span> <span class="n">client</span><span class="p">,</span><span class="n">replication</span> <span class="n">slave</span> <span class="k">on</span> <span class="o">*</span><span class="p">.</span><span class="o">*</span> <span class="k">to</span> <span class="s1">&#39;repl&#39;</span><span class="o">@</span><span class="s1">&#39;%&#39;</span><span class="p">;</span>
 </code></pre></td></tr></table>
 </div>
@@ -669,12 +670,12 @@ read_only           =   1
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-mysql" data-lang="mysql"><span class="o">&gt;</span> <span class="n">docker</span> <span class="n">exec</span> <span class="o">-</span><span class="n">it</span> <span class="n">mysql</span><span class="o">-</span><span class="n">slave</span><span class="o">-</span><span class="mi">1</span> <span class="n">bash</span>
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="o">&gt;</span> <span class="n">docker</span> <span class="k">exec</span> <span class="o">-</span><span class="n">it</span> <span class="n">mysql</span><span class="o">-</span><span class="n">slave</span><span class="o">-</span><span class="mi">1</span> <span class="n">bash</span>
 <span class="o">&gt;</span> <span class="n">mysql</span> <span class="o">-</span><span class="n">uroot</span> <span class="o">-</span><span class="n">p</span>
 
-<span class="o">&gt;</span> <span class="n">reset</span> <span class="n">master</span><span class="p">;</span>
-<span class="o">&gt;</span> <span class="k">CHANGE</span> <span class="n">MASTER</span> <span class="k">TO</span> <span class="n">MASTER_HOST</span><span class="o">=</span><span class="s1">&#39;mysql-master&#39;</span><span class="p">,</span><span class="n">MASTER_USER</span><span class="o">=</span><span class="s1">&#39;repl&#39;</span><span class="p">,</span><span class="n">MASTER_PASSWORD</span><span class="o">=</span><span class="s1">&#39;repl&#39;</span><span class="p">,</span><span class="n">MASTER_PORT</span><span class="o">=</span><span class="mi">3306</span><span class="p">,</span><span class="n">MASTER_AUTO_POSITION</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
-<span class="o">&gt;</span> <span class="n">start</span> <span class="n">slave</span><span class="p">;</span>
+<span class="o">&gt;</span> <span class="k">reset</span> <span class="n">master</span><span class="p">;</span>
+<span class="o">&gt;</span> <span class="n">CHANGE</span> <span class="n">MASTER</span> <span class="k">TO</span> <span class="n">MASTER_HOST</span><span class="o">=</span><span class="s1">&#39;mysql-master&#39;</span><span class="p">,</span><span class="n">MASTER_USER</span><span class="o">=</span><span class="s1">&#39;repl&#39;</span><span class="p">,</span><span class="n">MASTER_PASSWORD</span><span class="o">=</span><span class="s1">&#39;repl&#39;</span><span class="p">,</span><span class="n">MASTER_PORT</span><span class="o">=</span><span class="mi">3306</span><span class="p">,</span><span class="n">MASTER_AUTO_POSITION</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+<span class="o">&gt;</span> <span class="k">start</span> <span class="n">slave</span><span class="p">;</span>
 </code></pre></td></tr></table>
 </div>
 </div><h2 id="mha高可用">mha高可用</h2>
@@ -875,7 +876,7 @@ read_only           =   1
 
     <footer id="footer" class="footer">
       <div class="social-links">
-      <a href="mailto:wangpiaohua@163.com" class="iconfont icon-email" title="email"></a>
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
       <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
       <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
       <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
@@ -908,7 +909,7 @@ read_only           =   1
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2023
+    2024
     <span class="heart">
       <i class="iconfont icon-heart"></i>
     </span>

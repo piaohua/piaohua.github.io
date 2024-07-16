@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Nginx 和 ModSecurity 加强 Web 应用程序的安全性 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="Nginx 和 ModSecurity 加强 Web 应用程序的安全性 在当今互联网时代，Web 应用程序的安全性变得尤为重要。为了保护应用程序和用户的数据免受恶意攻击和漏洞利用，使用合" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/tool/20240113-nginx-modsecurity/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Nginx 和 ModSecurity 加强 Web 应用程序的安全性" />
+<meta property="og:description" content="Nginx 和 ModSecurity 加强 Web 应用程序的安全性 在当今互联网时代，Web 应用程序的安全性变得尤为重要。为了保护应用程序和用户的数据免受恶意攻击和漏洞利用，使用合" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/tool/20240113-nginx-modsecurity/" />
+<meta property="article:published_time" content="2024-01-13T16:23:49+08:00" />
+<meta property="article:modified_time" content="2024-01-13T16:23:49+08:00" />
+<meta itemprop="name" content="Nginx 和 ModSecurity 加强 Web 应用程序的安全性">
+<meta itemprop="description" content="Nginx 和 ModSecurity 加强 Web 应用程序的安全性 在当今互联网时代，Web 应用程序的安全性变得尤为重要。为了保护应用程序和用户的数据免受恶意攻击和漏洞利用，使用合">
+<meta itemprop="datePublished" content="2024-01-13T16:23:49&#43;08:00" />
+<meta itemprop="dateModified" content="2024-01-13T16:23:49&#43;08:00" />
+<meta itemprop="wordCount" content="2586">
+
+
+
+<meta itemprop="keywords" content="nginx," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Nginx 和 ModSecurity 加强 Web 应用程序的安全性"/>
+<meta name="twitter:description" content="Nginx 和 ModSecurity 加强 Web 应用程序的安全性 在当今互联网时代，Web 应用程序的安全性变得尤为重要。为了保护应用程序和用户的数据免受恶意攻击和漏洞利用，使用合"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Nginx 和 ModSecurity 加强 Web 应用程序的安全性</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-01-13 </span>
+        <div class="post-category">
+            <a href="/categories/nginx/"> nginx </a>
+            <a href="/categories/modsecurity/"> ModSecurity </a>
+            </div>
+          <span class="more-meta"> 2586 words </span>
+          <span class="more-meta"> 6 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#nginx">Nginx：</a></li>
+    <li><a href="#modsecurity">ModSecurity：</a></li>
+    <li><a href="#modsecurity功能介绍">ModSecurity功能介绍</a></li>
+    <li><a href="#为什么要使用-nginx-和-modsecurity">为什么要使用 Nginx 和 ModSecurity</a></li>
+    <li><a href="#使用-nginx-和-modsecurity-的步骤">使用 Nginx 和 ModSecurity 的步骤</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p><a href="https://www.bilibili.com/read/cv28310905/">Nginx 和 ModSecurity 加强 Web 应用程序的安全性</a></p>
+</blockquote>
+<p>在当今互联网时代，Web 应用程序的安全性变得尤为重要。为了保护应用程序和用户的数据免受恶意攻击和漏洞利用，使用合适的工具和技术是必不可少的。本文将探讨如何使用两个流行的工具——Nginx 和 ModSecurity，来加强 Web 应用程序的安全性。</p>
+<h2 id="nginx">Nginx：</h2>
+<p>Nginx 是一个高性能的开源 Web 服务器和反向代理服务器。 它以其高效的处理能力和低系统资源消耗而闻名。 Nginx 提供了丰富的功能和灵活的配置选项，使其成为构建安全的 Web 应用程序的理想选择。 本篇文章不过多介绍Nginx</p>
+<h2 id="modsecurity">ModSecurity：</h2>
+<p>ModSecurity 是一个开源的 Web 应用程序防火墙（WAF），可以在 Apache、Nginx、IIS 等 Web 服务器上运行。它可以保护 Web 应用程序免受各种攻击，如 SQL 注入、跨站脚本（XSS）、远程文件包含（RFI）、本地文件包含（LFI）、代码注入等。</p>
+<p>ModSecurity 可以通过在 Web 服务器前安装并配置规则来检测和阻止恶意请求。这些规则可以定义模式匹配、黑名单、白名单、IP 地址过滤、HTTP 方法限制等，以便监视和阻止潜在的攻击。</p>
+<p>ModSecurity 采用基于引擎的设计，可以通过自定义插件和脚本来增强其功能。它还提供了实时日志记录和通知机制，以便管理员及时了解 Web 应用程序的安全状态。</p>
+<p>ModSecurity 是一种有效的 Web 应用程序安全解决方案，可以帮助保护 Web 应用程序免受各种攻击，并提高应用程序的安全性和可靠性。</p>
+<h2 id="modsecurity功能介绍">ModSecurity功能介绍</h2>
+<ul>
+<li>SQL Injection (SQLi)：阻止SQL注入</li>
+<li>Cross Site Scripting (XSS)：阻止跨站脚本攻击</li>
+<li>Local File Inclusion (LFI)：阻止利用本地文件包含漏洞进行攻击</li>
+<li>Remote File Inclusione(RFI)：阻止利用远程文件包含漏洞进行攻击</li>
+<li>Remote Code Execution (RCE)：阻止利用远程命令执行漏洞进行攻击</li>
+<li>PHP Code Injectiod：阻止PHP代码注入</li>
+<li>HTTP Protocol Violations：阻止违反HTTP协议的恶意访问</li>
+<li>HTTPoxy：阻止利用远程代理感染漏洞进行攻击</li>
+<li>Sshllshock：阻止利用Shellshock漏洞进行攻击</li>
+<li>Session Fixation：阻止利用Session会话ID不变的漏洞进行攻击</li>
+<li>Scanner Detection：阻止黑客扫描网站</li>
+<li>Metadata/Error Leakages：阻止源代码/错误信息泄露</li>
+<li>Project Honey Pot Blacklist：蜜罐项目黑名单</li>
+<li>GeoIP Country Blocking：根据判断IP地址归属地来进行IP阻断</li>
+</ul>
+<p><a href="https://higress.io/zh-cn/docs/user/waf#waf%E6%8F%92%E4%BB%B6%E9%98%B2%E6%8A%A4%E5%8E%9F%E7%90%86">WAF插件防护原理</a></p>
+<h2 id="为什么要使用-nginx-和-modsecurity">为什么要使用 Nginx 和 ModSecurity</h2>
+<p>强大的安全特性：</p>
+<p>Nginx 提供了一系列的安全功能，如 SSL/TLS 支持、访问控制、缓存控制等。 ModSecurity 则通过实施规则集来检测和拦截常见的 Web 应用程序攻击，如 SQL 注入、跨站脚本（XSS）等。</p>
+<p>高性能和可扩展性：</p>
+<p>Nginx 的事件驱动架构使其能够处理大量并发请求，并具有出色的性能表现。 ModSecurity 的模块化设计允许根据需求定制规则，并且可以与其他安全工具和应用程序集成。</p>
+<h2 id="使用-nginx-和-modsecurity-的步骤">使用 Nginx 和 ModSecurity 的步骤</h2>
+<ol>
+<li>环境以centos为主</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">yum install -y epel-release
+yum install -y readline-devel curl-devel gcc gcc-c++ python-devel lua-devel doxygen perl yajl-devel GeoIP-devel lmdb-devel ssdeep-devel flex bison autoconf automake 作者：行走的_ID https://www.bilibili.com/read/cv28310905/ 出处：bilibili
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>安装ModSecurity</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">cd /usr/local
+wget http://www.modsecurity.cn/download/modsecurity/modsecurity-v3.0.4.tar.gz
+tar -zxvf modsecurity-v3.0.4.tar.gz
+mv modsecurity-v3.0.4 modsecurity
+cd modsecurity
+sh build.sh
+./configure
+make &amp;&amp; make install
+</code></pre></td></tr></table>
+</div>
+</div><ol start="3">
+<li>安装ModSecurity-nginx</li>
+</ol>
+<p>关于ModSecurity-nginx</p>
+<p>ModSecurity-nginx 是将 ModSecurity WAF（Web 应用程序防火墙）与 Nginx Web 服务器结合使用的模块。它允许在 Nginx 上运行 ModSecurity 的规则集，以提供对 Web 应用程序的安全保护。</p>
+<p>ModSecurity 是一个独立的开源项目，用于提供 Web 应用程序防火墙功能。它可以检测和阻止各种类型的攻击，如 SQL 注入、跨站脚本（XSS）、远程文件包含（RFI）等。ModSecurity 使用规则集来识别和阻止这些攻击，并提供配置灵活性以适应不同的应用程序需求。</p>
+<p>而 ModSecurity-nginx 则是将 ModSecurity 引擎嵌入到 Nginx 中的模块，使得 Nginx 可以直接利用 ModSecurity 的功能。通过将 ModSecurity-nginx 模块添加到 Nginx 中，您可以在 Web 服务器级别上执行强大的 Web 应用程序防火墙功能，从而提高应用程序的安全性。</p>
+<p>使用 ModSecurity-nginx，您可以轻松地将 ModSecurity 的规则集应用于 Nginx，以保护您的 Web 应用程序免受常见的网络攻击。它提供了一个集中的安全层，帮助您检测和阻止恶意请求，并提供实时日志记录和报警功能，以便及时响应潜在的安全问题。</p>
+<p>源码地址：https://github.com/SpiderLabs/ModSecurity-nginx</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">unzip ModSecurity-nginx-master.zip
+mv ModSecurity-nginx-master /usr/local/modsecurity-nginx
+</code></pre></td></tr></table>
+</div>
+</div><ol start="4">
+<li>安装nginx</li>
+</ol>
+<p>#卸载你之前的nginx, 备份你的nginx配置</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">systemctl stop nginx
+find / -name nginx
+rm -rf nginx 相关的文件
+yum remove nginx # 先备份配置文件
+wget -P /usr/local http://nginx.org/download/nginx-1.22.1.tar.gz
+tar -zxvf nginx-1.22.1.tar.gz
+cd /usr/local/nginx-1.22.1/
+
+./configure --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx --modules-path=/usr/lib64/nginx/modules --conf-path=/etc/nginx/nginx.conf --error-log-path=/var/log/nginx/error.log --pid-path=/var/run/nginx.pid --lock-path=/var/run/nginx.lock --user=nginx --group=nginx --build=CentOS --http-log-path=/var/log/nginx/access.log --with-http_stub_status_module --add-module=/usr/local/modsecurity-nginx --with-http_ssl_module
+
+make &amp;&amp; make install
+</code></pre></td></tr></table>
+</div>
+</div><ol start="5">
+<li>安装 systemd unit</li>
+</ol>
+<p>1 打开一个文本编辑器，创建一个名为 nginx.service 的文件：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">sudo vim /etc/systemd/system/nginx.service
+</code></pre></td></tr></table>
+</div>
+</div><p>2 将下面的文件复制进去</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">[Unit]
+Description=Nginx
+After=network.target
+
+[Service]
+Type=forking
+ExecStartPre=/usr/sbin/nginx -t
+ExecStart=/usr/sbin/nginx
+ExecReload=/usr/sbin/nginx -s reload
+ExecStop=/usr/sbin/nginx -s quit
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+</code></pre></td></tr></table>
+</div>
+</div><p>3 保存并关闭文件。</p>
+<p>4 重新加载 systemd 配置：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">sudo systemctl daemon-reload
+</code></pre></td></tr></table>
+</div>
+</div><p>5 启用 Nginx 服务：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">sudo systemctl enable nginx
+</code></pre></td></tr></table>
+</div>
+</div><p>6 尝试启动 Nginx 服务：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">sudo systemctl start nginx
+</code></pre></td></tr></table>
+</div>
+</div><p>6 启动nginx</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">1 创建nginx 用户
+sudo useradd -r -s /sbin/nologin nginx
+2 启动nginx
+systemctl start nginx
+3 查看 Nginx 状态
+systemctl status nginx 
+</code></pre></td></tr></table>
+</div>
+</div><p>7 配置 ModSecurity 安全规则</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">1 mkdir -p /etc/nginx/modsecurity/
+2 cp /usr/local/modsecurity/modsecurity.conf-recommended /etc/nginx/modsecurity/modsecurity.conf
+3 cp /usr/local/modsecurity/unicode.mapping /etc/nginx/modsecurity/
+</code></pre></td></tr></table>
+</div>
+</div><p>4 下载规则文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">wget -P /usr/local/ http://www.modsecurity.cn/download/corerule/owasp-modsecurity-crs-3.3-dev.zip
+unzip owasp-modsecurity-crs-3.3-dev.zip
+</code></pre></td></tr></table>
+</div>
+</div><p>5 复制 crs-setup.conf.example 到 /etc/nginx/modsecurity/ 目录下，并重命名为 crs-setup.conf</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">cp /usr/local/owasp-modsecurity-crs-3.3-dev/crs-setup.conf.example /etc/nginx/modsecurity/crs-setup.conf
+</code></pre></td></tr></table>
+</div>
+</div><p>6将下载的策略规则包解压后的rules文件夹里面的所有规则，复制到/etc/nginx/modsecurity/rules/ 目录下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">cp -r rules/ /etc/nginx/modsecurity/
+</code></pre></td></tr></table>
+</div>
+</div><p>7 修改REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf.example与RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf.example两个文件的文件名，将&rdquo;.example&quot;删除，可将自己写的规则放置于此两个文件中；</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">cd /etc/nginx/modsecurity/rules/
+mv REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf.example REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
+mv RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf.example RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf
+</code></pre></td></tr></table>
+</div>
+</div><p>8 配置nginx 在http或server节点中添加以下内容(具体根据你的业务配置)：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">#在配项目引入
+#load_module modules/ngx_http_modsecurity_module.so;
+在http 或者sever 配置
+modsecurity on;
+modsecurity_rules_file /usr/local/nginx/conf/modsecurity/modsecurity.conf;
+</code></pre></td></tr></table>
+</div>
+</div><p>9 编辑modsecurity.conf</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">cd /etc/nginx/modsecurity/
+vim modsecurity.conf
+
+SecRuleEngine DetectionOnly改为SecRuleEngine On
+
+同时在文件末尾添加以下内容：
+
+Include /path/crs-setup.conf
+Include /path/rules/*.conf
+</code></pre></td></tr></table>
+</div>
+</div><p>10 记录审计日志</p>
+<p>注释SecAuditLogParts ABIJDEFHZ
+更改SecAuditLogParts ABCDEFHZ</p>
+<p>11 检查nginx</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">nginx -t
+</code></pre></td></tr></table>
+</div>
+</div><p>12 重启nginx</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">systemctl restart nginx
+</code></pre></td></tr></table>
+</div>
+</div><p>13 测试</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback"># 正常的访问
+curl &#39;http://localhost/&#39; -I
+# 非正常访问，tail /var/log/nginx/access.log查看拦截信息
+curl &#39;http://localhost/?id=1 AND 1=1&#39; -I 
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://www.bilibili.com/read/cv28310905/">Nginx 和 ModSecurity 加强 Web 应用程序的安全性</a></li>
+<li><a href="https://nginx-extras.getpagespeed.com/modules/security-headers/">security-headers: NGINX module for sending security headers</a></li>
+<li><a href="https://www.linode.com/docs/guides/securing-nginx-with-modsecurity/">Securing Nginx With ModSecurity</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/604543695">基于 Nginx + ModSecurity V3 实现对 web 流量的安全访问控制</a></li>
+<li><a href="https://coreruleset.org/">OWASP ModSecurity Core Rule Set</a></li>
+<li><a href="https://higress.io/zh-cn/docs/user/waf#modsecurity">Higress 开启 WAF 防护的最佳实践</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-01-13
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/nginx/">nginx</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/redis/20240113-nginx-redis/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Nginx 直接访问 Redis方案</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/mysql/20240111-delete-in-select/">
+            <span class="next-text nav-default">[MySQL] delete in select 语句不走索引问题分析</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'Nginx 和 ModSecurity 加强 Web 应用程序的安全性',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

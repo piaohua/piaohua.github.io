@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Sqids: 简短唯一ID生成器 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="Sqids: 简短唯一ID生成器 Sqids 是Short Quick Unique Identifiers的缩写。 允许从数字中生成简短的唯一且看起来随机的标识符, 而且这些 ID 是 URL 安全的，可" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/golang/20240518-sqids/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Sqids: 简短唯一ID生成器" />
+<meta property="og:description" content="Sqids: 简短唯一ID生成器 Sqids 是Short Quick Unique Identifiers的缩写。 允许从数字中生成简短的唯一且看起来随机的标识符, 而且这些 ID 是 URL 安全的，可" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20240518-sqids/" />
+<meta property="article:published_time" content="2024-05-18T13:24:44+08:00" />
+<meta property="article:modified_time" content="2024-05-18T13:24:44+08:00" />
+<meta itemprop="name" content="Sqids: 简短唯一ID生成器">
+<meta itemprop="description" content="Sqids: 简短唯一ID生成器 Sqids 是Short Quick Unique Identifiers的缩写。 允许从数字中生成简短的唯一且看起来随机的标识符, 而且这些 ID 是 URL 安全的，可">
+<meta itemprop="datePublished" content="2024-05-18T13:24:44&#43;08:00" />
+<meta itemprop="dateModified" content="2024-05-18T13:24:44&#43;08:00" />
+<meta itemprop="wordCount" content="538">
+
+
+
+<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Sqids: 简短唯一ID生成器"/>
+<meta name="twitter:description" content="Sqids: 简短唯一ID生成器 Sqids 是Short Quick Unique Identifiers的缩写。 允许从数字中生成简短的唯一且看起来随机的标识符, 而且这些 ID 是 URL 安全的，可"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Sqids: 简短唯一ID生成器</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-05-18 </span>
+        <div class="post-category">
+            <a href="/categories/golang/"> golang </a>
+            </div>
+          <span class="more-meta"> 538 words </span>
+          <span class="more-meta"> 2 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#适合场景">适合场景</a></li>
+    <li><a href="#不适合场景">不适合场景</a></li>
+    <li><a href="#sqids-有什么限制">Sqids 有什么限制</a></li>
+    <li><a href="#go-示例">Go 示例</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p><a href="https://mp.weixin.qq.com/s/Kd5Zb0TkCghUYY8IRtFT-g">Sqids: 简短唯一ID生成器</a></p>
+</blockquote>
+<p>Sqids 是Short Quick Unique Identifiers的缩写。</p>
+<p>允许从数字中生成简短的唯一且看起来随机的标识符, 而且这些 ID 是 URL 安全的，可以同时编码几个数字， 也可以剔除常见的脏话或者政治敏感的单词。</p>
+<h2 id="适合场景">适合场景</h2>
+<ul>
+<li>短链接缩</li>
+<li>为日志生成唯一的事件 ID</li>
+<li>为网站上的产品/对象生成 ID（如 YouTube 为视频所做的那样）</li>
+<li>为文本消息生成短 ID</li>
+<li>电子邮件中的确认码</li>
+<li>商品优惠码</li>
+<li>起止时间戳合并缩写</li>
+<li>地理位置编码</li>
+<li>临时的 token</li>
+</ul>
+<h2 id="不适合场景">不适合场景</h2>
+<ul>
+<li>任何敏感数据</li>
+<li>生成的 ID 不是哈希值，可以解码回数字。例如，它们可能不是用户 ID 的好选择，因为一旦解码，它们可能会泄露你的应用程序的用户数量</li>
+</ul>
+<h2 id="sqids-有什么限制">Sqids 有什么限制</h2>
+<ul>
+<li>Sqids 不能编码负数。</li>
+<li>最小字母表长度是 3 个字符。</li>
+<li>字母表中不能包含任何多字节字符。</li>
+<li>Sqids 不能生成固定长度的 ID，只能生成至少达到某个长度的 ID。最小长度参数范围在 0 到 255 之间。</li>
+<li>Sqids 可以尝试重新生成长度最多为字母表长度减一的 ID。</li>
+</ul>
+<h2 id="go-示例">Go 示例</h2>
+<p>Go 语言的库: <a href="https://github.com/sqids/sqids-go">sqids/sqids-go</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+ <span class="s">&#34;fmt&#34;</span>
+ <span class="s">&#34;time&#34;</span>
+
+ <span class="s">&#34;github.com/sqids/sqids-go&#34;</span>
+<span class="p">)</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+ <span class="nx">s</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">sqids</span><span class="p">.</span><span class="nf">New</span><span class="p">()</span>
+
+ <span class="nx">id</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nf">Encode</span><span class="p">([]</span><span class="kt">uint64</span><span class="p">{</span><span class="mi">1234567890</span><span class="p">})</span> <span class="c1">// &#34;PcHfYmv&#34;
+</span><span class="c1"></span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+
+ <span class="nx">start</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Unix</span><span class="p">()</span>
+ <span class="nx">end</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Add</span><span class="p">(</span><span class="mi">24</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Hour</span><span class="p">).</span><span class="nf">Unix</span><span class="p">()</span>
+
+ <span class="nx">id</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">s</span><span class="p">.</span><span class="nf">Encode</span><span class="p">([]</span><span class="kt">uint64</span><span class="p">{</span><span class="nb">uint64</span><span class="p">(</span><span class="nx">start</span><span class="p">),</span> <span class="nb">uint64</span><span class="p">(</span><span class="nx">end</span><span class="p">)})</span> <span class="c1">// &#34;s6eUn008oGU27p&#34;
+</span><span class="c1"></span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+
+ <span class="nx">numbers</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nf">Decode</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span> <span class="c1">// [1714879533 1714965933]
+</span><span class="c1"></span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">numbers</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>New函数还提供额外的参数，用来定制字母表、最小长度和黑名单：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Options</span> <span class="kd">struct</span> <span class="p">{</span>
+ <span class="nx">Alphabet</span>  <span class="kt">string</span>
+ <span class="nx">MinLength</span> <span class="kt">uint8</span>
+ <span class="nx">Blocklist</span> <span class="p">[]</span><span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="c1">// 使用options参数
+</span><span class="c1"></span><span class="nx">s</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">sqids</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">sqids</span><span class="p">.</span><span class="nx">Options</span><span class="p">{</span>
+  <span class="nx">Alphabet</span><span class="p">:</span> <span class="s">&#34;FxnXM1kBN6cuhsAvjW3Co7l2RePyY8DwaU04Tzt9fHQrqSVKdpimLGIJOgb5ZE&#34;</span><span class="p">,</span>
+ <span class="p">})</span>
+ <span class="nx">id</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nf">Encode</span><span class="p">([]</span><span class="kt">uint64</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">})</span> <span class="c1">// &#34;B4aajs&#34;
+</span><span class="c1"></span> <span class="nx">numbers</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nf">Decode</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>              <span class="c1">// [1, 2, 3]
+</span></code></pre></td></tr></table>
+</div>
+</div>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-05-18
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/golang/">golang</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/python/20240518-merge-dict/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Python中合并两个字典</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/tool/20240517-file-checksum/">
+            <span class="next-text nav-default">文件传输防篡改 （Chcecksum &amp; GPG）</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: location.pathname,
+        title: 'Sqids: 简短唯一ID生成器',
+        clientID: '602710b5b9c12cc49296',
+        clientSecret: '87ebd96b5be5d1e80ec4e57ce65541a6b423fed3',
+        repo: 'piaohua.github.io',
+        owner: 'piaohua',
+        admin: ['piaohua'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
