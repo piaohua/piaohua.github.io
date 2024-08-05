@@ -55,11 +55,11 @@
 1  docker run -p 6379:6379 -p 8001:8001 redis/redis-stack   This launches the redis-stack an extension of Redis that adds all manner of modern data structures to Redis. You&rsquo;ll also notice that if you open up http://localhost:8001 you&rsquo;ll have access to the redis-insight GUI, a GUI you can use to visualize and work with your data in Redis.">
 <meta itemprop="datePublished" content="2024-07-30T22:42:30&#43;08:00" />
 <meta itemprop="dateModified" content="2024-07-30T22:42:30&#43;08:00" />
-<meta itemprop="wordCount" content="283">
+<meta itemprop="wordCount" content="452">
 
 
 
-<meta itemprop="keywords" content="docker,helm,redis,kubernetes," /><meta name="twitter:card" content="summary"/>
+<meta itemprop="keywords" content="docker,helm,redis,kubernetes,python," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Redis-stack helm chart"/>
 <meta name="twitter:description" content="Redis-stack helm chart
  The Quickest way to starting redis-stack with Docker.
@@ -152,8 +152,8 @@
             <a href="/categories/docker/"> docker </a>
             <a href="/categories/redis/"> redis </a>
             </div>
-          <span class="more-meta"> 283 words </span>
-          <span class="more-meta"> 2 mins read </span>
+          <span class="more-meta"> 452 words </span>
+          <span class="more-meta"> 3 mins read </span>
         
       </div>
     </header>
@@ -165,6 +165,7 @@
   <ul>
     <li><a href="#installation">Installation</a></li>
     <li><a href="#usage">Usage</a></li>
+    <li><a href="#redis-om-python">Redis OM Python</a></li>
   </ul>
 </nav>
   </div>
@@ -246,7 +247,95 @@
 </code></pre></td></tr></table>
 </div>
 </div><p>By default redis-stack will have no password, Redis Stack supports the ability to configure multiple named users, each with their own password and access control configuration. Refer to the <a href="https://redis.io/docs/latest/operate/oss_and_stack/management/security/acl/">Redis Access Control List documentation</a> for more information. Alternatively the configuration file can be modified and the requirepass directive added. This can also be triggered via the REDIS_ARGS environment variable. Examples are available on the <a href="https://hub.docker.com/repository/docker/redis/redis-stack-server/">docker image page</a></p>
+<h2 id="redis-om-python">Redis OM Python</h2>
+<p><a href="https://github.com/redis/redis-om-python">Redis OM Python</a> makes it easy to model Redis data in your Python applications.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">EmailStr</span>
+
+<span class="kn">from</span> <span class="nn">redis_om</span> <span class="kn">import</span> <span class="n">HashModel</span>
+
+
+<span class="k">class</span> <span class="nc">Customer</span><span class="p">(</span><span class="n">HashModel</span><span class="p">):</span>
+    <span class="n">first_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">last_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">email</span><span class="p">:</span> <span class="n">EmailStr</span>
+    <span class="n">join_date</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span>
+    <span class="n">age</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">bio</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+
+
+<span class="c1"># First, we create a new `Customer` object:</span>
+<span class="n">andrew</span> <span class="o">=</span> <span class="n">Customer</span><span class="p">(</span>
+    <span class="n">first_name</span><span class="o">=</span><span class="s2">&#34;Andrew&#34;</span><span class="p">,</span>
+    <span class="n">last_name</span><span class="o">=</span><span class="s2">&#34;Brookins&#34;</span><span class="p">,</span>
+    <span class="n">email</span><span class="o">=</span><span class="s2">&#34;andrew.brookins@example.com&#34;</span><span class="p">,</span>
+    <span class="n">join_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">(),</span>
+    <span class="n">age</span><span class="o">=</span><span class="mi">38</span><span class="p">,</span>
+    <span class="n">bio</span><span class="o">=</span><span class="s2">&#34;Python developer, works at Redis, Inc.&#34;</span>
+<span class="p">)</span>
+
+<span class="c1"># The model generates a globally unique primary key automatically</span>
+<span class="c1"># without needing to talk to Redis.</span>
+<span class="k">print</span><span class="p">(</span><span class="n">andrew</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span>
+<span class="c1"># &gt; &#34;01FJM6PH661HCNNRC884H6K30C&#34;</span>
+
+<span class="c1"># We can save the model to Redis by calling `save()`:</span>
+<span class="n">andrew</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="c1"># Expire the model after 2 mins (120 seconds)</span>
+<span class="n">andrew</span><span class="o">.</span><span class="n">expire</span><span class="p">(</span><span class="mi">120</span><span class="p">)</span>
+
+<span class="c1"># To retrieve this customer with its primary key, we use `Customer.get()`:</span>
+<span class="k">assert</span> <span class="n">Customer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">andrew</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> <span class="o">==</span> <span class="n">andrew</span>
+</code></pre></td></tr></table>
+</div>
+</div>
     </div>
 
     <div class="post-copyright">
@@ -273,6 +362,7 @@
           <a href="/tags/helm/">helm</a>
           <a href="/tags/redis/">redis</a>
           <a href="/tags/kubernetes/">kubernetes</a>
+          <a href="/tags/python/">python</a>
           </div>
       <nav class="post-nav">
         <a class="prev" href="/post/tool/20240731-markdown-it-demo/">
