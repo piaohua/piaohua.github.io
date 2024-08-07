@@ -49,7 +49,7 @@
 <meta itemprop="description" content="&ldquo;中间件&quot;是一个函数,它在每个请求被特定的路径操作处理之前,以及在每个响应返回之前工作. 它接收你的应用程序的每一个请求">
 <meta itemprop="datePublished" content="2024-06-26T21:25:09&#43;08:00" />
 <meta itemprop="dateModified" content="2024-06-26T21:25:09&#43;08:00" />
-<meta itemprop="wordCount" content="522">
+<meta itemprop="wordCount" content="624">
 
 
 
@@ -143,7 +143,7 @@
         <div class="post-category">
             <a href="/categories/python/"> python </a>
             </div>
-          <span class="more-meta"> 522 words </span>
+          <span class="more-meta"> 624 words </span>
           <span class="more-meta"> 2 mins read </span>
         
       </div>
@@ -155,6 +155,7 @@
     <nav id="TableOfContents">
   <ul>
     <li><a href="#创建中间件">创建中间件</a></li>
+    <li><a href="#自定义安全中间件">自定义安全中间件</a></li>
     <li><a href="#参考">参考</a></li>
   </ul>
 </nav>
@@ -255,7 +256,64 @@
 </code></pre></td></tr></table>
 </div>
 </div><p>定义的中间件类UseTimeMiddleware要继承基础类BaseHTTPMiddleware</p>
-<h2 id="参考">参考</h2>
+<h2 id="自定义安全中间件">自定义安全中间件</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">from</span> <span class="nn">starlette.middleware.base</span> <span class="kn">import</span> <span class="n">BaseHTTPMiddleware</span>
+<span class="kn">from</span> <span class="nn">starlette.types</span> <span class="kn">import</span> <span class="n">ASGIApp</span><span class="p">,</span> <span class="n">Scope</span>
+
+<span class="k">class</span> <span class="nc">CustomHeadersMiddleware</span><span class="p">(</span><span class="n">BaseHTTPMiddleware</span><span class="p">):</span>
+    <span class="s2">&#34;&#34;&#34; 设置自定义安全标头中间件 &#34;&#34;&#34;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">ASGIApp</span><span class="p">,</span> <span class="n">headers</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="n">headers</span>
+
+    <span class="n">async</span> <span class="k">def</span> <span class="nf">dispatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Scope</span><span class="p">,</span> <span class="n">call_next</span><span class="p">):</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">await</span> <span class="n">call_next</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">header</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="n">header</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="n">response</span>
+
+<span class="n">custom_headers</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;X-DNS-Prefetch-Control&#39;</span><span class="p">:</span> <span class="s1">&#39;off&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;X-Download-Options&#39;</span><span class="p">:</span> <span class="s1">&#39;noopen&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;X-Permitted-Cross-Domain-Policies&#39;</span><span class="p">:</span> <span class="s1">&#39;none&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span>
+    <span class="n">CustomHeadersMiddleware</span><span class="p">,</span>
+    <span class="n">headers</span><span class="o">=</span><span class="n">custom_headers</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
 <ul>
 <li><a href="https://fastapi.tiangolo.com/zh/tutorial/middleware/">FastAPI 中间件</a></li>
 <li><a href="https://mp.weixin.qq.com/s/2MFPnly7pv_dhKT3zGw3VA">Python框架篇(5):FastApi-中间件使用</a></li>
