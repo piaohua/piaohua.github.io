@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="piaohua" /><meta name="description" content="Bloom Filter 是一个二进制bit数组，初始为 0 用于快速查找一个集合中是否存在某个元素。尤其是大数据量中快速查找判断是否存在的问题。 比如在缓存穿透场景中" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="piaohua" /><meta name="description" content="Bloom Filter 是一个二进制bit数组，初始为 0 用于快速查找一个集合中是否存在某个元素。尤其是大数据量中快速查找判断是否存在的问题。 布隆过滤器能记录一个" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 
@@ -40,22 +40,22 @@
 
 
 <meta property="og:title" content="Redis 布隆过滤器(Bloom Filter)" />
-<meta property="og:description" content="Bloom Filter 是一个二进制bit数组，初始为 0 用于快速查找一个集合中是否存在某个元素。尤其是大数据量中快速查找判断是否存在的问题。 比如在缓存穿透场景中" />
+<meta property="og:description" content="Bloom Filter 是一个二进制bit数组，初始为 0 用于快速查找一个集合中是否存在某个元素。尤其是大数据量中快速查找判断是否存在的问题。 布隆过滤器能记录一个" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://piaohua.github.io/post/redis/20240519-bloom-filter/" />
 <meta property="article:published_time" content="2024-05-19T11:33:43+08:00" />
 <meta property="article:modified_time" content="2024-05-19T11:33:43+08:00" />
 <meta itemprop="name" content="Redis 布隆过滤器(Bloom Filter)">
-<meta itemprop="description" content="Bloom Filter 是一个二进制bit数组，初始为 0 用于快速查找一个集合中是否存在某个元素。尤其是大数据量中快速查找判断是否存在的问题。 比如在缓存穿透场景中">
+<meta itemprop="description" content="Bloom Filter 是一个二进制bit数组，初始为 0 用于快速查找一个集合中是否存在某个元素。尤其是大数据量中快速查找判断是否存在的问题。 布隆过滤器能记录一个">
 <meta itemprop="datePublished" content="2024-05-19T11:33:43&#43;08:00" />
 <meta itemprop="dateModified" content="2024-05-19T11:33:43&#43;08:00" />
-<meta itemprop="wordCount" content="473">
+<meta itemprop="wordCount" content="991">
 
 
 
 <meta itemprop="keywords" content="redis," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Redis 布隆过滤器(Bloom Filter)"/>
-<meta name="twitter:description" content="Bloom Filter 是一个二进制bit数组，初始为 0 用于快速查找一个集合中是否存在某个元素。尤其是大数据量中快速查找判断是否存在的问题。 比如在缓存穿透场景中"/>
+<meta name="twitter:description" content="Bloom Filter 是一个二进制bit数组，初始为 0 用于快速查找一个集合中是否存在某个元素。尤其是大数据量中快速查找判断是否存在的问题。 布隆过滤器能记录一个"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -143,8 +143,8 @@
         <div class="post-category">
             <a href="/categories/redis/"> redis </a>
             </div>
-          <span class="more-meta"> 473 words </span>
-          <span class="more-meta"> 1 min read </span>
+          <span class="more-meta"> 991 words </span>
+          <span class="more-meta"> 2 mins read </span>
         
       </div>
     </header>
@@ -155,6 +155,7 @@
     <nav id="TableOfContents">
   <ul>
     <li><a href="#使用-redisson中的布隆过滤器">使用 Redisson中的布隆过滤器</a></li>
+    <li><a href="#布隆过滤器的python实现示例">布隆过滤器的Python实现示例</a></li>
     <li><a href="#参考">参考</a></li>
   </ul>
 </nav>
@@ -165,6 +166,7 @@
 <p>Bloom Filter 是一个二进制bit数组，初始为 0</p>
 </blockquote>
 <p>用于快速查找一个集合中是否存在某个元素。尤其是大数据量中快速查找判断是否存在的问题。</p>
+<p>布隆过滤器能记录一个元素可能存在或肯定不存在。它非常节省内存，但有一定概率会给出错误的“存在”结果，即可能出现哈希冲突，通常会使用多个不同哈希函数，对同一个值得出一组哈希值，并将这组值写入Bloom数组中，这样来降低哈希冲突的概率，<a href="https://mp.weixin.qq.com/s/ykrEi8DkHyxk_Uxkraq9Hg">如何预测误报的概率？</a></p>
 <p>比如在缓存穿透场景中，当大量不存在key请求攻击时，可以使用Redis的Bloom Filter来解决。</p>
 <p>Bloom Filter 采用位存储数据结构，节省存储空间</p>
 <h2 id="使用-redisson中的布隆过滤器">使用 Redisson中的布隆过滤器</h2>
@@ -263,6 +265,114 @@
 </span><span class="c1"></span>        <span class="n">redisson</span><span class="o">.</span><span class="na">shutdown</span><span class="o">();</span>
     <span class="o">}</span>
 <span class="o">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="布隆过滤器的python实现示例">布隆过滤器的Python实现示例</h2>
+<p>参考<a href="https://mp.weixin.qq.com/s/ykrEi8DkHyxk_Uxkraq9Hg">Bloom Filter !</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">import</span> <span class="nn">mmh3</span>  <span class="c1"># MurmurHash 3，常用于布隆过滤器</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="k">class</span> <span class="nc">BloomFilter</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">m</span>  <span class="c1"># 布隆过滤器的大小（位数组的长度）</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="n">k</span>  <span class="c1"># 哈希函数的数量</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># 插入的元素数量</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bloomFilter</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span>  <span class="c1"># 初始化位数组为0</span>
+        
+    <span class="k">def</span> <span class="nf">getBitArrayIndices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="s2">&#34;&#34;&#34;
+</span><span class="s2">        计算 item 的哈希值并返回需要设置的位数组索引列表
+</span><span class="s2">        &#34;&#34;&#34;</span>
+        <span class="n">indexList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">indexList</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">hash</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">mmh3</span><span class="o">.</span><span class="n">hash</span><span class="p">(</span><span class="n">item</span><span class="p">))</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">indexList</span>
+        
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="s2">&#34;&#34;&#34;
+</span><span class="s2">        插入一个元素到布隆过滤器
+</span><span class="s2">        &#34;&#34;&#34;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBitArrayIndices</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bloomFilter</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="k">def</span> <span class="nf">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="s2">&#34;&#34;&#34;
+</span><span class="s2">        检查元素是否在布隆过滤器中
+</span><span class="s2">        &#34;&#34;&#34;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBitArrayIndices</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bloomFilter</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="bp">True</span>
+        
+    <span class="k">def</span> <span class="nf">generateStats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&#34;&#34;&#34;
+</span><span class="s2">        计算布隆过滤器的统计信息，比如错误率
+</span><span class="s2">        &#34;&#34;&#34;</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">)</span>
+        <span class="n">probability_fp</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">((</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">n</span><span class="p">)</span><span class="o">/</span><span class="n">m</span><span class="p">)),</span> <span class="n">k</span><span class="p">)</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;元素数量: &#34;</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;布隆过滤器大小: &#34;</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;哈希函数数量: &#34;</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;假阳性概率: &#34;</span><span class="p">,</span> <span class="n">probability_fp</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;假阳性率: &#34;</span><span class="p">,</span> <span class="n">probability_fp</span> <span class="o">*</span> <span class="mf">100.0</span><span class="p">,</span> <span class="s2">&#34;%&#34;</span><span class="p">)</span>
 </code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
