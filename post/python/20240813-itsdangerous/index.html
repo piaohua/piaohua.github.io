@@ -49,7 +49,7 @@
 <meta itemprop="description" content="itsdangerous 可以对数据进行加密签名，并将其交给其他不受信任的环境。当拿回数据时，可以确保没有人篡改它。 在URL中签署用户ID，并通过电子邮件发送给他们">
 <meta itemprop="datePublished" content="2024-08-13T21:46:04&#43;08:00" />
 <meta itemprop="dateModified" content="2024-08-13T21:46:04&#43;08:00" />
-<meta itemprop="wordCount" content="1319">
+<meta itemprop="wordCount" content="1540">
 
 
 
@@ -143,8 +143,8 @@
         <div class="post-category">
             <a href="/categories/python/"> python </a>
             </div>
-          <span class="more-meta"> 1319 words </span>
-          <span class="more-meta"> 3 mins read </span>
+          <span class="more-meta"> 1540 words </span>
+          <span class="more-meta"> 4 mins read </span>
         
       </div>
     </header>
@@ -156,7 +156,14 @@
   <ul>
     <li><a href="#安装">安装</a></li>
     <li><a href="#特性">特性</a></li>
-    <li><a href="#使用">使用</a></li>
+    <li><a href="#使用">使用</a>
+      <ul>
+        <li><a href="#数据签名验证">数据签名验证：</a></li>
+        <li><a href="#数据序列化">数据序列化：</a></li>
+        <li><a href="#带时间截的有效性token">带时间截的有效性token:</a></li>
+        <li><a href="#自定义签名算法">自定义签名算法</a></li>
+      </ul>
+    </li>
     <li><a href="#参考">参考</a></li>
   </ul>
 </nav>
@@ -189,7 +196,7 @@
 <li>加密和解密：提供基本的加密和解密功能，保护敏感数据。</li>
 </ul>
 <h2 id="使用">使用</h2>
-<p>数据签名验证：</p>
+<h3 id="数据签名验证">数据签名验证：</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code><span class="lnt"> 1
@@ -256,13 +263,11 @@
 </span><span class="lnt"> 9
 </span><span class="lnt">10
 </span><span class="lnt">11
-</span><span class="lnt">12
 </span></code></pre></td>
 <td class="lntd">
 <pre class="chroma"><code class="language-sh" data-lang="sh">pytest -s tests/services/signed_token.py::test_sign
 <span class="o">==================================</span> <span class="nb">test</span> session <span class="nv">starts</span> <span class="o">===================================</span>
 platform darwin -- Python 3.12.3, pytest-8.2.2, pluggy-1.5.0
-rootdir: /Users/piao/data/app
 plugins: anyio-4.4.0
 collected <span class="m">1</span> item
 
@@ -274,7 +279,7 @@ Token verified and data loaded:  b<span class="s2">&#34;{&#39;user_id&#39;: 123}
 </code></pre></td></tr></table>
 </div>
 </div><p>生成的token格式，前部分为明文数据，后面为验证生成的token</p>
-<p>数据序列化：</p>
+<h3 id="数据序列化">数据序列化：</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code><span class="lnt"> 1
@@ -391,7 +396,7 @@ Token verified and data loaded:  <span class="o">{</span><span class="s1">&#39;u
 </code></pre></td></tr></table>
 </div>
 </div><p>可以发现token的前部分其实就是真实数据base64编码后的结果，所以这个数据验证的token对数据来说是不保密的，只能验证是否被篡改，因此这个数据绝对不要包含敏感数据，否则就会带来安全风险。</p>
-<p>带时间截的有效性token:</p>
+<h3 id="带时间截的有效性token">带时间截的有效性token:</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code><span class="lnt"> 1
@@ -482,14 +487,12 @@ Token verified and data loaded:  <span class="o">{</span><span class="s1">&#39;u
 </span><span class="lnt">13
 </span><span class="lnt">14
 </span><span class="lnt">15
-</span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
 <pre class="chroma"><code class="language-sh" data-lang="sh">pytest -s tests/services/signed_token.py::test_url_safe_time
 
 <span class="o">==================================</span> <span class="nb">test</span> session <span class="nv">starts</span> <span class="o">===================================</span>
 platform darwin -- Python 3.12.3, pytest-8.2.2, pluggy-1.5.0
-rootdir: /Users/piao/data/app
 plugins: anyio-4.4.0
 collected <span class="m">1</span> item
 
@@ -504,7 +507,125 @@ The token has expired.
 </code></pre></td></tr></table>
 </div>
 </div><p>可以看到token格式只是中间多了个时间截数据，前面部分依然是真实数据。</p>
-<h2 id="参考">参考</h2>
+<h3 id="自定义签名算法">自定义签名算法</h3>
+<p>使用<code>SHA256</code>算法加密签名</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">import</span> <span class="nn">hashlib</span>
+
+<span class="k">class</span> <span class="nc">SHA256Signer</span><span class="p">(</span><span class="n">Signer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_signature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">value</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">secret_key</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">verify_signature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sig</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_signature</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="n">sig</span>
+
+<span class="k">class</span> <span class="nc">RequestToken</span><span class="p">:</span>
+    <span class="s2">&#34;&#34;&#34; API请求token &#34;&#34;&#34;</span>
+
+    <span class="n">DEFAULT_EXPIRES_IN</span> <span class="o">=</span> <span class="mi">10</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">secret_key</span><span class="p">,</span> <span class="n">salt</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">expires_in</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">expires_in</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">expires_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_EXPIRES_IN</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expires_in</span> <span class="o">=</span> <span class="n">expires_in</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">signer</span> <span class="o">=</span> <span class="n">SHA256Signer</span><span class="p">(</span><span class="n">secret_key</span><span class="o">=</span><span class="n">secret_key</span><span class="p">,</span> <span class="n">salt</span><span class="o">=</span><span class="n">salt</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">generate_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="n">signed_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">signer</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">signed_data</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">verify_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">original_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">signer</span><span class="o">.</span><span class="n">unsign</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">original_data</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>测试使用：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="k">def</span> <span class="nf">test_request</span><span class="p">():</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">RequestToken</span><span class="p">(</span><span class="s2">&#34;key&#34;</span><span class="p">,</span> <span class="s2">&#34;salt&#34;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+    <span class="n">email</span> <span class="o">=</span> <span class="s2">&#34;test@example.com&#34;</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">generate_token</span><span class="p">(</span><span class="n">email</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;signed token&#34;</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span>
+
+    <span class="n">original_data</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">verify_token</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;original_data&#34;</span><span class="p">,</span> <span class="n">original_data</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">email</span> <span class="o">==</span> <span class="n">original_data</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>测试结果：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">pytest -s tests/services/signed_token.py::test_request
+<span class="o">==================================</span> <span class="nb">test</span> session <span class="nv">starts</span> <span class="o">===================================</span>
+platform darwin -- Python 3.12.3, pytest-8.2.2, pluggy-1.5.0
+plugins: anyio-4.4.0
+collected <span class="m">1</span> item
+
+tests/services/signed_token.py signed token test@example.com.3588dfd5636bdabeffc4147aac8f14d860d1d2c3b65d89fd66a781fe7c1f15d2
+original_data test@example.com
+.
+
+<span class="o">===================================</span> <span class="m">1</span> passed in 1.00s <span class="o">====================================</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
 <ul>
 <li><a href="https://itsdangerous.palletsprojects.com/en/2.2.x/">itsdangerous</a></li>
 <li><a href="https://blog.csdn.net/wuShiJingZuo/article/details/140004440">itsdangerous，一个强大的 Python 库！</a></li>
