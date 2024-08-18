@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Python 使用 SQLAlchemy 执行数据库操作 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="SQLAlchemy SQL Toolkit 和 Object Relational Mapper (ORM: 对象关系映射器)是一套用于处理数据库和Python的综合工具 SQLAlchemy各组件依赖关系图: 安装 1 pip install SQLAlchemy 使用 数据表模型" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/python/20240818-sqlalchemy/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Python 使用 SQLAlchemy 执行数据库操作" />
+<meta property="og:description" content="SQLAlchemy SQL Toolkit 和 Object Relational Mapper (ORM: 对象关系映射器)是一套用于处理数据库和Python的综合工具 SQLAlchemy各组件依赖关系图: 安装 1 pip install SQLAlchemy 使用 数据表模型" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/python/20240818-sqlalchemy/" />
+<meta property="article:published_time" content="2024-08-18T18:09:13+08:00" />
+<meta property="article:modified_time" content="2024-08-18T18:09:13+08:00" />
+<meta itemprop="name" content="Python 使用 SQLAlchemy 执行数据库操作">
+<meta itemprop="description" content="SQLAlchemy SQL Toolkit 和 Object Relational Mapper (ORM: 对象关系映射器)是一套用于处理数据库和Python的综合工具 SQLAlchemy各组件依赖关系图: 安装 1 pip install SQLAlchemy 使用 数据表模型">
+<meta itemprop="datePublished" content="2024-08-18T18:09:13&#43;08:00" />
+<meta itemprop="dateModified" content="2024-08-18T18:09:13&#43;08:00" />
+<meta itemprop="wordCount" content="631">
+
+
+
+<meta itemprop="keywords" content="python," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Python 使用 SQLAlchemy 执行数据库操作"/>
+<meta name="twitter:description" content="SQLAlchemy SQL Toolkit 和 Object Relational Mapper (ORM: 对象关系映射器)是一套用于处理数据库和Python的综合工具 SQLAlchemy各组件依赖关系图: 安装 1 pip install SQLAlchemy 使用 数据表模型"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Python 使用 SQLAlchemy 执行数据库操作</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-08-18 </span>
+        <div class="post-category">
+            <a href="/categories/python/"> python </a>
+            </div>
+          <span class="more-meta"> 631 words </span>
+          <span class="more-meta"> 2 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#安装">安装</a></li>
+    <li><a href="#使用">使用</a>
+      <ul>
+        <li><a href="#数据表模型声明">数据表模型声明</a></li>
+        <li><a href="#创建sqlite引擎">创建SQLite引擎</a></li>
+        <li><a href="#创建引擎连接池配置">创建引擎连接池配置</a></li>
+        <li><a href="#执行创建表ddl">执行创建表DDL</a></li>
+        <li><a href="#执行select操作示例">执行select操作示例：</a></li>
+      </ul>
+    </li>
+    <li><a href="#数据库结构修改">数据库结构修改</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p><a href="https://docs.sqlalchemy.org/en/20/">SQLAlchemy</a> SQL Toolkit 和 Object Relational Mapper (ORM: 对象关系映射器)是一套用于处理数据库和Python的综合工具</p>
+</blockquote>
+<p>SQLAlchemy各组件依赖关系图:</p>
+<p><img src="https://docs.sqlalchemy.org/en/20/_images/sqla_arch_small.png" alt=""></p>
+<h2 id="安装">安装</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">pip install SQLAlchemy
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="使用">使用</h2>
+<h3 id="数据表模型声明">数据表模型声明</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">ForeignKey</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">String</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">DeclarativeBase</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">Mapped</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">mapped_column</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">relationship</span>
+
+<span class="k">class</span> <span class="nc">Base</span><span class="p">(</span><span class="n">DeclarativeBase</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&#34;user_account&#34;</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="n">Mapped</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">mapped_column</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">Mapped</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">mapped_column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">30</span><span class="p">))</span>
+    <span class="n">fullname</span><span class="p">:</span> <span class="n">Mapped</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+    <span class="n">addresses</span><span class="p">:</span> <span class="n">Mapped</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="s2">&#34;Address&#34;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span>
+        <span class="n">back_populates</span><span class="o">=</span><span class="s2">&#34;user&#34;</span><span class="p">,</span> <span class="n">cascade</span><span class="o">=</span><span class="s2">&#34;all, delete-orphan&#34;</span>
+    <span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">f</span><span class="s2">&#34;User(id={self.id!r}, name={self.name!r}, fullname={self.fullname!r})&#34;</span>
+
+<span class="k">class</span> <span class="nc">Address</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&#34;address&#34;</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="n">Mapped</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">mapped_column</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">email_address</span><span class="p">:</span> <span class="n">Mapped</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">user_id</span><span class="p">:</span> <span class="n">Mapped</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">mapped_column</span><span class="p">(</span><span class="n">ForeignKey</span><span class="p">(</span><span class="s2">&#34;user_account.id&#34;</span><span class="p">))</span>
+    <span class="n">user</span><span class="p">:</span> <span class="n">Mapped</span><span class="p">[</span><span class="s2">&#34;User&#34;</span><span class="p">]</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="n">back_populates</span><span class="o">=</span><span class="s2">&#34;addresses&#34;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">f</span><span class="s2">&#34;Address(id={self.id!r}, email_address={self.email_address!r})&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>创建数据引擎，并初始化所有数据表模型，将表模型转换成DDL操作写入数据库</p>
+<h3 id="创建sqlite引擎">创建SQLite引擎</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">create_engine</span>
+<span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="s2">&#34;sqlite://&#34;</span><span class="p">,</span> <span class="n">echo</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="创建引擎连接池配置">创建引擎连接池配置</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span>
+    <span class="s2">&#34;postgresql+psycopg2://me@localhost/mydb&#34;</span><span class="p">,</span> <span class="n">pool_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">max_overflow</span><span class="o">=</span><span class="mi">0</span>
+<span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>根据实际需要设置更多连接池调优参数。</p>
+<p>使用NullPool禁用连接池</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">sqlalchemy.pool</span> <span class="kn">import</span> <span class="n">NullPool</span>
+
+<span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span>
+    <span class="s2">&#34;postgresql+psycopg2://scott:tiger@localhost/test&#34;</span><span class="p">,</span> <span class="n">poolclass</span><span class="o">=</span><span class="n">NullPool</span>
+<span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><a href="https://docs.sqlalchemy.org/en/20/core/engines_connections.html#engine-and-connection-use">Engine and Connection Use</a></p>
+<h3 id="执行创建表ddl">执行创建表DDL</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">Base</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>执行的DDL SQL如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">BEGIN</span> <span class="p">(</span><span class="k">implicit</span><span class="p">)</span>
+<span class="n">PRAGMA</span> <span class="n">main</span><span class="p">.</span><span class="n">table_</span><span class="p">...</span><span class="n">info</span><span class="p">(</span><span class="s2">&#34;user_account&#34;</span><span class="p">)</span>
+<span class="p">...</span>
+<span class="n">PRAGMA</span> <span class="n">main</span><span class="p">.</span><span class="n">table_</span><span class="p">...</span><span class="n">info</span><span class="p">(</span><span class="s2">&#34;address&#34;</span><span class="p">)</span>
+<span class="p">...</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">user_account</span> <span class="p">(</span>
+    <span class="n">id</span> <span class="nb">INTEGER</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="n">name</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="n">fullname</span> <span class="nb">VARCHAR</span><span class="p">,</span>
+    <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="p">...</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">address</span> <span class="p">(</span>
+    <span class="n">id</span> <span class="nb">INTEGER</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="n">email_address</span> <span class="nb">VARCHAR</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="n">user_id</span> <span class="nb">INTEGER</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">id</span><span class="p">),</span>
+    <span class="k">FOREIGN</span> <span class="k">KEY</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span> <span class="k">REFERENCES</span> <span class="n">user_account</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="p">...</span>
+<span class="k">COMMIT</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="执行select操作示例">执行select操作示例：</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">select</span>
+
+<span class="n">session</span> <span class="o">=</span> <span class="n">Session</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+<span class="n">stmt</span> <span class="o">=</span> <span class="n">select</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">in_</span><span class="p">([</span><span class="s2">&#34;spongebob&#34;</span><span class="p">,</span> <span class="s2">&#34;sandy&#34;</span><span class="p">]))</span>
+
+<span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>执行select操作转换实际执行的SQL：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">BEGIN</span> <span class="p">(</span><span class="k">implicit</span><span class="p">)</span>
+<span class="k">SELECT</span> <span class="n">user_account</span><span class="p">.</span><span class="n">id</span><span class="p">,</span> <span class="n">user_account</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="n">user_account</span><span class="p">.</span><span class="n">fullname</span>
+<span class="k">FROM</span> <span class="n">user_account</span>
+<span class="k">WHERE</span> <span class="n">user_account</span><span class="p">.</span><span class="n">name</span> <span class="k">IN</span> <span class="p">(</span><span class="o">?</span><span class="p">,</span> <span class="o">?</span><span class="p">)</span>
+<span class="p">[...]</span> <span class="p">(</span><span class="s1">&#39;spongebob&#39;</span><span class="p">,</span> <span class="s1">&#39;sandy&#39;</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><a href="https://docs.sqlalchemy.org/en/20/orm/session_basics.html#basics-of-using-a-session">Basics of Using a Session</a></p>
+<h2 id="数据库结构修改">数据库结构修改</h2>
+<p>使用 <a href="https://pypi.org/project/alembic/">Alembic</a> 执行DDL操作，更新数据库表结构，示例如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">from</span> <span class="nn">alembic</span> <span class="kn">import</span> <span class="n">op</span>
+
+<span class="k">def</span> <span class="nf">upgrade</span><span class="p">():</span>
+    <span class="s2">&#34;&#34;&#34;
+</span><span class="s2">    使用 Alembic 的操作来添加新列
+</span><span class="s2">    &#34;&#34;&#34;</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;user_account&#39;</span><span class="p">,</span> <span class="n">Column</span><span class="p">(</span><span class="s1">&#39;salt&#39;</span><span class="p">,</span> <span class="n">String</span><span class="p">))</span>
+ 
+<span class="k">def</span> <span class="nf">downgrade</span><span class="p">():</span>
+    <span class="s2">&#34;&#34;&#34; 
+</span><span class="s2">    使用 Alembic 的操作来删除列
+</span><span class="s2">    &#34;&#34;&#34;</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">drop_column</span><span class="p">(</span><span class="s1">&#39;user_account&#39;</span><span class="p">,</span> <span class="s1">&#39;salt&#39;</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://docs.sqlalchemy.org/en/20/">SQLAlchemy 2.0 Documentation</a></li>
+<li><a href="https://pypi.org/project/alembic/">数据库迁移工具Alembic</a></li>
+<li><a href="https://docs.sqlalchemy.org/en/20/orm/quickstart.html#orm-quick-start">ORM Quick Start</a></li>
+<li><a href="https://fastapi.tiangolo.com/zh/tutorial/sql-databases/#sql">FastAPI SQLAlchemy 使用示例</a></li>
+<li><a href="https://mp.weixin.qq.com/s/San-iFdxAwKZvTpjmYJfqg">FastAPI入门教程 &ndash; 数据库操作</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-08-18
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/python/">python</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/docker/20240817-fastapi-build/">
+            <span class="next-text nav-default">使用 Docker 构建和部署 FastAPI 程序</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+  
+    <script src="https://giscus.app/client.js"
+            data-repo="piaohua/piaohua.github.io"
+            data-repo-id="MDEwOlJlcG9zaXRvcnkyODQ0MjQ4NDM="
+            data-category="Announcements"
+            data-category-id="DIC_kwDOEPP6i84ChN9S"
+            data-mapping="pathname"
+            data-strict="0"
+            data-reactions-enabled="1"
+            data-emit-metadata="0"
+            data-input-position="bottom"
+            data-theme="preferred_color_scheme"
+            data-lang="zh-CN"
+            crossorigin="anonymous"
+            async>
+    </script>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      tex: {
+        }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.5/es5/tex-mml-chtml.js" integrity="sha256-HGLuEfFcsUJGhvB8cQ8nr0gai9EucOOaIxFw7qxmd+w=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
