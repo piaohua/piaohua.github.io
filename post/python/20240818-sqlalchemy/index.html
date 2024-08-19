@@ -49,7 +49,7 @@
 <meta itemprop="description" content="SQLAlchemy SQL Toolkit 和 Object Relational Mapper (ORM: 对象关系映射器)是一套用于处理数据库和Python的综合工具 SQLAlchemy各组件依赖关系图: 安装 1 pip install SQLAlchemy 使用 数据表模型">
 <meta itemprop="datePublished" content="2024-08-18T18:09:13&#43;08:00" />
 <meta itemprop="dateModified" content="2024-08-18T18:09:13&#43;08:00" />
-<meta itemprop="wordCount" content="631">
+<meta itemprop="wordCount" content="852">
 
 
 
@@ -143,7 +143,7 @@
         <div class="post-category">
             <a href="/categories/python/"> python </a>
             </div>
-          <span class="more-meta"> 631 words </span>
+          <span class="more-meta"> 852 words </span>
           <span class="more-meta"> 2 mins read </span>
         
       </div>
@@ -160,6 +160,7 @@
         <li><a href="#数据表模型声明">数据表模型声明</a></li>
         <li><a href="#创建sqlite引擎">创建SQLite引擎</a></li>
         <li><a href="#创建引擎连接池配置">创建引擎连接池配置</a></li>
+        <li><a href="#创建session连接">创建session连接</a></li>
         <li><a href="#执行创建表ddl">执行创建表DDL</a></li>
         <li><a href="#执行select操作示例">执行select操作示例：</a></li>
       </ul>
@@ -299,7 +300,142 @@
 </code></pre></td></tr></table>
 </div>
 </div><p><a href="https://docs.sqlalchemy.org/en/20/core/engines_connections.html#engine-and-connection-use">Engine and Connection Use</a></p>
-<h3 id="执行创建表ddl">执行创建表DDL</h3>
+<h3 id="创建session连接">创建session连接</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">sessionmaker</span>
+
+<span class="n">SQLALCHEMY_DATABASE_URL</span> <span class="o">=</span> <span class="s2">&#34;sqlite:///./test.db&#34;</span>
+
+<span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span>
+    <span class="n">SQLALCHEMY_DATABASE_URL</span><span class="p">,</span> 
+    <span class="n">connect_args</span><span class="o">=</span><span class="p">{</span><span class="s2">&#34;check_same_thread&#34;</span><span class="p">:</span> <span class="bp">False</span><span class="p">},</span> <span class="c1"># 仅用于SQLite</span>
+    <span class="n">pool_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">max_overflow</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">pool_timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+    <span class="n">pool_recycle</span><span class="o">=</span><span class="mi">3600</span><span class="p">,</span>
+    <span class="n">echo</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">SessionLocal</span> <span class="o">=</span> <span class="n">sessionmaker</span><span class="p">(</span><span class="n">autocommit</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">autoflush</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">bind</span><span class="o">=</span><span class="n">engine</span><span class="p">)</span>
+
+<span class="c1"># Dependency</span>
+<span class="k">def</span> <span class="nf">get_db</span><span class="p">():</span>
+    <span class="n">db</span> <span class="o">=</span> <span class="n">SessionLocal</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">db</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>创建异步session连接</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="n">rom</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">asyncio</span> <span class="kn">import</span> <span class="nn">AsyncSession</span><span class="o">,</span> <span class="nn">async_sessionmaker</span><span class="o">,</span> <span class="nn">create_async_engine</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">DeclarativeBase</span>
+
+<span class="n">DATABASE_URL</span> <span class="o">=</span> <span class="s2">&#34;sqlite+aiosqlite:///./test.db&#34;</span>
+
+
+<span class="k">class</span> <span class="nc">Base</span><span class="p">(</span><span class="n">DeclarativeBase</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="n">engine</span> <span class="o">=</span> <span class="n">create_async_engine</span><span class="p">(</span><span class="n">DATABASE_URL</span><span class="p">)</span>
+<span class="n">async_session_maker</span> <span class="o">=</span> <span class="n">async_sessionmaker</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">expire_on_commit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+
+<span class="n">async</span> <span class="k">def</span> <span class="nf">create_db_and_tables</span><span class="p">():</span>
+    <span class="n">async</span> <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">run_sync</span><span class="p">(</span><span class="n">Base</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">)</span>
+
+
+<span class="n">async</span> <span class="k">def</span> <span class="nf">get_async_session</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">AsyncGenerator</span><span class="p">[</span><span class="n">AsyncSession</span><span class="p">,</span> <span class="bp">None</span><span class="p">]:</span>
+    <span class="n">async</span> <span class="k">with</span> <span class="n">async_session_maker</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">session</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>使用上下文管理器来获取session连接</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="k">class</span> <span class="nc">MySuperContextManager</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">DBSession</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+<span class="n">async</span> <span class="k">def</span> <span class="nf">get_db</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">MySuperContextManager</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">db</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="执行创建表ddl">执行创建表DDL</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code><span class="lnt">1
@@ -439,6 +575,7 @@
 <li><a href="https://docs.sqlalchemy.org/en/20/orm/quickstart.html#orm-quick-start">ORM Quick Start</a></li>
 <li><a href="https://fastapi.tiangolo.com/zh/tutorial/sql-databases/#sql">FastAPI SQLAlchemy 使用示例</a></li>
 <li><a href="https://mp.weixin.qq.com/s/San-iFdxAwKZvTpjmYJfqg">FastAPI入门教程 &ndash; 数据库操作</a></li>
+<li><a href="https://fastapi-users.github.io/fastapi-users/latest/configuration/authentication/strategies/database/#database">FastAPI-Users Database</a></li>
 </ul>
 
     </div>
