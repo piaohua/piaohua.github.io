@@ -49,7 +49,7 @@
 <meta itemprop="description" content="AWS Amazon S3 存储桶设置开放外部访问 aws s3存储桶中的资源要开放访问，需要开放公共访问权限，配置存储桶策略，否则访问失败，失败提示内容示例如下： 1 2 3">
 <meta itemprop="datePublished" content="2024-08-30T21:26:29&#43;08:00" />
 <meta itemprop="dateModified" content="2024-08-30T21:26:29&#43;08:00" />
-<meta itemprop="wordCount" content="302">
+<meta itemprop="wordCount" content="400">
 
 
 
@@ -143,7 +143,7 @@
         <div class="post-category">
             <a href="/categories/aws/"> aws </a>
             </div>
-          <span class="more-meta"> 302 words </span>
+          <span class="more-meta"> 400 words </span>
           <span class="more-meta"> 1 min read </span>
         
       </div>
@@ -155,6 +155,7 @@
     <nav id="TableOfContents">
   <ul>
     <li><a href="#设置存储桶公共访问权限">设置存储桶公共访问权限</a></li>
+    <li><a href="#s3文件上传">s3文件上传</a></li>
     <li><a href="#参考">参考</a></li>
   </ul>
 </nav>
@@ -231,6 +232,43 @@
 </code></pre></td></tr></table>
 </div>
 </div><p>配置生效后，刷新即可正常访问资源。</p>
+<h2 id="s3文件上传">s3文件上传</h2>
+<p>使用python sdk上传文件 <a href="https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html">Quickstart</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">import</span> <span class="nn">boto3</span>
+
+<span class="c1"># Let&#39;s use Amazon S3</span>
+<span class="n">s3</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span>
+    <span class="s1">&#39;s3&#39;</span><span class="p">,</span>
+    <span class="n">aws_access_key_id</span><span class="o">=</span><span class="s2">&#34;XXXX&#34;</span><span class="p">,</span> <span class="c1"># accesskey、secretkey、sessiontoken</span>
+    <span class="n">aws_secret_access_key</span><span class="o">=</span><span class="s2">&#34;secretkey&#34;</span><span class="p">,</span> 
+    <span class="n">aws_session_token</span><span class="o">=</span><span class="s2">&#34;sessionToken&#34;</span><span class="p">,</span>
+    <span class="n">region_name</span><span class="o">=</span><span class="s2">&#34;region_name&#34;</span>
+<span class="p">)</span>
+
+<span class="c1"># Upload a new file</span>
+<span class="n">data</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;test.jpg&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span>
+<span class="n">s3</span><span class="o">.</span><span class="n">Bucket</span><span class="p">(</span><span class="s1">&#39;my-bucket&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">put_object</span><span class="p">(</span><span class="n">Key</span><span class="o">=</span><span class="s1">&#39;test.jpg&#39;</span><span class="p">,</span> <span class="n">Body</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><a href="https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html#guide-configuration">Boto3 Configuration</a></p>
 <h2 id="参考">参考</h2>
 <ul>
 <li><a href="https://awspolicygen.s3.amazonaws.com/policygen.html">AWS Policy Generator</a></li>
