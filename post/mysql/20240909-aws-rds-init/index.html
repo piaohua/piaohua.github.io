@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>AWS RDS 创建MySQL数据库，并通过EC2服务器连接 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="AWS RDS 创建MySQL数据库，并通过Ec2服务器连接 创建数据库时，根据自己的需求，按RDS提示创建数据库即可，比如选择MySQL社区版本创建， 选" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/mysql/20240909-aws-rds-init/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="AWS RDS 创建MySQL数据库，并通过EC2服务器连接" />
+<meta property="og:description" content="AWS RDS 创建MySQL数据库，并通过Ec2服务器连接 创建数据库时，根据自己的需求，按RDS提示创建数据库即可，比如选择MySQL社区版本创建， 选" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20240909-aws-rds-init/" />
+<meta property="article:published_time" content="2024-09-09T23:57:49+08:00" />
+<meta property="article:modified_time" content="2024-09-09T23:57:49+08:00" />
+<meta itemprop="name" content="AWS RDS 创建MySQL数据库，并通过EC2服务器连接">
+<meta itemprop="description" content="AWS RDS 创建MySQL数据库，并通过Ec2服务器连接 创建数据库时，根据自己的需求，按RDS提示创建数据库即可，比如选择MySQL社区版本创建， 选">
+<meta itemprop="datePublished" content="2024-09-09T23:57:49&#43;08:00" />
+<meta itemprop="dateModified" content="2024-09-09T23:57:49&#43;08:00" />
+<meta itemprop="wordCount" content="1306">
+
+
+
+<meta itemprop="keywords" content="mysql,aws," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="AWS RDS 创建MySQL数据库，并通过EC2服务器连接"/>
+<meta name="twitter:description" content="AWS RDS 创建MySQL数据库，并通过Ec2服务器连接 创建数据库时，根据自己的需求，按RDS提示创建数据库即可，比如选择MySQL社区版本创建， 选"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">AWS RDS 创建MySQL数据库，并通过EC2服务器连接</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-09-09 </span>
+        <div class="post-category">
+            <a href="/categories/mysql/"> mysql </a>
+            </div>
+          <span class="more-meta"> 1306 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#安装客户端失败提示">安装客户端失败提示</a></li>
+    <li><a href="#查看是否有安装源">查看是否有安装源</a></li>
+    <li><a href="#安装mysql-yum-repository">安装MySQL Yum Repository</a></li>
+    <li><a href="#执行命令安装客户端">执行命令安装客户端</a></li>
+    <li><a href="#连接数据库">连接数据库</a></li>
+    <li><a href="#创建数据库">创建数据库</a></li>
+    <li><a href="#创建用户并授权">创建用户并授权</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>AWS RDS 创建MySQL数据库，并通过Ec2服务器连接</p>
+</blockquote>
+<p>创建数据库时，根据自己的需求，按RDS提示创建数据库即可，比如选择MySQL社区版本创建，</p>
+<p>选择自己的EC2资源设置连接，其他按需要选择配置，或直接使用默认设置即可。</p>
+<p>创建成功后，保存好终端连接节点和账号密钥。</p>
+<p>登录EC2连接数据库，如果没有安装mysql客户端时，选择安装。</p>
+<h2 id="安装客户端失败提示">安装客户端失败提示</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; sudo dnf install -y mysql-community-client
+Last metadata expiration check: 0:05:03 ago on Mon Sep  <span class="m">9</span> 15:33:04 2024.
+No match <span class="k">for</span> argument: mysql-community-client
+Error: Unable to find a match: mysql-community-client
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="查看是否有安装源">查看是否有安装源</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; sudo yum search mysql
+Last metadata expiration check: 0:09:20 ago on Mon Sep  <span class="m">9</span> 15:33:04 2024.
+<span class="o">===========================================================================</span> Name <span class="p">&amp;</span> Summary Matched: <span class="nv">mysql</span> <span class="o">===========================================================================</span>
+apr-util-mysql.x86_64 : APR utility library MySQL DBD driver
+bind-dlz-mysql.x86_64 : BIND server mysql and mysqldyn DLZ modules
+collectd-mysql.x86_64 : MySQL plugin <span class="k">for</span> collectd
+dovecot-mysql.x86_64 : MySQL back end <span class="k">for</span> dovecot
+mysql-selinux.noarch : SELinux policy modules <span class="k">for</span> MySQL and MariaDB packages
+perl-DBD-MySQL.x86_64 : A MySQL interface <span class="k">for</span> Perl
+perl-DateTime-Format-MySQL.noarch : Parse and format MySQL dates and <span class="nb">times</span>
+php8.1-mysqlnd.x86_64 : A module <span class="k">for</span> PHP 8.1 applications that use MySQL databases
+php8.2-mysqlnd.x86_64 : A module <span class="k">for</span> PHP 8.2 applications that use MySQL databases
+php8.3-mysqlnd.x86_64 : A module <span class="k">for</span> PHP 8.3 applications that use MySQL databases
+postfix-mysql.x86_64 : Postfix MySQL map <span class="nv">support</span>
+<span class="o">==============================================================================</span> Summary Matched: <span class="nv">mysql</span> <span class="o">===============================================================================</span>
+mariadb105-devel.x86_64 : Files <span class="k">for</span> development of MariaDB/MySQL applications
+mariadb105-server-utils.x86_64 : Non-essential server utilities <span class="k">for</span> MariaDB/MySQL applications
+perl-DBD-MariaDB.x86_64 : MariaDB and MySQL driver <span class="k">for</span> the Perl5 Database Interface <span class="o">(</span>DBI<span class="o">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="安装mysql-yum-repository">安装MySQL Yum Repository</h2>
+<p>这个时候就需要安装mysql源来解决</p>
+<p>打开<a href="https://dev.mysql.com/downloads/repo/yum/">MySQL Community Downloads MySQL Yum Repository</a></p>
+<p>选择一个版本安装</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; sudo yum install -y https://dev.mysql.com/get/mysql84-community-release-el9-1.noarch.rpm
+Last metadata expiration check: 0:12:56 ago on Mon Sep  <span class="m">9</span> 15:33:04 2024.
+mysql84-community-release-el9-1.noarch.rpm                                                                                                            <span class="m">44</span> kB/s <span class="p">|</span>  <span class="m">13</span> kB     00:00
+Dependencies resolved.
+<span class="o">=====================================================================================================================================================================================</span>
+ Package                                                 Architecture                         Version                               Repository                                  <span class="nv">Size</span>
+<span class="o">=====================================================================================================================================================================================</span>
+Installing:
+ mysql84-community-release                               noarch                               el9-1                                 @commandline                                <span class="m">13</span> k
+
+Transaction <span class="nv">Summary</span>
+<span class="o">=====================================================================================================================================================================================</span>
+Install  <span class="m">1</span> Package
+
+Total size: <span class="m">13</span> k
+Installed size: <span class="m">14</span> k
+Downloading Packages:
+Running transaction check
+Transaction check succeeded.
+Running transaction <span class="nb">test</span>
+Transaction <span class="nb">test</span> succeeded.
+Running transaction
+  Preparing        :                                                                                                                                                             1/1
+  Installing       : mysql84-community-release-el9-1.noarch                                                                                                                      1/1
+  Verifying        : mysql84-community-release-el9-1.noarch                                                                                                                      1/1
+<span class="o">=====================================================================================================================================================================================</span>
+WARNING:
+  A newer release of <span class="s2">&#34;Amazon Linux&#34;</span> is available.
+
+  Available Versions:
+
+  Version 2023.5.20240903:
+    Run the following <span class="nb">command</span> to upgrade to 2023.5.20240903:
+
+      dnf upgrade --releasever<span class="o">=</span>2023.5.20240903
+
+    Release notes:
+     https://docs.aws.amazon.com/linux/al2023/release-notes/relnotes-2023.5.20240903.html
+
+<span class="o">=====================================================================================================================================================================================</span>
+
+Installed:
+  mysql84-community-release-el9-1.noarch
+
+Complete!
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="执行命令安装客户端">执行命令安装客户端</h2>
+<p>这时再执行就会安装成功</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; sudo yum install -y mysql-community-client
+MySQL 8.4 LTS Community Server                                                                                                                        <span class="m">14</span> MB/s <span class="p">|</span> <span class="m">434</span> kB     00:00
+MySQL Connectors Community                                                                                                                           4.4 MB/s <span class="p">|</span>  <span class="m">61</span> kB     00:00
+MySQL Tools 8.4 LTS Community                                                                                                                         <span class="m">10</span> MB/s <span class="p">|</span> <span class="m">192</span> kB     00:00
+Dependencies resolved.
+<span class="o">=====================================================================================================================================================================================</span>
+ Package                                                 Architecture                    Version                              Repository                                        <span class="nv">Size</span>
+<span class="o">=====================================================================================================================================================================================</span>
+Installing:
+ mysql-community-client                                  x86_64                          8.4.2-1.el9                          mysql-8.4-lts-community                          3.0 M
+Installing dependencies:
+ mysql-community-client-plugins                          x86_64                          8.4.2-1.el9                          mysql-8.4-lts-community                          1.4 M
+ mysql-community-common                                  x86_64                          8.4.2-1.el9                          mysql-8.4-lts-community                          <span class="m">577</span> k
+ mysql-community-libs                                    x86_64                          8.4.2-1.el9                          mysql-8.4-lts-community                          1.5 M
+
+Transaction <span class="nv">Summary</span>
+<span class="o">=====================================================================================================================================================================================</span>
+Install  <span class="m">4</span> Packages
+
+Total download size: 6.4 M
+Installed size: <span class="m">95</span> M
+Downloading Packages:
+<span class="o">(</span>1/4<span class="o">)</span>: mysql-community-common-8.4.2-1.el9.x86_64.rpm                                                                                                  <span class="m">15</span> MB/s <span class="p">|</span> <span class="m">577</span> kB     00:00
+<span class="o">(</span>2/4<span class="o">)</span>: mysql-community-client-plugins-8.4.2-1.el9.x86_64.rpm                                                                                          <span class="m">15</span> MB/s <span class="p">|</span> 1.4 MB     00:00
+<span class="o">(</span>3/4<span class="o">)</span>: mysql-community-libs-8.4.2-1.el9.x86_64.rpm                                                                                                    <span class="m">20</span> MB/s <span class="p">|</span> 1.5 MB     00:00
+<span class="o">(</span>4/4<span class="o">)</span>: mysql-community-client-8.4.2-1.el9.x86_64.rpm                                                                                                  <span class="m">22</span> MB/s <span class="p">|</span> 3.0 MB     00:00
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Total                                                                                                                                                 <span class="m">47</span> MB/s <span class="p">|</span> 6.4 MB     00:00
+MySQL 8.4 LTS Community Server                                                                                                                       3.0 MB/s <span class="p">|</span> 3.1 kB     00:00
+Importing GPG key 0xA8D3785C:
+ Userid     : <span class="s2">&#34;MySQL Release Engineering &lt;mysql-build@oss.oracle.com&gt;&#34;</span>
+ Fingerprint: BCA4 <span class="m">3417</span> C3B4 85DD 128E C6D4 B7B3 B788 A8D3 785C
+ From       : /etc/pki/rpm-gpg/RPM-GPG-KEY-mysql-2023
+Key imported successfully
+Running transaction check
+Transaction check succeeded.
+Running transaction <span class="nb">test</span>
+Transaction <span class="nb">test</span> succeeded.
+Running transaction
+  Preparing        :                                                                                                                                                             1/1
+  Installing       : mysql-community-client-plugins-8.4.2-1.el9.x86_64                                                                                                           1/4
+  Installing       : mysql-community-common-8.4.2-1.el9.x86_64                                                                                                                   2/4
+  Installing       : mysql-community-libs-8.4.2-1.el9.x86_64                                                                                                                     3/4
+  Running scriptlet: mysql-community-libs-8.4.2-1.el9.x86_64                                                                                                                     3/4
+  Installing       : mysql-community-client-8.4.2-1.el9.x86_64                                                                                                                   4/4
+  Running scriptlet: mysql-community-client-8.4.2-1.el9.x86_64                                                                                                                   4/4
+  Verifying        : mysql-community-client-8.4.2-1.el9.x86_64                                                                                                                   1/4
+  Verifying        : mysql-community-client-plugins-8.4.2-1.el9.x86_64                                                                                                           2/4
+  Verifying        : mysql-community-common-8.4.2-1.el9.x86_64                                                                                                                   3/4
+  Verifying        : mysql-community-libs-8.4.2-1.el9.x86_64                                                                                                                     4/4
+<span class="o">=====================================================================================================================================================================================</span>
+WARNING:
+  A newer release of <span class="s2">&#34;Amazon Linux&#34;</span> is available.
+
+  Available Versions:
+
+  Version 2023.5.20240903:
+    Run the following <span class="nb">command</span> to upgrade to 2023.5.20240903:
+
+      dnf upgrade --releasever<span class="o">=</span>2023.5.20240903
+
+    Release notes:
+     https://docs.aws.amazon.com/linux/al2023/release-notes/relnotes-2023.5.20240903.html
+
+<span class="o">=====================================================================================================================================================================================</span>
+
+Installed:
+  mysql-community-client-8.4.2-1.el9.x86_64  mysql-community-client-plugins-8.4.2-1.el9.x86_64  mysql-community-common-8.4.2-1.el9.x86_64  mysql-community-libs-8.4.2-1.el9.x86_64
+
+Complete!
+</code></pre></td></tr></table>
+</div>
+</div><p>此时执行mysql命令即可看到安装好的命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; mysql
+mysql                  mysql_migrate_keyring  mysqlbinlog            mysqldump              mysqlshow
+mysql_config_editor    mysqladmin             mysqlcheck             mysqlimport            mysqlslap
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="连接数据库">连接数据库</h2>
+<p>用创建数据库时，保存的终端节点和账号密钥，连接到数据库，示例如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; mysql -h xxx.rds.amazonaws.com -P <span class="m">3306</span> -u admin -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with <span class="p">;</span> or <span class="se">\g</span>.
+Your MySQL connection id is <span class="m">32</span>
+Server version: 8.0.35 Source distribution
+
+Copyright <span class="o">(</span>c<span class="o">)</span> 2000, 2024, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type <span class="s1">&#39;help;&#39;</span> or <span class="s1">&#39;\h&#39;</span> <span class="k">for</span> help. Type <span class="s1">&#39;\c&#39;</span> to clear the current input statement.
+
+mysql&gt; show databases<span class="p">;</span>
++--------------------+
+<span class="p">|</span> Database           <span class="p">|</span>
++--------------------+
+<span class="p">|</span> information_schema <span class="p">|</span>
+<span class="p">|</span> mysql              <span class="p">|</span>
+<span class="p">|</span> performance_schema <span class="p">|</span>
+<span class="p">|</span> sys                <span class="p">|</span>
++--------------------+
+<span class="m">4</span> rows in <span class="nb">set</span> <span class="o">(</span>0.01 sec<span class="o">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="创建数据库">创建数据库</h2>
+<p>创建数据库mart,如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="k">create</span> <span class="k">database</span> <span class="n">mart</span><span class="p">;</span>
+<span class="o">+</span><span class="c1">----------+--------------------------------------------------------------------------------------------------------------------------------+
+</span><span class="c1"></span><span class="o">|</span> <span class="k">Database</span> <span class="o">|</span> <span class="k">Create</span> <span class="k">Database</span>                                                                                                                <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+--------------------------------------------------------------------------------------------------------------------------------+
+</span><span class="c1"></span><span class="o">|</span> <span class="n">mart</span>     <span class="o">|</span> <span class="k">CREATE</span> <span class="k">DATABASE</span> <span class="o">`</span><span class="n">mart</span><span class="o">`</span> <span class="cm">/*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */</span> <span class="cm">/*!80016 DEFAULT ENCRYPTION=&#39;N&#39; */</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+--------------------------------------------------------------------------------------------------------------------------------+
+</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="创建用户并授权">创建用户并授权</h2>
+<p>创建用户，并给用户授权数据库操作权限,示例如下:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">USER</span> <span class="s1">&#39;mart&#39;</span><span class="o">@</span><span class="s1">&#39;%&#39;</span> <span class="n">IDENTIFIED</span> <span class="k">BY</span> <span class="s1">&#39;my-password&#39;</span><span class="p">;</span> <span class="c1">-- 创建用户
+</span><span class="c1"></span>
+<span class="k">GRANT</span> <span class="k">select</span><span class="p">,</span><span class="k">insert</span><span class="p">,</span><span class="k">update</span><span class="p">,</span><span class="k">delete</span><span class="p">,</span><span class="k">create</span> <span class="k">ON</span> <span class="n">mart</span><span class="p">.</span><span class="o">*</span> <span class="k">TO</span> <span class="s1">&#39;mart&#39;</span><span class="o">@</span><span class="s1">&#39;%&#39;</span><span class="p">;</span> <span class="c1">--用户授权数据库
+</span><span class="c1"></span>
+<span class="c1">-- 或者授权所有权限，命令如下
+</span><span class="c1">-- GRANT ALL ON mart.* TO &#39;mart&#39;@&#39;%&#39;;
+</span><span class="c1"></span>
+<span class="n">FLUSH</span> <span class="k">PRIVILEGES</span><span class="p">;</span> <span class="c1">--刷新权限生效
+</span></code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://aws.amazon.com/cn/rds/">Amazon Relational Database Service</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-09-09
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/mysql/">mysql</a>
+          <a href="/tags/aws/">aws</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/golang/20240901-docker-build-golang-app/">
+            <span class="next-text nav-default">docker.io无法访问情况下，如何构建golang应用</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+  
+    <script src="https://giscus.app/client.js"
+            data-repo="piaohua/piaohua.github.io"
+            data-repo-id="MDEwOlJlcG9zaXRvcnkyODQ0MjQ4NDM="
+            data-category="Announcements"
+            data-category-id="DIC_kwDOEPP6i84ChN9S"
+            data-mapping="pathname"
+            data-strict="0"
+            data-reactions-enabled="1"
+            data-emit-metadata="0"
+            data-input-position="bottom"
+            data-theme="preferred_color_scheme"
+            data-lang="zh-CN"
+            crossorigin="anonymous"
+            async>
+    </script>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      tex: {
+        }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.5/es5/tex-mml-chtml.js" integrity="sha256-HGLuEfFcsUJGhvB8cQ8nr0gai9EucOOaIxFw7qxmd+w=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
