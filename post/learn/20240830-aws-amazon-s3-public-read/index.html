@@ -49,7 +49,7 @@
 <meta itemprop="description" content="AWS Amazon S3 存储桶设置开放外部访问 aws s3存储桶中的资源要开放访问，需要开放公共访问权限，配置存储桶策略，否则访问失败，失败提示内容示例如下： 1 2 3">
 <meta itemprop="datePublished" content="2024-08-30T21:26:29&#43;08:00" />
 <meta itemprop="dateModified" content="2024-08-30T21:26:29&#43;08:00" />
-<meta itemprop="wordCount" content="400">
+<meta itemprop="wordCount" content="511">
 
 
 
@@ -143,8 +143,8 @@
         <div class="post-category">
             <a href="/categories/aws/"> aws </a>
             </div>
-          <span class="more-meta"> 400 words </span>
-          <span class="more-meta"> 1 min read </span>
+          <span class="more-meta"> 511 words </span>
+          <span class="more-meta"> 2 mins read </span>
         
       </div>
     </header>
@@ -156,6 +156,7 @@
   <ul>
     <li><a href="#设置存储桶公共访问权限">设置存储桶公共访问权限</a></li>
     <li><a href="#s3文件上传">s3文件上传</a></li>
+    <li><a href="#restrict-access-to-a-specific-http-referer">Restrict access to a specific HTTP referer</a></li>
     <li><a href="#参考">参考</a></li>
   </ul>
 </nav>
@@ -269,12 +270,65 @@
 </code></pre></td></tr></table>
 </div>
 </div><p><a href="https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html#guide-configuration">Boto3 Configuration</a></p>
-<h2 id="参考">参考</h2>
+<h2 id="restrict-access-to-a-specific-http-referer">Restrict access to a specific HTTP referer</h2>
+<p>s3存储桶防盗链策略配置示例：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&#34;Version&#34;</span><span class="p">:</span><span class="s2">&#34;2012-10-17&#34;</span><span class="p">,</span>
+  <span class="nt">&#34;Id&#34;</span><span class="p">:</span><span class="s2">&#34;HTTP referer policy example&#34;</span><span class="p">,</span>
+  <span class="nt">&#34;Statement&#34;</span><span class="p">:[</span>
+    <span class="p">{</span>
+      <span class="nt">&#34;Sid&#34;</span><span class="p">:</span><span class="s2">&#34;Allow only GET requests originating from www.example.com and example.com.&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;Effect&#34;</span><span class="p">:</span><span class="s2">&#34;Allow&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;Principal&#34;</span><span class="p">:</span><span class="s2">&#34;*&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;Action&#34;</span><span class="p">:[</span><span class="s2">&#34;s3:GetObject&#34;</span><span class="p">,</span><span class="s2">&#34;s3:GetObjectVersion&#34;</span><span class="p">],</span>
+      <span class="nt">&#34;Resource&#34;</span><span class="p">:</span><span class="s2">&#34;arn:aws:s3:::amzn-s3-demo-bucket/*&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;Condition&#34;</span><span class="p">:{</span>
+        <span class="nt">&#34;StringLike&#34;</span><span class="p">:{</span>
+            <span class="nt">&#34;aws:Referer&#34;</span><span class="p">:[</span>
+                <span class="s2">&#34;http://www.example.com/*&#34;</span><span class="p">,</span>
+                <span class="s2">&#34;http://example.com/*&#34;</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
 <ul>
 <li><a href="https://awspolicygen.s3.amazonaws.com/policygen.html">AWS Policy Generator</a></li>
 <li><a href="https://blog.csdn.net/ccr1001ccr1001/article/details/104273991">AWS S3 设置存储桶外部访问</a></li>
 <li><a href="https://www.cnblogs.com/colder/p/17202674.html">AWS S3 文件公网直接访问配置</a></li>
 <li><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html?icmpid=docs_amazons3_console">Blocking public access to your Amazon S3 storage</a></li>
+<li><a href="https://blog.csdn.net/zimu002/article/details/121973679">AWS s3+cloudfont+防盗链配置备忘</a></li>
+<li><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/example-bucket-policies.html#example-bucket-policies-use-case-4">Examples of Amazon S3 bucket policies</a></li>
+<li><a href="https://blog.csdn.net/myarche/article/details/103990437">用 Amazon S3 和 Cloudfront 做防盗链</a></li>
 </ul>
 
     </div>
