@@ -49,7 +49,7 @@
 <meta itemprop="description" content="macos golang 程序依赖 cgo 编译不兼容问题解决方案 在本地macos环境上编译程序，上传到linux环境，发现运行失败，失败信息如下： 1 [error] failed to initialize database, got error Binary was compiled">
 <meta itemprop="datePublished" content="2024-09-01T11:25:58&#43;08:00" />
 <meta itemprop="dateModified" content="2024-09-01T11:25:58&#43;08:00" />
-<meta itemprop="wordCount" content="411">
+<meta itemprop="wordCount" content="701">
 
 
 
@@ -143,8 +143,8 @@
         <div class="post-category">
             <a href="/categories/golang/"> golang </a>
             </div>
-          <span class="more-meta"> 411 words </span>
-          <span class="more-meta"> 1 min read </span>
+          <span class="more-meta"> 701 words </span>
+          <span class="more-meta"> 2 mins read </span>
         
       </div>
     </header>
@@ -173,7 +173,9 @@
 <pre class="chroma"><code class="language-fallback" data-lang="fallback">[error] failed to initialize database, got error Binary was compiled with &#39;CGO_ENABLED=0&#39;, go-sqlite3 requires cgo to work. This is a stub
 </code></pre></td></tr></table>
 </div>
-</div><p>提示程序中使用了<code>go-sqlite3</code>, 依赖cgo，编译需要开启 <code>CGO_ENABLED=1</code></p>
+</div><p>提示程序中使用了<a href="https://github.com/mattn/go-sqlite3?tab=readme-ov-file#cross-compiling-from-macos">github.com/mattn/go-sqlite3</a>, 依赖cgo，编译需要开启 <code>CGO_ENABLED=1</code></p>
+<p><code>go-sqlite3</code> is cgo package. If you want to build your app using go-sqlite3, you need gcc. However, after you have built and installed go-sqlite3 with go install <code>github.com/mattn/go-sqlite3</code> (which requires gcc), you can build your app without relying on gcc in future.</p>
+<p><strong>Important: because this is a CGO enabled package, you are required to set the environment variable CGO_ENABLED=1 and have a gcc compiler present within your path.</strong></p>
 <p>SQLite使用示例：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -222,6 +224,8 @@ linux_syscall.c:73:13: note: did you mean &#39;setreuid&#39;?
 </div>
 </div><p>提示macos下cgo系统依赖库不兼容，需要安装linux环境版本</p>
 <h2 id="解决方法">解决方法</h2>
+<p>参考<a href="https://github.com/mattn/go-sqlite3?tab=readme-ov-file#cross-compiling-from-macos">github.com/mattn/go-sqlite3</a>的macos安装说明</p>
+<p><a href="https://github.com/mattn/go-sqlite3?tab=readme-ov-file#cross-compiling-from-macos">Cross Compiling from macOS</a></p>
 <ol>
 <li>Install musl-cross</li>
 </ol>
@@ -241,7 +245,7 @@ linux_syscall.c:73:13: note: did you mean &#39;setreuid&#39;?
 <pre class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh"><span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">1</span> <span class="nv">GOOS</span><span class="o">=</span>linux <span class="nv">GOARCH</span><span class="o">=</span>amd64 <span class="nv">CC</span><span class="o">=</span>x86_64-linux-musl-gcc <span class="nv">CXX</span><span class="o">=</span>x86_64-linux-musl-g++ go build ...
+<pre class="chroma"><code class="language-sh" data-lang="sh"><span class="nv">CC</span><span class="o">=</span>x86_64-linux-musl-gcc <span class="nv">CXX</span><span class="o">=</span>x86_64-linux-musl-g++ <span class="nv">GOARCH</span><span class="o">=</span>amd64 <span class="nv">GOOS</span><span class="o">=</span>linux <span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">1</span> go build -ldflags <span class="s2">&#34;-linkmode external -extldflags -static&#34;</span>
 </code></pre></td></tr></table>
 </div>
 </div><p>在安装musl-cross时，可能出现网络问题导致安装失败，如下：</p>
@@ -260,9 +264,33 @@ Download failed: https://downloads.sourceforge.net/project/libisl/isl-0.21.tar.b
 </code></pre></td></tr></table>
 </div>
 </div><p>这个时候可以考虑使用Docker编译部署</p>
-<h2 id="参考">参考</h2>
+<p>如果都不行，还有一个解决办法，就是使用纯Go的解决方案，</p>
+<p><a href="https://github.com/glebarez/sqlite">github.com/glebarez/sqlite</a> 是一个纯Go驱动的sqlite，不需要cgo,</p>
+<p>直接依赖<a href="https://github.com/glebarez/go-sqlite">github.com/glebarez/go-sqlite</a>项目，一个纯Go编写的sqlite嵌入式项目，</p>
+<p>嵌入<a href="https://gitlab.com/cznic/sqlite">modernc.org/sqlite</a>。</p>
+<p>使用示例：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">import</span> <span class="p">(</span>
+    <span class="s">&#34;github.com/glebarez/sqlite&#34;</span>
+    <span class="s">&#34;gorm.io/gorm&#34;</span>
+<span class="p">)</span>
+
+<span class="nx">db</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">gorm</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="nx">sqlite</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="s">&#34;sqlite.db&#34;</span><span class="p">),</span> <span class="o">&amp;</span><span class="nx">gorm</span><span class="p">.</span><span class="nx">Config</span><span class="p">{})</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
 <ul>
 <li><a href="https://www.baifachuan.com/posts/4862a3b1.html">使用go语言进行交叉编译的时候遇到的一些问题</a></li>
+<li><a href="https://gitlab.com/cznic/sqlite">Package sqlite is a CGo-free port of SQLite/SQLite3.</a></li>
 </ul>
 
     </div>
