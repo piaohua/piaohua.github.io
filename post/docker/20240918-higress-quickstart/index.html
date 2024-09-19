@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>在 K8s 中使用 云原生API网关 Higress - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="在标准 K8s 集群中使用 在Docker中启动 Higress 只需 Docker 即可启动，方便个人开发者在本地搭建学习，或者用于搭建简易站点: 1 2 3 4 5 6 # 创建一个工作目录 mkdir" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/docker/20240918-higress-quickstart/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="在 K8s 中使用 云原生API网关 Higress" />
+<meta property="og:description" content="在标准 K8s 集群中使用 在Docker中启动 Higress 只需 Docker 即可启动，方便个人开发者在本地搭建学习，或者用于搭建简易站点: 1 2 3 4 5 6 # 创建一个工作目录 mkdir" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/docker/20240918-higress-quickstart/" />
+<meta property="article:published_time" content="2024-09-18T20:01:26+08:00" />
+<meta property="article:modified_time" content="2024-09-18T20:01:26+08:00" />
+<meta itemprop="name" content="在 K8s 中使用 云原生API网关 Higress">
+<meta itemprop="description" content="在标准 K8s 集群中使用 在Docker中启动 Higress 只需 Docker 即可启动，方便个人开发者在本地搭建学习，或者用于搭建简易站点: 1 2 3 4 5 6 # 创建一个工作目录 mkdir">
+<meta itemprop="datePublished" content="2024-09-18T20:01:26&#43;08:00" />
+<meta itemprop="dateModified" content="2024-09-18T20:01:26&#43;08:00" />
+<meta itemprop="wordCount" content="1160">
+
+
+
+<meta itemprop="keywords" content="docker,kubernetes,helm," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="在 K8s 中使用 云原生API网关 Higress"/>
+<meta name="twitter:description" content="在标准 K8s 集群中使用 在Docker中启动 Higress 只需 Docker 即可启动，方便个人开发者在本地搭建学习，或者用于搭建简易站点: 1 2 3 4 5 6 # 创建一个工作目录 mkdir"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">在 K8s 中使用 云原生API网关 Higress</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-09-18 </span>
+        <div class="post-category">
+            <a href="/categories/docker/"> docker </a>
+            <a href="/categories/kubernetes/"> kubernetes </a>
+            <a href="/categories/helm/"> helm </a>
+            </div>
+          <span class="more-meta"> 1160 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#在docker中启动">在Docker中启动</a></li>
+    <li><a href="#使用helm在k8s中部署">使用helm在k8s中部署</a>
+      <ul>
+        <li><a href="#安装-higress">安装 Higress</a></li>
+        <li><a href="#查看安装状态">查看安装状态</a></li>
+        <li><a href="#k8s安装状态信息">k8s安装状态信息</a></li>
+        <li><a href="#部署了一个名为-foo-的服务">部署了一个名为 foo 的服务</a></li>
+        <li><a href="#删除higress">删除higress</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>在标准 K8s 集群中使用</p>
+</blockquote>
+<h2 id="在docker中启动">在Docker中启动</h2>
+<p>Higress 只需 Docker 即可启动，方便个人开发者在本地搭建学习，或者用于搭建简易站点:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh"><span class="c1"># 创建一个工作目录</span>
+mkdir higress<span class="p">;</span> <span class="nb">cd</span> higress
+<span class="c1"># 启动 higress，配置文件会写到工作目录下</span>
+docker run -d --rm --name higress-ai -v <span class="si">${</span><span class="nv">PWD</span><span class="si">}</span>:/data <span class="se">\
+</span><span class="se"></span>        -p 8001:8001 -p 8080:8080 -p 8443:8443  <span class="se">\
+</span><span class="se"></span>                higress-registry.cn-hangzhou.cr.aliyuncs.com/higress/all-in-one:latest
+</code></pre></td></tr></table>
+</div>
+</div><p>监听端口说明如下：</p>
+<ul>
+<li>8001 端口：Higress UI 控制台入口</li>
+<li>8080 端口：网关 HTTP 协议入口</li>
+<li>8443 端口：网关 HTTPS 协议入口</li>
+</ul>
+<p><strong>Higress 的所有 Docker 镜像都一直使用自己独享的仓库，不受 Docker Hub 境内不可访问的影响</strong></p>
+<h2 id="使用helm在k8s中部署">使用helm在k8s中部署</h2>
+<p>添加helm安装源</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">➜  ~ helm repo add higress.cn https://higress.cn/helm-charts
+<span class="s2">&#34;higress.cn&#34;</span> has been added to your repositories
+
+➜  ~ helm repo list
+NAME            URL
+higress.io      https://higress.io/helm-charts
+higress.cn      https://higress.cn/helm-charts
+
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="安装-higress">安装 Higress</h3>
+<p>本地安装开关: <code>--set global.local=true</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">➜  ~ helm install higress -n higress-system higress.io/higress --create-namespace --render-subchart-notes --set global.local<span class="o">=</span><span class="nb">true</span> --set global.o11y.enabled<span class="o">=</span><span class="nb">false</span>
+NAME: higress
+LAST DEPLOYED: Wed Sep <span class="m">18</span> 19:57:46 <span class="m">2024</span>
+NAMESPACE: higress-system
+STATUS: deployed
+REVISION: <span class="m">1</span>
+TEST SUITE: None
+NOTES:
+Higress successfully installed!
+
+To learn more about the release, try:
+  $ helm status higress -n higress-system
+  $ helm get all higress -n higress-system
+
+Use the following <span class="nb">command</span> to access the console:
+  hgctl dashboard console
+
+Because you choose to create an Ingress resource <span class="k">for</span> Higress Console, you can use the following URL to access it as well:
+  http://console.higress.io/
+And since Higress Console is running in <span class="nb">local</span> mode, you may need to add the following line into your hosts file before accessing it:
+  127.0.0.1 console.higress.io
+
+</code></pre></td></tr></table>
+</div>
+</div><p>安装完成后，通过本地的 80 和 443 端口即可访问本地集群内的 Higress Gateway。</p>
+<p><strong>注：</strong> 如果您使用的是本地现存的 K8s 集群，那么可能需要先执行下方命令将 K8s 集群内的端口映射出来，然后再尝试访问本地端口。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">➜  ~ sudo kubectl port-forward service/higress-gateway -n higress-system 80:80 443:443
+Password:
+Forwarding from 127.0.0.1:80 -&gt; <span class="m">80</span>
+Forwarding from <span class="o">[</span>::1<span class="o">]</span>:80 -&gt; <span class="m">80</span>
+Forwarding from 127.0.0.1:443 -&gt; <span class="m">443</span>
+Forwarding from <span class="o">[</span>::1<span class="o">]</span>:443 -&gt; <span class="m">443</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>注：</strong> 80，443 端口需要主账号权限启动，否则会失败</p>
+<h3 id="查看安装状态">查看安装状态</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">➜  ~ helm ls -A
+NAME    NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
+higress higress-system  <span class="m">1</span>               2024-09-18 19:57:46.950036 +0800 CST    deployed        higress-2.0.0   2.0.0
+
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="k8s安装状态信息">k8s安装状态信息</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">➜  ~ kubectl get pods,rc,svc,deployment,ns -n higress-system
+NAME                                      READY   STATUS              RESTARTS   AGE
+pod/higress-console-5999f44b4c-ft8j7      0/1     ContainerCreating   <span class="m">0</span>          60s
+pod/higress-controller-588945479f-gcrw2   0/2     ContainerCreating   <span class="m">0</span>          60s
+pod/higress-gateway-847ccc4666-szmzl      0/1     ContainerCreating   <span class="m">0</span>          60s
+
+NAME                         TYPE           CLUSTER-IP     EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>                                                             AGE
+service/higress-controller   ClusterIP      10.43.217.49   &lt;none&gt;        8888/TCP,8889/TCP,15051/TCP,15010/TCP,15012/TCP,443/TCP,15014/TCP   62s
+service/higress-console      ClusterIP      10.43.138.8    &lt;none&gt;        8080/TCP                                                            62s
+service/higress-gateway      LoadBalancer   10.43.203.95   &lt;pending&gt;     80:31110/TCP,443:32662/TCP                                          62s
+
+NAME                                 READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/higress-console      0/1     <span class="m">1</span>            <span class="m">0</span>           61s
+deployment.apps/higress-gateway      0/1     <span class="m">1</span>            <span class="m">0</span>           61s
+deployment.apps/higress-controller   0/1     <span class="m">1</span>            <span class="m">0</span>           61s
+
+NAME                              STATUS   AGE
+namespace/kube-system             Active   135d
+namespace/kube-public             Active   135d
+namespace/kube-node-lease         Active   135d
+namespace/default                 Active   135d
+namespace/bitnami-ingress-nginx   Active   111d
+namespace/shortcode-ns            Active   111d
+namespace/higress-system          Active   63s
+
+</code></pre></td></tr></table>
+</div>
+</div><p>可以看到<code>service/higress-gateway</code>的端口并没有映射到本地端口上，所以这里在浏览器访问是无效的。</p>
+<p>这是因为当前本地k8s是运行在colima中的，如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">➜  ~ kubectl get nodes -o wide
+NAME               STATUS   ROLES                  AGE    VERSION        INTERNAL-IP   EXTERNAL-IP   OS-IMAGE       KERNEL-VERSION     CONTAINER-RUNTIME
+colima-helm-test   Ready    control-plane,master   135d   v1.28.3+k3s2   192.168.5.3   &lt;none&gt;        Ubuntu 23.10   6.5.0-15-generic   docker://24.0.9
+
+</code></pre></td></tr></table>
+</div>
+</div><p>怎么解决这个问题，可以尝试下面方法</p>
+<ol>
+<li>更新 Higress 的部署参，比如将service.type由LoadBalancer改为ClusterIP</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">➜  ~ helm upgrade higress -n higress-system --set higress-core.gateway.service.type<span class="o">=</span>ClusterIP higress.io/higress --reuse-values
+Release <span class="s2">&#34;higress&#34;</span> has been upgraded. Happy Helming!
+NAME: higress
+LAST DEPLOYED: Wed Sep <span class="m">18</span> 21:40:23 <span class="m">2024</span>
+NAMESPACE: higress-system
+STATUS: deployed
+REVISION: <span class="m">2</span>
+TEST SUITE: None
+
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>在线修改service配置</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">kubectl -n higress-system edit service higress-gateway
+</code></pre></td></tr></table>
+</div>
+</div><ol start="3">
+<li>helm拉取到本地安装</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">helm pull higress.io/higress-local
+
+<span class="c1"># 解压</span>
+tar -zxf higress-local-0.6.1.tgz
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="部署了一个名为-foo-的服务">部署了一个名为 foo 的服务</h3>
+<p>创建一个对应 <code>http://foo.bar.com/foo</code> 的路由指向该服务。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="k">kind</span><span class="p">:</span><span class="w"> </span>Pod<span class="w">
+</span><span class="w"></span><span class="k">apiVersion</span><span class="p">:</span><span class="w"> </span>v1<span class="w">
+</span><span class="w"></span><span class="k">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">name</span><span class="p">:</span><span class="w"> </span>foo-app<span class="w">
+</span><span class="w">  </span><span class="k">labels</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">app</span><span class="p">:</span><span class="w"> </span>foo<span class="w">
+</span><span class="w"></span><span class="k">spec</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">containers</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span>- <span class="k">name</span><span class="p">:</span><span class="w"> </span>foo-app<span class="w">
+</span><span class="w">    </span><span class="k">image</span><span class="p">:</span><span class="w"> </span>higress-registry.cn-hangzhou.cr.aliyuncs.com/higress/http-echo<span class="p">:</span><span class="m">0.2.4</span>-alpine<span class="w">
+</span><span class="w">    </span><span class="k">args</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span>- <span class="s2">&#34;-text=foo&#34;</span><span class="w">
+</span><span class="w"></span>---<span class="w">
+</span><span class="w"></span><span class="k">kind</span><span class="p">:</span><span class="w"> </span>Service<span class="w">
+</span><span class="w"></span><span class="k">apiVersion</span><span class="p">:</span><span class="w"> </span>v1<span class="w">
+</span><span class="w"></span><span class="k">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">name</span><span class="p">:</span><span class="w"> </span>foo-service<span class="w">
+</span><span class="w"></span><span class="k">spec</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">selector</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">app</span><span class="p">:</span><span class="w"> </span>foo<span class="w">
+</span><span class="w">  </span><span class="k">ports</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="c"># Default port used by the image</span><span class="w">
+</span><span class="w">  </span>- <span class="k">port</span><span class="p">:</span><span class="w"> </span><span class="m">5678</span><span class="w">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>运行</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">kubectl apply -f foo.yaml
+</code></pre></td></tr></table>
+</div>
+</div><p>启动成功后，hosts配置foo.bar.com 路由，然后就可以访问服务</p>
+<h3 id="删除higress">删除higress</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; helm delete higress -n higress-system
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="./20240716-higress">云原生API网关 Higress 使用</a></li>
+<li><a href="https://github.com/alibaba/higress">AI Gateway | AI Native API Gateway</a></li>
+<li><a href="https://higress.io/docs/latest/user/quickstart/">Higress 快速开始</a></li>
+<li><a href="https://cloud.tencent.com/developer/article/2336673">如何使用Higress快速实现金丝雀与蓝绿发布</a></li>
+<li><a href="https://www.cnblogs.com/alisystemsoftware/p/17187592.html">Higress on K8s 5分钟开箱即用</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-09-18
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/docker/">docker</a>
+          <a href="/tags/kubernetes/">kubernetes</a>
+          <a href="/tags/helm/">helm</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/mysql/20240909-aws-rds-init/">
+            <span class="next-text nav-default">AWS RDS 创建MySQL数据库，并通过EC2服务器连接</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+  
+    <script src="https://giscus.app/client.js"
+            data-repo="piaohua/piaohua.github.io"
+            data-repo-id="MDEwOlJlcG9zaXRvcnkyODQ0MjQ4NDM="
+            data-category="Announcements"
+            data-category-id="DIC_kwDOEPP6i84ChN9S"
+            data-mapping="pathname"
+            data-strict="0"
+            data-reactions-enabled="1"
+            data-emit-metadata="0"
+            data-input-position="bottom"
+            data-theme="preferred_color_scheme"
+            data-lang="zh-CN"
+            crossorigin="anonymous"
+            async>
+    </script>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      tex: {
+        }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.5/es5/tex-mml-chtml.js" integrity="sha256-HGLuEfFcsUJGhvB8cQ8nr0gai9EucOOaIxFw7qxmd+w=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
