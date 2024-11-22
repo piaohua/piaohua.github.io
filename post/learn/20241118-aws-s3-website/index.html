@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>AWS Amazon S3 存储桶配置自定义域名访问 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="使用自定义域名访问 AWS S3 在使用AWS S3存储桶时，当您将存储桶配置为静态网站时，先将AWS Amazon S3 存储桶设置开放外部访问。 然后在存储桶属性中，开启" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/learn/20241118-aws-s3-website/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="AWS Amazon S3 存储桶配置自定义域名访问" />
+<meta property="og:description" content="使用自定义域名访问 AWS S3 在使用AWS S3存储桶时，当您将存储桶配置为静态网站时，先将AWS Amazon S3 存储桶设置开放外部访问。 然后在存储桶属性中，开启" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/learn/20241118-aws-s3-website/" />
+<meta property="article:published_time" content="2024-11-18T22:28:44+08:00" />
+<meta property="article:modified_time" content="2024-11-18T22:28:44+08:00" />
+<meta itemprop="name" content="AWS Amazon S3 存储桶配置自定义域名访问">
+<meta itemprop="description" content="使用自定义域名访问 AWS S3 在使用AWS S3存储桶时，当您将存储桶配置为静态网站时，先将AWS Amazon S3 存储桶设置开放外部访问。 然后在存储桶属性中，开启">
+<meta itemprop="datePublished" content="2024-11-18T22:28:44&#43;08:00" />
+<meta itemprop="dateModified" content="2024-11-18T22:28:44&#43;08:00" />
+<meta itemprop="wordCount" content="1780">
+
+
+
+<meta itemprop="keywords" content="aws,s3," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="AWS Amazon S3 存储桶配置自定义域名访问"/>
+<meta name="twitter:description" content="使用自定义域名访问 AWS S3 在使用AWS S3存储桶时，当您将存储桶配置为静态网站时，先将AWS Amazon S3 存储桶设置开放外部访问。 然后在存储桶属性中，开启"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">AWS Amazon S3 存储桶配置自定义域名访问</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-11-18 </span>
+        <div class="post-category">
+            <a href="/categories/aws/"> aws </a>
+            </div>
+          <span class="more-meta"> 1780 words </span>
+          <span class="more-meta"> 4 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#托管静态网站-网站端点-域名和s3关联">托管静态网站-网站端点-域名和S3关联</a>
+      <ul>
+        <li><a href="#添加-dns-别名记录">添加 DNS 别名记录</a></li>
+        <li><a href="#为网站重定向配置子域存储桶">为网站重定向配置子域存储桶</a></li>
+      </ul>
+    </li>
+    <li><a href="#使用cloudfront">使用CloudFront</a>
+      <ul>
+        <li><a href="#创建-cloudfront-分配">创建 CloudFront 分配</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p><a href="https://owo.cab/95/">使用自定义域名访问 AWS S3</a></p>
+</blockquote>
+<p>在使用AWS S3存储桶时，当您将存储桶配置为静态网站时，先将<a href="../../learn/20240830-aws-amazon-s3-public-read">AWS Amazon S3 存储桶设置开放外部访问</a>。</p>
+<p>然后在存储桶属性中，开启托管静态网站。</p>
+<p>S3存储桶会默认分配访问桶资源对象的域名，域名格式：</p>
+<ul>
+<li>s3-website 短横线 (-) 区域 ‐ <a href="http://bucket-name.s3-website-Region.amazonaws.com">http://bucket-name.s3-website-Region.amazonaws.com</a></li>
+<li>s3-网站 点 (.) 区域 ‐ <a href="http://bucket-name.s3-website.Region.amazonaws.com">http://bucket-name.s3-website.Region.amazonaws.com</a></li>
+</ul>
+<p><strong>Amazon S3 网站端点不支持 HTTPS 或接入点。如果要使用 HTTPS，则可以使用 Amazon CloudFront 为 Amazon S3 上托管的静态网站提供服务。有关更多信息，请参阅<a href="https://repost.aws/zh-Hans/knowledge-center/multiple-domains-https-cloudfront">如何使用 CloudFront 为我的 Amazon S3 存储桶提供 HTTPS 请求？</a> 要使用自定义域的 HTTPS，请参阅<a href="https://docs.aws.amazon.com/zh_cn/AmazonS3/latest/userguide/website-hosting-custom-domain-walkthrough.html">使用注册到 Route 53 的自定义域配置静态网站。</a></strong></p>
+<p>此时上传资源到s3桶中，则可通过域名+资源路径来访问桶对象资源。</p>
+<p><strong>如果不想使用默认域名访问，想用自定义的域名访问S3怎么办？</strong></p>
+<p>使用自定义域名访问 AWS S3 有两种实现方式，一种是直接将域名和 S3 关联，另一种是使用 CloudFront。</p>
+<h2 id="托管静态网站-网站端点-域名和s3关联">托管静态网站-网站端点-域名和S3关联</h2>
+<p>创建一个和域名名称相同的存储桶，比如有一个域名：example-bucket.com,则创建一个名称为example-bucket.com的桶。</p>
+<p>创建成功后，直接去域名托管商，比如：<a href="https://cloudflare.com">cloudflare</a>，在DNS记录中配置CNAME类型记录，将域名指向桶默认分配的域名地址即可，示例如下：</p>
+<p><img src="/tool/aws-s3-website-dns.png" alt=""></p>
+<h3 id="添加-dns-别名记录">添加 DNS 别名记录</h3>
+<p>如果您拥有已注册的域，则可以添加指向 Amazon S3 网站端点的 DNS CNAME 条目。例如，如果您注册了 <a href="http://www.example-bucket.com">www.example-bucket.com</a> 域，则可以创建存储桶 <a href="http://www.example-bucket.com">www.example-bucket.com</a>，并添加指向 <a href="http://www.example-bucket.com.s3-website.Region.amazonaws.com">www.example-bucket.com.s3-website.Region.amazonaws.com</a> 的 DNS CNAME 记录。对 <a href="http://www.example-bucket.com">http://www.example-bucket.com</a> 的所有请求都将路由到 <a href="http://www.example-bucket.com.s3-website.Region.amazonaws.com">www.example-bucket.com.s3-website.Region.amazonaws.com</a>。</p>
+<p>详情参见<a href="https://docs.aws.amazon.com/zh_cn/AmazonS3/latest/userguide/WebsiteEndpoints.html">网站端点</a></p>
+<p>在创建根域名访问后，如果想让子域名(<a href="http://www.example-bucket.com">www.example-bucket.com</a>)也访问网站，可以创建一个子域名相同的桶，然后为子域存储桶（www.example.com）创建重定向请求。</p>
+<h3 id="为网站重定向配置子域存储桶">为网站重定向配置子域存储桶</h3>
+<p>在为网站托管配置了根域存储桶后，可以将子域存储桶配置为将所有请求重定向到该域。在此示例中，对 <a href="http://www.example-bucket.com">www.example-bucket.com</a> 的所有请求都重定向到 example-bucket.com。</p>
+<p>配置重定向请求</p>
+<ol>
+<li>在 Amazon S3 控制台上的 Buckets（存储桶）列表中，请选择您的子域存储桶名称（在本例中为 <a href="http://www.example-bucket.com">www.example-bucket.com</a>）。</li>
+<li>请选择属性。</li>
+<li>在静态网站托管下，选择编辑。</li>
+<li>请选择 Redirect requests for an object（重新导向对于对象的请求）。</li>
+<li>在 Target bucket（目标存储桶）框中，输入您的根域（例如 example-bucket.com）。</li>
+<li>对于 Protocol（协议），请选择 http。</li>
+<li>选择保存更改。</li>
+</ol>
+<h2 id="使用cloudfront">使用CloudFront</h2>
+<p>在使用网站端点托管时，必须域名和桶名称相同，桶虽然可以重定向，但是如果是已有桶不方便进行迁移，</p>
+<p>又或者就是不想泄露桶名称，这时就可以使用CloudFront来实现。</p>
+<p>创建一个源为已创建的存储桶的CloudFront分配，创建成功后，会分配一个CloudFront.net子域名，</p>
+<p>然后将您的DNS记录指向CloudFront即可。</p>
+<h3 id="创建-cloudfront-分配">创建 CloudFront 分配</h3>
+<p>使用 Amazon S3 源创建分配</p>
+<ol>
+<li>通过 打开 CloudFront 控制台
+<a href="https://console.aws.amazon.com/cloudfront/v4/home">https://console.aws.amazon.com/cloudfront/v4/home</a></li>
+<li>选择 Create Distribution（创建分配）。</li>
+<li>在 Create Distribution（创建分配）页面上的 Origin Settings（源设置）部分中，对于 Origin Domain Name（源域名），输入您的存储桶的 Amazon S3 网站端点，例如 example.com.s3-website.us-west-1.amazonaws.com。
+CloudFront 将为您填写 Origin ID (源 ID)。</li>
+<li>对于 Default Cache Behavior Settings (默认缓存行为设置)，将值保留设置为默认值。</li>
+<li>选择 Create Distribution。</li>
+<li>要查看分配的状态，请在控制台中找到该分配，然后检查 Status 列。
+InProgress (进行中) 状态表示分配尚未完成部署。
+分配部署完毕后，您可以使用新的 CloudFront 域名来引用您的内容。</li>
+<li>记录 CloudFront 控制台中显示的 Domain Name (域名) 值，例如 dj4p1rv6mvubz.cloudfront.net。</li>
+<li>要验证您的 CloudFront 分配是否正常运行，请在 Web 浏览器中输入该分配的域名。</li>
+<li>如果您的网站是可见的，则 CloudFront 分配正常工作。如果您的网站具有向 Amazon Route 53 注册的自定义域，您将需要 CloudFront 域名来在下一步更新记录集。</li>
+</ol>
+<p>详情参见<a href="https://docs.aws.amazon.com/zh_cn/AmazonS3/latest/userguide/website-hosting-cloudfront-walkthrough.html">使用 Amazon CloudFront 为网站提速</a></p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://docs.aws.amazon.com/zh_cn/AmazonS3/latest/userguide/WebsiteHosting.html">使用 Amazon S3 托管静态网站</a></li>
+<li><a href="https://docs.aws.amazon.com/zh_cn/AmazonS3/latest/userguide/website-hosting-custom-domain-walkthrough.html">教程：使用注册到 Route 53 的自定义域配置静态网站</a></li>
+<li><a href="https://owo.cab/95/">使用自定义域名访问 AWS S3</a></li>
+<li><a href="https://repost.aws/zh-Hans/knowledge-center/multiple-domains-https-cloudfront">如何通过基于 HTTPS 的 Amazon CloudFront 分配为多个域提供服务？</a></li>
+<li><a href="https://docs.aws.amazon.com/zh_cn/Route53/latest/DeveloperGuide/getting-started-s3.html">将您的域用于 Amazon S3 存储桶中的静态网站</a></li>
+<li><a href="https://docs.aws.amazon.com/zh_cn/AmazonS3/latest/userguide/WebsiteEndpoints.html">网站端点</a></li>
+<li><a href="https://docs.aws.amazon.com/zh_cn/AmazonS3/latest/userguide/VirtualHosting.html">存储桶的虚拟托管</a></li>
+<li><a href="https://docs.aws.amazon.com/zh_cn/AmazonS3/latest/userguide/website-hosting-cloudfront-walkthrough.html">使用 Amazon CloudFront 为网站提速</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-11-18
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/aws/">aws</a>
+          <a href="/tags/s3/">s3</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/git/20241023-git-flow/">
+            <span class="next-text nav-default">Git Flow</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+  
+    <script src="https://giscus.app/client.js"
+            data-repo="piaohua/piaohua.github.io"
+            data-repo-id="MDEwOlJlcG9zaXRvcnkyODQ0MjQ4NDM="
+            data-category="Announcements"
+            data-category-id="DIC_kwDOEPP6i84ChN9S"
+            data-mapping="pathname"
+            data-strict="0"
+            data-reactions-enabled="1"
+            data-emit-metadata="0"
+            data-input-position="bottom"
+            data-theme="preferred_color_scheme"
+            data-lang="zh-CN"
+            crossorigin="anonymous"
+            async>
+    </script>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      tex: {
+        }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.5/es5/tex-mml-chtml.js" integrity="sha256-HGLuEfFcsUJGhvB8cQ8nr0gai9EucOOaIxFw7qxmd+w=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
