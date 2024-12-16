@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Cloudflare 将 example.com 重定向到 www.example.com - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="20241216 Cloudflare Redirecte 在 AWS Amazon S3 存储桶配置自定义域名访问 文章中，有两个问题: 使用 CloudFront 托管网站时，必须使用https，也就是必须上传安全证书密钥，但是 aws 很早就不接" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/learn/20241216-cloudflare-redirect/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Cloudflare 将 example.com 重定向到 www.example.com" />
+<meta property="og:description" content="20241216 Cloudflare Redirecte 在 AWS Amazon S3 存储桶配置自定义域名访问 文章中，有两个问题: 使用 CloudFront 托管网站时，必须使用https，也就是必须上传安全证书密钥，但是 aws 很早就不接" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/learn/20241216-cloudflare-redirect/" />
+<meta property="article:published_time" content="2024-12-16T21:59:53+08:00" />
+<meta property="article:modified_time" content="2024-12-16T21:59:53+08:00" />
+<meta itemprop="name" content="Cloudflare 将 example.com 重定向到 www.example.com">
+<meta itemprop="description" content="20241216 Cloudflare Redirecte 在 AWS Amazon S3 存储桶配置自定义域名访问 文章中，有两个问题: 使用 CloudFront 托管网站时，必须使用https，也就是必须上传安全证书密钥，但是 aws 很早就不接">
+<meta itemprop="datePublished" content="2024-12-16T21:59:53&#43;08:00" />
+<meta itemprop="dateModified" content="2024-12-16T21:59:53&#43;08:00" />
+<meta itemprop="wordCount" content="474">
+
+
+
+<meta itemprop="keywords" content="cloudflare," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Cloudflare 将 example.com 重定向到 www.example.com"/>
+<meta name="twitter:description" content="20241216 Cloudflare Redirecte 在 AWS Amazon S3 存储桶配置自定义域名访问 文章中，有两个问题: 使用 CloudFront 托管网站时，必须使用https，也就是必须上传安全证书密钥，但是 aws 很早就不接"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Cloudflare 将 example.com 重定向到 www.example.com</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2024-12-16 </span>
+        <div class="post-category">
+            <a href="/categories/cloudflare/"> cloudflare </a>
+            </div>
+          <span class="more-meta"> 474 words </span>
+          <span class="more-meta"> 1 min read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>20241216 Cloudflare Redirecte</p>
+</blockquote>
+<p>在 <a href="../../learn/20241118-aws-s3-website">AWS Amazon S3 存储桶配置自定义域名访问</a> 文章中，有两个问题:</p>
+<ol>
+<li>使用 CloudFront 托管网站时，必须使用https，也就是必须上传安全证书密钥，但是 aws 很早就不接受 cloudflare 认证的证书，如果域名托管在 cloudflare，那么这个方案就是不行的。</li>
+<li>如果使用存储桶的静态托管时，配置存储桶重定向，这样会发生访问地址变化，虽然可以访问，但是不理想。</li>
+</ol>
+<p>所以如果域名注册在 cloudflare，就只能解析到存储桶的静态http地址，并且存储桶名称要和访问域名一样。</p>
+<p>但是这样就只能单个特定域名（和存储桶名称相同）可以访问这个资源，如果不想维护多个存储桶，但是想让其他域名也访问到，就可以在 cloudflare 中配置重定向规则。</p>
+<p>比如：将 example.com 重定向到 <a href="http://www.example.com">www.example.com</a></p>
+<p><strong>第一步：DNS 记录：</strong>
+您需要做的第一件事是将 @ 的 DNS 记录设为 🍊。由于重定向 Page Rule 将先执行，因此这可以指向任何 IP 地址。建议将其指向虚拟 IP 192.0.2.1。</p>
+<p><img src="/tool/cloudflare-redirect2.png" alt="" title="dns_record"></p>
+<p><strong>第 2 步，Page Rule：</strong>
+第二步是将执行重定向的 Page Rule。您应该添加一个类似以下的 Page Rule：</p>
+<p><img src="/tool/cloudflare-redirect1.png" alt=""></p>
+<p>这样在访问 example.com 时，就会重定向到 <a href="http://www.example.com">www.example.com</a>，从而访问到资源。</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://community.cloudflare.com/t/example-com-www-example-com/399341">将 example.com 重定向到 www.example.com</a></li>
+<li><a href="https://community.cloudflare.com/t/www-example-com-example-com/399342">将 www.example.com 重定向到 example.com</a></li>
+<li><a href="https://blog.heyfe.org/blog/cloudflare-redirect.html">Cloudflare 重定向配置</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2024-12-16
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/cloudflare/">cloudflare</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/learn/20241118-aws-s3-website/">
+            <span class="next-text nav-default">AWS Amazon S3 存储桶配置自定义域名访问</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+  
+    <script src="https://giscus.app/client.js"
+            data-repo="piaohua/piaohua.github.io"
+            data-repo-id="MDEwOlJlcG9zaXRvcnkyODQ0MjQ4NDM="
+            data-category="Announcements"
+            data-category-id="DIC_kwDOEPP6i84ChN9S"
+            data-mapping="pathname"
+            data-strict="0"
+            data-reactions-enabled="1"
+            data-emit-metadata="0"
+            data-input-position="bottom"
+            data-theme="preferred_color_scheme"
+            data-lang="zh-CN"
+            crossorigin="anonymous"
+            async>
+    </script>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2024<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      tex: {
+        }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.5/es5/tex-mml-chtml.js" integrity="sha256-HGLuEfFcsUJGhvB8cQ8nr0gai9EucOOaIxFw7qxmd+w=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
