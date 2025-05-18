@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Go] Golang 实现 Server Sent Events Demo - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="以下是一个完整的 Server-Sent Events (SSE) 在 Go 中的实现示例，包含服务端和客户端的代码。SSE 适用于服务器向客户端单向推送实时数据的场景（如通知、日志流等）。 Server-Sent Events" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/golang/20250618-server-sent-events/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Go] Golang 实现 Server Sent Events Demo" />
+<meta property="og:description" content="以下是一个完整的 Server-Sent Events (SSE) 在 Go 中的实现示例，包含服务端和客户端的代码。SSE 适用于服务器向客户端单向推送实时数据的场景（如通知、日志流等）。 Server-Sent Events" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20250618-server-sent-events/" />
+<meta property="article:published_time" content="2025-05-18T19:40:59+08:00" />
+<meta property="article:modified_time" content="2025-05-18T19:40:59+08:00" />
+<meta itemprop="name" content="[Go] Golang 实现 Server Sent Events Demo">
+<meta itemprop="description" content="以下是一个完整的 Server-Sent Events (SSE) 在 Go 中的实现示例，包含服务端和客户端的代码。SSE 适用于服务器向客户端单向推送实时数据的场景（如通知、日志流等）。 Server-Sent Events">
+<meta itemprop="datePublished" content="2025-05-18T19:40:59&#43;08:00" />
+<meta itemprop="dateModified" content="2025-05-18T19:40:59&#43;08:00" />
+<meta itemprop="wordCount" content="1102">
+
+
+
+<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Go] Golang 实现 Server Sent Events Demo"/>
+<meta name="twitter:description" content="以下是一个完整的 Server-Sent Events (SSE) 在 Go 中的实现示例，包含服务端和客户端的代码。SSE 适用于服务器向客户端单向推送实时数据的场景（如通知、日志流等）。 Server-Sent Events"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Go] Golang 实现 Server Sent Events Demo</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2025-05-18 </span>
+        <div class="post-category">
+            <a href="/categories/golang/"> golang </a>
+            </div>
+          <span class="more-meta"> 1102 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#server-sent-events-sse">Server-Sent Events (SSE)</a></li>
+    <li><a href="#http2--sse">HTTP/2 + SSE</a></li>
+    <li><a href="#sse-golang实现">SSE Golang实现</a>
+      <ul>
+        <li><a href="#1-服务端代码go"><strong>1. 服务端代码（Go）</strong></a></li>
+        <li><a href="#2-客户端代码html--javascript"><strong>2. 客户端代码（HTML + JavaScript）</strong></a></li>
+        <li><a href="#3-运行步骤"><strong>3. 运行步骤</strong></a></li>
+        <li><a href="#关键点说明"><strong>关键点说明</strong></a></li>
+        <li><a href="#扩展功能"><strong>扩展功能</strong></a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>以下是一个完整的 Server-Sent Events (SSE) 在 Go 中的实现示例，包含服务端和客户端的代码。SSE 适用于服务器向客户端单向推送实时数据的场景（如通知、日志流等）。</p>
+</blockquote>
+<h2 id="server-sent-events-sse">Server-Sent Events (SSE)</h2>
+<ul>
+<li>
+<p><strong>特点</strong>：单向通信（服务器→客户端），基于 HTTP/1.1 或 HTTP/2，支持自动重连。</p>
+</li>
+<li>
+<p><strong>适用场景</strong>：实时通知、股票行情、新闻推送等只需服务器推送数据的场景。</p>
+</li>
+<li>
+<p><strong>优点</strong>：</p>
+<ul>
+<li>
+<p>简单易用，无需额外协议升级。</p>
+</li>
+<li>
+<p>低延迟，适合高频推送。</p>
+</li>
+<li>
+<p>天然支持 HTTP/2 多路复用，减少连接开销2711。</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>缺点</strong>：不支持客户端向服务器主动发送数据。</p>
+</li>
+</ul>
+<h2 id="http2--sse">HTTP/2 + SSE</h2>
+<ul>
+<li>
+<p><strong>特点</strong>：结合 HTTP/2 的多路复用能力，SSE 可高效传输服务器推送数据。</p>
+</li>
+<li>
+<p><strong>适用场景</strong>：需要高效单向通信的场景（如实时监控）。</p>
+</li>
+<li>
+<p><strong>优点</strong>：</p>
+<ul>
+<li>
+<p>减少 TCP 连接数，提高传输效率。</p>
+</li>
+<li>
+<p>兼容现有 HTTP 基础设施211。</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>缺点</strong>：仍然不支持双向通信。</p>
+</li>
+</ul>
+<h2 id="sse-golang实现">SSE Golang实现</h2>
+<h3 id="1-服务端代码go"><strong>1. 服务端代码（Go）</strong></h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+	<span class="s">&#34;fmt&#34;</span>
+	<span class="s">&#34;log&#34;</span>
+	<span class="s">&#34;net/http&#34;</span>
+	<span class="s">&#34;time&#34;</span>
+<span class="p">)</span>
+
+<span class="c1">// SSE 事件流处理函数
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">sseHandler</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+	<span class="c1">// 设置响应头，表明是 SSE 流
+</span><span class="c1"></span>	<span class="nx">w</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Content-Type&#34;</span><span class="p">,</span> <span class="s">&#34;text/event-stream&#34;</span><span class="p">)</span>
+	<span class="nx">w</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Cache-Control&#34;</span><span class="p">,</span> <span class="s">&#34;no-cache&#34;</span><span class="p">)</span>
+	<span class="nx">w</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Connection&#34;</span><span class="p">,</span> <span class="s">&#34;keep-alive&#34;</span><span class="p">)</span>
+
+	<span class="c1">// 创建一个通道用于模拟数据更新
+</span><span class="c1"></span>	<span class="nx">eventChan</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">string</span><span class="p">)</span>
+	<span class="k">defer</span> <span class="nb">close</span><span class="p">(</span><span class="nx">eventChan</span><span class="p">)</span>
+
+	<span class="c1">// 模拟异步数据生成（实际可能是数据库监听、MQ 订阅等）
+</span><span class="c1"></span>	<span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+		<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+			<span class="nx">eventChan</span> <span class="o">&lt;-</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;Event %d: %s&#34;</span><span class="p">,</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Format</span><span class="p">(</span><span class="s">&#34;15:04:05&#34;</span><span class="p">))</span>
+			<span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span> <span class="c1">// 每 2 秒推送一次
+</span><span class="c1"></span>		<span class="p">}</span>
+	<span class="p">}()</span>
+
+	<span class="c1">// 监听客户端断开连接
+</span><span class="c1"></span>	<span class="nx">ctx</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nf">Context</span><span class="p">()</span>
+	<span class="k">for</span> <span class="p">{</span>
+		<span class="k">select</span> <span class="p">{</span>
+		<span class="k">case</span> <span class="o">&lt;-</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">Done</span><span class="p">():</span>
+			<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Client disconnected&#34;</span><span class="p">)</span>
+			<span class="k">return</span>
+		<span class="k">case</span> <span class="nx">event</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">eventChan</span><span class="p">:</span>
+			<span class="c1">// 写入 SSE 格式的数据（data: 开头，结尾用 \n\n）
+</span><span class="c1"></span>			<span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Fprintf</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="s">&#34;data: %s\n\n&#34;</span><span class="p">,</span> <span class="nx">event</span><span class="p">)</span>
+			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+				<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Write error:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+				<span class="k">return</span>
+			<span class="p">}</span>
+			<span class="c1">// 刷新缓冲区，确保数据立即发送
+</span><span class="c1"></span>			<span class="nx">w</span><span class="p">.(</span><span class="nx">http</span><span class="p">.</span><span class="nx">Flusher</span><span class="p">).</span><span class="nf">Flush</span><span class="p">()</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">http</span><span class="p">.</span><span class="nf">HandleFunc</span><span class="p">(</span><span class="s">&#34;/sse&#34;</span><span class="p">,</span> <span class="nx">sseHandler</span><span class="p">)</span>
+	<span class="nx">http</span><span class="p">.</span><span class="nf">Handle</span><span class="p">(</span><span class="s">&#34;/&#34;</span><span class="p">,</span> <span class="nx">http</span><span class="p">.</span><span class="nf">FileServer</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nf">Dir</span><span class="p">(</span><span class="s">&#34;./static&#34;</span><span class="p">)))</span> <span class="c1">// 静态文件服务（放客户端 HTML）
+</span><span class="c1"></span>
+	<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Server started at :8080&#34;</span><span class="p">)</span>
+	<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nf">ListenAndServe</span><span class="p">(</span><span class="s">&#34;:8080&#34;</span><span class="p">,</span> <span class="kc">nil</span><span class="p">))</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><hr>
+<h3 id="2-客户端代码html--javascript"><strong>2. 客户端代码（HTML + JavaScript）</strong></h3>
+<p>在项目目录下创建 <code>static/index.html</code>：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-html" data-lang="html"><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>SSE Demo<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>SSE 实时数据流<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;events&#34;</span><span class="p">&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+        <span class="kr">const</span> <span class="nx">eventSource</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">EventSource</span><span class="p">(</span><span class="s2">&#34;/sse&#34;</span><span class="p">);</span>
+
+        <span class="c1">// 监听服务器推送的事件
+</span><span class="c1"></span>        <span class="nx">eventSource</span><span class="p">.</span><span class="nx">onmessage</span> <span class="o">=</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+            <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&#34;events&#34;</span><span class="p">).</span><span class="nx">innerHTML</span> <span class="o">+=</span> <span class="sb">`&lt;p&gt;</span><span class="si">${</span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="si">}</span><span class="sb">&lt;/p&gt;`</span><span class="p">;</span>
+        <span class="p">};</span>
+
+        <span class="c1">// 监听错误（如连接断开）
+</span><span class="c1"></span>        <span class="nx">eventSource</span><span class="p">.</span><span class="nx">onerror</span> <span class="o">=</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+            <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">&#34;SSE Error:&#34;</span><span class="p">,</span> <span class="nx">e</span><span class="p">);</span>
+            <span class="nx">eventSource</span><span class="p">.</span><span class="nx">close</span><span class="p">();</span>
+        <span class="p">};</span>
+    <span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></td></tr></table>
+</div>
+</div><hr>
+<h3 id="3-运行步骤"><strong>3. 运行步骤</strong></h3>
+<ol>
+<li>创建项目目录结构：
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">your_project/
+├── main.go
+└── static/
+    └── index.html
+</code></pre></td></tr></table>
+</div>
+</div></li>
+<li>启动服务端：
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">go run main.go
+</code></pre></td></tr></table>
+</div>
+</div></li>
+<li>打开浏览器访问 <code>http://localhost:8080</code>，页面将每 2 秒显示一条服务器推送的事件。</li>
+</ol>
+<hr>
+<h3 id="关键点说明"><strong>关键点说明</strong></h3>
+<ul>
+<li><strong>SSE 协议格式</strong>：<br>
+每条消息以 <code>data:</code> 开头，结尾用两个换行符 <code>\n\n</code>（参考 <a href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format">MDN 规范</a>）。</li>
+<li><strong>服务端要求</strong>：
+<ul>
+<li>必须设置 <code>Content-Type: text/event-stream</code>。</li>
+<li>使用 <code>Flush()</code> 立即发送数据。</li>
+</ul>
+</li>
+<li><strong>客户端 API</strong>：<br>
+浏览器原生支持 <code>EventSource</code>，自动处理重连。</li>
+<li><strong>断开连接</strong>：<br>
+服务端通过 <code>r.Context().Done()</code> 检测客户端是否断开。</li>
+</ul>
+<hr>
+<h3 id="扩展功能"><strong>扩展功能</strong></h3>
+<ol>
+<li><strong>自定义事件类型</strong>：<br>
+服务端发送：</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">fmt</span><span class="p">.</span><span class="nf">Fprintf</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="s">&#34;event: customEvent\ndata: %s\n\n&#34;</span><span class="p">,</span> <span class="s">&#34;Custom Data&#34;</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>客户端监听：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-javascript" data-lang="javascript"><span class="nx">eventSource</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&#34;customEvent&#34;</span><span class="p">,</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&#34;Custom Event:&#34;</span><span class="p">,</span> <span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li><strong>重试机制</strong>：<br>
+服务端可发送 <code>retry: 5000\n</code> 指定客户端重连间隔（毫秒）。</li>
+</ol>
+<p>如果需要处理更复杂的场景（如鉴权），可以在 URL 中添加 token 或使用 Cookie。</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2025-05-18
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/golang/">golang</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/golang/20250618-go-zero-start/">
+            <span class="next-text nav-default">[Go] go-zero 使用入门</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+  
+    <script src="https://giscus.app/client.js"
+            data-repo="piaohua/piaohua.github.io"
+            data-repo-id="MDEwOlJlcG9zaXRvcnkyODQ0MjQ4NDM="
+            data-category="Announcements"
+            data-category-id="DIC_kwDOEPP6i84ChN9S"
+            data-mapping="pathname"
+            data-strict="0"
+            data-reactions-enabled="1"
+            data-emit-metadata="0"
+            data-input-position="bottom"
+            data-theme="preferred_color_scheme"
+            data-lang="zh-CN"
+            crossorigin="anonymous"
+            async>
+    </script>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      tex: {
+        }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.5/es5/tex-mml-chtml.js" integrity="sha256-HGLuEfFcsUJGhvB8cQ8nr0gai9EucOOaIxFw7qxmd+w=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
