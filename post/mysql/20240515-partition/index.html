@@ -49,7 +49,7 @@
 <meta itemprop="description" content="MySQL 表分区 MySQL表分区是将一个大表分割成若干个小表的技术。这样做可以提高查询和维护的效率，并且还可以改善数据的管理方式。 注意：如果分区字段">
 <meta itemprop="datePublished" content="2024-05-15T22:42:19&#43;08:00" />
 <meta itemprop="dateModified" content="2024-05-15T22:42:19&#43;08:00" />
-<meta itemprop="wordCount" content="1341">
+<meta itemprop="wordCount" content="3324">
 
 
 
@@ -143,8 +143,8 @@
         <div class="post-category">
             <a href="/categories/mysql/"> mysql </a>
             </div>
-          <span class="more-meta"> 1341 words </span>
-          <span class="more-meta"> 3 mins read </span>
+          <span class="more-meta"> 3324 words </span>
+          <span class="more-meta"> 7 mins read </span>
         
       </div>
     </header>
@@ -168,6 +168,18 @@
     <li><a href="#重组分区">重组分区</a></li>
     <li><a href="#查询分区分析">查询分区分析</a></li>
     <li><a href="#分区统计信息">分区统计信息</a></li>
+    <li><a href="#表分区操作实践">表分区操作实践</a>
+      <ul>
+        <li><a href="#拉取mysql镜像">拉取MySQL镜像</a></li>
+        <li><a href="#运行-mysql-容器">运行 MySQL 容器</a></li>
+        <li><a href="#创建一个订单表">创建一个订单表</a></li>
+        <li><a href="#创建分区表">创建分区表</a></li>
+        <li><a href="#写入数据">写入数据</a></li>
+        <li><a href="#查询分区数据">查询分区数据</a></li>
+        <li><a href="#复合分区">复合分区</a></li>
+        <li><a href="#自动维护分区">自动维护分区</a></li>
+      </ul>
+    </li>
     <li><a href="#参考">参考</a></li>
   </ul>
 </nav>
@@ -492,6 +504,562 @@
 <pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">users</span> <span class="k">ANALYZE</span> <span class="n">PARTITION</span> <span class="n">p1</span><span class="p">;</span>
 </code></pre></td></tr></table>
 </div>
+</div><h2 id="表分区操作实践">表分区操作实践</h2>
+<p>方便学习，直接在 Docker 中运行 MySQL 容器。</p>
+<h3 id="拉取mysql镜像">拉取MySQL镜像</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">docker pull mysql:8.0.35
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="运行-mysql-容器">运行 MySQL 容器</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">docker run --name mysql-partition-test -e <span class="nv">MYSQL_ROOT_PASSWORD</span><span class="o">=</span>a123456 -d mysql:8.0.35
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p><code>--name mysql-partition-test</code>：为当前的容器指定运行中的一个名称，这里命名为 mysql-partition-test。</p>
+</li>
+<li>
+<p><code>-e MYSQL_ROOT_PASSWORD=a123456</code>：设置 root 用户的密码。这里设置为a123456。</p>
+</li>
+<li>
+<p>-d：在后台运行容器。</p>
+</li>
+<li>
+<p>mysql:8.0.35：指定要使用的 MySQL 镜像的标签tag=8.0.35版本</p>
+</li>
+</ul>
+<p>如果想要自定义配置或挂载本地数据卷，可以添加如下启动配置项</p>
+<ul>
+<li>
+<p><code>-v /my/own/datadir:/var/lib/mysql</code> 挂载数据卷,持久化存储数据,挂载一个卷到容器的 /var/lib/mysql 目录</p>
+</li>
+<li>
+<p><code>-v /my/custom/conf:/etc/mysql/conf.d</code> 可以通过挂载一个包含自定义 my.cnf 的卷来覆盖默认的 MySQL 配置</p>
+</li>
+</ul>
+<p>查看容器运行结果</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">~ docker run --name mysql-partition-test -e <span class="nv">MYSQL_ROOT_PASSWORD</span><span class="o">=</span>a123456 -d mysql:8.0.35
+629ad47a2e0c31655163fdfcf7c88307729b661a762e50e00a227c9e39670566
+~ docker ps
+CONTAINER ID   IMAGE                        COMMAND                  CREATED          STATUS          PORTS                 NAMES
+629ad47a2e0c   mysql:8.0.35                 <span class="s2">&#34;docker-entrypoint.s…&#34;</span>   <span class="m">4</span> seconds ago    Up <span class="m">4</span> seconds    3306/tcp, 33060/tcp   mysql-partition-test
+
+</code></pre></td></tr></table>
+</div>
+</div><p>访问 MySQL 容器，并连接数据库</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">docker <span class="nb">exec</span> -it mysql-partition-test mysql -u root -p
+</code></pre></td></tr></table>
+</div>
+</div><p>连接和操作数据库</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">~ docker <span class="nb">exec</span> -it mysql-partition-test mysql -u root -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with <span class="p">;</span> or <span class="se">\g</span>.
+Your MySQL connection id is <span class="m">8</span>
+Server version: 8.0.35 MySQL Community Server - GPL
+
+Copyright <span class="o">(</span>c<span class="o">)</span> 2000, 2023, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type <span class="s1">&#39;help;&#39;</span> or <span class="s1">&#39;\h&#39;</span> <span class="k">for</span> help. Type <span class="s1">&#39;\c&#39;</span> to clear the current input statement.
+
+mysql&gt; show databases<span class="p">;</span>
++--------------------+
+<span class="p">|</span> Database           <span class="p">|</span>
++--------------------+
+<span class="p">|</span> information_schema <span class="p">|</span>
+<span class="p">|</span> mysql              <span class="p">|</span>
+<span class="p">|</span> performance_schema <span class="p">|</span>
+<span class="p">|</span> sys                <span class="p">|</span>
++--------------------+
+<span class="m">4</span> rows in <span class="nb">set</span> <span class="o">(</span>0.02 sec<span class="o">)</span>
+
+mysql&gt;
+
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="创建一个订单表">创建一个订单表</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">orders</span><span class="o">`</span> <span class="p">(</span>
+     <span class="o">`</span><span class="n">id</span><span class="o">`</span> <span class="nb">bigint</span> <span class="n">unsigned</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">created_at</span><span class="o">`</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">NULL</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">updated_at</span><span class="o">`</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">NULL</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">order_no</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">uid</span><span class="o">`</span> <span class="nb">bigint</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">amount</span><span class="o">`</span> <span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="mi">0</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">status</span><span class="o">`</span> <span class="n">tinyint</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="mi">0</span><span class="p">,</span>
+     <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">),</span>
+     <span class="k">INDEX</span> <span class="o">`</span><span class="n">idx_orders_created_at</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">created_at</span><span class="o">`</span><span class="p">),</span>
+     <span class="k">INDEX</span> <span class="o">`</span><span class="n">idx_orders_uid</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">uid</span><span class="o">`</span><span class="p">),</span>
+     <span class="k">CONSTRAINT</span> <span class="o">`</span><span class="n">uni_orders_order_no</span><span class="o">`</span> <span class="k">UNIQUE</span> <span class="p">(</span><span class="o">`</span><span class="n">order_no</span><span class="o">`</span><span class="p">)</span>
+<span class="p">);</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>查看数据库表</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">mysql&gt; use test<span class="p">;</span>
+mysql&gt; show tables<span class="p">;</span>
++----------------+
+<span class="p">|</span> Tables_in_test <span class="p">|</span>
++----------------+
+<span class="p">|</span> orders         <span class="p">|</span>
++----------------+
+<span class="m">1</span> row in <span class="nb">set</span> <span class="o">(</span>0.00 sec<span class="o">)</span>
+
+mysql&gt; <span class="k">select</span> * from orders<span class="p">;</span>
+Empty <span class="nb">set</span> <span class="o">(</span>0.00 sec<span class="o">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="创建分区表">创建分区表</h3>
+<p>以订单表为例，用创建时间<code>created_at</code>按范围分区（RANGE），</p>
+<p>如果按年分区直接使用 <code>RANGE(YEAR(created_at))</code></p>
+<p>按月分区<code>RANGE(YEAR(created_at)*100+MONTH(created_at))</code></p>
+<p>按天分区<code>RANGE(TO_DAYS(created_at))</code></p>
+<p>下面是按月分区：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">orders</span><span class="o">`</span> <span class="p">(</span>
+     <span class="o">`</span><span class="n">id</span><span class="o">`</span> <span class="nb">bigint</span> <span class="n">unsigned</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">created_at</span><span class="o">`</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">NULL</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">updated_at</span><span class="o">`</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">NULL</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">order_no</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">uid</span><span class="o">`</span> <span class="nb">bigint</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">amount</span><span class="o">`</span> <span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="mi">0</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">status</span><span class="o">`</span> <span class="n">tinyint</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="mi">0</span><span class="p">,</span>
+     <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">),</span>
+     <span class="k">INDEX</span> <span class="o">`</span><span class="n">idx_orders_created_at</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">created_at</span><span class="o">`</span><span class="p">),</span>
+     <span class="k">INDEX</span> <span class="o">`</span><span class="n">idx_orders_uid</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">uid</span><span class="o">`</span><span class="p">),</span>
+     <span class="k">CONSTRAINT</span> <span class="o">`</span><span class="n">uni_orders_order_no</span><span class="o">`</span> <span class="k">UNIQUE</span> <span class="p">(</span><span class="o">`</span><span class="n">order_no</span><span class="o">`</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">RANGE</span> <span class="p">(</span><span class="k">YEAR</span><span class="p">(</span><span class="n">created_at</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="o">+</span><span class="k">MONTH</span><span class="p">(</span><span class="n">created_at</span><span class="p">))</span> <span class="p">(</span>
+    <span class="n">PARTITION</span> <span class="n">p202505</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="mi">202505</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p202506</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="mi">202506</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p202507</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="mi">202507</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p202508</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="mi">202508</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p2026</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="k">MAXVALUE</span>
+<span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>执行创建时失败，提示分区键选择不正确，原因是分区键必须是主键和唯一索引的一部分，否则就无法确定数据存储在哪个分区。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">ERROR 1503 (HY000): A PRIMARY KEY must include all columns in the table&#39;s partitioning function (prefixed columns are not considered).
+</code></pre></td></tr></table>
+</div>
+</div><p>MySQL要求：</p>
+<ul>
+<li>
+<p>分区表达式中使用的所有列必须是表可能使用的每个唯一键的一部分</p>
+</li>
+<li>
+<p>这意味着如果表有主键或唯一索引，这些键必须包含分区列</p>
+</li>
+</ul>
+<p>修改索引如下，主键和唯一索引添加<code>created_at</code>字段：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">orders</span><span class="o">`</span> <span class="p">(</span>
+     <span class="o">`</span><span class="n">id</span><span class="o">`</span> <span class="nb">bigint</span> <span class="n">unsigned</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">created_at</span><span class="o">`</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">updated_at</span><span class="o">`</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">NULL</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">order_no</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">uid</span><span class="o">`</span> <span class="nb">bigint</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">amount</span><span class="o">`</span> <span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="mi">0</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">status</span><span class="o">`</span> <span class="n">tinyint</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="mi">0</span><span class="p">,</span>
+     <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">created_at</span><span class="o">`</span><span class="p">),</span>
+     <span class="k">INDEX</span> <span class="o">`</span><span class="n">idx_orders_created_at</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">created_at</span><span class="o">`</span><span class="p">),</span>
+     <span class="k">INDEX</span> <span class="o">`</span><span class="n">idx_orders_uid</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">uid</span><span class="o">`</span><span class="p">),</span>
+     <span class="k">CONSTRAINT</span> <span class="o">`</span><span class="n">uni_orders_order_no</span><span class="o">`</span> <span class="k">UNIQUE</span> <span class="p">(</span><span class="o">`</span><span class="n">order_no</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">created_at</span><span class="o">`</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">RANGE</span> <span class="p">(</span><span class="k">YEAR</span><span class="p">(</span><span class="n">created_at</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="o">+</span><span class="k">MONTH</span><span class="p">(</span><span class="n">created_at</span><span class="p">))</span> <span class="p">(</span>
+    <span class="n">PARTITION</span> <span class="n">p202505</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="mi">202506</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p202506</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="mi">202507</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p202507</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="mi">202508</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p202508</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="mi">202509</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p202509</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="mi">202510</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p202510</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="mi">202511</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p202511</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="mi">202512</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p202512</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="mi">202601</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p2026</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="k">MAXVALUE</span>
+<span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>注意事项:</p>
+<ul>
+<li>查询性能：尽可能在查询条件中包含分区键(created_at)以实现分区裁剪</li>
+</ul>
+<h3 id="写入数据">写入数据</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">INSERT</span> <span class="k">INTO</span> <span class="o">`</span><span class="n">orders</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">created_at</span><span class="o">`</span><span class="p">,</span><span class="o">`</span><span class="n">updated_at</span><span class="o">`</span><span class="p">,</span><span class="o">`</span><span class="n">order_no</span><span class="o">`</span><span class="p">,</span><span class="o">`</span><span class="n">uid</span><span class="o">`</span><span class="p">,</span><span class="o">`</span><span class="n">amount</span><span class="o">`</span><span class="p">,</span><span class="o">`</span><span class="n">status</span><span class="o">`</span><span class="p">)</span> <span class="k">VALUES</span>
+<span class="p">(</span><span class="n">STR_TO_DATE</span><span class="p">(</span><span class="s1">&#39;2025-05-01 15:30:00&#39;</span><span class="p">,</span> <span class="s1">&#39;%Y-%m-%d %H:%i:%s&#39;</span><span class="p">),</span><span class="n">now</span><span class="p">(),</span><span class="s1">&#39;1&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">.</span><span class="mi">00</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+<span class="p">(</span><span class="n">STR_TO_DATE</span><span class="p">(</span><span class="s1">&#39;2025-06-01 15:30:00&#39;</span><span class="p">,</span> <span class="s1">&#39;%Y-%m-%d %H:%i:%s&#39;</span><span class="p">),</span><span class="n">now</span><span class="p">(),</span><span class="s1">&#39;2&#39;</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">200</span><span class="p">.</span><span class="mi">00</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+<span class="p">(</span><span class="n">STR_TO_DATE</span><span class="p">(</span><span class="s1">&#39;2025-07-01 15:30:00&#39;</span><span class="p">,</span> <span class="s1">&#39;%Y-%m-%d %H:%i:%s&#39;</span><span class="p">),</span><span class="n">now</span><span class="p">(),</span><span class="s1">&#39;3&#39;</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">300</span><span class="p">.</span><span class="mi">00</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+<span class="p">(</span><span class="n">STR_TO_DATE</span><span class="p">(</span><span class="s1">&#39;2025-08-01 15:30:00&#39;</span><span class="p">,</span> <span class="s1">&#39;%Y-%m-%d %H:%i:%s&#39;</span><span class="p">),</span><span class="n">now</span><span class="p">(),</span><span class="s1">&#39;3&#39;</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">300</span><span class="p">.</span><span class="mi">00</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+<span class="p">(</span><span class="n">STR_TO_DATE</span><span class="p">(</span><span class="s1">&#39;2025-09-01 15:30:00&#39;</span><span class="p">,</span> <span class="s1">&#39;%Y-%m-%d %H:%i:%s&#39;</span><span class="p">),</span><span class="n">now</span><span class="p">(),</span><span class="s1">&#39;3&#39;</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">300</span><span class="p">.</span><span class="mi">00</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+<span class="p">(</span><span class="n">STR_TO_DATE</span><span class="p">(</span><span class="s1">&#39;2025-10-01 15:30:00&#39;</span><span class="p">,</span> <span class="s1">&#39;%Y-%m-%d %H:%i:%s&#39;</span><span class="p">),</span><span class="n">now</span><span class="p">(),</span><span class="s1">&#39;3&#39;</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">300</span><span class="p">.</span><span class="mi">00</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+<span class="p">(</span><span class="n">STR_TO_DATE</span><span class="p">(</span><span class="s1">&#39;2025-11-01 15:30:00&#39;</span><span class="p">,</span> <span class="s1">&#39;%Y-%m-%d %H:%i:%s&#39;</span><span class="p">),</span><span class="n">now</span><span class="p">(),</span><span class="s1">&#39;3&#39;</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">300</span><span class="p">.</span><span class="mi">00</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+<span class="p">(</span><span class="n">STR_TO_DATE</span><span class="p">(</span><span class="s1">&#39;2025-12-01 15:30:00&#39;</span><span class="p">,</span> <span class="s1">&#39;%Y-%m-%d %H:%i:%s&#39;</span><span class="p">),</span><span class="n">now</span><span class="p">(),</span><span class="s1">&#39;3&#39;</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">300</span><span class="p">.</span><span class="mi">00</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+<span class="p">(</span><span class="n">STR_TO_DATE</span><span class="p">(</span><span class="s1">&#39;2026-01-01 15:30:00&#39;</span><span class="p">,</span> <span class="s1">&#39;%Y-%m-%d %H:%i:%s&#39;</span><span class="p">),</span><span class="n">now</span><span class="p">(),</span><span class="s1">&#39;3&#39;</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">300</span><span class="p">.</span><span class="mi">00</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="查询分区数据">查询分区数据</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">orders</span> <span class="n">PARTITION</span> <span class="p">(</span><span class="n">p202505</span><span class="p">);</span>
+<span class="o">+</span><span class="c1">----+-------------------------+-------------------------+----------+-----+--------+--------+
+</span><span class="c1"></span><span class="o">|</span> <span class="n">id</span> <span class="o">|</span> <span class="n">created_at</span>              <span class="o">|</span> <span class="n">updated_at</span>              <span class="o">|</span> <span class="n">order_no</span> <span class="o">|</span> <span class="n">uid</span> <span class="o">|</span> <span class="n">amount</span> <span class="o">|</span> <span class="n">status</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----+-------------------------+-------------------------+----------+-----+--------+--------+
+</span><span class="c1"></span><span class="o">|</span>  <span class="mi">1</span> <span class="o">|</span> <span class="mi">2025</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">01</span> <span class="mi">15</span><span class="p">:</span><span class="mi">30</span><span class="p">:</span><span class="mi">00</span><span class="p">.</span><span class="mi">000</span> <span class="o">|</span> <span class="mi">2025</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">24</span> <span class="mi">14</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span><span class="mi">07</span><span class="p">.</span><span class="mi">000</span> <span class="o">|</span> <span class="mi">1</span>        <span class="o">|</span>   <span class="mi">1</span> <span class="o">|</span> <span class="mi">100</span><span class="p">.</span><span class="mi">00</span> <span class="o">|</span>      <span class="mi">0</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----+-------------------------+-------------------------+----------+-----+--------+--------+
+</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="复合分区">复合分区</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">orders</span><span class="o">`</span> <span class="p">(</span>
+     <span class="o">`</span><span class="n">id</span><span class="o">`</span> <span class="nb">bigint</span> <span class="n">unsigned</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">created_at</span><span class="o">`</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">updated_at</span><span class="o">`</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">NULL</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">order_no</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">uid</span><span class="o">`</span> <span class="nb">bigint</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">amount</span><span class="o">`</span> <span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="mi">0</span><span class="p">,</span>
+     <span class="o">`</span><span class="n">status</span><span class="o">`</span> <span class="n">tinyint</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="mi">0</span><span class="p">,</span>
+     <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">,</span><span class="o">`</span><span class="n">order_no</span><span class="o">`</span><span class="p">),</span>
+     <span class="k">INDEX</span> <span class="o">`</span><span class="n">idx_orders_created_at</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">created_at</span><span class="o">`</span><span class="p">),</span>
+     <span class="k">INDEX</span> <span class="o">`</span><span class="n">idx_orders_uid</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">uid</span><span class="o">`</span><span class="p">),</span>
+     <span class="k">CONSTRAINT</span> <span class="o">`</span><span class="n">uni_orders_order_no</span><span class="o">`</span> <span class="k">UNIQUE</span> <span class="p">(</span><span class="o">`</span><span class="n">order_no</span><span class="o">`</span><span class="p">,</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">RANGE</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="n">SUBPARTITION</span> <span class="k">BY</span> <span class="k">KEY</span><span class="p">(</span><span class="n">order_no</span><span class="p">)</span>
+<span class="n">SUBPARTITIONS</span> <span class="mi">2</span> <span class="p">(</span>
+    <span class="n">PARTITION</span> <span class="n">p0</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="mi">1000000</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p1</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="mi">2000000</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="k">MAXVALUE</span><span class="p">)</span>
+<span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>先按id分3个RANGE分区，每个RANGE分区中两个<code>KEY(order_no)</code>子分区</p>
+<h3 id="自动维护分区">自动维护分区</h3>
+<p>对于动态数据，可能需要定期添加新的分区来覆盖新月份的数据。</p>
+<p>可以写一个脚本或使用事件调度器（Event Scheduler）来自动添加新的分区。</p>
+<p>例如，使用事件调度器每月自动添加下个月新分区的步骤如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">DELIMITER</span> <span class="o">//</span>
+<span class="k">CREATE</span> <span class="n">EVENT</span> <span class="n">add_monthly_partition</span>
+<span class="k">ON</span> <span class="n">SCHEDULE</span> <span class="k">EVERY</span> <span class="mi">1</span> <span class="k">MONTH</span>
+<span class="n">STARTS</span> <span class="s1">&#39;2025-05-01 00:00:00&#39;</span> <span class="c1">-- 从5月开始执行，确保不会在已存在的月份上重复添加分区
+</span><span class="c1"></span><span class="k">DO</span>
+<span class="k">BEGIN</span>
+    <span class="k">DECLARE</span> <span class="n">next_month</span> <span class="nb">INT</span><span class="p">;</span>
+    <span class="k">SELECT</span> <span class="k">YEAR</span><span class="p">(</span><span class="n">CURDATE</span><span class="p">())</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">+</span> <span class="k">MONTH</span><span class="p">(</span><span class="n">CURDATE</span><span class="p">()</span> <span class="o">+</span> <span class="nb">INTERVAL</span> <span class="mi">1</span> <span class="k">MONTH</span><span class="p">)</span> <span class="k">INTO</span> <span class="n">next_month</span><span class="p">;</span>
+    <span class="k">SET</span> <span class="o">@</span><span class="k">sql</span> <span class="o">=</span> <span class="n">CONCAT</span><span class="p">(</span><span class="s1">&#39;ALTER TABLE orders ADD PARTITION (PARTITION p&#39;</span><span class="p">,</span> <span class="n">next_month</span><span class="p">,</span> <span class="s1">&#39; VALUES LESS THAN (&#39;</span><span class="p">,</span> <span class="n">next_month</span><span class="p">,</span> <span class="s1">&#39;))&#39;</span><span class="p">);</span>
+    <span class="k">PREPARE</span> <span class="n">stmt</span> <span class="k">FROM</span> <span class="o">@</span><span class="k">sql</span><span class="p">;</span>
+    <span class="k">EXECUTE</span> <span class="n">stmt</span><span class="p">;</span>
+    <span class="k">DEALLOCATE</span> <span class="k">PREPARE</span> <span class="n">stmt</span><span class="p">;</span>
+<span class="k">END</span> <span class="o">//</span>
+<span class="k">DELIMITER</span> <span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol>
+<li>查看事件调度器的状态</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SHOW</span> <span class="n">VARIABLES</span> <span class="k">LIKE</span> <span class="s1">&#39;event_scheduler&#39;</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>开启事件调度器</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span> <span class="k">GLOBAL</span> <span class="n">event_scheduler</span> <span class="o">=</span> <span class="k">ON</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="3">
+<li>创建和测试事件</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="n">EVENT</span> <span class="o">`</span><span class="n">e_insert_partition</span><span class="o">`</span>
+<span class="k">ON</span> <span class="n">SCHEDULE</span> <span class="k">EVERY</span> <span class="mi">2</span> <span class="k">SECOND</span>
+<span class="n">STARTS</span> <span class="p">(</span><span class="k">TIMESTAMP</span><span class="p">(</span><span class="k">CURRENT_DATE</span><span class="p">,</span> <span class="s1">&#39;00:00:00&#39;</span><span class="p">))</span>
+<span class="k">DO</span>
+  <span class="k">INSERT</span> <span class="k">INTO</span> <span class="o">`</span><span class="n">orders</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">created_at</span><span class="o">`</span><span class="p">,</span><span class="o">`</span><span class="n">updated_at</span><span class="o">`</span><span class="p">,</span><span class="o">`</span><span class="n">order_no</span><span class="o">`</span><span class="p">,</span><span class="o">`</span><span class="n">uid</span><span class="o">`</span><span class="p">,</span><span class="o">`</span><span class="n">amount</span><span class="o">`</span><span class="p">,</span><span class="o">`</span><span class="n">status</span><span class="o">`</span><span class="p">)</span> <span class="k">VALUES</span>
+    <span class="p">(</span><span class="n">now</span><span class="p">(),</span><span class="n">now</span><span class="p">(),</span><span class="s1">&#39;1&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">.</span><span class="mi">00</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这个事件每2秒执行一次insert写入一条数据，执行后事件自动开始运行。</p>
+<ol start="4">
+<li>查看所有event</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="n">events</span><span class="p">;</span>
+<span class="o">+</span><span class="c1">------+-----------------------+----------------+-----------+-----------+------------+----------------+----------------+---------------------+------+----------+------------+----------------------+----------------------+--------------------+
+</span><span class="c1"></span><span class="o">|</span> <span class="n">Db</span>   <span class="o">|</span> <span class="n">Name</span>                  <span class="o">|</span> <span class="k">Definer</span>        <span class="o">|</span> <span class="n">Time</span> <span class="k">zone</span> <span class="o">|</span> <span class="k">Type</span>      <span class="o">|</span> <span class="k">Execute</span> <span class="k">at</span> <span class="o">|</span> <span class="nb">Interval</span> <span class="n">value</span> <span class="o">|</span> <span class="nb">Interval</span> <span class="n">field</span> <span class="o">|</span> <span class="n">Starts</span>              <span class="o">|</span> <span class="n">Ends</span> <span class="o">|</span> <span class="n">Status</span>   <span class="o">|</span> <span class="n">Originator</span> <span class="o">|</span> <span class="n">character_set_client</span> <span class="o">|</span> <span class="n">collation_connection</span> <span class="o">|</span> <span class="k">Database</span> <span class="k">Collation</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">------+-----------------------+----------------+-----------+-----------+------------+----------------+----------------+---------------------+------+----------+------------+----------------------+----------------------+--------------------+
+</span><span class="c1"></span><span class="o">|</span> <span class="n">test</span> <span class="o">|</span> <span class="n">add_monthly_partition</span> <span class="o">|</span> <span class="n">root</span><span class="o">@</span><span class="n">localhost</span> <span class="o">|</span> <span class="k">SYSTEM</span>    <span class="o">|</span> <span class="n">RECURRING</span> <span class="o">|</span> <span class="k">NULL</span>       <span class="o">|</span> <span class="mi">1</span>              <span class="o">|</span> <span class="k">MONTH</span>          <span class="o">|</span> <span class="mi">2025</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">01</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span> <span class="o">|</span> <span class="k">NULL</span> <span class="o">|</span> <span class="n">ENABLED</span>  <span class="o">|</span>          <span class="mi">1</span> <span class="o">|</span> <span class="n">latin1</span>               <span class="o">|</span> <span class="n">latin1_swedish_ci</span>    <span class="o">|</span> <span class="n">utf8mb4_0900_ai_ci</span> <span class="o">|</span>
+<span class="o">|</span> <span class="n">test</span> <span class="o">|</span> <span class="n">myevent</span>               <span class="o">|</span> <span class="n">root</span><span class="o">@</span><span class="n">localhost</span> <span class="o">|</span> <span class="k">SYSTEM</span>    <span class="o">|</span> <span class="n">RECURRING</span> <span class="o">|</span> <span class="k">NULL</span>       <span class="o">|</span> <span class="mi">2</span>              <span class="o">|</span> <span class="k">SECOND</span>         <span class="o">|</span> <span class="mi">2025</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">24</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span> <span class="o">|</span> <span class="k">NULL</span> <span class="o">|</span> <span class="n">DISABLED</span> <span class="o">|</span>          <span class="mi">1</span> <span class="o">|</span> <span class="n">latin1</span>               <span class="o">|</span> <span class="n">latin1_swedish_ci</span>    <span class="o">|</span> <span class="n">utf8mb4_0900_ai_ci</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">------+-----------------------+----------------+-----------+-----------+------------+----------------+----------------+---------------------+------+----------+------------+----------------------+----------------------+--------------------+
+</span><span class="c1"></span><span class="mi">2</span> <span class="k">rows</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">01</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="5">
+<li>事件开启和关闭</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">ALTER</span> <span class="n">EVENT</span> <span class="o">`</span><span class="n">e_insert_partition</span><span class="o">`</span> <span class="n">ENABLE</span><span class="p">;</span>
+
+<span class="k">ALTER</span> <span class="n">EVENT</span> <span class="o">`</span><span class="n">e_insert_partition</span><span class="o">`</span> <span class="n">DISABLE</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="6">
+<li>删除事件</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">DROP</span> <span class="n">EVENT</span> <span class="k">IF</span> <span class="k">EXISTS</span> <span class="o">`</span><span class="n">e_insert_partition</span><span class="o">`</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
 </div><h2 id="参考">参考</h2>
 <ul>
 <li><a href="https://dev.mysql.com/doc/refman/8.0/en/partitioning.html">MySQL 8.0 Partitioning</a></li>
@@ -499,6 +1067,11 @@
 <li><a href="https://www.cnblogs.com/wenxuehai/p/15901779.html">MySQL分区表</a></li>
 <li><a href="https://www.51cto.com/article/769451.html">MySQL分区表详解</a></li>
 <li><a href="https://mp.weixin.qq.com/s/VA5Bd32jK7WJ8v75eeLq7A">MySQL 分区表，为什么分区键必须是主键的一部分？</a></li>
+<li><a href="https://blog.csdn.net/weixin_44823875/article/details/142909453">mysql 数据库分区的使用</a></li>
+<li><a href="https://dev.mysql.com/doc/mysql-partitioning-excerpt/5.7/en/partitioning-types.html">MySQL Partitioning Types</a></li>
+<li><a href="https://dev.mysql.com/doc/mysql-partitioning-excerpt/5.7/en/partitioning-subpartitions.html">Subpartitioning</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/9.1/en/event-scheduler.html">Using the Event Scheduler</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/9.1/en/alter-event.html">ALTER EVENT Statement</a></li>
 </ul>
 
     </div>
