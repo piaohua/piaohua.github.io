@@ -49,7 +49,7 @@
 <meta itemprop="description" content="使用 Nginx 转发请求。把跨域的接口写成调本域的接口，然后将这些接口转发到真正的请求地址。 原文: 别整复杂了！Nginx 可以轻松搞定跨域问题 跨域主要涉">
 <meta itemprop="datePublished" content="2024-03-17T17:34:47&#43;08:00" />
 <meta itemprop="dateModified" content="2024-03-17T17:34:47&#43;08:00" />
-<meta itemprop="wordCount" content="541">
+<meta itemprop="wordCount" content="2000">
 
 
 
@@ -143,8 +143,8 @@
         <div class="post-category">
             <a href="/categories/nginx/"> nginx </a>
             </div>
-          <span class="more-meta"> 541 words </span>
-          <span class="more-meta"> 2 mins read </span>
+          <span class="more-meta"> 2000 words </span>
+          <span class="more-meta"> 4 mins read </span>
         
       </div>
     </header>
@@ -155,6 +155,14 @@
     <nav id="TableOfContents">
   <ul>
     <li><a href="#跨域主要涉及4个响应头">跨域主要涉及4个响应头：</a></li>
+    <li><a href="#配置实践">配置实践</a>
+      <ul>
+        <li><a href="#启动配置nginx服务">启动配置nginx服务</a></li>
+        <li><a href="#在docker中启动nginx">在docker中启动nginx</a></li>
+        <li><a href="#测试跨域请求">测试跨域请求</a></li>
+        <li><a href="#允许多个域名跨域访问">允许多个域名跨域访问</a></li>
+      </ul>
+    </li>
     <li><a href="#参考">参考</a></li>
   </ul>
 </nav>
@@ -218,7 +226,490 @@
 } 
 </code></pre></td></tr></table>
 </div>
-</div><h2 id="参考">参考</h2>
+</div><h2 id="配置实践">配置实践</h2>
+<ol>
+<li>先启动一个http服务</li>
+</ol>
+<p>golang 实现的一个简单的http服务示例，使用http.ServeMux控制路由的HTTP服务器。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+ 
+<span class="kn">import</span> <span class="p">(</span>
+    <span class="s">&#34;fmt&#34;</span>
+    <span class="s">&#34;net/http&#34;</span>
+<span class="p">)</span>
+ 
+<span class="kd">func</span> <span class="nf">homeHandler</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Fprintf</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="s">&#34;Welcome to the home page!&#34;</span><span class="p">)</span>
+<span class="p">}</span>
+ 
+<span class="kd">func</span> <span class="nf">aboutHandler</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Fprintf</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="s">&#34;This is the about page.&#34;</span><span class="p">)</span>
+<span class="p">}</span>
+ 
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// 创建一个ServeMux对象
+</span><span class="c1"></span>    <span class="nx">mux</span> <span class="o">:=</span> <span class="nx">http</span><span class="p">.</span><span class="nf">NewServeMux</span><span class="p">()</span>
+    <span class="c1">// 注册处理函数和路径到ServeMux
+</span><span class="c1"></span>    <span class="nx">mux</span><span class="p">.</span><span class="nf">HandleFunc</span><span class="p">(</span><span class="s">&#34;/&#34;</span><span class="p">,</span> <span class="nx">homeHandler</span><span class="p">)</span>
+    <span class="nx">mux</span><span class="p">.</span><span class="nf">HandleFunc</span><span class="p">(</span><span class="s">&#34;/about&#34;</span><span class="p">,</span> <span class="nx">aboutHandler</span><span class="p">)</span>
+    <span class="c1">// 使用ServeMux启动服务器
+</span><span class="c1"></span>    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Server is listening on port 8080...&#34;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">http</span><span class="p">.</span><span class="nf">ListenAndServe</span><span class="p">(</span><span class="s">&#34;:8080&#34;</span><span class="p">,</span> <span class="nx">mux</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Error starting server: %s\n&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>直接运行<code>go run main.go</code>需要代理的http服务，监听8080端口</p>
+<h3 id="启动配置nginx服务">启动配置nginx服务</h3>
+<ol>
+<li>创建一个nginx.conf文件，跨域配置如下</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">server {
+    listen       80;
+    server_name  localhost;
+ 
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+        try_files $uri $uri/ /index.html;
+
+        if ($request_method = &#39;OPTIONS&#39;) {  
+            add_header Access-Control-Allow-Origin &#39;http://localhost&#39;;  
+            add_header Access-Control-Allow-Headers &#39;DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization&#39;;  
+            add_header Access-Control-Allow-Methods &#39;GET, POST, OPTIONS, PUT, DELETE&#39;;  
+            add_header Access-Control-Allow-Credentials &#39;true&#39;;  
+            add_header &#39;Access-Control-Max-Age&#39; 1728000;
+            add_header &#39;Content-Type&#39; &#39;text/plain charset=UTF-8&#39;;
+            add_header &#39;Content-Length&#39; 0;
+            return 204;  
+        }  
+        if ($request_method != &#39;OPTIONS&#39;) {  
+            add_header Access-Control-Allow-Origin &#39;http://localhost&#39; always;  
+            add_header Access-Control-Allow-Credentials &#39;true&#39;;  
+        }  
+        proxy_pass  http://localhost:8080;   
+    }
+}
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="在docker中启动nginx">在docker中启动nginx</h3>
+<ol>
+<li>使用<code>bitnami/nginx:1.25.5-debian-12-r1</code>镜像启动nginx服务</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">docker run -d -p 80:80 --name my-nginx-cors -v ./nginx.conf:/etc/nginx/nginx.conf:ro bitnami/nginx:1.25.5-debian-12-r1
+ad5be6375aa5aee5ee524c51d0586d00fe622347cb65eafa0af26e5afda59438
+
+docker ps
+CONTAINER ID   IMAGE                               COMMAND                  CREATED         STATUS         PORTS                                                   NAMES
+ad5be6375aa5   bitnami/nginx:1.25.5-debian-12-r1   <span class="s2">&#34;/opt/bitnami/script…&#34;</span>   <span class="m">5</span> seconds ago   Up <span class="m">4</span> seconds   8080/tcp, 0.0.0.0:80-&gt;80/tcp, :::80-&gt;80/tcp, 8443/tcp   my-nginx-cors
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>由于这里用的是bitnami/nginx镜像，配置文件位置不一样，bitnami/nginx默认配置如下</li>
+</ol>
+<p>查看配置文件内容</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">docker <span class="nb">exec</span> -it my-nginx-cors cat /opt/bitnami/nginx/conf/nginx.conf
+</code></pre></td></tr></table>
+</div>
+</div><p>默认配置文件内容如下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback"># Based on https://www.nginx.com/resources/wiki/start/topics/examples/full/#nginx-conf
+# user              www www;  ## Default: nobody
+
+worker_processes  auto;
+error_log         &#34;/opt/bitnami/nginx/logs/error.log&#34;;
+pid               &#34;/opt/bitnami/nginx/tmp/nginx.pid&#34;;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    log_format    main &#39;$remote_addr - $remote_user [$time_local] &#39;
+                       &#39;&#34;$request&#34; $status $body_bytes_sent &#34;$http_referer&#34; &#39;
+                       &#39;&#34;$http_user_agent&#34; &#34;$http_x_forwarded_for&#34;&#39;;
+    access_log    &#34;/opt/bitnami/nginx/logs/access.log&#34; main;
+    add_header    X-Frame-Options SAMEORIGIN;
+
+    client_body_temp_path  &#34;/opt/bitnami/nginx/tmp/client_body&#34; 1 2;
+    proxy_temp_path        &#34;/opt/bitnami/nginx/tmp/proxy&#34; 1 2;
+    fastcgi_temp_path      &#34;/opt/bitnami/nginx/tmp/fastcgi&#34; 1 2;
+    scgi_temp_path         &#34;/opt/bitnami/nginx/tmp/scgi&#34; 1 2;
+    uwsgi_temp_path        &#34;/opt/bitnami/nginx/tmp/uwsgi&#34; 1 2;
+
+    sendfile           on;
+    tcp_nopush         on;
+    tcp_nodelay        off;
+    gzip               on;
+    gzip_http_version  1.0;
+    gzip_comp_level    2;
+    gzip_proxied       any;
+    gzip_types         text/plain text/css application/javascript text/xml application/xml+rss;
+    keepalive_timeout  65;
+    ssl_protocols      TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305;
+    client_max_body_size 80M;
+    server_tokens off;
+
+    absolute_redirect  off;
+    port_in_redirect   off;
+
+    include  &#34;/opt/bitnami/nginx/conf/server_blocks/*.conf&#34;;
+
+    # HTTP Server
+    server {
+        # Port to listen on, can also be set in IP:PORT format
+        listen  8080;
+
+        include  &#34;/opt/bitnami/nginx/conf/bitnami/*.conf&#34;;
+
+        location /status {
+            stub_status on;
+            access_log   off;
+            allow 127.0.0.1;
+            deny all;
+        }
+    }
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>所以直接替换这个配置文件，再启动服务。</p>
+<ol start="3">
+<li>修改其中http server部分</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">server {
+    listen       80;
+    server_name  localhost;
+ 
+    location / {
+        if ($request_method = &#39;OPTIONS&#39;) {  
+            add_header Access-Control-Allow-Origin &#39;http://localhost&#39;;  
+            add_header Access-Control-Allow-Headers &#39;DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization&#39;;  
+            add_header Access-Control-Allow-Methods &#39;GET, POST, OPTIONS, PUT, DELETE&#39;;  
+            add_header Access-Control-Allow-Credentials &#39;true&#39;;  
+            add_header &#39;Access-Control-Max-Age&#39; 1728000;
+            add_header &#39;Content-Type&#39; &#39;text/plain charset=UTF-8&#39;;
+            add_header &#39;Content-Length&#39; 0;
+            return 204;  
+        }  
+        if ($request_method != &#39;OPTIONS&#39;) {  
+            add_header Access-Control-Allow-Origin &#39;http://localhost&#39; always;  
+            add_header Access-Control-Allow-Credentials &#39;true&#39;;  
+        }  
+        proxy_pass  http://172.20.10.3:8080;   
+    }
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>注意这里的proxy_pass代理的地址要填宿主主机的ip地址，因为上面启动的http服务是直接运行在宿主机上</p>
+<p>可以用<code>ifconfig</code>查看宿主机本地ip，这里查到是172.20.10.3。</p>
+<ol start="4">
+<li>修改后启动或重新加载配置</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">docker run -d -p 80:80 --name my-nginx-cors -v ./nginx.conf:/opt/bitnami/nginx/conf/nginx.conf:ro bitnami/nginx:1.25.5-debian-12-r1
+
+docker <span class="nb">exec</span> -it my-nginx-cors nginx -s reload
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="测试跨域请求">测试跨域请求</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">curl -I -X OPTIONS -H <span class="s2">&#34;Origin: http://example.com&#34;</span> http://localhost
+HTTP/1.1 <span class="m">204</span> No Content
+Server: nginx
+Date: Sun, <span class="m">25</span> May <span class="m">2025</span> 11:46:07 GMT
+Connection: keep-alive
+Access-Control-Allow-Origin: http://localhost
+Access-Control-Allow-Headers: DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization
+Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE
+Access-Control-Allow-Credentials: <span class="nb">true</span>
+Access-Control-Max-Age: <span class="m">1728000</span>
+Content-Type: text/plain <span class="nv">charset</span><span class="o">=</span>UTF-8
+Content-Length: <span class="m">0</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>看到响应的<code>Access-Control-Allow-Origin: http://localhost</code>，这样表示在浏览器中存在跨域。</p>
+<p>此时就需要修改为<code>Access-Control-Allow-Origin: http://example.com</code>域名来解决跨域问题。</p>
+<p>修改之后再访问就可以看到已经发生变化。</p>
+<h3 id="允许多个域名跨域访问">允许多个域名跨域访问</h3>
+<p>由于Access-Control-Allow-Origin参数只允许配置单个域名或者*，当需要允许多个域名跨域访问时可以用以下方法来实现。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">map $http_origin $corsHost {
+         default 0;
+         &#34;~http://www.example.com&#34; http://www.example.com;
+         &#34;~http://example.com&#34; http://example.com;
+     }
+
+     # HTTP Server
+     server {
+         # Port to listen on, can also be set in IP:PORT format
+         listen  80;
+         server_name  localhost;
+
+         include  &#34;/opt/bitnami/nginx/conf/bitnami/*.conf&#34;;
+
+         location /status {
+             stub_status on;
+             access_log   off;
+             #allow 127.0.0.1;
+             #deny all;
+         }
+
+         location / {
+             if ($request_method = &#39;OPTIONS&#39;) {
+                 add_header Access-Control-Allow-Origin $corsHost;
+                 add_header Access-Control-Allow-Headers &#39;DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization&#39;;
+                 add_header Access-Control-Allow-Methods &#39;GET, POST, OPTIONS, PUT, DELETE&#39;;
+                 add_header Access-Control-Allow-Credentials &#39;true&#39;;
+                 add_header &#39;Access-Control-Max-Age&#39; 1728000;
+                 add_header &#39;Content-Type&#39; &#39;text/plain charset=UTF-8&#39;;
+                 add_header &#39;Content-Length&#39; 0;
+                 return 204;
+             }
+             if ($request_method != &#39;OPTIONS&#39;) {
+                 add_header Access-Control-Allow-Origin $corsHost always;
+                 add_header Access-Control-Allow-Credentials &#39;true&#39;;
+             }
+             proxy_pass  http://172.20.10.3:8080;
+         }
+     }
+
+</code></pre></td></tr></table>
+</div>
+</div><p>这样就配置允许两个域名跨域访问了。</p>
+<h2 id="参考">参考</h2>
 <ul>
 <li><a href="https://mp.weixin.qq.com/s/VzWlJ8laLn8AI-JoiDepug">别整复杂了！Nginx 可以轻松搞定跨域问题</a></li>
 <li><a href="https://mp.weixin.qq.com/s/SrxEroVk5b_AhodmnSQFDg">Nginx的那些实战骚操作</a></li>
