@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>在使用Cloudflare的情况下，如何在Nginx中获取到真实的客户端IP地址呢？ - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="在使用Cloudflare的情况下，如何在后端Nginx中获取到真实的客户端IP地址呢？ Cloudflare作为代理服务，它的作用是让用户的" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/tool/20250614-nginx-cloudflare/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="在使用Cloudflare的情况下，如何在Nginx中获取到真实的客户端IP地址呢？" />
+<meta property="og:description" content="在使用Cloudflare的情况下，如何在后端Nginx中获取到真实的客户端IP地址呢？ Cloudflare作为代理服务，它的作用是让用户的" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/tool/20250614-nginx-cloudflare/" />
+<meta property="article:published_time" content="2025-06-14T20:25:28+08:00" />
+<meta property="article:modified_time" content="2025-06-14T20:25:28+08:00" />
+<meta itemprop="name" content="在使用Cloudflare的情况下，如何在Nginx中获取到真实的客户端IP地址呢？">
+<meta itemprop="description" content="在使用Cloudflare的情况下，如何在后端Nginx中获取到真实的客户端IP地址呢？ Cloudflare作为代理服务，它的作用是让用户的">
+<meta itemprop="datePublished" content="2025-06-14T20:25:28&#43;08:00" />
+<meta itemprop="dateModified" content="2025-06-14T20:25:28&#43;08:00" />
+<meta itemprop="wordCount" content="1478">
+
+
+
+<meta itemprop="keywords" content="nginx,cloudflare," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="在使用Cloudflare的情况下，如何在Nginx中获取到真实的客户端IP地址呢？"/>
+<meta name="twitter:description" content="在使用Cloudflare的情况下，如何在后端Nginx中获取到真实的客户端IP地址呢？ Cloudflare作为代理服务，它的作用是让用户的"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">在使用Cloudflare的情况下，如何在Nginx中获取到真实的客户端IP地址呢？</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2025-06-14 </span>
+        <div class="post-category">
+            <a href="/categories/nginx/"> nginx </a>
+            <a href="/categories/cloudflare/"> cloudflare </a>
+            </div>
+          <span class="more-meta"> 1478 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#修改nginx配置获取cloudflare转发的真实ip">修改Nginx配置，获取Cloudflare转发的真实IP</a>
+      <ul>
+        <li><a href="#gin框架中获取用户真实ip">gin框架中获取用户真实IP</a></li>
+      </ul>
+    </li>
+    <li><a href="#配置nginx安全访问">配置Nginx安全访问</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>在使用Cloudflare的情况下，如何在后端Nginx中获取到真实的客户端IP地址呢？</p>
+</blockquote>
+<p>Cloudflare作为代理服务，它的作用是让用户的请求通过Cloudflare的网络进行转发，</p>
+<p>从而加速网站访问并提供一些安全防护措施，不会暴露后端真实服务器地址。</p>
+<p>但这也导致了，后端的Nginx服务器看到的请求IP是Cloudflare的IP地址。</p>
+<p>Cloudflare会把真实的客户端IP地址通过HTTP头部 <a href="https://developers.cloudflare.com/fundamentals/reference/http-headers/#cf-connecting-ip">CF-Connecting-IP</a> 传递给后端真实服务，只需要在Nginx中提取该头部信息。</p>
+<h2 id="修改nginx配置获取cloudflare转发的真实ip">修改Nginx配置，获取Cloudflare转发的真实IP</h2>
+<p>在 <code>/etc/nginx/conf.d/cloudflare.conf</code> 文件中（记得在 nginx.conf 中引入该配置文件），加入以下内容：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-nginx" data-lang="nginx"><span class="k">set_real_ip_from</span> <span class="mi">173</span><span class="s">.245.48.0/20</span><span class="p">;</span>
+<span class="k">set_real_ip_from</span> <span class="mi">103</span><span class="s">.21.244.0/22</span><span class="p">;</span>
+<span class="k">set_real_ip_from</span> <span class="mi">103</span><span class="s">.22.200.0/22</span><span class="p">;</span>
+<span class="k">set_real_ip_from</span> <span class="mi">103</span><span class="s">.31.4.0/22</span><span class="p">;</span>
+<span class="k">set_real_ip_from</span> <span class="mi">141</span><span class="s">.101.64.0/18</span><span class="p">;</span>
+<span class="k">set_real_ip_from</span> <span class="mi">108</span><span class="s">.162.192.0/18</span><span class="p">;</span>
+<span class="k">set_real_ip_from</span> <span class="mi">190</span><span class="s">.93.240.0/20</span><span class="p">;</span>
+<span class="k">set_real_ip_from</span> <span class="mi">188</span><span class="s">.114.96.0/20</span><span class="p">;</span>
+<span class="k">set_real_ip_from</span> <span class="mi">197</span><span class="s">.234.240.0/22</span><span class="p">;</span>
+<span class="k">set_real_ip_from</span> <span class="mi">198</span><span class="s">.41.128.0/17</span><span class="p">;</span>
+<span class="k">set_real_ip_from</span> <span class="mi">162</span><span class="s">.158.0.0/15</span><span class="p">;</span>
+<span class="k">set_real_ip_from</span> <span class="mi">104</span><span class="s">.16.0.0/13</span><span class="p">;</span>
+<span class="k">set_real_ip_from</span> <span class="mi">104</span><span class="s">.24.0.0/14</span><span class="p">;</span>
+<span class="k">set_real_ip_from</span> <span class="mi">172</span><span class="s">.64.0.0/13</span><span class="p">;</span>
+<span class="k">set_real_ip_from</span> <span class="mi">131</span><span class="s">.0.72.0/22</span><span class="p">;</span>
+<span class="k">real_ip_header</span> <span class="s">CF-Connecting-IP</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>配置解释：</p>
+<ul>
+<li><code>set_real_ip_from</code>：Cloudflare的IP，可以从Cloudflare官方文档找到最新的IP地址列表。</li>
+</ul>
+<p>获取Cloudflare的IPv4地址列表：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">$ curl https://www.cloudflare.com/ips-v4
+173.245.48.0/20
+103.21.244.0/22
+103.22.200.0/22
+103.31.4.0/22
+141.101.64.0/18
+108.162.192.0/18
+190.93.240.0/20
+188.114.96.0/20
+197.234.240.0/22
+198.41.128.0/17
+162.158.0.0/15
+104.16.0.0/13
+104.24.0.0/14
+172.64.0.0/13
+131.0.72.0/22
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li><code>real_ip_header</code>：告诉Nginx，从哪个HTTP头部中获取真实IP地址。Cloudflare提供的是 CF-Connecting-IP 这个头部。</li>
+</ul>
+<p>配置完成后，重启Nginx服务即可。</p>
+<p>如果是ipv6，则需要修改 <code>/etc/nginx/conf.d/cloudflare.conf</code> 文件，加入以下内容：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-nginx" data-lang="nginx"><span class="k">set_real_ip_from</span> <span class="mi">2400</span><span class="p">:</span><span class="s">cb00::/32</span><span class="p">;</span>
+<span class="k">set_real_ip_from</span> <span class="n">2606</span><span class="p">:</span><span class="mi">4700</span><span class="p">::</span><span class="s">/32</span><span class="p">;</span>
+<span class="k">set_real_ip_from</span> <span class="mi">2803</span><span class="p">:</span><span class="s">f800::/32</span><span class="p">;</span>
+<span class="k">set_real_ip_from</span> <span class="mi">2405</span><span class="p">:</span><span class="s">b500::/32</span><span class="p">;</span>
+<span class="k">set_real_ip_from</span> <span class="n">2405</span><span class="p">:</span><span class="mi">8100</span><span class="p">::</span><span class="s">/32</span><span class="p">;</span>
+<span class="k">set_real_ip_from</span> <span class="n">2a06</span><span class="p">:</span><span class="mi">98</span><span class="s">c0::/29</span><span class="p">;</span>
+<span class="k">set_real_ip_from</span> <span class="s">2c0f:f248::/32</span><span class="p">;</span>
+<span class="k">real_ip_header</span> <span class="s">CF-Connecting-IPv6</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>获取Cloudflare的IPv4地址列表：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">$ curl https://www.cloudflare.com/ips-v6
+2400:cb00::/32
+2606:4700::/32
+2803:f800::/32
+2405:b500::/32
+2405:8100::/32
+2a06:98c0::/29
+2c0f:f248::/32
+</code></pre></td></tr></table>
+</div>
+</div><p>Cloudflare提供的是 <a href="https://developers.cloudflare.com/fundamentals/reference/http-headers/#cf-connecting-ipv6">CF-Connecting-IPv6</a> 这个头部。</p>
+<p>当然也可以使用 <a href="https://developers.cloudflare.com/fundamentals/reference/http-headers/#x-forwarded-for">X-Forwarded-For</a> 头部。X-Forwarded-For 头部可以设置多个值，多个值之间用逗号隔开。</p>
+<p>X-Forwarded-For 头部格式：<code>X-Forwarded-For: client, proxy1, proxy2</code></p>
+<p>client 为用户实际访问的 IP 地址。proxy1, proxy2 为访问经过的代理服务的 IP 地址。</p>
+<p>有了nginx配置后，只需要用脚本定时获取IP地址，更新nginx配置文件即可。</p>
+<p>脚本参考 <a href="https://blog.csdn.net/dragonballs/article/details/126345175">网站配置了Cloudflare代理后，如何配置Nginx获取的真实客户端IP地址？</a></p>
+<h3 id="gin框架中获取用户真实ip">gin框架中获取用户真实IP</h3>
+<p>根据nginx的配置，则可以在后端真实业务服务中获取用户真实 IP 地址。</p>
+<p>比如在gin框架中，可以通过 <code>c.Request.Header.Get(&quot;X-Forwarded-For&quot;)</code> 或 <code>c.ClientIP()</code> 获取用户真实 IP 地址。</p>
+<p>并且在gin框架中，已经提供了 <code>TrustedPlatform</code> 配置项，可以设置默认代理平台，设置后，<code>c.ClientIP()</code> 会自动获取对应平台的用户真实 IP 地址。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Trusted platforms
+</span><span class="c1"></span><span class="kd">const</span> <span class="p">(</span>
+	<span class="c1">// PlatformGoogleAppEngine when running on Google App Engine. Trust X-Appengine-Remote-Addr
+</span><span class="c1"></span>	<span class="c1">// for determining the client&#39;s IP
+</span><span class="c1"></span>	<span class="nx">PlatformGoogleAppEngine</span> <span class="p">=</span> <span class="s">&#34;X-Appengine-Remote-Addr&#34;</span>
+	<span class="c1">// PlatformCloudflare when using Cloudflare&#39;s CDN. Trust CF-Connecting-IP for determining
+</span><span class="c1"></span>	<span class="c1">// the client&#39;s IP
+</span><span class="c1"></span>	<span class="nx">PlatformCloudflare</span> <span class="p">=</span> <span class="s">&#34;CF-Connecting-IP&#34;</span>
+	<span class="c1">// PlatformFlyIO when running on Fly.io. Trust Fly-Client-IP for determining the client&#39;s IP
+</span><span class="c1"></span>	<span class="nx">PlatformFlyIO</span> <span class="p">=</span> <span class="s">&#34;Fly-Client-IP&#34;</span>
+<span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>在启动gin engine 的时候，设置IP地址获取方式即可，比如设置为 PlatformCloudflare。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go">    <span class="kd">var</span> <span class="nx">opt</span> <span class="nx">gin</span><span class="p">.</span><span class="nx">OptionFunc</span> <span class="p">=</span> <span class="kd">func</span><span class="p">(</span><span class="nx">engine</span> <span class="o">*</span><span class="nx">gin</span><span class="p">.</span><span class="nx">Engine</span><span class="p">)</span> <span class="p">{</span>
+		<span class="nx">engine</span><span class="p">.</span><span class="nx">TrustedPlatform</span> <span class="p">=</span> <span class="nx">gin</span><span class="p">.</span><span class="nx">PlatformCloudflare</span>
+	<span class="p">}</span>
+	<span class="c1">// Creates a gin router with default middleware:
+</span><span class="c1"></span>	<span class="c1">// logger and recovery (crash-free) middleware
+</span><span class="c1"></span>	<span class="nx">r</span> <span class="o">:=</span> <span class="nx">gin</span><span class="p">.</span><span class="nf">Default</span><span class="p">(</span><span class="nx">opt</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="配置nginx安全访问">配置Nginx安全访问</h2>
+<p>在获取到真实的IP地址后，也可以进行一些安全配置了。比如禁止IP访问，禁止爬虫访问，禁止非法访问等等。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-nginx" data-lang="nginx"><span class="k">http</span> <span class="p">{</span>
+    <span class="c1">## 使用map动态匹配IP地址
+</span><span class="c1"></span>    <span class="kn">map</span> <span class="nv">$http_cf_connecting_ip</span> <span class="nv">$blocked_ip</span> <span class="p">{</span>
+        <span class="kn">default</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="kn">127.0.0.1</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kn">server</span> <span class="p">{</span> 
+        <span class="kn">listen</span> <span class="mi">80</span><span class="p">;</span>
+        <span class="kn">server_name</span> <span class="s">example.com</span><span class="p">;</span>
+
+        <span class="kn">if</span> <span class="s">(</span><span class="nv">$blocked_ip</span><span class="s">)</span> <span class="p">{</span>
+            <span class="kn">return</span> <span class="mi">403</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c1">## 禁止IP访问
+</span><span class="c1"></span>        <span class="kn">deny</span> <span class="mi">192</span><span class="s">.168.1.1</span><span class="p">;</span>
+
+        <span class="c1">## 禁止IP段访问
+</span><span class="c1"></span>        <span class="kn">deny</span> <span class="mi">192</span><span class="s">.168.1.0/24</span><span class="p">;</span>
+
+        <span class="c1">## 禁止爬虫访问
+</span><span class="c1"></span>        <span class="kn">deny</span> <span class="p">~</span><span class="sr">*</span> <span class="s">(?i)crawler|spider|bot</span><span class="p">;</span>
+
+        <span class="c1">## 禁止非法访问
+</span><span class="c1"></span>        <span class="kn">deny</span> <span class="p">~</span><span class="sr">*</span> <span class="s">(?i)php|cgi|pl|py|jsp|asp|js|css|ico|jpg|png|gif|swf|exe|mp3|mp4|rar|zip|tar|gz|7z|doc|docx|xls|xlsx|ppt|pptx|pdf|txt|xml|json|md|sql|log|htaccess|htpasswd|ftp|sftp|ssh|telnet|ftps|ssh|mysql|mariadb</span>
+
+        <span class="c1">## 禁止访问文件
+</span><span class="c1"></span>        <span class="s">deny</span> <span class="p">~</span><span class="sr">*</span> <span class="s">(?i)file.php|file.html|file.txt|file.doc|file.docx|file.xls|file.xlsx|file.ppt|file.pptx|file.pdf|file.zip|file.rar|file.7z|file.exe|file.mp3|file.mp4|file.avi|file.flv|file.wmv|file.jpg|file.png|file.gif|file.swf|file.ico|file.css|</span>
+
+        <span class="c1">## 禁止访问目录
+</span><span class="c1"></span>        <span class="s">deny</span> <span class="p">~</span><span class="sr">*</span> <span class="s">(?i)admin|config|logs|tmp|cache|backup|upload|download|files|media|static|public|node_modules|vendor|.git|.svn|.hg|.idea|.env|.env.example|.gitignore|.gitmodules|.gitattributes|.editorconfig|.travis.yml|.phpunit.xml|.env.testing|.env.local|.env.local.php|.env.testing.php|.env.php|.env</span>
+
+        <span class="c1">## 允许IP访问
+</span><span class="c1"></span>        <span class="s">allow</span> <span class="mi">192</span><span class="s">.168.1.1</span><span class="p">;</span>
+        
+        <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span> 
+
+            <span class="c1">## 引入特定的IP黑名单文件
+</span><span class="c1"></span>            <span class="kn">include</span> <span class="s">/etc/nginx/blocked_ips.conf</span><span class="p">;</span>
+            <span class="c1">##  允许其他所有 IP 访问
+</span><span class="c1"></span>            <span class="kn">allow</span> <span class="s">all</span><span class="p">;</span>
+
+            <span class="kn">proxy_set_header</span> <span class="s">X-Real-IP</span> <span class="nv">$remote_addr</span><span class="p">;</span>
+            <span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-For</span> <span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+            <span class="kn">proxy_set_header</span> <span class="s">Host</span> <span class="nv">$http_host</span><span class="p">;</span>
+            <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8080</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>黑名单配置文件<code>blocked_ips.conf</code> 示例:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-nginx" data-lang="nginx"><span class="k">deny</span> <span class="mi">192</span><span class="s">.168.1.1</span><span class="p">;</span>
+<span class="k">deny</span> <span class="mi">192</span><span class="s">.168.1.0/24</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://www.cloudflare.com/zh-cn/learning/cdn/glossary/what-is-my-ip-address/">我的 IP 地址是什么？</a></li>
+<li><a href="https://support.cloudflare.com/hc/zh-cn/articles/200170206-%E5%A6%82%E4%BD%95%E8%8E%B7%E5%8F%96-Cloudflare-%E7%9A%84-IP-%E5%9C%B0%E5%9D%80">Cloudflare 获取 IP 地址</a></li>
+<li><a href="https://blog.csdn.net/dragonballs/article/details/126345175">网站配置了Cloudflare代理后，如何配置Nginx获取的真实客户端IP地址？</a></li>
+<li><a href="https://developers.cloudflare.com/fundamentals/reference/http-headers/">Cloudflare HTTP headers</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2025-06-14
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/nginx/">nginx</a>
+          <a href="/tags/cloudflare/">cloudflare</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/chinese/20250525-poetry-shanzhongsongbie/">
+            <span class="next-text nav-default">[唐诗] 《山中送别》</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+  
+    <script src="https://giscus.app/client.js"
+            data-repo="piaohua/piaohua.github.io"
+            data-repo-id="MDEwOlJlcG9zaXRvcnkyODQ0MjQ4NDM="
+            data-category="Announcements"
+            data-category-id="DIC_kwDOEPP6i84ChN9S"
+            data-mapping="pathname"
+            data-strict="0"
+            data-reactions-enabled="1"
+            data-emit-metadata="0"
+            data-input-position="bottom"
+            data-theme="preferred_color_scheme"
+            data-lang="zh-CN"
+            crossorigin="anonymous"
+            async>
+    </script>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      tex: {
+        }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.5/es5/tex-mml-chtml.js" integrity="sha256-HGLuEfFcsUJGhvB8cQ8nr0gai9EucOOaIxFw7qxmd+w=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
