@@ -1,0 +1,2038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[Go] RSA 私钥加密公钥解密，及和 Java 实现互通 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="golang RSA 私钥加密公钥解密，及和 Java 实现互通。 在golang中使用RSA算法时，一般都是公钥加密，私钥解密，这是一个常见的场景。但是在实际使用中， 往" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/golang/20250717-go-rsa-private-encrypt-and-public-decrypt/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[Go] RSA 私钥加密公钥解密，及和 Java 实现互通" />
+<meta property="og:description" content="golang RSA 私钥加密公钥解密，及和 Java 实现互通。 在golang中使用RSA算法时，一般都是公钥加密，私钥解密，这是一个常见的场景。但是在实际使用中， 往" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20250717-go-rsa-private-encrypt-and-public-decrypt/" />
+<meta property="article:published_time" content="2025-07-17T00:54:09+08:00" />
+<meta property="article:modified_time" content="2025-07-17T00:54:09+08:00" />
+<meta itemprop="name" content="[Go] RSA 私钥加密公钥解密，及和 Java 实现互通">
+<meta itemprop="description" content="golang RSA 私钥加密公钥解密，及和 Java 实现互通。 在golang中使用RSA算法时，一般都是公钥加密，私钥解密，这是一个常见的场景。但是在实际使用中， 往">
+<meta itemprop="datePublished" content="2025-07-17T00:54:09&#43;08:00" />
+<meta itemprop="dateModified" content="2025-07-17T00:54:09&#43;08:00" />
+<meta itemprop="wordCount" content="5433">
+
+
+
+<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[Go] RSA 私钥加密公钥解密，及和 Java 实现互通"/>
+<meta name="twitter:description" content="golang RSA 私钥加密公钥解密，及和 Java 实现互通。 在golang中使用RSA算法时，一般都是公钥加密，私钥解密，这是一个常见的场景。但是在实际使用中， 往"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[Go] RSA 私钥加密公钥解密，及和 Java 实现互通</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2025-07-17 </span>
+        <div class="post-category">
+            <a href="/categories/golang/"> golang </a>
+            </div>
+          <span class="more-meta"> 5433 words </span>
+          <span class="more-meta"> 11 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#rsa-加密与解密">RSA 加密与解密</a></li>
+    <li><a href="#java-rsa-加密解密示例">Java RSA 加密解密示例</a></li>
+    <li><a href="#golang-实现私钥加密公钥解密">golang 实现私钥加密、公钥解密</a>
+      <ul>
+        <li><a href="#公钥解密实现">公钥解密实现</a></li>
+        <li><a href="#rsa签名验签实现">RSA签名、验签实现</a></li>
+        <li><a href="#公钥解密实现-1">公钥解密实现：</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>golang RSA 私钥加密公钥解密，及和 Java 实现互通。</p>
+</blockquote>
+<p>在golang中使用RSA算法时，一般都是公钥加密，私钥解密，这是一个常见的场景。但是在实际使用中，</p>
+<p>往往需要和其他项目进行交互，其他项目实现就不一定是按标准使用的，比如Java、PHP中就比较常见，</p>
+<p>经常有项目用私钥加密，公钥解密，实现参考<a href="https://www.cnblogs.com/linjiqin/p/6005626.html">Java使用RSA加密解密及签名校验</a>，甚至直接就拿来就用，</p>
+<p>这个时候就需要了解在golang中如何实现公钥加密，私钥解密。</p>
+<p>下面是golang的公钥加密，私钥解密示例，实现和java的互通。</p>
+<h2 id="rsa-加密与解密">RSA 加密与解密</h2>
+<p>RSA 加密算法是一种非对称加密算法，在许多项目中广泛使用，是当前数据安全加密中最常用的算法之一。在 Go 语言中，RSA 的加密、解密、签名与验签主要通过 <code>crypto/x509</code> 和 <code>crypto/rsa</code> 两个包的方法来实现。</p>
+<p>RSA 通过生成一对公钥和私钥来进行加密和解密，公钥与私钥是相互对应的。公钥可以用来加密数据，但不能用于解密；而私钥则可以解密由对应公钥加密的数据。公钥可以公开分发，而私钥需要妥善保管，只有拥有私钥的人才能解密通过公钥加密的信息。</p>
+<p>正常使用时，一般使用公钥加密，私钥解密。但是某些场景下，需要使用私钥加密，公钥解密，比较常见的就是签名验证。</p>
+<h2 id="java-rsa-加密解密示例">Java RSA 加密解密示例</h2>
+<p>参考<a href="https://www.cnblogs.com/linjiqin/p/6005626.html">Java使用RSA加密解密及签名校验</a></p>
+<p>实现测试示例如下，RSA密钥生成都为2048位：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span><span class="lnt">141
+</span><span class="lnt">142
+</span><span class="lnt">143
+</span><span class="lnt">144
+</span><span class="lnt">145
+</span><span class="lnt">146
+</span><span class="lnt">147
+</span><span class="lnt">148
+</span><span class="lnt">149
+</span><span class="lnt">150
+</span><span class="lnt">151
+</span><span class="lnt">152
+</span><span class="lnt">153
+</span><span class="lnt">154
+</span><span class="lnt">155
+</span><span class="lnt">156
+</span><span class="lnt">157
+</span><span class="lnt">158
+</span><span class="lnt">159
+</span><span class="lnt">160
+</span><span class="lnt">161
+</span><span class="lnt">162
+</span><span class="lnt">163
+</span><span class="lnt">164
+</span><span class="lnt">165
+</span><span class="lnt">166
+</span><span class="lnt">167
+</span><span class="lnt">168
+</span><span class="lnt">169
+</span><span class="lnt">170
+</span><span class="lnt">171
+</span><span class="lnt">172
+</span><span class="lnt">173
+</span><span class="lnt">174
+</span><span class="lnt">175
+</span><span class="lnt">176
+</span><span class="lnt">177
+</span><span class="lnt">178
+</span><span class="lnt">179
+</span><span class="lnt">180
+</span><span class="lnt">181
+</span><span class="lnt">182
+</span><span class="lnt">183
+</span><span class="lnt">184
+</span><span class="lnt">185
+</span><span class="lnt">186
+</span><span class="lnt">187
+</span><span class="lnt">188
+</span><span class="lnt">189
+</span><span class="lnt">190
+</span><span class="lnt">191
+</span><span class="lnt">192
+</span><span class="lnt">193
+</span><span class="lnt">194
+</span><span class="lnt">195
+</span><span class="lnt">196
+</span><span class="lnt">197
+</span><span class="lnt">198
+</span><span class="lnt">199
+</span><span class="lnt">200
+</span><span class="lnt">201
+</span><span class="lnt">202
+</span><span class="lnt">203
+</span><span class="lnt">204
+</span><span class="lnt">205
+</span><span class="lnt">206
+</span><span class="lnt">207
+</span><span class="lnt">208
+</span><span class="lnt">209
+</span><span class="lnt">210
+</span><span class="lnt">211
+</span><span class="lnt">212
+</span><span class="lnt">213
+</span><span class="lnt">214
+</span><span class="lnt">215
+</span><span class="lnt">216
+</span><span class="lnt">217
+</span><span class="lnt">218
+</span><span class="lnt">219
+</span><span class="lnt">220
+</span><span class="lnt">221
+</span><span class="lnt">222
+</span><span class="lnt">223
+</span><span class="lnt">224
+</span><span class="lnt">225
+</span><span class="lnt">226
+</span><span class="lnt">227
+</span><span class="lnt">228
+</span><span class="lnt">229
+</span><span class="lnt">230
+</span><span class="lnt">231
+</span><span class="lnt">232
+</span><span class="lnt">233
+</span><span class="lnt">234
+</span><span class="lnt">235
+</span><span class="lnt">236
+</span><span class="lnt">237
+</span><span class="lnt">238
+</span><span class="lnt">239
+</span><span class="lnt">240
+</span><span class="lnt">241
+</span><span class="lnt">242
+</span><span class="lnt">243
+</span><span class="lnt">244
+</span><span class="lnt">245
+</span><span class="lnt">246
+</span><span class="lnt">247
+</span><span class="lnt">248
+</span><span class="lnt">249
+</span><span class="lnt">250
+</span><span class="lnt">251
+</span><span class="lnt">252
+</span><span class="lnt">253
+</span><span class="lnt">254
+</span><span class="lnt">255
+</span><span class="lnt">256
+</span><span class="lnt">257
+</span><span class="lnt">258
+</span><span class="lnt">259
+</span><span class="lnt">260
+</span><span class="lnt">261
+</span><span class="lnt">262
+</span><span class="lnt">263
+</span><span class="lnt">264
+</span><span class="lnt">265
+</span><span class="lnt">266
+</span><span class="lnt">267
+</span><span class="lnt">268
+</span><span class="lnt">269
+</span><span class="lnt">270
+</span><span class="lnt">271
+</span><span class="lnt">272
+</span><span class="lnt">273
+</span><span class="lnt">274
+</span><span class="lnt">275
+</span><span class="lnt">276
+</span><span class="lnt">277
+</span><span class="lnt">278
+</span><span class="lnt">279
+</span><span class="lnt">280
+</span><span class="lnt">281
+</span><span class="lnt">282
+</span><span class="lnt">283
+</span><span class="lnt">284
+</span><span class="lnt">285
+</span><span class="lnt">286
+</span><span class="lnt">287
+</span><span class="lnt">288
+</span><span class="lnt">289
+</span><span class="lnt">290
+</span><span class="lnt">291
+</span><span class="lnt">292
+</span><span class="lnt">293
+</span><span class="lnt">294
+</span><span class="lnt">295
+</span><span class="lnt">296
+</span><span class="lnt">297
+</span><span class="lnt">298
+</span><span class="lnt">299
+</span><span class="lnt">300
+</span><span class="lnt">301
+</span><span class="lnt">302
+</span><span class="lnt">303
+</span><span class="lnt">304
+</span><span class="lnt">305
+</span><span class="lnt">306
+</span><span class="lnt">307
+</span><span class="lnt">308
+</span><span class="lnt">309
+</span><span class="lnt">310
+</span><span class="lnt">311
+</span><span class="lnt">312
+</span><span class="lnt">313
+</span><span class="lnt">314
+</span><span class="lnt">315
+</span><span class="lnt">316
+</span><span class="lnt">317
+</span><span class="lnt">318
+</span><span class="lnt">319
+</span><span class="lnt">320
+</span><span class="lnt">321
+</span><span class="lnt">322
+</span><span class="lnt">323
+</span><span class="lnt">324
+</span><span class="lnt">325
+</span><span class="lnt">326
+</span><span class="lnt">327
+</span><span class="lnt">328
+</span><span class="lnt">329
+</span><span class="lnt">330
+</span><span class="lnt">331
+</span><span class="lnt">332
+</span><span class="lnt">333
+</span><span class="lnt">334
+</span><span class="lnt">335
+</span><span class="lnt">336
+</span><span class="lnt">337
+</span><span class="lnt">338
+</span><span class="lnt">339
+</span><span class="lnt">340
+</span><span class="lnt">341
+</span><span class="lnt">342
+</span><span class="lnt">343
+</span><span class="lnt">344
+</span><span class="lnt">345
+</span><span class="lnt">346
+</span><span class="lnt">347
+</span><span class="lnt">348
+</span><span class="lnt">349
+</span><span class="lnt">350
+</span><span class="lnt">351
+</span><span class="lnt">352
+</span><span class="lnt">353
+</span><span class="lnt">354
+</span><span class="lnt">355
+</span><span class="lnt">356
+</span><span class="lnt">357
+</span><span class="lnt">358
+</span><span class="lnt">359
+</span><span class="lnt">360
+</span><span class="lnt">361
+</span><span class="lnt">362
+</span><span class="lnt">363
+</span><span class="lnt">364
+</span><span class="lnt">365
+</span><span class="lnt">366
+</span><span class="lnt">367
+</span><span class="lnt">368
+</span><span class="lnt">369
+</span><span class="lnt">370
+</span><span class="lnt">371
+</span><span class="lnt">372
+</span><span class="lnt">373
+</span><span class="lnt">374
+</span><span class="lnt">375
+</span><span class="lnt">376
+</span><span class="lnt">377
+</span><span class="lnt">378
+</span><span class="lnt">379
+</span><span class="lnt">380
+</span><span class="lnt">381
+</span><span class="lnt">382
+</span><span class="lnt">383
+</span><span class="lnt">384
+</span><span class="lnt">385
+</span><span class="lnt">386
+</span><span class="lnt">387
+</span><span class="lnt">388
+</span><span class="lnt">389
+</span><span class="lnt">390
+</span><span class="lnt">391
+</span><span class="lnt">392
+</span><span class="lnt">393
+</span><span class="lnt">394
+</span><span class="lnt">395
+</span><span class="lnt">396
+</span><span class="lnt">397
+</span><span class="lnt">398
+</span><span class="lnt">399
+</span><span class="lnt">400
+</span><span class="lnt">401
+</span><span class="lnt">402
+</span><span class="lnt">403
+</span><span class="lnt">404
+</span><span class="lnt">405
+</span><span class="lnt">406
+</span><span class="lnt">407
+</span><span class="lnt">408
+</span><span class="lnt">409
+</span><span class="lnt">410
+</span><span class="lnt">411
+</span><span class="lnt">412
+</span><span class="lnt">413
+</span><span class="lnt">414
+</span><span class="lnt">415
+</span><span class="lnt">416
+</span><span class="lnt">417
+</span><span class="lnt">418
+</span><span class="lnt">419
+</span><span class="lnt">420
+</span><span class="lnt">421
+</span><span class="lnt">422
+</span><span class="lnt">423
+</span><span class="lnt">424
+</span><span class="lnt">425
+</span><span class="lnt">426
+</span><span class="lnt">427
+</span><span class="lnt">428
+</span><span class="lnt">429
+</span><span class="lnt">430
+</span><span class="lnt">431
+</span><span class="lnt">432
+</span><span class="lnt">433
+</span><span class="lnt">434
+</span><span class="lnt">435
+</span><span class="lnt">436
+</span><span class="lnt">437
+</span><span class="lnt">438
+</span><span class="lnt">439
+</span><span class="lnt">440
+</span><span class="lnt">441
+</span><span class="lnt">442
+</span><span class="lnt">443
+</span><span class="lnt">444
+</span><span class="lnt">445
+</span><span class="lnt">446
+</span><span class="lnt">447
+</span><span class="lnt">448
+</span><span class="lnt">449
+</span><span class="lnt">450
+</span><span class="lnt">451
+</span><span class="lnt">452
+</span><span class="lnt">453
+</span><span class="lnt">454
+</span><span class="lnt">455
+</span><span class="lnt">456
+</span><span class="lnt">457
+</span><span class="lnt">458
+</span><span class="lnt">459
+</span><span class="lnt">460
+</span><span class="lnt">461
+</span><span class="lnt">462
+</span><span class="lnt">463
+</span><span class="lnt">464
+</span><span class="lnt">465
+</span><span class="lnt">466
+</span><span class="lnt">467
+</span><span class="lnt">468
+</span><span class="lnt">469
+</span><span class="lnt">470
+</span><span class="lnt">471
+</span><span class="lnt">472
+</span><span class="lnt">473
+</span><span class="lnt">474
+</span><span class="lnt">475
+</span><span class="lnt">476
+</span><span class="lnt">477
+</span><span class="lnt">478
+</span><span class="lnt">479
+</span><span class="lnt">480
+</span><span class="lnt">481
+</span><span class="lnt">482
+</span><span class="lnt">483
+</span><span class="lnt">484
+</span><span class="lnt">485
+</span><span class="lnt">486
+</span><span class="lnt">487
+</span><span class="lnt">488
+</span><span class="lnt">489
+</span><span class="lnt">490
+</span><span class="lnt">491
+</span><span class="lnt">492
+</span><span class="lnt">493
+</span><span class="lnt">494
+</span><span class="lnt">495
+</span><span class="lnt">496
+</span><span class="lnt">497
+</span><span class="lnt">498
+</span><span class="lnt">499
+</span><span class="lnt">500
+</span><span class="lnt">501
+</span><span class="lnt">502
+</span><span class="lnt">503
+</span><span class="lnt">504
+</span><span class="lnt">505
+</span><span class="lnt">506
+</span><span class="lnt">507
+</span><span class="lnt">508
+</span><span class="lnt">509
+</span><span class="lnt">510
+</span><span class="lnt">511
+</span><span class="lnt">512
+</span><span class="lnt">513
+</span><span class="lnt">514
+</span><span class="lnt">515
+</span><span class="lnt">516
+</span><span class="lnt">517
+</span><span class="lnt">518
+</span><span class="lnt">519
+</span><span class="lnt">520
+</span><span class="lnt">521
+</span><span class="lnt">522
+</span><span class="lnt">523
+</span><span class="lnt">524
+</span><span class="lnt">525
+</span><span class="lnt">526
+</span><span class="lnt">527
+</span><span class="lnt">528
+</span><span class="lnt">529
+</span><span class="lnt">530
+</span><span class="lnt">531
+</span><span class="lnt">532
+</span><span class="lnt">533
+</span><span class="lnt">534
+</span><span class="lnt">535
+</span><span class="lnt">536
+</span><span class="lnt">537
+</span><span class="lnt">538
+</span><span class="lnt">539
+</span><span class="lnt">540
+</span><span class="lnt">541
+</span><span class="lnt">542
+</span><span class="lnt">543
+</span><span class="lnt">544
+</span><span class="lnt">545
+</span><span class="lnt">546
+</span><span class="lnt">547
+</span><span class="lnt">548
+</span><span class="lnt">549
+</span><span class="lnt">550
+</span><span class="lnt">551
+</span><span class="lnt">552
+</span><span class="lnt">553
+</span><span class="lnt">554
+</span><span class="lnt">555
+</span><span class="lnt">556
+</span><span class="lnt">557
+</span><span class="lnt">558
+</span><span class="lnt">559
+</span><span class="lnt">560
+</span><span class="lnt">561
+</span><span class="lnt">562
+</span><span class="lnt">563
+</span><span class="lnt">564
+</span><span class="lnt">565
+</span><span class="lnt">566
+</span><span class="lnt">567
+</span><span class="lnt">568
+</span><span class="lnt">569
+</span><span class="lnt">570
+</span><span class="lnt">571
+</span><span class="lnt">572
+</span><span class="lnt">573
+</span><span class="lnt">574
+</span><span class="lnt">575
+</span><span class="lnt">576
+</span><span class="lnt">577
+</span><span class="lnt">578
+</span><span class="lnt">579
+</span><span class="lnt">580
+</span><span class="lnt">581
+</span><span class="lnt">582
+</span><span class="lnt">583
+</span><span class="lnt">584
+</span><span class="lnt">585
+</span><span class="lnt">586
+</span><span class="lnt">587
+</span><span class="lnt">588
+</span><span class="lnt">589
+</span><span class="lnt">590
+</span><span class="lnt">591
+</span><span class="lnt">592
+</span><span class="lnt">593
+</span><span class="lnt">594
+</span><span class="lnt">595
+</span><span class="lnt">596
+</span><span class="lnt">597
+</span><span class="lnt">598
+</span><span class="lnt">599
+</span><span class="lnt">600
+</span><span class="lnt">601
+</span><span class="lnt">602
+</span><span class="lnt">603
+</span><span class="lnt">604
+</span><span class="lnt">605
+</span><span class="lnt">606
+</span><span class="lnt">607
+</span><span class="lnt">608
+</span><span class="lnt">609
+</span><span class="lnt">610
+</span><span class="lnt">611
+</span><span class="lnt">612
+</span><span class="lnt">613
+</span><span class="lnt">614
+</span><span class="lnt">615
+</span><span class="lnt">616
+</span><span class="lnt">617
+</span><span class="lnt">618
+</span><span class="lnt">619
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-java" data-lang="java"><span class="kn">import</span> <span class="nn">java.io.*</span><span class="o">;</span>
+<span class="c1">//import java.io.ByteArrayOutputStream;
+</span><span class="c1"></span><span class="kn">import</span> <span class="nn">java.security.spec.PKCS8EncodedKeySpec</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.security.Key</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.security.KeyFactory</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.security.PrivateKey</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.security.PublicKey</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">javax.crypto.Cipher</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.security.spec.X509EncodedKeySpec</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Base64</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Arrays</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloWorld</span>
+<span class="o">{</span>
+
+        <span class="kd">static</span> <span class="n">String</span> <span class="n">privateKey</span> <span class="o">=</span> <span class="s">&#34;-----BEGIN PRIVATE KEY-----\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCucd9Bhz9lBGBU\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;Q2BPyufbSszdjfSxgPrB4/ua9tYkMhsM6NtWKVXhB8Mo9wEoTNNShAvcS/Xk/dxn\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;j+f3aMX1QHUys/Cf7AFfdz9B6LHRyaJrJEUiuZhpH3cohT/cZPWCfXMC8TkmM/WF\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;sJsUIg53J9j/KzamEYrREcZylxdh77Q6zpsloXmj0sVqvzy5L8HJYfttH/XNELzu\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;9ZEnBCi23Vo2Dt2Q6ZZO/MGJp1J2OAcaBBZ+B0i1E1c/MA2VNwuXx+v1Nc3SUyNy\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;bqM0zfNWoegTqssfAxOTsFclAiMIL96J9GJsqfl9IQzClgV7/anhwfTA3qEjpYLC\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;qxIyM0wVAgMBAAECggEACufBfjY3R1hjsUDZB4P2xKXDcuJJ9sLKak6XTxO5RWAA\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;gukXtSY2YS/8ClaOsvdCirkIiMgS4jLgkXTUmonpPjC+YuIO2+CEIXSx9qvWWfgR\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;+EK3M7mIhqHZ8CWMXXnOQ08WXou39+Rtp+LnfvW2E8rg7OrFqtIT7IgA8O7zHkMk\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;dBNUq5GO/nQ4GUmEbCb10Bs8Fb1Ibf4vUhAmgvpuS7oFfEcecoJmvU2x/UVTdWsL\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;1A+kzxvq0fShhmeMct1RJD1q33Ifv5C6Z3CgjHWJAjUaWR0+qTS61aS0u5Uh7FSl\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;zewiiDYueDhD6bQB22cCSzIi5yDDY9XtQl+bCncsjQKBgQDib39w0swSpNn6LzYz\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;Pm8LtTAo4ARFpHdZjR3+pOCtKHnBY89JHNxk1vTveY8lvMecqELSSLUhSYWgHVpw\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;3bWB1NXS7+ACIrSD0x93Qv9mJ9ZCUW8r4HcZ9Eo+z52Anoe6VOqg83uIgPGCLcvJ\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;nxXFOlwW1MGJUEHDnv5PsUHfJwKBgQDFOJvJmn1DgP1CHAEmnjhfKI/JnhS941Pi\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;terIHLq9t7vv6ASMin42bHGWxFfdEoLFWlssqr8xvPFpNiMqOA1A7pZs8kcJgLnu\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;Z7Il8M1Fx2BTk+UIQMWVX7Ftm3Jpdc4/qjNnmUEE7ITDIcKzXuHp48s2AmELSpc6\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;Zyq0ALYAYwKBgBOTlC8K6n3KJtZMcqEniq42cf12sKfcujzRyIAVfR87Wptvp6Io\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;jp1hQDfcCJY4pgFTQsOvaYmBM75OC12qrWCWKA5ekr1chsLG4/eJoU8RrqJ5K+Vd\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;OK7Twf+AL5vJGO7xHH/hzRJWI4sfrni1+knc681Fg539hFIHUvFM3+cNAoGAQmBY\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;BlUpfZOnKR3VwVKU9GnpYtkCcBpXfEDvwOPycbGp3gd/qHFgIx8CZ9SzIaN+Qb+0\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;WecprCrEMT3YPfhZdZYXKJmuEOOzMCrUSXKvE6ITqG1pMwrhtPFc/N/JdPcCMGkv\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;Hdn1iRu1Xxs4tTfk3twc45OPZ8Z1+WEJfUWT+7MCgYAYfHXHVF5U9XLsvCQz4z37\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;FkIVtrYjQ6D2329+YTO+axlfRB8v0EHsPIeMQcWFxIOybNWFu5kFJmWB8T1ycqk/\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;p9i04GoW44woZfzP8FWFw5B8wTXn9yqq3RVm2f5bsUGHv/32cPuGmi1aG2kNGJb0\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;LoLK4I5s6vHfBZ+wahqiTQ==\n&#34;</span>
+                <span class="o">+</span> <span class="s">&#34;-----END PRIVATE KEY-----&#34;</span><span class="o">;</span>
+
+        <span class="kd">static</span> <span class="n">String</span> <span class="n">publicKey</span> <span class="o">=</span> <span class="s">&#34;MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArnHfQYc/ZQRgVENgT8rn\n&#34;</span>
+            <span class="o">+</span> <span class="s">&#34;20rM3Y30sYD6weP7mvbWJDIbDOjbVilV4QfDKPcBKEzTUoQL3Ev15P3cZ4/n92jF\n&#34;</span>
+            <span class="o">+</span> <span class="s">&#34;9UB1MrPwn+wBX3c/Qeix0cmiayRFIrmYaR93KIU/3GT1gn1zAvE5JjP1hbCbFCIO\n&#34;</span>
+            <span class="o">+</span> <span class="s">&#34;dyfY/ys2phGK0RHGcpcXYe+0Os6bJaF5o9LFar88uS/ByWH7bR/1zRC87vWRJwQo\n&#34;</span>
+            <span class="o">+</span> <span class="s">&#34;tt1aNg7dkOmWTvzBiadSdjgHGgQWfgdItRNXPzANlTcLl8fr9TXN0lMjcm6jNM3z\n&#34;</span>
+            <span class="o">+</span> <span class="s">&#34;VqHoE6rLHwMTk7BXJQIjCC/eifRibKn5fSEMwpYFe/2p4cH0wN6hI6WCwqsSMjNM\n&#34;</span>
+            <span class="o">+</span> <span class="s">&#34;FQIDAQAB&#34;</span><span class="o">;</span>
+
+
+       <span class="cm">/**
+</span><span class="cm">        * RSA加密解密测试示例
+</span><span class="cm">        * @throws Exception
+</span><span class="cm">        */</span>
+       <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span>  <span class="kd">throws</span> <span class="n">Exception</span> 
+       <span class="o">{</span>
+                 <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Hello World!&#34;</span><span class="o">);</span>
+
+                 <span class="c1">// Read in the key into a String        
+</span><span class="c1"></span>                 <span class="n">StringBuilder</span> <span class="n">pkcs8Lines</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StringBuilder</span><span class="o">();</span>
+                 <span class="n">BufferedReader</span> <span class="n">rdr</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BufferedReader</span><span class="o">(</span><span class="k">new</span> <span class="n">StringReader</span><span class="o">(</span><span class="n">privateKey</span><span class="o">));</span>
+                 <span class="n">String</span> <span class="n">line</span><span class="o">;</span>
+                 <span class="k">while</span> <span class="o">((</span><span class="n">line</span> <span class="o">=</span> <span class="n">rdr</span><span class="o">.</span><span class="na">readLine</span><span class="o">())</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                     <span class="n">pkcs8Lines</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">line</span><span class="o">);</span>
+                 <span class="o">}</span>
+
+                 <span class="c1">// Remove the &#34;BEGIN&#34; and &#34;END&#34; lines, as well as any whitespace
+</span><span class="c1"></span>                 <span class="n">String</span> <span class="n">pkcs8Pem</span> <span class="o">=</span> <span class="n">pkcs8Lines</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+                 <span class="n">pkcs8Pem</span> <span class="o">=</span> <span class="n">pkcs8Pem</span><span class="o">.</span><span class="na">replace</span><span class="o">(</span><span class="s">&#34;-----BEGIN PRIVATE KEY-----&#34;</span><span class="o">,</span> <span class="s">&#34;&#34;</span><span class="o">);</span>
+                 <span class="n">pkcs8Pem</span> <span class="o">=</span> <span class="n">pkcs8Pem</span><span class="o">.</span><span class="na">replace</span><span class="o">(</span><span class="s">&#34;-----END PRIVATE KEY-----&#34;</span><span class="o">,</span> <span class="s">&#34;&#34;</span><span class="o">);</span>
+                 <span class="n">pkcs8Pem</span> <span class="o">=</span> <span class="n">pkcs8Pem</span><span class="o">.</span><span class="na">replaceAll</span><span class="o">(</span><span class="s">&#34;\\s+&#34;</span><span class="o">,</span><span class="s">&#34;&#34;</span><span class="o">);</span>
+                 <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;pkcs8Pem:&#34;</span> <span class="o">+</span> <span class="n">pkcs8Pem</span><span class="o">);</span>
+
+                 <span class="c1">// Base64 decode the result
+</span><span class="c1"></span>                 <span class="c1">// byte[] pkcs8EncodedBytes = Base64.decode(pkcs8Pem, Base64.DEFAULT);
+</span><span class="c1"></span>                 <span class="kt">byte</span> <span class="o">[]</span> <span class="n">pkcs8EncodedBytes</span> <span class="o">=</span> <span class="n">decode</span><span class="o">(</span><span class="n">pkcs8Pem</span><span class="o">);</span>
+                 <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;pkcs8EncodedBytes byte:&#34;</span> <span class="o">+</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">pkcs8EncodedBytes</span><span class="o">));</span>
+                 <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;pkcs8Pem byte:&#34;</span> <span class="o">+</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">pkcs8Pem</span><span class="o">.</span><span class="na">getBytes</span><span class="o">()));</span>
+
+                 <span class="c1">// extract the private key
+</span><span class="c1"></span>                 <span class="n">PKCS8EncodedKeySpec</span> <span class="n">keySpec</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PKCS8EncodedKeySpec</span><span class="o">(</span><span class="n">pkcs8EncodedBytes</span><span class="o">);</span>
+                 <span class="n">KeyFactory</span> <span class="n">kf</span> <span class="o">=</span> <span class="n">KeyFactory</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">&#34;RSA&#34;</span><span class="o">);</span>
+                 <span class="n">PrivateKey</span> <span class="n">privKey</span> <span class="o">=</span> <span class="n">kf</span><span class="o">.</span><span class="na">generatePrivate</span><span class="o">(</span><span class="n">keySpec</span><span class="o">);</span>
+                 <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">privKey</span><span class="o">);</span>
+
+                 <span class="n">String</span> <span class="n">param</span> <span class="o">=</span> <span class="s">&#34;{\&#34;name\&#34;:\&#34;aa\&#34;}&#34;</span><span class="o">;</span>
+                 <span class="n">String</span> <span class="n">p1</span> <span class="o">=</span> <span class="n">encode</span><span class="o">(</span><span class="n">param</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
+                 <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;p1:&#34;</span> <span class="o">+</span> <span class="n">p1</span><span class="o">);</span>
+
+                 <span class="kt">byte</span><span class="o">[]</span> <span class="n">p2</span> <span class="o">=</span> <span class="n">decode</span><span class="o">(</span><span class="n">p1</span><span class="o">);</span>
+                 <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;p2:&#34;</span> <span class="o">+</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">p2</span><span class="o">));</span>
+
+                 <span class="n">String</span> <span class="n">encryptData</span> <span class="o">=</span> <span class="n">encryptForPrivateKey</span><span class="o">(</span><span class="n">param</span><span class="o">,</span> <span class="n">pkcs8Pem</span><span class="o">);</span>
+                 <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;加密后内容:&#34;</span> <span class="o">+</span> <span class="n">encryptData</span><span class="o">);</span>
+
+                 <span class="n">String</span> <span class="n">publicKey2</span> <span class="o">=</span> <span class="s">&#34;MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAv651nntK13ezxNPnQ5s7\n&#34;</span>
+                     <span class="o">+</span> <span class="s">&#34;8nwRK45rg28tvhMr9rt6HNrS1bhKEtysx+p4jKuA1BHBHWWSA5SlRlruS1zZIpgy\n&#34;</span>
+                     <span class="o">+</span> <span class="s">&#34;p5u8uqhAALp3yBa0Yw/XcyBe2zuY5mfCCL3ftKw3o9rzFsG6obnwLXnGQyKMPmxP\n&#34;</span>
+                     <span class="o">+</span> <span class="s">&#34;/pIeZHkIUMo/EjI5ExKG+dMQn1Fp6wo/+zbnZIk1ewQH4E0+iPyWa2nn2RBPFiYS\n&#34;</span>
+                     <span class="o">+</span> <span class="s">&#34;QPPvsypfkE46z0VG7eqAxqrUSzm26qhYgv+lqIn/Zqq/ZnTJO+2SDI8GsbEaqXiF\n&#34;</span>
+                     <span class="o">+</span> <span class="s">&#34;QRrWZrDcU92s76rwlIHUBlEqRKNXc+BcfWwEx4giEk87GPC9QHxjLgwzEeNXjih2\n&#34;</span>
+                     <span class="o">+</span> <span class="s">&#34;jwIDAQAB&#34;</span><span class="o">;</span>
+
+                 <span class="c1">// String encryptData2 = &#34;bl7TWxqWq17amPInw5gLEcNds5G3v2Gm8MNeRBniliTiPyUjMCZwbtiJK9/M423OOqYU3e+Kk3wROyk2K/5WSmgkfdaLWBgpRKWDO/x8H9Sg/5QsBnMCrosM/MFK9ayyJiuE5nM6PU3qCGZ+/v0nR0RagUo9Eqxx6g8ZQWMXBtCEd1yyGpnRzxmvbX77HYYs26gKKDduvbwhxjwEDBzByxZrhLQ03wBSJATRNevGEimlMK4ev+JVk0lqCz4Y0M28eskrvcT2246+OB4M/tElt4gGD/MTtFUAjJ/pKnyX/dRL/iIQzU6afxr3+QDBK7VHyNr3LrPJNXUeYNYwyJWrpw==&#34;;
+</span><span class="c1"></span>                 <span class="n">String</span> <span class="n">encryptData2</span> <span class="o">=</span> <span class="s">&#34;Wzfl/uB/7cXPkRjLJ/guruu9NytzdT+9dM3dsMAOYHLdBEcEPBsDkNICEmTlM7ubkGmNE6rxeZ/20SpaSWEY89zahoAb7GMu1ceGPbJZrb5F26BfMHsA+CK5Y6MLtbl/ssaq/r9U0xB/DJeDJrOUs8hO8YPgGxeOtzMuJhHT4BVh4Td1SBA9hSJOWkMZCkwGP6RaSl4eunggk1Kmuu5rxEOIv9B7TWCIRpuy2AwtLwRCIbZjIilVVFMTzpuUySKWlcl5qD/OdYKfidDtXvIam2J9JoH3TddUKSsbcPDsb0AC8BR8a9CRC72jGCvftxqUIwWMWTZgqViEWeEcSTK/gw==&#34;</span><span class="o">;</span>
+                 
+                 <span class="n">String</span> <span class="n">decryptData</span> <span class="o">=</span> <span class="n">decryptForPublicKey</span><span class="o">(</span><span class="n">encryptData2</span><span class="o">,</span> <span class="n">publicKey2</span><span class="o">);</span>
+                 <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;解密后内容:&#34;</span> <span class="o">+</span> <span class="n">decryptData</span><span class="o">);</span>
+
+                 <span class="n">String</span> <span class="n">rSignData</span> <span class="o">=</span> <span class="s">&#34;NZQrkpicy7wGx1fWu+8KhU5fWfI3oTAa6Deg0/GEDVcOwpwpoybLRdI4NCM7I8mLSNh/KI+d62gqcWnT399XQCGiesZlSR7ux7TM/aQe+RqLIvPNWcfcxyEGmDZxDgvnjTP5qzJYaQKC9DK4w2SelwDab7nhvV30uV24kQeBJGjGrsT2xZVPnWcsc8UaV+QUpajmV70QdYilDVn9RYht891Uwqm5twqcYej3ba9ZBE16cmaNGeveegXvwkGK6akmXR9covoLMqDUvq0HE1Mr2S43nMisF/vw2uQxgRq+Dr44OBbPMY9qICnd99B7csv498CfZLMRf/4+92TPUClnbw==&#34;</span><span class="o">;</span>
+                 <span class="c1">// RSA验签
+</span><span class="c1"></span>                 <span class="kt">boolean</span> <span class="n">result</span> <span class="o">=</span> <span class="n">doCheck</span><span class="o">(</span><span class="n">decryptData</span><span class="o">,</span> <span class="n">rSignData</span><span class="o">,</span> <span class="n">publicKey2</span><span class="o">,</span> <span class="s">&#34;UTF-8&#34;</span><span class="o">);</span>
+                 <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="s">&#34;验签结果:&#34;</span> <span class="o">+</span> <span class="n">result</span><span class="o">);</span>
+       <span class="o">}</span>
+
+       <span class="cm">/**
+</span><span class="cm">        * RSA验签名检查
+</span><span class="cm">        * @param content 待签名数据
+</span><span class="cm">        * @param sign 签名值
+</span><span class="cm">        * @param publicKey 分配给开发商公钥
+</span><span class="cm">        * @param encode 字符集编码
+</span><span class="cm">        * @return 布尔值
+</span><span class="cm">        */</span>
+       <span class="kd">public</span> <span class="kd">static</span> <span class="kt">boolean</span> <span class="nf">doCheck</span><span class="o">(</span><span class="n">String</span> <span class="n">content</span><span class="o">,</span> <span class="n">String</span> <span class="n">sign</span><span class="o">,</span> <span class="n">String</span> <span class="n">publicKey</span><span class="o">,</span><span class="n">String</span> <span class="n">encode</span><span class="o">)</span>
+       <span class="o">{</span>
+           <span class="k">try</span>
+           <span class="o">{</span>
+               <span class="n">KeyFactory</span> <span class="n">keyFactory</span> <span class="o">=</span> <span class="n">KeyFactory</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">KEY_ALGORITHM</span><span class="o">);</span>
+               <span class="kt">byte</span><span class="o">[]</span> <span class="n">encodedKey</span> <span class="o">=</span> <span class="n">decode</span><span class="o">(</span><span class="n">publicKey</span><span class="o">);</span>
+               <span class="n">PublicKey</span> <span class="n">pubKey</span> <span class="o">=</span> <span class="n">keyFactory</span><span class="o">.</span><span class="na">generatePublic</span><span class="o">(</span><span class="k">new</span> <span class="n">X509EncodedKeySpec</span><span class="o">(</span><span class="n">encodedKey</span><span class="o">));</span>
+               <span class="n">java</span><span class="o">.</span><span class="na">security</span><span class="o">.</span><span class="na">Signature</span> <span class="n">signature</span> <span class="o">=</span> <span class="n">java</span><span class="o">.</span><span class="na">security</span><span class="o">.</span><span class="na">Signature</span>
+                   <span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">SIGN_ALGORITHMS</span><span class="o">);</span>
+               <span class="n">signature</span><span class="o">.</span><span class="na">initVerify</span><span class="o">(</span><span class="n">pubKey</span><span class="o">);</span>
+               <span class="n">signature</span><span class="o">.</span><span class="na">update</span><span class="o">(</span> <span class="n">content</span><span class="o">.</span><span class="na">getBytes</span><span class="o">(</span><span class="n">encode</span><span class="o">)</span> <span class="o">);</span>
+
+               <span class="kt">boolean</span> <span class="n">bverify</span> <span class="o">=</span> <span class="n">signature</span><span class="o">.</span><span class="na">verify</span><span class="o">(</span> <span class="n">decode</span><span class="o">(</span><span class="n">sign</span><span class="o">)</span> <span class="o">);</span>
+               <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="s">&#34;验签结果-----:&#34;</span> <span class="o">+</span> <span class="n">bverify</span><span class="o">);</span>
+               <span class="k">return</span> <span class="n">bverify</span><span class="o">;</span>
+
+           <span class="o">}</span>
+           <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span>
+           <span class="o">{</span>
+               <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+           <span class="o">}</span>
+
+           <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+       <span class="o">}</span>
+
+       <span class="cm">/**
+</span><span class="cm">        * 签名算法
+</span><span class="cm">        */</span>
+       <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">SIGN_ALGORITHMS</span> <span class="o">=</span> <span class="s">&#34;SHA256WithRSA&#34;</span><span class="o">;</span>
+
+       <span class="cm">/**
+</span><span class="cm">        * 加密算法RSA
+</span><span class="cm">        */</span>
+       <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">KEY_ALGORITHM</span> <span class="o">=</span> <span class="s">&#34;RSA&#34;</span><span class="o">;</span>
+
+       <span class="cm">/**
+</span><span class="cm">        * RSA最大加密明文大小
+</span><span class="cm">        */</span>
+       <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">MAX_ENCRYPT_BLOCK</span> <span class="o">=</span> <span class="n">245</span><span class="o">;</span>
+
+       <span class="cm">/**
+</span><span class="cm">        * RSA最大解密密文大小
+</span><span class="cm">        */</span>
+       <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">MAX_DECRYPT_BLOCK</span> <span class="o">=</span> <span class="n">256</span><span class="o">;</span>
+
+       <span class="cm">/**
+</span><span class="cm">        * 私钥加密
+</span><span class="cm">        * @param privateKeyStr 私钥
+</span><span class="cm">        * @param data 加密字符串
+</span><span class="cm">        * @return String 密文数据
+</span><span class="cm">        * @throws Exception
+</span><span class="cm">        */</span>
+       <span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">encryptForPrivateKey</span><span class="o">(</span><span class="n">String</span> <span class="n">data</span><span class="o">,</span> <span class="n">String</span> <span class="n">privateKeyStr</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span><span class="o">{</span>
+           <span class="kt">byte</span><span class="o">[]</span> <span class="n">decryptedData</span> <span class="o">=</span> <span class="n">encryptByPrivateKey</span><span class="o">(</span><span class="n">data</span><span class="o">.</span><span class="na">getBytes</span><span class="o">(),</span> <span class="n">privateKeyStr</span><span class="o">);</span>
+           <span class="c1">// return Base64.encode(decryptedData);
+</span><span class="c1"></span>           <span class="c1">// return Base64.getEncoder().encodeToString(decryptedData);
+</span><span class="c1"></span>           <span class="k">return</span> <span class="n">encode</span><span class="o">(</span><span class="n">decryptedData</span><span class="o">);</span>
+       <span class="o">}</span>
+
+       <span class="cm">/**
+</span><span class="cm">        * &lt;p&gt;
+</span><span class="cm">        * 私钥加密
+</span><span class="cm">        * &lt;/p&gt;
+</span><span class="cm">        * 
+</span><span class="cm">        * @param data
+</span><span class="cm">        *            源数�?
+</span><span class="cm">        * @param privateKey
+</span><span class="cm">        *            私钥(BASE64编码)
+</span><span class="cm">        * @return
+</span><span class="cm">        * @throws Exception
+</span><span class="cm">        */</span>
+       <span class="kd">public</span> <span class="kd">static</span> <span class="kt">byte</span><span class="o">[]</span> <span class="nf">encryptByPrivateKey</span><span class="o">(</span><span class="kt">byte</span><span class="o">[]</span> <span class="n">data</span><span class="o">,</span> <span class="n">String</span> <span class="n">privateKey</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+           <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;privateKey:&#34;</span> <span class="o">+</span> <span class="n">privateKey</span><span class="o">);</span>
+           <span class="c1">// byte[] keyBytes = Base64.decode(privateKey);
+</span><span class="c1"></span>           <span class="c1">// byte[] keyBytes = Base64.getDecoder().decode(privateKey);
+</span><span class="c1"></span>           <span class="c1">// byte[] keyBytes = privateKey.getBytes();
+</span><span class="c1"></span>           <span class="c1">// System.out.println(&#34;privateKey byte:&#34; + Arrays.toString(keyBytes));
+</span><span class="c1"></span>           <span class="kt">byte</span> <span class="o">[]</span> <span class="n">pkcs8EncodedBytes</span> <span class="o">=</span> <span class="n">decode</span><span class="o">(</span><span class="n">privateKey</span><span class="o">);</span>
+           <span class="n">PKCS8EncodedKeySpec</span> <span class="n">pkcs8KeySpec</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PKCS8EncodedKeySpec</span><span class="o">(</span><span class="n">pkcs8EncodedBytes</span><span class="o">);</span>
+
+           <span class="c1">// KeyFactory kf = KeyFactory.getInstance(&#34;RSA&#34;);
+</span><span class="c1"></span>           <span class="c1">// PrivateKey privKey = kf.generatePrivate(keySpec);
+</span><span class="c1"></span>           <span class="c1">// System.out.println(privKey);
+</span><span class="c1"></span>
+           <span class="n">KeyFactory</span> <span class="n">keyFactory</span> <span class="o">=</span> <span class="n">KeyFactory</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">KEY_ALGORITHM</span><span class="o">);</span>
+           <span class="n">Key</span> <span class="n">privateK</span> <span class="o">=</span> <span class="n">keyFactory</span><span class="o">.</span><span class="na">generatePrivate</span><span class="o">(</span><span class="n">pkcs8KeySpec</span><span class="o">);</span>
+           <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;---&#34;</span> <span class="o">+</span> <span class="n">privateK</span><span class="o">);</span>
+           <span class="n">Cipher</span> <span class="n">cipher</span> <span class="o">=</span> <span class="n">Cipher</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">keyFactory</span><span class="o">.</span><span class="na">getAlgorithm</span><span class="o">());</span>
+           <span class="n">cipher</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">Cipher</span><span class="o">.</span><span class="na">ENCRYPT_MODE</span><span class="o">,</span> <span class="n">privateK</span><span class="o">);</span>
+           <span class="kt">int</span> <span class="n">inputLen</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+           <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;en inputLen:&#34;</span> <span class="o">+</span> <span class="n">inputLen</span> <span class="o">+</span> <span class="s">&#34;---&#34;</span> <span class="o">+</span> <span class="n">MAX_ENCRYPT_BLOCK</span><span class="o">);</span>
+           <span class="n">ByteArrayOutputStream</span> <span class="n">out</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ByteArrayOutputStream</span><span class="o">();</span>
+           <span class="kt">int</span> <span class="n">offSet</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+           <span class="kt">byte</span><span class="o">[]</span> <span class="n">cache</span><span class="o">;</span>
+           <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+           <span class="c1">// 对数据分段加密
+</span><span class="c1"></span>           <span class="k">while</span> <span class="o">(</span><span class="n">inputLen</span> <span class="o">-</span> <span class="n">offSet</span> <span class="o">&gt;</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+               <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;----:&#34;</span> <span class="o">+</span> <span class="n">inputLen</span> <span class="o">+</span> <span class="s">&#34;===&#34;</span> <span class="o">+</span> <span class="n">offSet</span> <span class="o">+</span> <span class="s">&#34; i &#34;</span> <span class="o">+</span> <span class="n">i</span><span class="o">);</span>
+               <span class="k">if</span> <span class="o">(</span><span class="n">inputLen</span> <span class="o">-</span> <span class="n">offSet</span> <span class="o">&gt;</span> <span class="n">MAX_ENCRYPT_BLOCK</span><span class="o">)</span> <span class="o">{</span>
+                   <span class="n">cache</span> <span class="o">=</span> <span class="n">cipher</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">data</span><span class="o">,</span> <span class="n">offSet</span><span class="o">,</span> <span class="n">MAX_ENCRYPT_BLOCK</span><span class="o">);</span>
+               <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                   <span class="n">cache</span> <span class="o">=</span> <span class="n">cipher</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">data</span><span class="o">,</span> <span class="n">offSet</span><span class="o">,</span> <span class="n">inputLen</span> <span class="o">-</span> <span class="n">offSet</span><span class="o">);</span>
+               <span class="o">}</span>
+               <span class="n">out</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">cache</span><span class="o">,</span> <span class="n">0</span><span class="o">,</span> <span class="n">cache</span><span class="o">.</span><span class="na">length</span><span class="o">);</span>
+               <span class="n">i</span><span class="o">++;</span>
+               <span class="n">offSet</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="n">MAX_ENCRYPT_BLOCK</span><span class="o">;</span>
+           <span class="o">}</span>
+           <span class="kt">byte</span><span class="o">[]</span> <span class="n">encryptedData</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="na">toByteArray</span><span class="o">();</span>
+           <span class="n">out</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+           <span class="k">return</span> <span class="n">encryptedData</span><span class="o">;</span>
+       <span class="o">}</span>
+
+       <span class="cm">/**
+</span><span class="cm">        * 公钥解密方法
+</span><span class="cm">        * @param publicKey
+</span><span class="cm">        * @param plainTextData 密文
+</span><span class="cm">        * @return 明文
+</span><span class="cm">        * @throws Exception
+</span><span class="cm">        */</span>
+       <span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">decryptForPublicKey</span><span class="o">(</span><span class="n">String</span> <span class="n">plainTextData</span><span class="o">,</span> <span class="n">String</span> <span class="n">publicKey</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span><span class="o">{</span>
+           <span class="kt">byte</span><span class="o">[]</span> <span class="n">decryptedData</span> <span class="o">=</span> <span class="n">decryptByPublicKey</span><span class="o">(</span><span class="n">decode</span><span class="o">(</span><span class="n">plainTextData</span><span class="o">),</span> <span class="n">publicKey</span><span class="o">);</span>
+           <span class="k">return</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="n">decryptedData</span><span class="o">);</span>
+       <span class="o">}</span>
+
+       <span class="cm">/**
+</span><span class="cm">        * &lt;p&gt;
+</span><span class="cm">        * 公钥解密
+</span><span class="cm">        * &lt;/p&gt;
+</span><span class="cm">        * 
+</span><span class="cm">        * @param encryptedData
+</span><span class="cm">        *            已加密数据
+</span><span class="cm">        * @param publicKey
+</span><span class="cm">        *            公钥(BASE64编码)
+</span><span class="cm">        * @return
+</span><span class="cm">        * @throws Exception
+</span><span class="cm">        */</span>
+       <span class="kd">public</span> <span class="kd">static</span> <span class="kt">byte</span><span class="o">[]</span> <span class="nf">decryptByPublicKey</span><span class="o">(</span><span class="kt">byte</span><span class="o">[]</span> <span class="n">encryptedData</span><span class="o">,</span> <span class="n">String</span> <span class="n">publicKey</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+           <span class="kt">byte</span><span class="o">[]</span> <span class="n">keyBytes</span> <span class="o">=</span> <span class="n">decode</span><span class="o">(</span><span class="n">publicKey</span><span class="o">);</span>
+           <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;kkk----:&#34;</span> <span class="o">+</span> <span class="n">keyBytes</span><span class="o">.</span><span class="na">length</span><span class="o">);</span>
+           <span class="n">X509EncodedKeySpec</span> <span class="n">x509KeySpec</span> <span class="o">=</span> <span class="k">new</span> <span class="n">X509EncodedKeySpec</span><span class="o">(</span><span class="n">keyBytes</span><span class="o">);</span>
+           <span class="n">KeyFactory</span> <span class="n">keyFactory</span> <span class="o">=</span> <span class="n">KeyFactory</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">KEY_ALGORITHM</span><span class="o">);</span>
+           <span class="n">Key</span> <span class="n">publicK</span> <span class="o">=</span> <span class="n">keyFactory</span><span class="o">.</span><span class="na">generatePublic</span><span class="o">(</span><span class="n">x509KeySpec</span><span class="o">);</span>
+           <span class="n">Cipher</span> <span class="n">cipher</span> <span class="o">=</span> <span class="n">Cipher</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">keyFactory</span><span class="o">.</span><span class="na">getAlgorithm</span><span class="o">());</span>
+           <span class="n">cipher</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">Cipher</span><span class="o">.</span><span class="na">DECRYPT_MODE</span><span class="o">,</span> <span class="n">publicK</span><span class="o">);</span>
+           <span class="kt">int</span> <span class="n">inputLen</span> <span class="o">=</span> <span class="n">encryptedData</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+           <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;inputLen:&#34;</span> <span class="o">+</span> <span class="n">inputLen</span><span class="o">);</span>
+           <span class="n">ByteArrayOutputStream</span> <span class="n">out</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ByteArrayOutputStream</span><span class="o">();</span>
+           <span class="kt">int</span> <span class="n">offSet</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+           <span class="kt">byte</span><span class="o">[]</span> <span class="n">cache</span><span class="o">;</span>
+           <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+           <span class="c1">// 对数据分段解密
+</span><span class="c1"></span>           <span class="k">while</span> <span class="o">(</span><span class="n">inputLen</span> <span class="o">-</span> <span class="n">offSet</span> <span class="o">&gt;</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+               <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;de ----:&#34;</span> <span class="o">+</span> <span class="n">inputLen</span> <span class="o">+</span> <span class="s">&#34;===&#34;</span> <span class="o">+</span> <span class="n">offSet</span> <span class="o">+</span> <span class="s">&#34; i &#34;</span> <span class="o">+</span> <span class="n">i</span><span class="o">);</span>
+               <span class="k">if</span> <span class="o">(</span><span class="n">inputLen</span> <span class="o">-</span> <span class="n">offSet</span> <span class="o">&gt;</span> <span class="n">MAX_DECRYPT_BLOCK</span><span class="o">)</span> <span class="o">{</span>
+                   <span class="n">cache</span> <span class="o">=</span> <span class="n">cipher</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">encryptedData</span><span class="o">,</span> <span class="n">offSet</span><span class="o">,</span> <span class="n">MAX_DECRYPT_BLOCK</span><span class="o">);</span>
+               <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                   <span class="n">cache</span> <span class="o">=</span> <span class="n">cipher</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">encryptedData</span><span class="o">,</span> <span class="n">offSet</span><span class="o">,</span> <span class="n">inputLen</span> <span class="o">-</span> <span class="n">offSet</span><span class="o">);</span>
+               <span class="o">}</span>
+               <span class="n">out</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">cache</span><span class="o">,</span> <span class="n">0</span><span class="o">,</span> <span class="n">cache</span><span class="o">.</span><span class="na">length</span><span class="o">);</span>
+               <span class="n">i</span><span class="o">++;</span>
+               <span class="n">offSet</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="n">MAX_DECRYPT_BLOCK</span><span class="o">;</span>
+           <span class="o">}</span>
+           <span class="kt">byte</span><span class="o">[]</span> <span class="n">decryptedData</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="na">toByteArray</span><span class="o">();</span>
+           <span class="n">out</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+           <span class="k">return</span> <span class="n">decryptedData</span><span class="o">;</span>
+       <span class="o">}</span>
+
+
+
+<span class="c1">// 标准 base64
+</span><span class="c1"></span>
+    <span class="kd">static</span> <span class="kd">private</span> <span class="kd">final</span> <span class="kt">int</span>     <span class="n">BASELENGTH</span>           <span class="o">=</span> <span class="n">128</span><span class="o">;</span>
+    <span class="kd">static</span> <span class="kd">private</span> <span class="kd">final</span> <span class="kt">int</span>     <span class="n">LOOKUPLENGTH</span>         <span class="o">=</span> <span class="n">64</span><span class="o">;</span>
+    <span class="kd">static</span> <span class="kd">private</span> <span class="kd">final</span> <span class="kt">int</span>     <span class="n">TWENTYFOURBITGROUP</span>   <span class="o">=</span> <span class="n">24</span><span class="o">;</span>
+    <span class="kd">static</span> <span class="kd">private</span> <span class="kd">final</span> <span class="kt">int</span>     <span class="n">EIGHTBIT</span>             <span class="o">=</span> <span class="n">8</span><span class="o">;</span>
+    <span class="kd">static</span> <span class="kd">private</span> <span class="kd">final</span> <span class="kt">int</span>     <span class="n">SIXTEENBIT</span>           <span class="o">=</span> <span class="n">16</span><span class="o">;</span>
+    <span class="kd">static</span> <span class="kd">private</span> <span class="kd">final</span> <span class="kt">int</span>     <span class="n">FOURBYTE</span>             <span class="o">=</span> <span class="n">4</span><span class="o">;</span>
+    <span class="kd">static</span> <span class="kd">private</span> <span class="kd">final</span> <span class="kt">int</span>     <span class="n">SIGN</span>                 <span class="o">=</span> <span class="o">-</span><span class="n">128</span><span class="o">;</span>
+    <span class="kd">static</span> <span class="kd">private</span> <span class="kd">final</span> <span class="kt">char</span>    <span class="n">PAD</span>                  <span class="o">=</span> <span class="sc">&#39;=&#39;</span><span class="o">;</span>
+    <span class="kd">static</span> <span class="kd">private</span> <span class="kd">final</span> <span class="kt">boolean</span> <span class="n">fDebug</span>               <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+    <span class="kd">static</span> <span class="kd">final</span> <span class="kd">private</span> <span class="kt">byte</span><span class="o">[]</span>  <span class="n">base64Alphabet</span>       <span class="o">=</span> <span class="k">new</span> <span class="kt">byte</span><span class="o">[</span><span class="n">BASELENGTH</span><span class="o">];</span>
+    <span class="kd">static</span> <span class="kd">final</span> <span class="kd">private</span> <span class="kt">char</span><span class="o">[]</span>  <span class="n">lookUpBase64Alphabet</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">char</span><span class="o">[</span><span class="n">LOOKUPLENGTH</span><span class="o">];</span>
+
+    <span class="kd">static</span>
+    <span class="o">{</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">BASELENGTH</span><span class="o">;</span> <span class="o">++</span><span class="n">i</span><span class="o">)</span>
+        <span class="o">{</span>
+            <span class="n">base64Alphabet</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">1</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="sc">&#39;Z&#39;</span><span class="o">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="sc">&#39;A&#39;</span><span class="o">;</span> <span class="n">i</span><span class="o">--)</span>
+        <span class="o">{</span>
+            <span class="n">base64Alphabet</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(</span><span class="n">i</span> <span class="o">-</span> <span class="sc">&#39;A&#39;</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="sc">&#39;z&#39;</span><span class="o">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="sc">&#39;a&#39;</span><span class="o">;</span> <span class="n">i</span><span class="o">--)</span>
+        <span class="o">{</span>
+            <span class="n">base64Alphabet</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(</span><span class="n">i</span> <span class="o">-</span> <span class="sc">&#39;a&#39;</span> <span class="o">+</span> <span class="n">26</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="sc">&#39;9&#39;</span><span class="o">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="sc">&#39;0&#39;</span><span class="o">;</span> <span class="n">i</span><span class="o">--)</span>
+        <span class="o">{</span>
+            <span class="n">base64Alphabet</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(</span><span class="n">i</span> <span class="o">-</span> <span class="sc">&#39;0&#39;</span> <span class="o">+</span> <span class="n">52</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="n">base64Alphabet</span><span class="o">[</span><span class="sc">&#39;+&#39;</span><span class="o">]</span> <span class="o">=</span> <span class="n">62</span><span class="o">;</span>
+        <span class="n">base64Alphabet</span><span class="o">[</span><span class="sc">&#39;/&#39;</span><span class="o">]</span> <span class="o">=</span> <span class="n">63</span><span class="o">;</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">25</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span>
+        <span class="o">{</span>
+            <span class="n">lookUpBase64Alphabet</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="o">(</span><span class="kt">char</span><span class="o">)</span> <span class="o">(</span><span class="sc">&#39;A&#39;</span> <span class="o">+</span> <span class="n">i</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">26</span><span class="o">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">51</span><span class="o">;</span> <span class="n">i</span><span class="o">++,</span> <span class="n">j</span><span class="o">++)</span>
+        <span class="o">{</span>
+            <span class="n">lookUpBase64Alphabet</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="o">(</span><span class="kt">char</span><span class="o">)</span> <span class="o">(</span><span class="sc">&#39;a&#39;</span> <span class="o">+</span> <span class="n">j</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">52</span><span class="o">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">61</span><span class="o">;</span> <span class="n">i</span><span class="o">++,</span> <span class="n">j</span><span class="o">++)</span>
+        <span class="o">{</span>
+            <span class="n">lookUpBase64Alphabet</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="o">(</span><span class="kt">char</span><span class="o">)</span> <span class="o">(</span><span class="sc">&#39;0&#39;</span> <span class="o">+</span> <span class="n">j</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="n">lookUpBase64Alphabet</span><span class="o">[</span><span class="n">62</span><span class="o">]</span> <span class="o">=</span> <span class="o">(</span><span class="kt">char</span><span class="o">)</span> <span class="sc">&#39;+&#39;</span><span class="o">;</span>
+        <span class="n">lookUpBase64Alphabet</span><span class="o">[</span><span class="n">63</span><span class="o">]</span> <span class="o">=</span> <span class="o">(</span><span class="kt">char</span><span class="o">)</span> <span class="sc">&#39;/&#39;</span><span class="o">;</span>
+
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">boolean</span> <span class="nf">isWhiteSpace</span><span class="o">(</span><span class="kt">char</span> <span class="n">octect</span><span class="o">)</span>
+    <span class="o">{</span>
+        <span class="k">return</span> <span class="o">(</span><span class="n">octect</span> <span class="o">==</span> <span class="n">0x20</span> <span class="o">||</span> <span class="n">octect</span> <span class="o">==</span> <span class="n">0xd</span> <span class="o">||</span> <span class="n">octect</span> <span class="o">==</span> <span class="n">0xa</span> <span class="o">||</span> <span class="n">octect</span> <span class="o">==</span> <span class="n">0x9</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">boolean</span> <span class="nf">isPad</span><span class="o">(</span><span class="kt">char</span> <span class="n">octect</span><span class="o">)</span>
+    <span class="o">{</span>
+        <span class="k">return</span> <span class="o">(</span><span class="n">octect</span> <span class="o">==</span> <span class="n">PAD</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">boolean</span> <span class="nf">isData</span><span class="o">(</span><span class="kt">char</span> <span class="n">octect</span><span class="o">)</span>
+    <span class="o">{</span>
+        <span class="k">return</span> <span class="o">(</span><span class="n">octect</span> <span class="o">&lt;</span> <span class="n">BASELENGTH</span> <span class="o">&amp;&amp;</span> <span class="n">base64Alphabet</span><span class="o">[</span><span class="n">octect</span><span class="o">]</span> <span class="o">!=</span> <span class="o">-</span><span class="n">1</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * Encodes hex octects into Base64
+</span><span class="cm">     * 
+</span><span class="cm">     * @param binaryData
+</span><span class="cm">     *            Array containing binaryData
+</span><span class="cm">     * @return Encoded Base64 array
+</span><span class="cm">     */</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">encode</span><span class="o">(</span><span class="kt">byte</span><span class="o">[]</span> <span class="n">binaryData</span><span class="o">)</span>
+    <span class="o">{</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">binaryData</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+        <span class="o">{</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kt">int</span> <span class="n">lengthDataBits</span> <span class="o">=</span> <span class="n">binaryData</span><span class="o">.</span><span class="na">length</span> <span class="o">*</span> <span class="n">EIGHTBIT</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">lengthDataBits</span> <span class="o">==</span> <span class="n">0</span><span class="o">)</span>
+        <span class="o">{</span>
+            <span class="k">return</span> <span class="s">&#34;&#34;</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kt">int</span> <span class="n">fewerThan24bits</span> <span class="o">=</span> <span class="n">lengthDataBits</span> <span class="o">%</span> <span class="n">TWENTYFOURBITGROUP</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">numberTriplets</span> <span class="o">=</span> <span class="n">lengthDataBits</span> <span class="o">/</span> <span class="n">TWENTYFOURBITGROUP</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">numberQuartet</span> <span class="o">=</span> <span class="n">fewerThan24bits</span> <span class="o">!=</span> <span class="n">0</span> <span class="o">?</span> <span class="n">numberTriplets</span> <span class="o">+</span> <span class="n">1</span>
+                <span class="o">:</span> <span class="n">numberTriplets</span><span class="o">;</span>
+        <span class="kt">char</span> <span class="n">encodedData</span><span class="o">[]</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+
+        <span class="n">encodedData</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">char</span><span class="o">[</span><span class="n">numberQuartet</span> <span class="o">*</span> <span class="n">4</span><span class="o">];</span>
+
+        <span class="kt">byte</span> <span class="n">k</span> <span class="o">=</span> <span class="n">0</span><span class="o">,</span> <span class="n">l</span> <span class="o">=</span> <span class="n">0</span><span class="o">,</span> <span class="n">b1</span> <span class="o">=</span> <span class="n">0</span><span class="o">,</span> <span class="n">b2</span> <span class="o">=</span> <span class="n">0</span><span class="o">,</span> <span class="n">b3</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+
+        <span class="kt">int</span> <span class="n">encodedIndex</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">dataIndex</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">fDebug</span><span class="o">)</span>
+        <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;number of triplets = &#34;</span> <span class="o">+</span> <span class="n">numberTriplets</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">numberTriplets</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span>
+        <span class="o">{</span>
+            <span class="n">b1</span> <span class="o">=</span> <span class="n">binaryData</span><span class="o">[</span><span class="n">dataIndex</span><span class="o">++];</span>
+            <span class="n">b2</span> <span class="o">=</span> <span class="n">binaryData</span><span class="o">[</span><span class="n">dataIndex</span><span class="o">++];</span>
+            <span class="n">b3</span> <span class="o">=</span> <span class="n">binaryData</span><span class="o">[</span><span class="n">dataIndex</span><span class="o">++];</span>
+
+            <span class="k">if</span> <span class="o">(</span><span class="n">fDebug</span><span class="o">)</span>
+            <span class="o">{</span>
+                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;b1= &#34;</span> <span class="o">+</span> <span class="n">b1</span> <span class="o">+</span> <span class="s">&#34;, b2= &#34;</span> <span class="o">+</span> <span class="n">b2</span> <span class="o">+</span> <span class="s">&#34;, b3= &#34;</span> <span class="o">+</span> <span class="n">b3</span><span class="o">);</span>
+            <span class="o">}</span>
+
+            <span class="n">l</span> <span class="o">=</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(</span><span class="n">b2</span> <span class="o">&amp;</span> <span class="n">0x0f</span><span class="o">);</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(</span><span class="n">b1</span> <span class="o">&amp;</span> <span class="n">0x03</span><span class="o">);</span>
+
+            <span class="kt">byte</span> <span class="n">val1</span> <span class="o">=</span> <span class="o">((</span><span class="n">b1</span> <span class="o">&amp;</span> <span class="n">SIGN</span><span class="o">)</span> <span class="o">==</span> <span class="n">0</span><span class="o">)</span> <span class="o">?</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(</span><span class="n">b1</span> <span class="o">&gt;&gt;</span> <span class="n">2</span><span class="o">)</span>
+                    <span class="o">:</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">((</span><span class="n">b1</span><span class="o">)</span> <span class="o">&gt;&gt;</span> <span class="n">2</span> <span class="o">^</span> <span class="n">0xc0</span><span class="o">);</span>
+            <span class="kt">byte</span> <span class="n">val2</span> <span class="o">=</span> <span class="o">((</span><span class="n">b2</span> <span class="o">&amp;</span> <span class="n">SIGN</span><span class="o">)</span> <span class="o">==</span> <span class="n">0</span><span class="o">)</span> <span class="o">?</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(</span><span class="n">b2</span> <span class="o">&gt;&gt;</span> <span class="n">4</span><span class="o">)</span>
+                    <span class="o">:</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">((</span><span class="n">b2</span><span class="o">)</span> <span class="o">&gt;&gt;</span> <span class="n">4</span> <span class="o">^</span> <span class="n">0xf0</span><span class="o">);</span>
+            <span class="kt">byte</span> <span class="n">val3</span> <span class="o">=</span> <span class="o">((</span><span class="n">b3</span> <span class="o">&amp;</span> <span class="n">SIGN</span><span class="o">)</span> <span class="o">==</span> <span class="n">0</span><span class="o">)</span> <span class="o">?</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(</span><span class="n">b3</span> <span class="o">&gt;&gt;</span> <span class="n">6</span><span class="o">)</span>
+                    <span class="o">:</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">((</span><span class="n">b3</span><span class="o">)</span> <span class="o">&gt;&gt;</span> <span class="n">6</span> <span class="o">^</span> <span class="n">0xfc</span><span class="o">);</span>
+
+            <span class="k">if</span> <span class="o">(</span><span class="n">fDebug</span><span class="o">)</span>
+            <span class="o">{</span>
+                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;val2 = &#34;</span> <span class="o">+</span> <span class="n">val2</span><span class="o">);</span>
+                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;k4   = &#34;</span> <span class="o">+</span> <span class="o">(</span><span class="n">k</span> <span class="o">&lt;&lt;</span> <span class="n">4</span><span class="o">));</span>
+                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;vak  = &#34;</span> <span class="o">+</span> <span class="o">(</span><span class="n">val2</span> <span class="o">|</span> <span class="o">(</span><span class="n">k</span> <span class="o">&lt;&lt;</span> <span class="n">4</span><span class="o">)));</span>
+            <span class="o">}</span>
+
+            <span class="n">encodedData</span><span class="o">[</span><span class="n">encodedIndex</span><span class="o">++]</span> <span class="o">=</span> <span class="n">lookUpBase64Alphabet</span><span class="o">[</span><span class="n">val1</span><span class="o">];</span>
+            <span class="n">encodedData</span><span class="o">[</span><span class="n">encodedIndex</span><span class="o">++]</span> <span class="o">=</span> <span class="n">lookUpBase64Alphabet</span><span class="o">[</span><span class="n">val2</span> <span class="o">|</span> <span class="o">(</span><span class="n">k</span> <span class="o">&lt;&lt;</span> <span class="n">4</span><span class="o">)];</span>
+            <span class="n">encodedData</span><span class="o">[</span><span class="n">encodedIndex</span><span class="o">++]</span> <span class="o">=</span> <span class="n">lookUpBase64Alphabet</span><span class="o">[(</span><span class="n">l</span> <span class="o">&lt;&lt;</span> <span class="n">2</span><span class="o">)</span> <span class="o">|</span> <span class="n">val3</span><span class="o">];</span>
+            <span class="n">encodedData</span><span class="o">[</span><span class="n">encodedIndex</span><span class="o">++]</span> <span class="o">=</span> <span class="n">lookUpBase64Alphabet</span><span class="o">[</span><span class="n">b3</span> <span class="o">&amp;</span> <span class="n">0x3f</span><span class="o">];</span>
+        <span class="o">}</span>
+
+        <span class="c1">// form integral number of 6-bit groups
+</span><span class="c1"></span>        <span class="k">if</span> <span class="o">(</span><span class="n">fewerThan24bits</span> <span class="o">==</span> <span class="n">EIGHTBIT</span><span class="o">)</span>
+        <span class="o">{</span>
+            <span class="n">b1</span> <span class="o">=</span> <span class="n">binaryData</span><span class="o">[</span><span class="n">dataIndex</span><span class="o">];</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(</span><span class="n">b1</span> <span class="o">&amp;</span> <span class="n">0x03</span><span class="o">);</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">fDebug</span><span class="o">)</span>
+            <span class="o">{</span>
+                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;b1=&#34;</span> <span class="o">+</span> <span class="n">b1</span><span class="o">);</span>
+                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;b1&lt;&lt;2 = &#34;</span> <span class="o">+</span> <span class="o">(</span><span class="n">b1</span> <span class="o">&gt;&gt;</span> <span class="n">2</span><span class="o">));</span>
+            <span class="o">}</span>
+            <span class="kt">byte</span> <span class="n">val1</span> <span class="o">=</span> <span class="o">((</span><span class="n">b1</span> <span class="o">&amp;</span> <span class="n">SIGN</span><span class="o">)</span> <span class="o">==</span> <span class="n">0</span><span class="o">)</span> <span class="o">?</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(</span><span class="n">b1</span> <span class="o">&gt;&gt;</span> <span class="n">2</span><span class="o">)</span>
+                    <span class="o">:</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">((</span><span class="n">b1</span><span class="o">)</span> <span class="o">&gt;&gt;</span> <span class="n">2</span> <span class="o">^</span> <span class="n">0xc0</span><span class="o">);</span>
+            <span class="n">encodedData</span><span class="o">[</span><span class="n">encodedIndex</span><span class="o">++]</span> <span class="o">=</span> <span class="n">lookUpBase64Alphabet</span><span class="o">[</span><span class="n">val1</span><span class="o">];</span>
+            <span class="n">encodedData</span><span class="o">[</span><span class="n">encodedIndex</span><span class="o">++]</span> <span class="o">=</span> <span class="n">lookUpBase64Alphabet</span><span class="o">[</span><span class="n">k</span> <span class="o">&lt;&lt;</span> <span class="n">4</span><span class="o">];</span>
+            <span class="n">encodedData</span><span class="o">[</span><span class="n">encodedIndex</span><span class="o">++]</span> <span class="o">=</span> <span class="n">PAD</span><span class="o">;</span>
+            <span class="n">encodedData</span><span class="o">[</span><span class="n">encodedIndex</span><span class="o">++]</span> <span class="o">=</span> <span class="n">PAD</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">fewerThan24bits</span> <span class="o">==</span> <span class="n">SIXTEENBIT</span><span class="o">)</span>
+        <span class="o">{</span>
+            <span class="n">b1</span> <span class="o">=</span> <span class="n">binaryData</span><span class="o">[</span><span class="n">dataIndex</span><span class="o">];</span>
+            <span class="n">b2</span> <span class="o">=</span> <span class="n">binaryData</span><span class="o">[</span><span class="n">dataIndex</span> <span class="o">+</span> <span class="n">1</span><span class="o">];</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(</span><span class="n">b2</span> <span class="o">&amp;</span> <span class="n">0x0f</span><span class="o">);</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(</span><span class="n">b1</span> <span class="o">&amp;</span> <span class="n">0x03</span><span class="o">);</span>
+
+            <span class="kt">byte</span> <span class="n">val1</span> <span class="o">=</span> <span class="o">((</span><span class="n">b1</span> <span class="o">&amp;</span> <span class="n">SIGN</span><span class="o">)</span> <span class="o">==</span> <span class="n">0</span><span class="o">)</span> <span class="o">?</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(</span><span class="n">b1</span> <span class="o">&gt;&gt;</span> <span class="n">2</span><span class="o">)</span>
+                    <span class="o">:</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">((</span><span class="n">b1</span><span class="o">)</span> <span class="o">&gt;&gt;</span> <span class="n">2</span> <span class="o">^</span> <span class="n">0xc0</span><span class="o">);</span>
+            <span class="kt">byte</span> <span class="n">val2</span> <span class="o">=</span> <span class="o">((</span><span class="n">b2</span> <span class="o">&amp;</span> <span class="n">SIGN</span><span class="o">)</span> <span class="o">==</span> <span class="n">0</span><span class="o">)</span> <span class="o">?</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(</span><span class="n">b2</span> <span class="o">&gt;&gt;</span> <span class="n">4</span><span class="o">)</span>
+                    <span class="o">:</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">((</span><span class="n">b2</span><span class="o">)</span> <span class="o">&gt;&gt;</span> <span class="n">4</span> <span class="o">^</span> <span class="n">0xf0</span><span class="o">);</span>
+
+            <span class="n">encodedData</span><span class="o">[</span><span class="n">encodedIndex</span><span class="o">++]</span> <span class="o">=</span> <span class="n">lookUpBase64Alphabet</span><span class="o">[</span><span class="n">val1</span><span class="o">];</span>
+            <span class="n">encodedData</span><span class="o">[</span><span class="n">encodedIndex</span><span class="o">++]</span> <span class="o">=</span> <span class="n">lookUpBase64Alphabet</span><span class="o">[</span><span class="n">val2</span> <span class="o">|</span> <span class="o">(</span><span class="n">k</span> <span class="o">&lt;&lt;</span> <span class="n">4</span><span class="o">)];</span>
+            <span class="n">encodedData</span><span class="o">[</span><span class="n">encodedIndex</span><span class="o">++]</span> <span class="o">=</span> <span class="n">lookUpBase64Alphabet</span><span class="o">[</span><span class="n">l</span> <span class="o">&lt;&lt;</span> <span class="n">2</span><span class="o">];</span>
+            <span class="n">encodedData</span><span class="o">[</span><span class="n">encodedIndex</span><span class="o">++]</span> <span class="o">=</span> <span class="n">PAD</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="k">return</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="n">encodedData</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * Decodes Base64 data into octects
+</span><span class="cm">     * 
+</span><span class="cm">     * @param encoded
+</span><span class="cm">     *            string containing Base64 data
+</span><span class="cm">     * @return Array containind decoded data.
+</span><span class="cm">     */</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">byte</span><span class="o">[]</span> <span class="nf">decode</span><span class="o">(</span><span class="n">String</span> <span class="n">encoded</span><span class="o">)</span>
+    <span class="o">{</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">encoded</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+        <span class="o">{</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kt">char</span><span class="o">[]</span> <span class="n">base64Data</span> <span class="o">=</span> <span class="n">encoded</span><span class="o">.</span><span class="na">toCharArray</span><span class="o">();</span>
+        <span class="c1">// remove white spaces
+</span><span class="c1"></span>        <span class="kt">int</span> <span class="n">len</span> <span class="o">=</span> <span class="n">removeWhiteSpace</span><span class="o">(</span><span class="n">base64Data</span><span class="o">);</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">len</span> <span class="o">%</span> <span class="n">FOURBYTE</span> <span class="o">!=</span> <span class="n">0</span><span class="o">)</span>
+        <span class="o">{</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="o">;</span><span class="c1">// should be divisible by four
+</span><span class="c1"></span>        <span class="o">}</span>
+
+        <span class="kt">int</span> <span class="n">numberQuadruple</span> <span class="o">=</span> <span class="o">(</span><span class="n">len</span> <span class="o">/</span> <span class="n">FOURBYTE</span><span class="o">);</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">numberQuadruple</span> <span class="o">==</span> <span class="n">0</span><span class="o">)</span>
+        <span class="o">{</span>
+            <span class="k">return</span> <span class="k">new</span> <span class="kt">byte</span><span class="o">[</span><span class="n">0</span><span class="o">];</span>
+        <span class="o">}</span>
+
+        <span class="kt">byte</span> <span class="n">decodedData</span><span class="o">[]</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="kt">byte</span> <span class="n">b1</span> <span class="o">=</span> <span class="n">0</span><span class="o">,</span> <span class="n">b2</span> <span class="o">=</span> <span class="n">0</span><span class="o">,</span> <span class="n">b3</span> <span class="o">=</span> <span class="n">0</span><span class="o">,</span> <span class="n">b4</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+        <span class="kt">char</span> <span class="n">d1</span> <span class="o">=</span> <span class="n">0</span><span class="o">,</span> <span class="n">d2</span> <span class="o">=</span> <span class="n">0</span><span class="o">,</span> <span class="n">d3</span> <span class="o">=</span> <span class="n">0</span><span class="o">,</span> <span class="n">d4</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+
+        <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">encodedIndex</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">dataIndex</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+        <span class="n">decodedData</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">byte</span><span class="o">[(</span><span class="n">numberQuadruple</span><span class="o">)</span> <span class="o">*</span> <span class="n">3</span><span class="o">];</span>
+
+        <span class="k">for</span> <span class="o">(;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">numberQuadruple</span> <span class="o">-</span> <span class="n">1</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span>
+        <span class="o">{</span>
+
+            <span class="k">if</span> <span class="o">(!</span><span class="n">isData</span><span class="o">((</span><span class="n">d1</span> <span class="o">=</span> <span class="n">base64Data</span><span class="o">[</span><span class="n">dataIndex</span><span class="o">++]))</span>
+                    <span class="o">||</span> <span class="o">!</span><span class="n">isData</span><span class="o">((</span><span class="n">d2</span> <span class="o">=</span> <span class="n">base64Data</span><span class="o">[</span><span class="n">dataIndex</span><span class="o">++]))</span>
+                    <span class="o">||</span> <span class="o">!</span><span class="n">isData</span><span class="o">((</span><span class="n">d3</span> <span class="o">=</span> <span class="n">base64Data</span><span class="o">[</span><span class="n">dataIndex</span><span class="o">++]))</span>
+                    <span class="o">||</span> <span class="o">!</span><span class="n">isData</span><span class="o">((</span><span class="n">d4</span> <span class="o">=</span> <span class="n">base64Data</span><span class="o">[</span><span class="n">dataIndex</span><span class="o">++])))</span>
+            <span class="o">{</span>
+                <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+            <span class="o">}</span><span class="c1">// if found &#34;no data&#34; just return null
+</span><span class="c1"></span>
+            <span class="n">b1</span> <span class="o">=</span> <span class="n">base64Alphabet</span><span class="o">[</span><span class="n">d1</span><span class="o">];</span>
+            <span class="n">b2</span> <span class="o">=</span> <span class="n">base64Alphabet</span><span class="o">[</span><span class="n">d2</span><span class="o">];</span>
+            <span class="n">b3</span> <span class="o">=</span> <span class="n">base64Alphabet</span><span class="o">[</span><span class="n">d3</span><span class="o">];</span>
+            <span class="n">b4</span> <span class="o">=</span> <span class="n">base64Alphabet</span><span class="o">[</span><span class="n">d4</span><span class="o">];</span>
+
+            <span class="n">decodedData</span><span class="o">[</span><span class="n">encodedIndex</span><span class="o">++]</span> <span class="o">=</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(</span><span class="n">b1</span> <span class="o">&lt;&lt;</span> <span class="n">2</span> <span class="o">|</span> <span class="n">b2</span> <span class="o">&gt;&gt;</span> <span class="n">4</span><span class="o">);</span>
+            <span class="n">decodedData</span><span class="o">[</span><span class="n">encodedIndex</span><span class="o">++]</span> <span class="o">=</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(((</span><span class="n">b2</span> <span class="o">&amp;</span> <span class="n">0xf</span><span class="o">)</span> <span class="o">&lt;&lt;</span> <span class="n">4</span><span class="o">)</span> <span class="o">|</span> <span class="o">((</span><span class="n">b3</span> <span class="o">&gt;&gt;</span> <span class="n">2</span><span class="o">)</span> <span class="o">&amp;</span> <span class="n">0xf</span><span class="o">));</span>
+            <span class="n">decodedData</span><span class="o">[</span><span class="n">encodedIndex</span><span class="o">++]</span> <span class="o">=</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(</span><span class="n">b3</span> <span class="o">&lt;&lt;</span> <span class="n">6</span> <span class="o">|</span> <span class="n">b4</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="k">if</span> <span class="o">(!</span><span class="n">isData</span><span class="o">((</span><span class="n">d1</span> <span class="o">=</span> <span class="n">base64Data</span><span class="o">[</span><span class="n">dataIndex</span><span class="o">++]))</span>
+                <span class="o">||</span> <span class="o">!</span><span class="n">isData</span><span class="o">((</span><span class="n">d2</span> <span class="o">=</span> <span class="n">base64Data</span><span class="o">[</span><span class="n">dataIndex</span><span class="o">++])))</span>
+        <span class="o">{</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="o">;</span><span class="c1">// if found &#34;no data&#34; just return null
+</span><span class="c1"></span>        <span class="o">}</span>
+
+        <span class="n">b1</span> <span class="o">=</span> <span class="n">base64Alphabet</span><span class="o">[</span><span class="n">d1</span><span class="o">];</span>
+        <span class="n">b2</span> <span class="o">=</span> <span class="n">base64Alphabet</span><span class="o">[</span><span class="n">d2</span><span class="o">];</span>
+
+        <span class="n">d3</span> <span class="o">=</span> <span class="n">base64Data</span><span class="o">[</span><span class="n">dataIndex</span><span class="o">++];</span>
+        <span class="n">d4</span> <span class="o">=</span> <span class="n">base64Data</span><span class="o">[</span><span class="n">dataIndex</span><span class="o">++];</span>
+        <span class="k">if</span> <span class="o">(!</span><span class="n">isData</span><span class="o">((</span><span class="n">d3</span><span class="o">))</span> <span class="o">||</span> <span class="o">!</span><span class="n">isData</span><span class="o">((</span><span class="n">d4</span><span class="o">)))</span>
+        <span class="o">{</span><span class="c1">// Check if they are PAD characters
+</span><span class="c1"></span>            <span class="k">if</span> <span class="o">(</span><span class="n">isPad</span><span class="o">(</span><span class="n">d3</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="n">isPad</span><span class="o">(</span><span class="n">d4</span><span class="o">))</span>
+            <span class="o">{</span>
+                <span class="k">if</span> <span class="o">((</span><span class="n">b2</span> <span class="o">&amp;</span> <span class="n">0xf</span><span class="o">)</span> <span class="o">!=</span> <span class="n">0</span><span class="o">)</span><span class="c1">// last 4 bits should be zero
+</span><span class="c1"></span>                <span class="o">{</span>
+                    <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+                <span class="o">}</span>
+                <span class="kt">byte</span><span class="o">[]</span> <span class="n">tmp</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">byte</span><span class="o">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">3</span> <span class="o">+</span> <span class="n">1</span><span class="o">];</span>
+                <span class="n">System</span><span class="o">.</span><span class="na">arraycopy</span><span class="o">(</span><span class="n">decodedData</span><span class="o">,</span> <span class="n">0</span><span class="o">,</span> <span class="n">tmp</span><span class="o">,</span> <span class="n">0</span><span class="o">,</span> <span class="n">i</span> <span class="o">*</span> <span class="n">3</span><span class="o">);</span>
+                <span class="n">tmp</span><span class="o">[</span><span class="n">encodedIndex</span><span class="o">]</span> <span class="o">=</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(</span><span class="n">b1</span> <span class="o">&lt;&lt;</span> <span class="n">2</span> <span class="o">|</span> <span class="n">b2</span> <span class="o">&gt;&gt;</span> <span class="n">4</span><span class="o">);</span>
+                <span class="k">return</span> <span class="n">tmp</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="k">else</span> <span class="k">if</span> <span class="o">(!</span><span class="n">isPad</span><span class="o">(</span><span class="n">d3</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="n">isPad</span><span class="o">(</span><span class="n">d4</span><span class="o">))</span>
+            <span class="o">{</span>
+                <span class="n">b3</span> <span class="o">=</span> <span class="n">base64Alphabet</span><span class="o">[</span><span class="n">d3</span><span class="o">];</span>
+                <span class="k">if</span> <span class="o">((</span><span class="n">b3</span> <span class="o">&amp;</span> <span class="n">0x3</span><span class="o">)</span> <span class="o">!=</span> <span class="n">0</span><span class="o">)</span><span class="c1">// last 2 bits should be zero
+</span><span class="c1"></span>                <span class="o">{</span>
+                    <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+                <span class="o">}</span>
+                <span class="kt">byte</span><span class="o">[]</span> <span class="n">tmp</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">byte</span><span class="o">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">3</span> <span class="o">+</span> <span class="n">2</span><span class="o">];</span>
+                <span class="n">System</span><span class="o">.</span><span class="na">arraycopy</span><span class="o">(</span><span class="n">decodedData</span><span class="o">,</span> <span class="n">0</span><span class="o">,</span> <span class="n">tmp</span><span class="o">,</span> <span class="n">0</span><span class="o">,</span> <span class="n">i</span> <span class="o">*</span> <span class="n">3</span><span class="o">);</span>
+                <span class="n">tmp</span><span class="o">[</span><span class="n">encodedIndex</span><span class="o">++]</span> <span class="o">=</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(</span><span class="n">b1</span> <span class="o">&lt;&lt;</span> <span class="n">2</span> <span class="o">|</span> <span class="n">b2</span> <span class="o">&gt;&gt;</span> <span class="n">4</span><span class="o">);</span>
+                <span class="n">tmp</span><span class="o">[</span><span class="n">encodedIndex</span><span class="o">]</span> <span class="o">=</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(((</span><span class="n">b2</span> <span class="o">&amp;</span> <span class="n">0xf</span><span class="o">)</span> <span class="o">&lt;&lt;</span> <span class="n">4</span><span class="o">)</span> <span class="o">|</span> <span class="o">((</span><span class="n">b3</span> <span class="o">&gt;&gt;</span> <span class="n">2</span><span class="o">)</span> <span class="o">&amp;</span> <span class="n">0xf</span><span class="o">));</span>
+                <span class="k">return</span> <span class="n">tmp</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="k">else</span>
+            <span class="o">{</span>
+                <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">else</span>
+        <span class="o">{</span> <span class="c1">// No PAD e.g 3cQl
+</span><span class="c1"></span>            <span class="n">b3</span> <span class="o">=</span> <span class="n">base64Alphabet</span><span class="o">[</span><span class="n">d3</span><span class="o">];</span>
+            <span class="n">b4</span> <span class="o">=</span> <span class="n">base64Alphabet</span><span class="o">[</span><span class="n">d4</span><span class="o">];</span>
+            <span class="n">decodedData</span><span class="o">[</span><span class="n">encodedIndex</span><span class="o">++]</span> <span class="o">=</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(</span><span class="n">b1</span> <span class="o">&lt;&lt;</span> <span class="n">2</span> <span class="o">|</span> <span class="n">b2</span> <span class="o">&gt;&gt;</span> <span class="n">4</span><span class="o">);</span>
+            <span class="n">decodedData</span><span class="o">[</span><span class="n">encodedIndex</span><span class="o">++]</span> <span class="o">=</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(((</span><span class="n">b2</span> <span class="o">&amp;</span> <span class="n">0xf</span><span class="o">)</span> <span class="o">&lt;&lt;</span> <span class="n">4</span><span class="o">)</span> <span class="o">|</span> <span class="o">((</span><span class="n">b3</span> <span class="o">&gt;&gt;</span> <span class="n">2</span><span class="o">)</span> <span class="o">&amp;</span> <span class="n">0xf</span><span class="o">));</span>
+            <span class="n">decodedData</span><span class="o">[</span><span class="n">encodedIndex</span><span class="o">++]</span> <span class="o">=</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(</span><span class="n">b3</span> <span class="o">&lt;&lt;</span> <span class="n">6</span> <span class="o">|</span> <span class="n">b4</span><span class="o">);</span>
+
+        <span class="o">}</span>
+
+        <span class="k">return</span> <span class="n">decodedData</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * remove WhiteSpace from MIME containing encoded Base64 data.
+</span><span class="cm">     * 
+</span><span class="cm">     * @param data
+</span><span class="cm">     *            the byte array of base64 data (with WS)
+</span><span class="cm">     * @return the new length
+</span><span class="cm">     */</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">int</span> <span class="nf">removeWhiteSpace</span><span class="o">(</span><span class="kt">char</span><span class="o">[]</span> <span class="n">data</span><span class="o">)</span>
+    <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">data</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+        <span class="o">{</span>
+            <span class="k">return</span> <span class="n">0</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="c1">// count characters that&#39;s not whitespace
+</span><span class="c1"></span>        <span class="kt">int</span> <span class="n">newSize</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">len</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">len</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span>
+        <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(!</span><span class="n">isWhiteSpace</span><span class="o">(</span><span class="n">data</span><span class="o">[</span><span class="n">i</span><span class="o">]))</span>
+            <span class="o">{</span>
+                <span class="n">data</span><span class="o">[</span><span class="n">newSize</span><span class="o">++]</span> <span class="o">=</span> <span class="n">data</span><span class="o">[</span><span class="n">i</span><span class="o">];</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">newSize</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>运行查看结果</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">javac HelloWorld.java
+java HelloWorld
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="golang-实现私钥加密公钥解密">golang 实现私钥加密、公钥解密</h2>
+<p>参考<a href="https://ttys3.dev/blog/go-rsa-private-encrypt-and-public-decrypt">Golang RSA 如何私钥加密公钥解密</a></p>
+<p>RSA密钥生成都为2048位。</p>
+<h3 id="公钥解密实现">公钥解密实现</h3>
+<p>对于 2048 位 (256 字节) 的 RSA 密钥，最大能加密的数据长度约为 245 字节 (因为 PKCS#1 v1.5 填充需要 11 字节)。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// EncryptForPrivateKey 加密长消息，RSA最大加密明文大小256-11=245字节，这里对245字节进行分组加密
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">EncryptForPrivateKey</span><span class="p">(</span><span class="nx">data</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">privKey</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="p">(</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">block</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">pem</span><span class="p">.</span><span class="nf">Decode</span><span class="p">(</span><span class="nx">privKey</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">block</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;private key error&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="nx">priv</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">x509</span><span class="p">.</span><span class="nf">ParsePKCS8PrivateKey</span><span class="p">(</span><span class="nx">block</span><span class="p">.</span><span class="nx">Bytes</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">err</span>
+	<span class="p">}</span>
+
+	<span class="nx">rsaPrivateKey</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">priv</span><span class="p">.(</span><span class="o">*</span><span class="nx">rsa</span><span class="p">.</span><span class="nx">PrivateKey</span><span class="p">)</span>
+	<span class="k">if</span> <span class="p">!</span><span class="nx">ok</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;key is not an RSA private key&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="nx">publicKey</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">rsaPrivateKey</span><span class="p">.</span><span class="nx">PublicKey</span>
+
+	<span class="c1">// RSA encryption with PKCS1v15 padding
+</span><span class="c1"></span>	<span class="c1">// The chunk size must be smaller than the key size - 11 bytes (for padding)
+</span><span class="c1"></span>	<span class="nx">maxEncryptBlock</span> <span class="o">:=</span> <span class="nx">publicKey</span><span class="p">.</span><span class="nf">Size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">11</span>
+
+	<span class="nx">dataLen</span> <span class="o">:=</span> <span class="nb">len</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+	<span class="kd">var</span> <span class="nx">encryptedBytes</span> <span class="nx">bytes</span><span class="p">.</span><span class="nx">Buffer</span>
+
+	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">dataLen</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="nx">maxEncryptBlock</span> <span class="p">{</span>
+		<span class="nx">end</span> <span class="o">:=</span> <span class="nf">min</span><span class="p">(</span><span class="nx">i</span><span class="o">+</span><span class="nx">maxEncryptBlock</span><span class="p">,</span> <span class="nx">dataLen</span><span class="p">)</span>
+
+		<span class="nx">chunk</span> <span class="o">:=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">:</span><span class="nx">end</span><span class="p">]</span>
+		<span class="nx">encryptedChunk</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">rsa</span><span class="p">.</span><span class="nf">SignPKCS1v15</span><span class="p">(</span><span class="kc">nil</span><span class="p">,</span> <span class="nx">rsaPrivateKey</span><span class="p">,</span> <span class="nx">crypto</span><span class="p">.</span><span class="nf">Hash</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="nx">chunk</span><span class="p">[:])</span>
+		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+			<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;encrypt chunk error: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+		<span class="p">}</span>
+
+		<span class="nx">encryptedBytes</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">encryptedChunk</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="nx">base64</span><span class="p">.</span><span class="nx">StdEncoding</span><span class="p">.</span><span class="nf">EncodeToString</span><span class="p">(</span><span class="nx">encryptedBytes</span><span class="p">.</span><span class="nf">Bytes</span><span class="p">()),</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Go 的 签名是采用的 PKCS #1 v1.5 padding 方式。</p>
+<p>私钥签名常见是用在签名验证中，在签名验证中，是不需要解出明文，只需要验证签名是否正确，所以是有传入hash参数的，</p>
+<p>如果想解出明文，只需要在加密时不传入hash参数即可，传<code>crypto.Hash(0)</code>则表示不进行任务hash处理。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">encryptedChunk</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">rsa</span><span class="p">.</span><span class="nf">SignPKCS1v15</span><span class="p">(</span><span class="kc">nil</span><span class="p">,</span> <span class="nx">rsaPrivateKey</span><span class="p">,</span> <span class="nx">crypto</span><span class="p">.</span><span class="nf">Hash</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="nx">chunk</span><span class="p">[:])</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="rsa签名验签实现">RSA签名、验签实现</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 签名算法，对应java RSA.sign SHA256WithRSA
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">RsaSign</span><span class="p">(</span><span class="nx">origData</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">privKey</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="p">(</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">block</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">pem</span><span class="p">.</span><span class="nf">Decode</span><span class="p">(</span><span class="nx">privKey</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">block</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;private key error&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="nx">priv</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">x509</span><span class="p">.</span><span class="nf">ParsePKCS8PrivateKey</span><span class="p">(</span><span class="nx">block</span><span class="p">.</span><span class="nx">Bytes</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">err</span>
+	<span class="p">}</span>
+
+	<span class="nx">hashed</span> <span class="o">:=</span> <span class="nx">sha256</span><span class="p">.</span><span class="nf">Sum256</span><span class="p">(</span><span class="nx">origData</span><span class="p">)</span> <span class="c1">// 使用SHA-256哈希数据
+</span><span class="c1"></span>	<span class="nx">signature</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">rsa</span><span class="p">.</span><span class="nf">SignPKCS1v15</span><span class="p">(</span><span class="nx">rand</span><span class="p">.</span><span class="nx">Reader</span><span class="p">,</span> <span class="nx">priv</span><span class="p">.(</span><span class="o">*</span><span class="nx">rsa</span><span class="p">.</span><span class="nx">PrivateKey</span><span class="p">),</span> <span class="nx">crypto</span><span class="p">.</span><span class="nx">SHA256</span><span class="p">,</span> <span class="nx">hashed</span><span class="p">[:])</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">err</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="nx">base64</span><span class="p">.</span><span class="nx">StdEncoding</span><span class="p">.</span><span class="nf">EncodeToString</span><span class="p">(</span><span class="nx">signature</span><span class="p">),</span> <span class="nx">err</span>
+<span class="p">}</span>
+
+<span class="c1">// RsaVerifySignature 验证签名
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">RsaVerifySignature</span><span class="p">(</span><span class="nx">origData</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">signData</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">pubKey</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+	<span class="nx">signDataBytes</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">base64</span><span class="p">.</span><span class="nx">StdEncoding</span><span class="p">.</span><span class="nf">DecodeString</span><span class="p">(</span><span class="nx">signData</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nx">err</span>
+	<span class="p">}</span>
+
+	<span class="nx">block</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">pem</span><span class="p">.</span><span class="nf">Decode</span><span class="p">(</span><span class="nx">pubKey</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">block</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;private key error&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">pub</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">x509</span><span class="p">.</span><span class="nf">ParsePKIXPublicKey</span><span class="p">(</span><span class="nx">block</span><span class="p">.</span><span class="nx">Bytes</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;parse public key error: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">publicKey</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">pub</span><span class="p">.(</span><span class="o">*</span><span class="nx">rsa</span><span class="p">.</span><span class="nx">PublicKey</span><span class="p">)</span>
+	<span class="k">if</span> <span class="p">!</span><span class="nx">ok</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;key is not an RSA private key&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">hashed</span> <span class="o">:=</span> <span class="nx">sha256</span><span class="p">.</span><span class="nf">Sum256</span><span class="p">(</span><span class="nx">origData</span><span class="p">)</span> <span class="c1">// 使用SHA-256哈希数据
+</span><span class="c1"></span>	<span class="nx">err</span> <span class="p">=</span> <span class="nx">rsa</span><span class="p">.</span><span class="nf">VerifyPKCS1v15</span><span class="p">(</span><span class="nx">publicKey</span><span class="p">,</span> <span class="nx">crypto</span><span class="p">.</span><span class="nx">SHA256</span><span class="p">,</span> <span class="nx">hashed</span><span class="p">[:],</span> <span class="nx">signDataBytes</span><span class="p">[:])</span>
+	<span class="k">return</span> <span class="nx">err</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="公钥解密实现-1">公钥解密实现：</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// DecryptForPublicKey 解密分块加密的长消息
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">DecryptForPublicKey</span><span class="p">(</span><span class="nx">encryptedData</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">pubKey</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">encryptedDataBytes</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">base64</span><span class="p">.</span><span class="nx">StdEncoding</span><span class="p">.</span><span class="nf">DecodeString</span><span class="p">(</span><span class="nx">encryptedData</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;base64 decode error: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">block</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">pem</span><span class="p">.</span><span class="nf">Decode</span><span class="p">(</span><span class="nx">pubKey</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">block</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;private key error&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">pub</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">x509</span><span class="p">.</span><span class="nf">ParsePKIXPublicKey</span><span class="p">(</span><span class="nx">block</span><span class="p">.</span><span class="nx">Bytes</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;parse public key error: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">publicKey</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">pub</span><span class="p">.(</span><span class="o">*</span><span class="nx">rsa</span><span class="p">.</span><span class="nx">PublicKey</span><span class="p">)</span>
+	<span class="k">if</span> <span class="p">!</span><span class="nx">ok</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;key is not an RSA private key&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">maxDecryptBlock</span> <span class="o">:=</span> <span class="nx">publicKey</span><span class="p">.</span><span class="nf">Size</span><span class="p">()</span>
+
+	<span class="nx">dataLen</span> <span class="o">:=</span> <span class="nb">len</span><span class="p">(</span><span class="nx">encryptedDataBytes</span><span class="p">)</span>
+	<span class="kd">var</span> <span class="nx">decryptedBytes</span> <span class="nx">bytes</span><span class="p">.</span><span class="nx">Buffer</span>
+
+	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">dataLen</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="nx">maxDecryptBlock</span> <span class="p">{</span>
+		<span class="nx">end</span> <span class="o">:=</span> <span class="nf">min</span><span class="p">(</span><span class="nx">i</span><span class="o">+</span><span class="nx">maxDecryptBlock</span><span class="p">,</span> <span class="nx">dataLen</span><span class="p">)</span>
+
+		<span class="nx">chunk</span> <span class="o">:=</span> <span class="nx">encryptedDataBytes</span><span class="p">[</span><span class="nx">i</span><span class="p">:</span><span class="nx">end</span><span class="p">]</span>
+		<span class="nx">decryptedChunk</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">publicKeyDecrypt</span><span class="p">(</span><span class="nx">chunk</span><span class="p">[:],</span> <span class="nx">publicKey</span><span class="p">)</span>
+		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+			<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;decrypt chunk error: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+		<span class="p">}</span>
+
+		<span class="nx">decryptedBytes</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">decryptedChunk</span><span class="p">[:])</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="nx">decryptedBytes</span><span class="p">.</span><span class="nf">Bytes</span><span class="p">(),</span> <span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">publicKeyDecrypt</span><span class="p">(</span><span class="nx">encryptedData</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">pubKey</span> <span class="o">*</span><span class="nx">rsa</span><span class="p">.</span><span class="nx">PublicKey</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">c</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">big</span><span class="p">.</span><span class="nx">Int</span><span class="p">).</span><span class="nf">SetBytes</span><span class="p">(</span><span class="nx">encryptedData</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">c</span><span class="p">.</span><span class="nf">Cmp</span><span class="p">(</span><span class="nx">pubKey</span><span class="p">.</span><span class="nx">N</span><span class="p">)</span> <span class="p">&gt;</span> <span class="mi">0</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;加密数据太大&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">m</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">big</span><span class="p">.</span><span class="nx">Int</span><span class="p">).</span><span class="nf">Exp</span><span class="p">(</span><span class="nx">c</span><span class="p">,</span> <span class="nx">big</span><span class="p">.</span><span class="nf">NewInt</span><span class="p">(</span><span class="nb">int64</span><span class="p">(</span><span class="nx">pubKey</span><span class="p">.</span><span class="nx">E</span><span class="p">)),</span> <span class="nx">pubKey</span><span class="p">.</span><span class="nx">N</span><span class="p">)</span>
+
+	<span class="nx">modulusSize</span> <span class="o">:=</span> <span class="p">(</span><span class="nx">pubKey</span><span class="p">.</span><span class="nx">N</span><span class="p">.</span><span class="nf">BitLen</span><span class="p">()</span> <span class="o">+</span> <span class="mi">7</span><span class="p">)</span> <span class="o">/</span> <span class="mi">8</span>
+	<span class="nx">plaintext</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">modulusSize</span><span class="p">)</span>
+	<span class="nx">mBytes</span> <span class="o">:=</span> <span class="nx">m</span><span class="p">.</span><span class="nf">Bytes</span><span class="p">()</span>
+	<span class="nb">copy</span><span class="p">(</span><span class="nx">plaintext</span><span class="p">[</span><span class="nx">modulusSize</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="nx">mBytes</span><span class="p">):],</span> <span class="nx">mBytes</span><span class="p">)</span>
+
+	<span class="c1">// 检查并移除PKCS#1 v1.5填充
+</span><span class="c1"></span>	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nx">plaintext</span><span class="p">)</span> <span class="p">&lt;</span> <span class="mi">11</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;解密错误：数据太短&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;plaintext:&#34;</span><span class="p">,</span> <span class="nx">plaintext</span><span class="p">)</span>
+	<span class="c1">// PKCS#1 v1.5填充格式: 0x00 0x02 [随机非零字节] 0x00 [原始数据]
+</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">plaintext</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mh">0x00</span> <span class="o">||</span> <span class="nx">plaintext</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mh">0x02</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;解密错误：无效的填充格式&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="c1">// 查找分隔符0x00
+</span><span class="c1"></span>	<span class="nx">separator</span> <span class="o">:=</span> <span class="nx">bytes</span><span class="p">.</span><span class="nf">IndexByte</span><span class="p">(</span><span class="nx">plaintext</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span> <span class="mh">0x00</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">separator</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;解密错误：找不到填充分隔符&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="c1">// 返回原始数据部分
+</span><span class="c1"></span>	<span class="k">return</span> <span class="nx">plaintext</span><span class="p">[</span><span class="mi">3</span><span class="o">+</span><span class="nx">separator</span><span class="p">:],</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这里在<code>publicKeyDecrypt</code>函数中，首先检查填充格式，然后查找填充的分隔符，并返回原始数据部分。</p>
+<p>为什么要这样做吗？</p>
+<p>在网上比较多的实现私钥加密、公钥解密都是这样：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 真正的私钥加密（非标准）
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">RealPrivateEncrypt</span><span class="p">(</span><span class="nx">msg</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">privKey</span> <span class="o">*</span><span class="nx">rsa</span><span class="p">.</span><span class="nx">PrivateKey</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// 直接使用RSA核心运算
+</span><span class="c1"></span>    <span class="nx">c</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">big</span><span class="p">.</span><span class="nx">Int</span><span class="p">).</span><span class="nf">SetBytes</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">c</span><span class="p">.</span><span class="nf">Cmp</span><span class="p">(</span><span class="nx">privKey</span><span class="p">.</span><span class="nx">N</span><span class="p">)</span> <span class="p">&gt;</span> <span class="mi">0</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;消息太长&#34;</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="nx">m</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">big</span><span class="p">.</span><span class="nx">Int</span><span class="p">).</span><span class="nf">Exp</span><span class="p">(</span><span class="nx">c</span><span class="p">,</span> <span class="nx">privKey</span><span class="p">.</span><span class="nx">D</span><span class="p">,</span> <span class="nx">privKey</span><span class="p">.</span><span class="nx">N</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nx">m</span><span class="p">.</span><span class="nf">Bytes</span><span class="p">(),</span> <span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="c1">// 对应的公钥解密
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">RealPublicDecrypt</span><span class="p">(</span><span class="nx">ciphertext</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">pubKey</span> <span class="o">*</span><span class="nx">rsa</span><span class="p">.</span><span class="nx">PublicKey</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">c</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">big</span><span class="p">.</span><span class="nx">Int</span><span class="p">).</span><span class="nf">SetBytes</span><span class="p">(</span><span class="nx">ciphertext</span><span class="p">)</span>
+    <span class="nx">m</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">big</span><span class="p">.</span><span class="nx">Int</span><span class="p">).</span><span class="nf">Exp</span><span class="p">(</span><span class="nx">c</span><span class="p">,</span> <span class="nx">big</span><span class="p">.</span><span class="nf">NewInt</span><span class="p">(</span><span class="nb">int64</span><span class="p">(</span><span class="nx">pubKey</span><span class="p">.</span><span class="nx">E</span><span class="p">)),</span> <span class="nx">pubKey</span><span class="p">.</span><span class="nx">N</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nx">m</span><span class="p">.</span><span class="nf">Bytes</span><span class="p">(),</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>但是这样使用原始RSA运算进行&quot;公钥解密&quot;时，直接使用 <code>big.Int</code> 的 <code>Bytes()</code> 方法会导致数据长度固定为密钥长度（256字节），</p>
+<p>并且高位填充255（即0xFF），所以就需要像<code>publicKeyDecrypt</code>一样去掉高位填充，才能等到真实的明文内容。</p>
+<p>还有个问题就是，这里为什么填充的是0x00 0x02?</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go">	<span class="c1">// PKCS#1 v1.5填充格式: 0x00 0x02 [随机非零字节] 0x00 [原始数据]
+</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">plaintext</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mh">0x00</span> <span class="o">||</span> <span class="nx">plaintext</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mh">0x02</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;解密错误：无效的填充格式&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>这其实是PKCS#1 填充类型的区别，要看是加密填充还是签名填充：</p>
+<ul>
+<li>
+<p>加密填充 (RSAES-PKCS1-v1_5) 格式：0x00 0x02</p>
+</li>
+<li>
+<p>签名填充 (RSASSA-PKCS1-v1_5) 填充格式：0x00 0x01</p>
+</li>
+</ul>
+<p>而上面java代码中，使用的是加密填充，所以填充格式是0x00 0x01</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// Java 代码使用的是加密填充
+</span><span class="c1"></span><span class="n">Cipher</span> <span class="n">cipher</span> <span class="o">=</span> <span class="n">Cipher</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">keyFactory</span><span class="o">.</span><span class="na">getAlgorithm</span><span class="o">());</span>
+<span class="n">cipher</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">Cipher</span><span class="o">.</span><span class="na">ENCRYPT_MODE</span><span class="o">,</span> <span class="n">privateK</span><span class="o">);</span>  <span class="c1">// 这会使用 PKCS#1 加密填充
+</span></code></pre></td></tr></table>
+</div>
+</div><p>java中填充的格式是：</p>
+<ul>
+<li>
+<p>如果使用 <code>Cipher.ENCRYPT_MODE</code> → 加密填充 (0x02)</p>
+</li>
+<li>
+<p>如果使用 <code>Signature.getInstance(&quot;SHA256withRSA&quot;)</code> → 签名填充 (0x01)</p>
+</li>
+</ul>
+<p>数据特征：</p>
+<ul>
+<li>
+<p>加密填充：第二个字节是 0x02，后面是随机非零字节</p>
+</li>
+<li>
+<p>签名填充：第二个字节是 0x01，后面是连续的 0xFF</p>
+</li>
+</ul>
+<p>所以如果要和java互通，就要保持填充的格式一致，在项目中视具体情况修改填充格式。</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://ttys3.dev/blog/go-rsa-private-encrypt-and-public-decrypt">Golang RSA 如何私钥加密公钥解密</a></li>
+<li><a href="https://blog.csdn.net/K346K346/article/details/132709147">Golang RSA 生成密钥、加密、解密、签名与验签</a></li>
+<li><a href="https://www.cnblogs.com/linjiqin/p/6005626.html">Java使用RSA加密解密及签名校验</a></li>
+<li><a href="https://www.codeover.cn/go_rsa/">Go 语言中的 RSA 加密、解密、签名与验签</a></li>
+<li><a href="http://www.usey.cn/rsa?bits=2048">RSA在线生成</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2025-07-17
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/golang/">golang</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/golang/20250622-slog-glog-zap/">
+            <span class="next-text nav-default">[Go] 新一代官方标准日志库 slog 将日志按级别写入到不同文件</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+  
+    <script src="https://giscus.app/client.js"
+            data-repo="piaohua/piaohua.github.io"
+            data-repo-id="MDEwOlJlcG9zaXRvcnkyODQ0MjQ4NDM="
+            data-category="Announcements"
+            data-category-id="DIC_kwDOEPP6i84ChN9S"
+            data-mapping="pathname"
+            data-strict="0"
+            data-reactions-enabled="1"
+            data-emit-metadata="0"
+            data-input-position="bottom"
+            data-theme="preferred_color_scheme"
+            data-lang="zh-CN"
+            crossorigin="anonymous"
+            async>
+    </script>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      tex: {
+        }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.5/es5/tex-mml-chtml.js" integrity="sha256-HGLuEfFcsUJGhvB8cQ8nr0gai9EucOOaIxFw7qxmd+w=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
