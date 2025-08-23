@@ -49,7 +49,7 @@
 <meta itemprop="description" content="MySQL 表分区 MySQL表分区是将一个大表分割成若干个小表的技术。这样做可以提高查询和维护的效率，并且还可以改善数据的管理方式。 注意：如果分区字段">
 <meta itemprop="datePublished" content="2024-05-15T22:42:19&#43;08:00" />
 <meta itemprop="dateModified" content="2024-05-15T22:42:19&#43;08:00" />
-<meta itemprop="wordCount" content="3324">
+<meta itemprop="wordCount" content="3488">
 
 
 
@@ -143,7 +143,7 @@
         <div class="post-category">
             <a href="/categories/mysql/"> mysql </a>
             </div>
-          <span class="more-meta"> 3324 words </span>
+          <span class="more-meta"> 3488 words </span>
           <span class="more-meta"> 7 mins read </span>
         
       </div>
@@ -406,7 +406,17 @@
 </span><span class="c1"></span><span class="k">alter</span> <span class="k">table</span> <span class="k">table_name</span> <span class="k">add</span> <span class="n">partition</span> <span class="p">(</span><span class="n">partition</span> <span class="n">new_part</span> <span class="k">values</span> <span class="k">in</span> <span class="p">(</span><span class="mi">40</span><span class="p">));</span>  <span class="c1">-- lists分区
 </span></code></pre></td></tr></table>
 </div>
-</div><h2 id="删除分区">删除分区</h2>
+</div><p><em><strong>注意：添加分区时，只能在最后一个分区后面添加，不能在中间添加，否则会报错，示例：</strong></em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="mi">12</span><span class="p">:</span><span class="mi">02</span><span class="p">:</span><span class="mi">15</span>  <span class="k">ALTER</span> <span class="k">TABLE</span> <span class="k">order</span> <span class="k">ADD</span> <span class="n">PARTITION</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="n">p202702</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="mi">202703</span><span class="p">))</span>  <span class="n">Error</span> <span class="n">Code</span><span class="p">:</span> <span class="mi">1481</span><span class="p">.</span> <span class="k">MAXVALUE</span> <span class="n">can</span> <span class="k">only</span> <span class="n">be</span> <span class="n">used</span> <span class="k">in</span> <span class="k">last</span> <span class="n">partition</span> <span class="n">definition</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">016</span> <span class="n">sec</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>所以如果想添加分区，请先删除该分区后所有分区，然后再添加。</p>
+<h2 id="删除分区">删除分区</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code><span class="lnt">1
@@ -415,7 +425,8 @@
 <pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">alter</span> <span class="k">table</span> <span class="k">table_name</span> <span class="k">drop</span> <span class="n">partition</span> <span class="n">part_name</span><span class="p">;</span>
 </code></pre></td></tr></table>
 </div>
-</div><p>drop方式删除会删除分区数据</p>
+</div><p>drop方式删除会删除分区数据，同时要注意，由于只能在最后添加分区，所以删除分区时，</p>
+<p>要非常小心，因为删除后添加回来会很麻烦。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code><span class="lnt">1
@@ -1072,6 +1083,7 @@ Empty <span class="nb">set</span> <span class="o">(</span>0.00 sec<span class="o
 <li><a href="https://dev.mysql.com/doc/mysql-partitioning-excerpt/5.7/en/partitioning-subpartitions.html">Subpartitioning</a></li>
 <li><a href="https://dev.mysql.com/doc/refman/9.1/en/event-scheduler.html">Using the Event Scheduler</a></li>
 <li><a href="https://dev.mysql.com/doc/refman/9.1/en/alter-event.html">ALTER EVENT Statement</a></li>
+<li><a href="https://juejin.cn/post/6986090897255432223">Mysql删除分区，增加分区，分区数据清理</a></li>
 </ul>
 
     </div>
