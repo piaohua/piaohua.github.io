@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Openresty &#43; Lua &#43; Redis 实现动态IP黑名单 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="Openresty &#43; Lua &#43; Redis 实现动态IP黑名单 在 Nginx 中屏蔽特定 IP 地址是提升服务器安全性的有效方式，可以防止恶意访问和攻击。 配置deny指令来屏蔽IP Nginx 主要通过 deny" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/tool/20250828-openresty-lua-redis-ip-black/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Openresty &#43; Lua &#43; Redis 实现动态IP黑名单" />
+<meta property="og:description" content="Openresty &#43; Lua &#43; Redis 实现动态IP黑名单 在 Nginx 中屏蔽特定 IP 地址是提升服务器安全性的有效方式，可以防止恶意访问和攻击。 配置deny指令来屏蔽IP Nginx 主要通过 deny" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/tool/20250828-openresty-lua-redis-ip-black/" />
+<meta property="article:published_time" content="2025-08-28T22:38:12+08:00" />
+<meta property="article:modified_time" content="2025-08-28T22:38:12+08:00" />
+<meta itemprop="name" content="Openresty &#43; Lua &#43; Redis 实现动态IP黑名单">
+<meta itemprop="description" content="Openresty &#43; Lua &#43; Redis 实现动态IP黑名单 在 Nginx 中屏蔽特定 IP 地址是提升服务器安全性的有效方式，可以防止恶意访问和攻击。 配置deny指令来屏蔽IP Nginx 主要通过 deny">
+<meta itemprop="datePublished" content="2025-08-28T22:38:12&#43;08:00" />
+<meta itemprop="dateModified" content="2025-08-28T22:38:12&#43;08:00" />
+<meta itemprop="wordCount" content="1862">
+
+
+
+<meta itemprop="keywords" content="openresty,nginx,http," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Openresty &#43; Lua &#43; Redis 实现动态IP黑名单"/>
+<meta name="twitter:description" content="Openresty &#43; Lua &#43; Redis 实现动态IP黑名单 在 Nginx 中屏蔽特定 IP 地址是提升服务器安全性的有效方式，可以防止恶意访问和攻击。 配置deny指令来屏蔽IP Nginx 主要通过 deny"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Openresty &#43; Lua &#43; Redis 实现动态IP黑名单</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2025-08-28 </span>
+        <div class="post-category">
+            <a href="/categories/openresty/"> openresty </a>
+            <a href="/categories/nginx/"> nginx </a>
+            </div>
+          <span class="more-meta"> 1862 words </span>
+          <span class="more-meta"> 4 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#配置deny指令来屏蔽ip">配置deny指令来屏蔽IP</a>
+      <ul>
+        <li><a href="#使用外部配置文件推荐管理大量ip">使用外部配置文件（推荐管理大量IP）</a></li>
+        <li><a href="#高级用法使用-geo-模块">高级用法：使用 geo 模块</a></li>
+      </ul>
+    </li>
+    <li><a href="#openresty--lua--redis-实现动态-ip-黑名单">Openresty + Lua + Redis 实现动态 IP 黑名单</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p>Openresty + Lua + Redis 实现动态IP黑名单</p>
+</blockquote>
+<p>在 Nginx 中屏蔽特定 IP 地址是提升服务器安全性的有效方式，可以防止恶意访问和攻击。</p>
+<h2 id="配置deny指令来屏蔽ip">配置deny指令来屏蔽IP</h2>
+<p>Nginx 主要通过 deny 指令来屏蔽 IP，可以根据需要在不同的配置层级（http、server、location）中添加规则。</p>
+<ul>
+<li><strong>单个 IP</strong>	<code>deny 192.168.1.100;</code>	屏蔽一个具体的 IP 地址16</li>
+<li><strong>IP 段 (CIDR)</strong>	<code>deny 192.168.1.0/24;</code>	屏蔽一个网段的所有 IP126</li>
+<li><strong>所有 IP</strong>	<code>deny all;</code>	屏蔽所有访问，通常与 allow 配合使用</li>
+</ul>
+<p>配置位置：</p>
+<ul>
+<li>
+<p>http{} 块：对 Nginx 所有服务生效6。</p>
+</li>
+<li>
+<p>server{} 块：只对指定的虚拟主机生效26。</p>
+</li>
+<li>
+<p>location{} 块：只对匹配的 URL 路径生效。</p>
+</li>
+</ul>
+<p>示例：在 server 块中屏蔽 IP</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">server {
+    listen 80;
+    server_name example.com;
+    
+    # 屏蔽特定IP和IP段
+    deny 192.168.1.100;
+    deny 10.0.0.0/8;
+    deny 47.92.79.0/24; # 屏蔽整个IP段:cite[2]
+    allow all; # 允许其他所有IP。注意顺序，通常先deny后allow:cite[2]:cite[3]
+    
+    location / {
+        # 你的其他配置...
+    }
+    
+    # 可以针对特定location进行屏蔽
+    location /admin {
+        deny 192.168.1.101;
+        allow all;
+        # 其他admin配置...
+    }
+}
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="使用外部配置文件推荐管理大量ip">使用外部配置文件（推荐管理大量IP）</h3>
+<p>当需要屏蔽的 IP 地址很多时，使用独立的配置文件可以提高可读性和可维护性</p>
+<ol>
+<li><strong>创建黑名单配置文件</strong>：例如，在 Nginx 配置目录（如 /etc/nginx/）下创建一个 blockips.conf 文件，并添加要屏蔽的 IP。</li>
+</ol>
+<p>文件内容示例：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback"># Block malicious IPs
+deny 123.123.123.123;
+deny 111.111.0.0/16;
+deny 222.222.222.0/24;
+# ... 其他需要屏蔽的IP
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li><strong>在主配置文件中引入</strong>：在 nginx.conf 的 http, server 或 location 块中包含这个文件</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">http {
+    # 其他http配置...
+    
+    # 全局引入（对所有server生效）
+    include /etc/nginx/blockips.conf; 
+    
+    server {
+        listen 80;
+        server_name example.com;
+        
+        # 或者仅在此server引入
+        # include /etc/nginx/blockips.conf;
+        
+        location / {
+            # 或者仅在此location引入
+            # include /etc/nginx/blockips.conf;
+            # 其他配置...
+        }
+    }
+}
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li><strong>规则顺序</strong>：Nginx 的 allow 和 deny 指令遵循顺序匹配，第一条匹配的规则生效。例如，如果先写了 allow all;，后面的 deny 规则就会失效。因此，通常将具体的 deny 规则放在前面，最后再写 allow all;</li>
+</ul>
+<h3 id="高级用法使用-geo-模块">高级用法：使用 geo 模块</h3>
+<p>geo 模块可以更灵活地定义 IP 地址块并将其映射到变量，适合管理大量需要屏蔽的 IP 或网段，有时也用于防范 DDoS 攻击</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">http {
+    # 定义一个名为$block_ip的变量，默认为0（不屏蔽）
+    geo $block_ip {
+        default 0; # 默认值
+        # 将需要屏蔽的IP或网段值设为1
+        192.168.1.100 1;
+        10.0.0.0/8 1;
+        47.92.79.0/24 1; # 屏蔽整个IP段:cite[2]
+        # 可以从文件导入IP列表
+        # include /etc/nginx/block-ips.geo;
+    }
+    
+    server {
+        listen 80;
+        server_name example.com;
+        
+        # 如果$block_ip变量值为1，则返回403
+        if ($block_ip) {
+            return 403;
+        }
+        
+        location / {
+            # 其他配置...
+        }
+    }
+}
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li><strong>结合 Fail2ban 自动封禁</strong></li>
+</ul>
+<p>对于频繁的恶意攻击（如暴力破解、扫描），可以配置 Fail2ban 这类工具动态分析 Nginx 日志，并自动将恶意 IP 添加到 Nginx 的屏蔽配置中，实现动态的自动封禁</p>
+<h2 id="openresty--lua--redis-实现动态-ip-黑名单">Openresty + Lua + Redis 实现动态 IP 黑名单</h2>
+<ol>
+<li>安装并启动 Redis 服务器</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">docker run -itd --name redis -p 6379:6379 redis
+</code></pre></td></tr></table>
+</div>
+</div><p>然后在 Redis 中创建一个集合用于存储黑名单 IP：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">redis-cli
+SADD ip_blacklist 192.168.1.1
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>配置 nginx.conf</li>
+</ol>
+<p>在 Nginx 配置文件中添加以下内容，分配一块共享内存空间用于缓存 IP 黑名单，并指定 Lua 脚本位置：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">http {
+    # 分配 1M 共享内存用于存储 IP 黑名单
+    lua_shared_dict ip_blacklist 1m;
+
+    server {
+        listen 80;
+        server_name localhost;
+
+        location = /ipblacklist {
+            default_type text/html;
+            content_by_lua_file lua/ip_blacklist.lua;
+        }
+    }
+}
+</code></pre></td></tr></table>
+</div>
+</div><ol start="3">
+<li>lua脚本存储ip黑名单</li>
+</ol>
+<p>用 ip_blacklist.lua 脚本实现，定期从 Redis 获取最新的黑名单数据，并更新本地缓存。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-lua" data-lang="lua"><span class="c1">-- Redis服务器地址</span>
+<span class="kd">local</span> <span class="n">redis_host</span> <span class="o">=</span> <span class="s2">&#34;172.17.0.3&#34;</span>
+<span class="c1">-- Redis服务器端口</span>
+<span class="kd">local</span> <span class="n">redis_port</span> <span class="o">=</span> <span class="mi">6379</span>
+
+<span class="c1">-- Redis连接超时时间（毫秒），不要设置得太高！</span>
+<span class="kd">local</span> <span class="n">redis_connect_timeout</span> <span class="o">=</span> <span class="mi">100</span>
+
+<span class="c1">-- 要检查的黑名单集合的键名</span>
+<span class="kd">local</span> <span class="n">redis_key</span> <span class="o">=</span> <span class="s2">&#34;ip_blacklist&#34;</span>
+
+<span class="c1">-- 缓存查找的有效时间（秒）</span>
+<span class="kd">local</span> <span class="n">cache_ttl</span> <span class="o">=</span> <span class="mi">60</span>
+
+<span class="c1">-- 结束配置部分</span>
+
+<span class="c1">-- 获取客户端IP地址</span>
+<span class="kd">local</span> <span class="n">ip</span> <span class="o">=</span> <span class="n">ngx.var</span><span class="p">.</span><span class="n">remote_addr</span>
+<span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;remote addr IP : &#34;</span> <span class="o">..</span> <span class="n">ip</span><span class="p">);</span>
+<span class="c1">-- 获取共享内存中的ip_blacklist</span>
+<span class="kd">local</span> <span class="n">ip_blacklist</span> <span class="o">=</span> <span class="n">ngx.shared</span><span class="p">.</span><span class="n">ip_blacklist</span>
+<span class="c1">-- 获取上次更新的时间戳</span>
+<span class="kd">local</span> <span class="n">last_update_time</span> <span class="o">=</span> <span class="n">ip_blacklist</span><span class="p">:</span><span class="n">get</span><span class="p">(</span><span class="s2">&#34;last_update_time&#34;</span><span class="p">)</span>
+
+<span class="c1">-- 只有在cache_ttl秒之后才从Redis更新ip_blacklist：</span>
+<span class="kr">if</span> <span class="n">last_update_time</span> <span class="o">==</span> <span class="kc">nil</span> <span class="ow">or</span> <span class="n">last_update_time</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">ngx.now</span><span class="p">()</span> <span class="o">-</span> <span class="n">cache_ttl</span><span class="p">)</span> <span class="kr">then</span>
+
+    <span class="c1">-- 引入redis模块</span>
+    <span class="kd">local</span> <span class="n">redis</span> <span class="o">=</span> <span class="n">require</span><span class="s2">&#34;resty.redis&#34;</span><span class="p">;</span>
+    <span class="kd">local</span> <span class="n">red</span> <span class="o">=</span> <span class="n">redis</span><span class="p">:</span><span class="n">new</span><span class="p">();</span>
+
+    <span class="c1">-- 设置Redis连接超时时间</span>
+    <span class="n">red</span><span class="p">:</span><span class="n">set_timeout</span><span class="p">(</span><span class="n">redis_connect_timeout</span><span class="p">);</span>
+
+    <span class="c1">-- 尝试连接到Redis</span>
+    <span class="kd">local</span> <span class="n">ok</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">red</span><span class="p">:</span><span class="n">connect</span><span class="p">(</span><span class="n">redis_host</span><span class="p">,</span> <span class="n">redis_port</span><span class="p">);</span>
+    <span class="kr">if</span> <span class="ow">not</span> <span class="n">ok</span> <span class="kr">then</span>
+        <span class="c1">-- 如果连接失败，记录调试日志</span>
+        <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.DEBUG</span><span class="p">,</span> <span class="s2">&#34;Redis connection error while retrieving ip_blacklist: &#34;</span> <span class="o">..</span> <span class="n">err</span><span class="p">);</span>
+    <span class="kr">else</span>
+        <span class="c1">-- local res, err = red:spop(redis_key);</span>
+        <span class="c1">-- ngx.log(ngx.INFO, &#34;spop ip_blacklist: &#34;, err, res);</span>
+
+        <span class="c1">-- 从Redis获取新的ip_blacklist数据</span>
+        <span class="kd">local</span> <span class="n">new_ip_blacklist</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">red</span><span class="p">:</span><span class="n">smembers</span><span class="p">(</span><span class="n">redis_key</span><span class="p">);</span>
+        <span class="kr">if</span> <span class="n">err</span> <span class="kr">then</span>
+            <span class="c1">-- 如果读取失败，记录调试日志</span>
+            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.DEBUG</span><span class="p">,</span> <span class="s2">&#34;Redis read error while retrieving ip_blacklist: &#34;</span> <span class="o">..</span> <span class="n">err</span><span class="p">);</span>
+        <span class="kr">else</span>
+            <span class="c1">-- 替换本地存储的ip_blacklist为最新的值：</span>
+            <span class="n">ip_blacklist</span><span class="p">:</span><span class="n">flush_all</span><span class="p">();</span>
+            <span class="kr">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">banned_ip</span> <span class="kr">in</span> <span class="n">ipairs</span><span class="p">(</span><span class="n">new_ip_blacklist</span><span class="p">)</span> <span class="kr">do</span>
+                <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;new_ip_blacklist banned_ip: &#34;</span><span class="p">,</span> <span class="n">banned_ip</span><span class="p">,</span> <span class="n">index</span><span class="p">);</span>
+                <span class="n">ip_blacklist</span><span class="p">:</span><span class="n">set</span><span class="p">(</span><span class="n">banned_ip</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+            <span class="kr">end</span>
+            <span class="c1">-- 更新时间戳</span>
+            <span class="n">ip_blacklist</span><span class="p">:</span><span class="n">set</span><span class="p">(</span><span class="s2">&#34;last_update_time&#34;</span><span class="p">,</span> <span class="n">ngx.now</span><span class="p">());</span>
+        <span class="kr">end</span>
+    <span class="kr">end</span>
+<span class="kr">end</span>
+
+<span class="c1">-- 检查客户端IP是否在黑名单中</span>
+<span class="kr">if</span> <span class="n">ip_blacklist</span><span class="p">:</span><span class="n">get</span><span class="p">(</span><span class="n">ip</span><span class="p">)</span> <span class="kr">then</span>
+    <span class="c1">-- 如果在黑名单中，记录调试日志并拒绝访问</span>
+    <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.DEBUG</span><span class="p">,</span> <span class="s2">&#34;Banned IP detected and refused access: &#34;</span> <span class="o">..</span> <span class="n">ip</span><span class="p">);</span>
+    <span class="kr">return</span> <span class="n">ngx.exit</span><span class="p">(</span><span class="n">ngx.HTTP_FORBIDDEN</span><span class="p">);</span>
+<span class="kr">end</span>
+<span class="n">ngx.say</span><span class="p">(</span><span class="s2">&#34;&lt;p&gt;hello, world!&lt;/p&gt;&#34;</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>加载配置后访问，如果在ip黑名单中，则返回403 Forbidden：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">curl <span class="s1">&#39;localhost/ipblacklist&#39;</span>
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;403 Forbidden&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;center&gt;&lt;h1&gt;403 Forbidden&lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;openresty/1.25.3.2&lt;/center&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre></td></tr></table>
+</div>
+</div><p>否则返回正常页面：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">curl <span class="s1">&#39;localhost/ipblacklist&#39;</span>
+&lt;p&gt;hello, world!&lt;/p&gt;
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://mp.weixin.qq.com/s/dYfXjeYO5BfQGTUT5TRbIg">Nginx + Lua + Redis 实现动态 IP 黑名单</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2025-08-28
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/openresty/">openresty</a>
+          <a href="/tags/nginx/">nginx</a>
+          <a href="/tags/http/">http</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/tool/20250824-openresty-websocket-redis/">
+            <span class="next-text nav-default">Openresty &#43; Websocket &#43; Redis Stream 实现一个简单聊天室，保持长连接，并通过Redis转发消息</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+  
+    <script src="https://giscus.app/client.js"
+            data-repo="piaohua/piaohua.github.io"
+            data-repo-id="MDEwOlJlcG9zaXRvcnkyODQ0MjQ4NDM="
+            data-category="Announcements"
+            data-category-id="DIC_kwDOEPP6i84ChN9S"
+            data-mapping="pathname"
+            data-strict="0"
+            data-reactions-enabled="1"
+            data-emit-metadata="0"
+            data-input-position="bottom"
+            data-theme="preferred_color_scheme"
+            data-lang="zh-CN"
+            crossorigin="anonymous"
+            async>
+    </script>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      tex: {
+        }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.5/es5/tex-mml-chtml.js" integrity="sha256-HGLuEfFcsUJGhvB8cQ8nr0gai9EucOOaIxFw7qxmd+w=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
