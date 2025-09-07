@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Docker 安装 Elasticsearch - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="Docker Insert Elasticsearch Quickstart 安装 Elasticsearch 拉取镜像 1 docker pull docker.elastic.co/elasticsearch/elasticsearch:7.16.1 运行 Elasticsearch 容器 1 docker run -p 9200:9200 -p 9300:9300 --name elasticsearch -e ES_JAVA_OPTS=&amp;#34;-Xms4G -Xmx4G&amp;#34; -e &amp;#34;discovery.type=single-node&amp;#34; docker.elastic.co/elasticsearch/elasticsearch:7.16.1 参数说明： -d：在后台运行容器。 -p 9200:9200：将容器的 9200 端口映" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/docker/20250907-docker-elasticsearch-quickstart/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Docker 安装 Elasticsearch" />
+<meta property="og:description" content="Docker Insert Elasticsearch Quickstart 安装 Elasticsearch 拉取镜像 1 docker pull docker.elastic.co/elasticsearch/elasticsearch:7.16.1 运行 Elasticsearch 容器 1 docker run -p 9200:9200 -p 9300:9300 --name elasticsearch -e ES_JAVA_OPTS=&#34;-Xms4G -Xmx4G&#34; -e &#34;discovery.type=single-node&#34; docker.elastic.co/elasticsearch/elasticsearch:7.16.1 参数说明： -d：在后台运行容器。 -p 9200:9200：将容器的 9200 端口映" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/docker/20250907-docker-elasticsearch-quickstart/" />
+<meta property="article:published_time" content="2025-09-07T17:04:38+08:00" />
+<meta property="article:modified_time" content="2025-09-07T17:04:38+08:00" />
+<meta itemprop="name" content="Docker 安装 Elasticsearch">
+<meta itemprop="description" content="Docker Insert Elasticsearch Quickstart 安装 Elasticsearch 拉取镜像 1 docker pull docker.elastic.co/elasticsearch/elasticsearch:7.16.1 运行 Elasticsearch 容器 1 docker run -p 9200:9200 -p 9300:9300 --name elasticsearch -e ES_JAVA_OPTS=&#34;-Xms4G -Xmx4G&#34; -e &#34;discovery.type=single-node&#34; docker.elastic.co/elasticsearch/elasticsearch:7.16.1 参数说明： -d：在后台运行容器。 -p 9200:9200：将容器的 9200 端口映">
+<meta itemprop="datePublished" content="2025-09-07T17:04:38&#43;08:00" />
+<meta itemprop="dateModified" content="2025-09-07T17:04:38&#43;08:00" />
+<meta itemprop="wordCount" content="1062">
+
+
+
+<meta itemprop="keywords" content="docker,elasticsearch," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Docker 安装 Elasticsearch"/>
+<meta name="twitter:description" content="Docker Insert Elasticsearch Quickstart 安装 Elasticsearch 拉取镜像 1 docker pull docker.elastic.co/elasticsearch/elasticsearch:7.16.1 运行 Elasticsearch 容器 1 docker run -p 9200:9200 -p 9300:9300 --name elasticsearch -e ES_JAVA_OPTS=&#34;-Xms4G -Xmx4G&#34; -e &#34;discovery.type=single-node&#34; docker.elastic.co/elasticsearch/elasticsearch:7.16.1 参数说明： -d：在后台运行容器。 -p 9200:9200：将容器的 9200 端口映"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Docker 安装 Elasticsearch</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2025-09-07 </span>
+        <div class="post-category">
+            <a href="/categories/docker/"> docker </a>
+            </div>
+          <span class="more-meta"> 1062 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#安装-elasticsearch">安装 Elasticsearch</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p><a href="https://www.cnblogs.com/nhdlb/p/16551485.html">Docker Insert Elasticsearch Quickstart</a></p>
+</blockquote>
+<h2 id="安装-elasticsearch">安装 Elasticsearch</h2>
+<ol>
+<li>拉取镜像</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">docker pull docker.elastic.co/elasticsearch/elasticsearch:7.16.1
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>运行 Elasticsearch 容器</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">docker run -p 9200:9200 -p 9300:9300 --name elasticsearch -e <span class="nv">ES_JAVA_OPTS</span><span class="o">=</span><span class="s2">&#34;-Xms4G -Xmx4G&#34;</span> -e <span class="s2">&#34;discovery.type=single-node&#34;</span> docker.elastic.co/elasticsearch/elasticsearch:7.16.1
+</code></pre></td></tr></table>
+</div>
+</div><p>参数说明：</p>
+<ul>
+<li>-d：在后台运行容器。</li>
+<li>-p 9200:9200：将容器的 9200 端口映射到宿主机的 9200 端口，这是 Elasticsearch 的 HTTP 端口，用于 REST API。</li>
+<li>-p 9300:9300：将容器的 9300 端口映射到宿主机的 9300 端口，这是节点间通信的端口。</li>
+<li>&ndash;name elasticsearch：给容器指定一个名字，这里命名为 elasticsearch。</li>
+<li>-e &ldquo;discovery.type=single-node&rdquo;：设置 Elasticsearch 为单节点模式，这对于测试和开发环境很有用。在生产环境中，应该使用不同的集群发现机制，如通过配置 elasticsearch.yml 文件。</li>
+<li><code>-v /path/to/your/data:/usr/share/elasticsearch/data</code> 配置持久化存储</li>
+<li><code>-e ES_JAVA_OPTS=&quot;-Xms4G -Xmx4G&quot;</code> 设置JVM内存4G大小，生产环境应该根据实际情况进行配置，如果不设置，则默认使用256M内存，很容易内存溢出奔溃。</li>
+</ul>
+<ol start="3">
+<li>验证 Elasticsearch 是否运行</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">curl -X GET <span class="s2">&#34;http://localhost:9200/&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="4">
+<li>修改Elasticsearch配置信息</li>
+</ol>
+<p>创建一个名为 <code>elasticsearch.yml</code> 的文件，并添加以下内容：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="k">cluster.name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;docker-cluster&#34;</span><span class="w">
+</span><span class="w"></span><span class="k">network.host</span><span class="p">:</span><span class="w"> </span><span class="m">0.0.0.0</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="c"># 配置远程访问</span><span class="w">
+</span><span class="w"></span><span class="k">http.host</span><span class="p">:</span><span class="w"> </span><span class="m">0.0.0.0</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="c"># 因为elasticsearch与elasticsearch-head工具是前后端分离项目,所以需要处理跨域问题</span><span class="w">
+</span><span class="w"></span><span class="k">http.cors.enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="w"></span><span class="k">http.cors.allow-origin</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;*&#34;</span><span class="w">  </span><span class="c"># 允许所有源，生产环境不建议使用 &#34;*&#34;</span><span class="w">
+</span><span class="w"></span><span class="k">http.cors.allow-methods</span><span class="p">:</span><span class="w"> </span>OPTIONS<span class="p">,</span><span class="w"> </span>HEAD<span class="p">,</span><span class="w"> </span>GET<span class="p">,</span><span class="w"> </span>POST<span class="p">,</span><span class="w"> </span>PUT<span class="p">,</span><span class="w"> </span>DELETE<span class="w">
+</span><span class="w"></span><span class="k">http.cors.allow-headers</span><span class="p">:</span><span class="w"> </span>X-Requested-With<span class="p">,</span>X-Auth-Token<span class="p">,</span>Content-Type<span class="p">,</span>Content-Length<span class="p">,</span>Authorization<span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="c"># 开启账户密码验证</span><span class="w">
+</span><span class="w"></span><span class="k">http.cors.allow-headers</span><span class="p">:</span><span class="w"> </span>Authorization<span class="p">,</span>X-Requested-With<span class="p">,</span>Content-Length<span class="p">,</span>Content-Type<span class="w">
+</span><span class="w"></span><span class="k">xpack.security.enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="w"></span><span class="k">xpack.security.transport.ssl.enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>将修改后的文件覆盖到容器内</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">docker cp ./elasticsearch.yml eselasticsearch:/usr/share/elasticsearch/config/elasticsearch.yml
+</code></pre></td></tr></table>
+</div>
+</div><p>重启elasticsearch</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">docker restart eselasticsearch
+</code></pre></td></tr></table>
+</div>
+</div><ol start="5">
+<li>设置用户的密码</li>
+</ol>
+<p>进入容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">docker <span class="nb">exec</span> -it elasticsearch bash
+
+<span class="c1"># 设置elastic，apm_system，kibana，kibana_system，logstash_system，beats_system，remote_monitoring_user 这些用户的密码</span>
+bin/elasticsearch-setup-passwords interactive
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://www.cnblogs.com/nhdlb/p/16551485.html">Docker：Docker搭建Elasticsearch-7.x+(配置用户密码)与Elasticsearch-head工具</a></li>
+<li><a href="https://www.cnblogs.com/nhdlb/p/16554001.html">Docker：Elasticsearch-head工具教程(elasticsearch-7.x+)</a></li>
+<li><a href="https://www.cnblogs.com/wei325/p/15894631.html">Elasticsearch使用系列-Docker搭建Elasticsearch集群</a></li>
+<li><a href="https://www.cnblogs.com/shenhuanjie/p/18085468/docker-installation-and-deployment-elasticsearch-es-detailed-tutorial-zntn2c">Docker 上安装部署 Elasticsearch（ES）详细教程</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2025-09-07
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/docker/">docker</a>
+          <a href="/tags/elasticsearch/">elasticsearch</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/linux/20250907-crontab/">
+            <span class="next-text nav-default">crontab 安装及使用</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+  
+    <script src="https://giscus.app/client.js"
+            data-repo="piaohua/piaohua.github.io"
+            data-repo-id="MDEwOlJlcG9zaXRvcnkyODQ0MjQ4NDM="
+            data-category="Announcements"
+            data-category-id="DIC_kwDOEPP6i84ChN9S"
+            data-mapping="pathname"
+            data-strict="0"
+            data-reactions-enabled="1"
+            data-emit-metadata="0"
+            data-input-position="bottom"
+            data-theme="preferred_color_scheme"
+            data-lang="zh-CN"
+            crossorigin="anonymous"
+            async>
+    </script>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      tex: {
+        }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.5/es5/tex-mml-chtml.js" integrity="sha256-HGLuEfFcsUJGhvB8cQ8nr0gai9EucOOaIxFw7qxmd+w=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
