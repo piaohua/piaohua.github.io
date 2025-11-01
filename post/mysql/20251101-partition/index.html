@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>MySQL 表分区实践及操作 - piaohua&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="piaohua" /><meta name="description" content="MySQL 表分区和事件调度器 MySQL 分区方案实践 在实际项目中，要用到分区的，一般都是数据量较大，且数据量会不断增加的，所以分区数据范围不会太大。 比如按时间" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.67.0 with theme even" />
+
+
+<link rel="canonical" href="https://piaohua.github.io/post/mysql/20251101-partition/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="MySQL 表分区实践及操作" />
+<meta property="og:description" content="MySQL 表分区和事件调度器 MySQL 分区方案实践 在实际项目中，要用到分区的，一般都是数据量较大，且数据量会不断增加的，所以分区数据范围不会太大。 比如按时间" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20251101-partition/" />
+<meta property="article:published_time" content="2025-11-01T16:57:38+08:00" />
+<meta property="article:modified_time" content="2025-11-01T16:57:38+08:00" />
+<meta itemprop="name" content="MySQL 表分区实践及操作">
+<meta itemprop="description" content="MySQL 表分区和事件调度器 MySQL 分区方案实践 在实际项目中，要用到分区的，一般都是数据量较大，且数据量会不断增加的，所以分区数据范围不会太大。 比如按时间">
+<meta itemprop="datePublished" content="2025-11-01T16:57:38&#43;08:00" />
+<meta itemprop="dateModified" content="2025-11-01T16:57:38&#43;08:00" />
+<meta itemprop="wordCount" content="1506">
+
+
+
+<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="MySQL 表分区实践及操作"/>
+<meta name="twitter:description" content="MySQL 表分区和事件调度器 MySQL 分区方案实践 在实际项目中，要用到分区的，一般都是数据量较大，且数据量会不断增加的，所以分区数据范围不会太大。 比如按时间"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">piaohua</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">piaohua</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/links/">Links</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">MySQL 表分区实践及操作</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2025-11-01 </span>
+        <div class="post-category">
+            <a href="/categories/mysql/"> mysql </a>
+            </div>
+          <span class="more-meta"> 1506 words </span>
+          <span class="more-meta"> 4 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#mysql-分区方案实践">MySQL 分区方案实践</a>
+      <ul>
+        <li><a href="#方案1使用-range-columns--date-类型">方案1：使用 RANGE COLUMNS + DATE 类型</a></li>
+        <li><a href="#方案2使用-range--to_days-函数">方案2：使用 RANGE + TO_DAYS() 函数</a></li>
+        <li><a href="#方案3动态生成分区语句推荐用于生产环境">方案3：动态生成分区语句（推荐用于生产环境）</a></li>
+      </ul>
+    </li>
+    <li><a href="#分区维护管理">分区维护管理</a>
+      <ul>
+        <li><a href="#1-添加新分区">1. 添加新分区</a></li>
+        <li><a href="#2-删除旧分区数据归档">2. 删除旧分区（数据归档）</a></li>
+        <li><a href="#3-查询分区信息">3. 查询分区信息</a></li>
+      </ul>
+    </li>
+    <li><a href="#查询优化示例">查询优化示例</a></li>
+    <li><a href="#自动分区维护脚本">自动分区维护脚本</a></li>
+    <li><a href="#优势总结">优势总结</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <blockquote>
+<p><a href="../20240515-partition">MySQL 表分区和事件调度器</a></p>
+</blockquote>
+<h2 id="mysql-分区方案实践">MySQL 分区方案实践</h2>
+<p>在实际项目中，要用到分区的，一般都是数据量较大，且数据量会不断增加的，所以分区数据范围不会太大。</p>
+<p>比如按时间分区，一般都是按月分区，按年的就没有必要。</p>
+<p>之前在项目中，按月分区时，本能就想到按下面这样精确到月分创建分区表：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">RANGE</span> <span class="p">(</span><span class="k">YEAR</span><span class="p">(</span><span class="n">created_at</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="o">+</span><span class="k">MONTH</span><span class="p">(</span><span class="n">created_at</span><span class="p">))</span> <span class="p">(</span>
+    <span class="n">PARTITION</span> <span class="n">p202505</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="mi">202506</span><span class="p">),</span>
+    <span class="p">...</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>但是项目运行一段时间后，数据量会不断增加，就会发现 monthly 分区就无法满足需求了。</p>
+<p>这个时候就发现这样分区就有点傻了，其他就算按月分，也完全应该精确到天粒度，</p>
+<p>这样后续想缩小分区天数，修改起来的方便的多，也不需要考虑数据迁移什么的。</p>
+<p>下面还是以按月分区举例，但是精确到天粒度（每月1号开始），</p>
+<p>按每个月1号开始进行分区，可以方便后续调整分区粒度。以下是几种实现方案：</p>
+<h3 id="方案1使用-range-columns--date-类型">方案1：使用 RANGE COLUMNS + DATE 类型</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">orders</span> <span class="p">(</span>
+    <span class="n">id</span> <span class="nb">BIGINT</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span>
+    <span class="n">order_no</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="n">created_at</span> <span class="nb">DATE</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>  <span class="c1">-- 使用DATE类型，只存储日期
+</span><span class="c1"></span>    <span class="n">customer_id</span> <span class="nb">BIGINT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="n">amount</span> <span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="c1">-- 其他字段...
+</span><span class="c1"></span>    <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">),</span>
+    <span class="k">UNIQUE</span> <span class="k">KEY</span> <span class="n">uk_order_no</span> <span class="p">(</span><span class="n">order_no</span><span class="p">,</span> <span class="n">created_at</span><span class="p">),</span>
+    <span class="k">KEY</span> <span class="n">idx_customer_created</span> <span class="p">(</span><span class="n">customer_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">),</span>
+    <span class="k">KEY</span> <span class="n">idx_created</span> <span class="p">(</span><span class="n">created_at</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">RANGE</span> <span class="n">COLUMNS</span><span class="p">(</span><span class="n">created_at</span><span class="p">)</span> <span class="p">(</span>
+    <span class="n">PARTITION</span> <span class="n">p202301</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2023-02-01&#39;</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p202302</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2023-03-01&#39;</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p202303</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2023-04-01&#39;</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p202304</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2023-05-01&#39;</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p202305</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2023-06-01&#39;</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p202306</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2023-07-01&#39;</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p202307</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2023-08-01&#39;</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p202308</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2023-09-01&#39;</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p202309</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2023-10-01&#39;</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p202310</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2023-11-01&#39;</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p202311</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2023-12-01&#39;</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">p202312</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2024-01-01&#39;</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">pmax</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="k">MAXVALUE</span>
+<span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="方案2使用-range--to_days-函数">方案2：使用 RANGE + TO_DAYS() 函数</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">orders</span> <span class="p">(</span>
+    <span class="n">id</span> <span class="nb">BIGINT</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span>
+    <span class="n">order_no</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="n">created_at</span> <span class="n">DATETIME</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>  <span class="c1">-- 使用DATETIME类型
+</span><span class="c1"></span>    <span class="n">customer_id</span> <span class="nb">BIGINT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="n">amount</span> <span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="c1">-- 其他字段...
+</span><span class="c1"></span>    <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">),</span>
+    <span class="k">UNIQUE</span> <span class="k">KEY</span> <span class="n">uk_order_no</span> <span class="p">(</span><span class="n">order_no</span><span class="p">,</span> <span class="n">created_at</span><span class="p">),</span>
+    <span class="k">KEY</span> <span class="n">idx_customer_created</span> <span class="p">(</span><span class="n">customer_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">),</span>
+    <span class="k">KEY</span> <span class="n">idx_created</span> <span class="p">(</span><span class="n">created_at</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">RANGE</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="n">created_at</span><span class="p">))</span> <span class="p">(</span>
+    <span class="n">PARTITION</span> <span class="n">p202301</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-02-01&#39;</span><span class="p">)),</span>
+    <span class="n">PARTITION</span> <span class="n">p202302</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-03-01&#39;</span><span class="p">)),</span>
+    <span class="n">PARTITION</span> <span class="n">p202303</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-04-01&#39;</span><span class="p">)),</span>
+    <span class="n">PARTITION</span> <span class="n">p202304</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-05-01&#39;</span><span class="p">)),</span>
+    <span class="n">PARTITION</span> <span class="n">p202305</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-06-01&#39;</span><span class="p">)),</span>
+    <span class="n">PARTITION</span> <span class="n">p202306</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-07-01&#39;</span><span class="p">)),</span>
+    <span class="n">PARTITION</span> <span class="n">p202307</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-08-01&#39;</span><span class="p">)),</span>
+    <span class="n">PARTITION</span> <span class="n">p202308</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-09-01&#39;</span><span class="p">)),</span>
+    <span class="n">PARTITION</span> <span class="n">p202309</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-10-01&#39;</span><span class="p">)),</span>
+    <span class="n">PARTITION</span> <span class="n">p202310</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-11-01&#39;</span><span class="p">)),</span>
+    <span class="n">PARTITION</span> <span class="n">p202311</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-12-01&#39;</span><span class="p">)),</span>
+    <span class="n">PARTITION</span> <span class="n">p202312</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2024-01-01&#39;</span><span class="p">)),</span>
+    <span class="n">PARTITION</span> <span class="n">pmax</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="k">MAXVALUE</span>
+<span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="方案3动态生成分区语句推荐用于生产环境">方案3：动态生成分区语句（推荐用于生产环境）</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- 生成分区语句的函数或脚本
+</span><span class="c1"></span><span class="k">SET</span> <span class="o">@</span><span class="n">start_date</span> <span class="o">=</span> <span class="s1">&#39;2023-01-01&#39;</span><span class="p">;</span>
+<span class="k">SET</span> <span class="o">@</span><span class="n">end_date</span> <span class="o">=</span> <span class="s1">&#39;2024-01-01&#39;</span><span class="p">;</span>
+<span class="k">SET</span> <span class="o">@</span><span class="k">sql</span> <span class="o">=</span> <span class="s1">&#39;CREATE TABLE orders (
+</span><span class="s1">    id BIGINT AUTO_INCREMENT,
+</span><span class="s1">    order_no VARCHAR(32) NOT NULL,
+</span><span class="s1">    created_at DATE NOT NULL,
+</span><span class="s1">    customer_id BIGINT NOT NULL,
+</span><span class="s1">    amount DECIMAL(12,2) NOT NULL,
+</span><span class="s1">    PRIMARY KEY (id, created_at),
+</span><span class="s1">    UNIQUE KEY uk_order_no (order_no, created_at),
+</span><span class="s1">    KEY idx_created (created_at)
+</span><span class="s1">)
+</span><span class="s1">PARTITION BY RANGE COLUMNS(created_at) (&#39;</span><span class="p">;</span>
+
+<span class="n">WHILE</span> <span class="o">@</span><span class="n">start_date</span> <span class="o">&lt;</span> <span class="o">@</span><span class="n">end_date</span> <span class="k">DO</span>
+    <span class="k">SET</span> <span class="o">@</span><span class="n">next_month</span> <span class="o">=</span> <span class="n">DATE_ADD</span><span class="p">(</span><span class="o">@</span><span class="n">start_date</span><span class="p">,</span> <span class="nb">INTERVAL</span> <span class="mi">1</span> <span class="k">MONTH</span><span class="p">);</span>
+    <span class="k">SET</span> <span class="o">@</span><span class="n">partition_name</span> <span class="o">=</span> <span class="n">CONCAT</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">DATE_FORMAT</span><span class="p">(</span><span class="o">@</span><span class="n">start_date</span><span class="p">,</span> <span class="s1">&#39;%Y%m&#39;</span><span class="p">));</span>
+    <span class="k">SET</span> <span class="o">@</span><span class="k">sql</span> <span class="o">=</span> <span class="n">CONCAT</span><span class="p">(</span><span class="o">@</span><span class="k">sql</span><span class="p">,</span> <span class="s1">&#39;PARTITION &#39;</span><span class="p">,</span> <span class="o">@</span><span class="n">partition_name</span><span class="p">,</span> 
+                     <span class="s1">&#39; VALUES LESS THAN (&#39;&#39;&#39;</span><span class="p">,</span> <span class="o">@</span><span class="n">next_month</span><span class="p">,</span> <span class="s1">&#39;&#39;&#39;),&#39;</span><span class="p">);</span>
+    <span class="k">SET</span> <span class="o">@</span><span class="n">start_date</span> <span class="o">=</span> <span class="o">@</span><span class="n">next_month</span><span class="p">;</span>
+<span class="k">END</span> <span class="n">WHILE</span><span class="p">;</span>
+
+<span class="k">SET</span> <span class="o">@</span><span class="k">sql</span> <span class="o">=</span> <span class="n">CONCAT</span><span class="p">(</span><span class="o">@</span><span class="k">sql</span><span class="p">,</span> <span class="s1">&#39;PARTITION pmax VALUES LESS THAN MAXVALUE)&#39;</span><span class="p">);</span>
+<span class="k">PREPARE</span> <span class="n">stmt</span> <span class="k">FROM</span> <span class="o">@</span><span class="k">sql</span><span class="p">;</span>
+<span class="k">EXECUTE</span> <span class="n">stmt</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="分区维护管理">分区维护管理</h2>
+<h3 id="1-添加新分区">1. 添加新分区</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- 每月初执行，添加下个月的分区
+</span><span class="c1"></span><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">orders</span> <span class="n">REORGANIZE</span> <span class="n">PARTITION</span> <span class="n">pmax</span> <span class="k">INTO</span> <span class="p">(</span>
+    <span class="n">PARTITION</span> <span class="n">p202401</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2024-02-01&#39;</span><span class="p">),</span>
+    <span class="n">PARTITION</span> <span class="n">pmax</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="k">MAXVALUE</span>
+<span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="2-删除旧分区数据归档">2. 删除旧分区（数据归档）</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- 删除一年前的数据分区
+</span><span class="c1"></span><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">orders</span> <span class="k">DROP</span> <span class="n">PARTITION</span> <span class="n">p202301</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="3-查询分区信息">3. 查询分区信息</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- 查看分区信息
+</span><span class="c1"></span><span class="k">SELECT</span> <span class="n">PARTITION_NAME</span><span class="p">,</span> <span class="n">TABLE_ROWS</span><span class="p">,</span> <span class="n">PARTITION_EXPRESSION</span>
+<span class="k">FROM</span> <span class="n">INFORMATION_SCHEMA</span><span class="p">.</span><span class="n">PARTITIONS</span> 
+<span class="k">WHERE</span> <span class="k">TABLE_NAME</span> <span class="o">=</span> <span class="s1">&#39;orders&#39;</span><span class="p">;</span>
+
+<span class="c1">-- 查看分区使用情况
+</span><span class="c1"></span><span class="k">EXPLAIN</span> <span class="n">PARTITIONS</span> <span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">orders</span> 
+<span class="k">WHERE</span> <span class="n">created_at</span> <span class="k">BETWEEN</span> <span class="s1">&#39;2023-05-01&#39;</span> <span class="k">AND</span> <span class="s1">&#39;2023-05-31&#39;</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="查询优化示例">查询优化示例</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- 利用分区裁剪的查询
+</span><span class="c1"></span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">orders</span> 
+<span class="k">WHERE</span> <span class="n">created_at</span> <span class="o">&gt;=</span> <span class="s1">&#39;2023-05-01&#39;</span> 
+  <span class="k">AND</span> <span class="n">created_at</span> <span class="o">&lt;</span> <span class="s1">&#39;2023-06-01&#39;</span>
+  <span class="k">AND</span> <span class="n">customer_id</span> <span class="o">=</span> <span class="mi">12345</span><span class="p">;</span>
+
+<span class="c1">-- 跨分区查询（仍能利用分区）
+</span><span class="c1"></span><span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">orders</span> 
+<span class="k">WHERE</span> <span class="n">created_at</span> <span class="k">BETWEEN</span> <span class="s1">&#39;2023-05-01&#39;</span> <span class="k">AND</span> <span class="s1">&#39;2023-07-31&#39;</span><span class="p">;</span>
+
+<span class="c1">-- 按月份聚合统计
+</span><span class="c1"></span><span class="k">SELECT</span> 
+    <span class="n">DATE_FORMAT</span><span class="p">(</span><span class="n">created_at</span><span class="p">,</span> <span class="s1">&#39;%Y-%m&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="k">month</span><span class="p">,</span>
+    <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">as</span> <span class="n">order_count</span><span class="p">,</span>
+    <span class="k">SUM</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span> <span class="k">as</span> <span class="n">total_amount</span>
+<span class="k">FROM</span> <span class="n">orders</span> 
+<span class="k">WHERE</span> <span class="n">created_at</span> <span class="o">&gt;=</span> <span class="s1">&#39;2023-01-01&#39;</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">DATE_FORMAT</span><span class="p">(</span><span class="n">created_at</span><span class="p">,</span> <span class="s1">&#39;%Y-%m&#39;</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="自动分区维护脚本">自动分区维护脚本</h2>
+<ol>
+<li>自动生成按月分区(从1号开始)脚本示例</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- 每月自动添加分区的存储过程
+</span><span class="c1"></span><span class="k">DELIMITER</span> <span class="o">//</span>
+<span class="k">CREATE</span> <span class="k">PROCEDURE</span> <span class="n">auto_add_order_partition</span><span class="p">()</span>
+<span class="k">BEGIN</span>
+    <span class="k">DECLARE</span> <span class="n">next_month</span> <span class="nb">DATE</span><span class="p">;</span>
+    <span class="k">DECLARE</span> <span class="n">partition_name</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">20</span><span class="p">);</span>
+    
+    <span class="k">SET</span> <span class="n">next_month</span> <span class="o">=</span> <span class="n">DATE_FORMAT</span><span class="p">(</span><span class="n">DATE_ADD</span><span class="p">(</span><span class="n">NOW</span><span class="p">(),</span> <span class="nb">INTERVAL</span> <span class="mi">1</span> <span class="k">MONTH</span><span class="p">),</span> <span class="s1">&#39;%Y-%m-01&#39;</span><span class="p">);</span>
+    <span class="k">SET</span> <span class="n">partition_name</span> <span class="o">=</span> <span class="n">CONCAT</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">DATE_FORMAT</span><span class="p">(</span><span class="n">next_month</span><span class="p">,</span> <span class="s1">&#39;%Y%m&#39;</span><span class="p">));</span>
+    
+    <span class="k">SET</span> <span class="o">@</span><span class="k">sql</span> <span class="o">=</span> <span class="n">CONCAT</span><span class="p">(</span>
+        <span class="s1">&#39;ALTER TABLE orders REORGANIZE PARTITION pmax INTO (&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;PARTITION &#39;</span><span class="p">,</span> <span class="n">partition_name</span><span class="p">,</span> <span class="s1">&#39; VALUES LESS THAN (&#39;&#39;&#39;</span><span class="p">,</span> 
+        <span class="n">DATE_FORMAT</span><span class="p">(</span><span class="n">DATE_ADD</span><span class="p">(</span><span class="n">next_month</span><span class="p">,</span> <span class="nb">INTERVAL</span> <span class="mi">1</span> <span class="k">MONTH</span><span class="p">),</span> <span class="s1">&#39;%Y-%m-01&#39;</span><span class="p">),</span> <span class="s1">&#39;&#39;&#39;),&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;PARTITION pmax VALUES LESS THAN MAXVALUE)&#39;</span>
+    <span class="p">);</span>
+    
+    <span class="k">PREPARE</span> <span class="n">stmt</span> <span class="k">FROM</span> <span class="o">@</span><span class="k">sql</span><span class="p">;</span>
+    <span class="k">EXECUTE</span> <span class="n">stmt</span><span class="p">;</span>
+    <span class="k">DEALLOCATE</span> <span class="k">PREPARE</span> <span class="n">stmt</span><span class="p">;</span>
+<span class="k">END</span><span class="o">//</span>
+<span class="k">DELIMITER</span> <span class="p">;</span>
+
+<span class="c1">-- 创建事件每月执行
+</span><span class="c1"></span><span class="k">CREATE</span> <span class="n">EVENT</span> <span class="n">auto_add_partition_event</span>
+<span class="k">ON</span> <span class="n">SCHEDULE</span> <span class="k">EVERY</span> <span class="mi">1</span> <span class="k">MONTH</span>
+<span class="n">STARTS</span> <span class="s1">&#39;2023-12-01 00:00:00&#39;</span>
+<span class="k">DO</span>
+<span class="k">CALL</span> <span class="n">auto_add_order_partition</span><span class="p">();</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>自动生成10天分区脚本示例</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">DELIMITER</span> <span class="o">//</span>
+<span class="k">CREATE</span> <span class="k">PROCEDURE</span> <span class="n">create_10day_partitions</span><span class="p">()</span>
+<span class="k">BEGIN</span>
+    <span class="k">DECLARE</span> <span class="n">start_date</span> <span class="nb">DATE</span> <span class="k">DEFAULT</span> <span class="s1">&#39;2024-05-01&#39;</span><span class="p">;</span>
+    <span class="k">DECLARE</span> <span class="n">end_date</span> <span class="nb">DATE</span> <span class="k">DEFAULT</span> <span class="s1">&#39;2024-12-31&#39;</span><span class="p">;</span>
+    <span class="k">DECLARE</span> <span class="k">current_date</span> <span class="nb">DATE</span><span class="p">;</span>
+    <span class="k">DECLARE</span> <span class="n">partition_sql</span> <span class="n">LONGTEXT</span> <span class="k">DEFAULT</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+    
+    <span class="k">SET</span> <span class="k">current_date</span> <span class="o">=</span> <span class="n">start_date</span><span class="p">;</span>
+    
+    <span class="n">WHILE</span> <span class="k">current_date</span> <span class="o">&lt;=</span> <span class="n">end_date</span> <span class="k">DO</span>
+        <span class="k">SET</span> <span class="o">@</span><span class="n">partition_name</span> <span class="o">=</span> <span class="n">CONCAT</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">DATE_FORMAT</span><span class="p">(</span><span class="k">current_date</span><span class="p">,</span> <span class="s1">&#39;%Y%m%d&#39;</span><span class="p">));</span>
+        <span class="k">SET</span> <span class="o">@</span><span class="n">next_date</span> <span class="o">=</span> <span class="n">DATE_ADD</span><span class="p">(</span><span class="k">current_date</span><span class="p">,</span> <span class="nb">INTERVAL</span> <span class="mi">10</span> <span class="k">DAY</span><span class="p">);</span>
+        <span class="k">SET</span> <span class="o">@</span><span class="n">less_than_value</span> <span class="o">=</span> <span class="n">TO_DAYS</span><span class="p">(</span><span class="o">@</span><span class="n">next_date</span><span class="p">);</span>
+        
+        <span class="k">SET</span> <span class="n">partition_sql</span> <span class="o">=</span> <span class="n">CONCAT</span><span class="p">(</span><span class="n">partition_sql</span><span class="p">,</span> 
+            <span class="s1">&#39;PARTITION &#39;</span><span class="p">,</span> <span class="o">@</span><span class="n">partition_name</span><span class="p">,</span> 
+            <span class="s1">&#39; VALUES LESS THAN (&#39;</span><span class="p">,</span> <span class="o">@</span><span class="n">less_than_value</span><span class="p">,</span> <span class="s1">&#39;),&#39;</span><span class="p">);</span>
+        
+        <span class="k">SET</span> <span class="k">current_date</span> <span class="o">=</span> <span class="o">@</span><span class="n">next_date</span><span class="p">;</span>
+    <span class="k">END</span> <span class="n">WHILE</span><span class="p">;</span>
+    
+    <span class="k">SET</span> <span class="n">partition_sql</span> <span class="o">=</span> <span class="n">CONCAT</span><span class="p">(</span><span class="n">partition_sql</span><span class="p">,</span> <span class="s1">&#39;PARTITION pmax VALUES LESS THAN MAXVALUE)&#39;</span><span class="p">);</span>
+    
+    <span class="c1">-- 输出或执行SQL
+</span><span class="c1"></span>    <span class="k">SELECT</span> <span class="n">partition_sql</span><span class="p">;</span>
+<span class="k">END</span><span class="o">//</span>
+<span class="k">DELIMITER</span> <span class="p">;</span>
+
+<span class="k">CALL</span> <span class="n">create_10day_partitions</span><span class="p">();</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="优势总结">优势总结</h2>
+<ol>
+<li><strong>灵活性</strong>：按月分区便于后续调整为按周或按季度分区</li>
+<li><strong>管理方便</strong>：每月维护一次分区即可</li>
+<li><strong>性能优化</strong>：查询时可以精确裁剪到具体月份</li>
+<li><strong>数据生命周期</strong>：便于按月份进行数据归档和清理</li>
+</ol>
+<p>这种按月分区方案在数据量管理和查询性能之间取得了很好的平衡。</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content"><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2025-11-01
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/mysql/">mysql</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/mysql/20251101-partition-backup/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">MySQL 表分区备份和恢复</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/learn/20251019-facebook-ad-api/">
+            <span class="next-text nav-default">Facebook 广告系列数据获取方法</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+  
+    <script src="https://giscus.app/client.js"
+            data-repo="piaohua/piaohua.github.io"
+            data-repo-id="MDEwOlJlcG9zaXRvcnkyODQ0MjQ4NDM="
+            data-category="Announcements"
+            data-category-id="DIC_kwDOEPP6i84ChN9S"
+            data-mapping="pathname"
+            data-strict="0"
+            data-reactions-enabled="1"
+            data-emit-metadata="0"
+            data-input-position="bottom"
+            data-theme="preferred_color_scheme"
+            data-lang="zh-CN"
+            crossorigin="anonymous"
+            async>
+    </script>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:twopiao7@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://facebook.com/" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="https://linkedin.com/" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://google.com/" class="iconfont icon-google" title="google"></a>
+      <a href="https://github.com/piaohua/" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/piaohua-47" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://www.douban.com/people/47269566/" class="iconfont icon-douban" title="douban"></a>
+      <a href="https://getpocket.com/" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="https://tumblr.com/" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="https://instagram.com/" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="https://gitlab.com/" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="https://www.bilibili.com/" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://piaohua.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      tex: {
+        }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.5/es5/tex-mml-chtml.js" integrity="sha256-HGLuEfFcsUJGhvB8cQ8nr0gai9EucOOaIxFw7qxmd+w=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
