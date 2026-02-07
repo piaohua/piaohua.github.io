@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/mysql/20210612-mysql-binlog/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[MySQL] MySQL Binlog 初识" />
-<meta property="og:description" content="原文 Mysql日志 MySQL 的日志包括错误日志（ErrorLog），更新日志（Update Log），二进制日志（Binlog），查询日志（Query" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/mysql/20210612-mysql-binlog/" />
-<meta property="article:published_time" content="2021-06-12T15:39:42+08:00" />
-<meta property="article:modified_time" content="2021-06-12T15:39:42+08:00" />
-<meta itemprop="name" content="[MySQL] MySQL Binlog 初识">
-<meta itemprop="description" content="原文 Mysql日志 MySQL 的日志包括错误日志（ErrorLog），更新日志（Update Log），二进制日志（Binlog），查询日志（Query">
-<meta itemprop="datePublished" content="2021-06-12T15:39:42&#43;08:00" />
-<meta itemprop="dateModified" content="2021-06-12T15:39:42&#43;08:00" />
-<meta itemprop="wordCount" content="5504">
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20210612-mysql-binlog/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[MySQL] MySQL Binlog 初识">
+  <meta property="og:description" content="原文 Mysql日志 MySQL 的日志包括错误日志（ErrorLog），更新日志（Update Log），二进制日志（Binlog），查询日志（Query">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2021-06-12T15:39:42+08:00">
+    <meta property="article:modified_time" content="2021-06-12T15:39:42+08:00">
+    <meta property="article:tag" content="Mysql">
 
-
-
-<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[MySQL] MySQL Binlog 初识"/>
-<meta name="twitter:description" content="原文 Mysql日志 MySQL 的日志包括错误日志（ErrorLog），更新日志（Update Log），二进制日志（Binlog），查询日志（Query"/>
+  <meta itemprop="name" content="[MySQL] MySQL Binlog 初识">
+  <meta itemprop="description" content="原文 Mysql日志 MySQL 的日志包括错误日志（ErrorLog），更新日志（Update Log），二进制日志（Binlog），查询日志（Query">
+  <meta itemprop="datePublished" content="2021-06-12T15:39:42+08:00">
+  <meta itemprop="dateModified" content="2021-06-12T15:39:42+08:00">
+  <meta itemprop="wordCount" content="5503">
+  <meta itemprop="keywords" content="Mysql"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[MySQL] MySQL Binlog 初识">
+<meta name="twitter:description" content="原文 Mysql日志 MySQL 的日志包括错误日志（ErrorLog），更新日志（Update Log），二进制日志（Binlog），查询日志（Query">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -143,7 +144,7 @@
         <div class="post-category">
             <a href="/categories/mysql/"> mysql </a>
             </div>
-          <span class="more-meta"> 5504 words </span>
+          <span class="more-meta"> 5503 words </span>
           <span class="more-meta"> 11 mins read </span>
         
       </div>
@@ -169,7 +170,7 @@
 <p>1.查看是否开启log_bin</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -177,28 +178,28 @@
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="n">variables</span> <span class="k">like</span> <span class="s1">&#39;log_bin&#39;</span><span class="p">;</span>
-<span class="o">+</span><span class="c1">---------------+-------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">Variable_name</span> <span class="o">|</span> <span class="n">Value</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">---------------+-------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">log_bin</span>       <span class="o">|</span> <span class="k">OFF</span>   <span class="o">|</span>
-<span class="o">+</span><span class="c1">---------------+-------+
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">show</span><span class="w"> </span><span class="n">variables</span><span class="w"> </span><span class="k">like</span><span class="w"> </span><span class="s1">&#39;log_bin&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">---------------+-------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">Variable_name</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Value</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">---------------+-------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">log_bin</span><span class="w">       </span><span class="o">|</span><span class="w"> </span><span class="k">OFF</span><span class="w">   </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">---------------+-------+
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>2.开启log_bin</p>
 <p>在my.ini中添加配置：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">log_bin=D:/mysql/bin-log.log
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">log_bin=D:/mysql/bin-log.log
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>3.重启mysql，再次查看</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -206,19 +207,19 @@
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="n">variables</span> <span class="k">like</span> <span class="s1">&#39;log_bin&#39;</span><span class="p">;</span>
-<span class="o">+</span><span class="c1">---------------+-------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">Variable_name</span> <span class="o">|</span> <span class="n">Value</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">---------------+-------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">log_bin</span>       <span class="o">|</span> <span class="k">ON</span>    <span class="o">|</span>
-<span class="o">+</span><span class="c1">---------------+-------+
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">show</span><span class="w"> </span><span class="n">variables</span><span class="w"> </span><span class="k">like</span><span class="w"> </span><span class="s1">&#39;log_bin&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">---------------+-------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">Variable_name</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Value</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">---------------+-------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">log_bin</span><span class="w">       </span><span class="o">|</span><span class="w"> </span><span class="k">ON</span><span class="w">    </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">---------------+-------+
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>4.查看Binlog</p>
 <p>4.1显示binlog的名称和大小</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -226,19 +227,19 @@
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="nb">binary</span> <span class="n">logs</span><span class="p">;</span>
-<span class="o">+</span><span class="c1">----------------+-----------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">Log_name</span>       <span class="o">|</span> <span class="n">File_size</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------------+-----------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">bin</span><span class="o">-</span><span class="n">log</span><span class="p">.</span><span class="mi">000001</span> <span class="o">|</span>       <span class="mi">107</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------------+-----------+
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">show</span><span class="w"> </span><span class="nb">binary</span><span class="w"> </span><span class="n">logs</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------------+-----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">Log_name</span><span class="w">       </span><span class="o">|</span><span class="w"> </span><span class="n">File_size</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------------+-----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">bin</span><span class="o">-</span><span class="n">log</span><span class="p">.</span><span class="mi">000001</span><span class="w"> </span><span class="o">|</span><span class="w">       </span><span class="mi">107</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------------+-----------+
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>4.2查看生成的binlog</p>
 <p>想用查看到binlog可以往数据库中更新数据库(包括：插入，更新和删除操作)，查询sql是无法生成binlog的</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -250,23 +251,23 @@
 </span><span class="lnt">10
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="n">binlog</span> <span class="n">events</span><span class="p">;</span>
-<span class="o">+</span><span class="c1">----------------+------+-------------+-----------+-------------+---------------------------------------------------------------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">Log_name</span>       <span class="o">|</span> <span class="n">Pos</span>  <span class="o">|</span> <span class="n">Event_type</span>  <span class="o">|</span> <span class="n">Server_id</span> <span class="o">|</span> <span class="n">End_log_pos</span> <span class="o">|</span> <span class="n">Info</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------------+------+-------------+-----------+-------------+---------------------------------------------------------------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">bin</span><span class="o">-</span><span class="n">log</span><span class="p">.</span><span class="mi">000001</span> <span class="o">|</span>    <span class="mi">4</span> <span class="o">|</span> <span class="n">Format_desc</span> <span class="o">|</span>         <span class="mi">1</span> <span class="o">|</span>         <span class="mi">107</span> <span class="o">|</span> <span class="n">Server</span> <span class="n">ver</span><span class="p">:</span> <span class="mi">5</span><span class="p">.</span>  <span class="mi">5</span><span class="p">.</span><span class="mi">29</span><span class="o">-</span><span class="n">log</span><span class="p">,</span> <span class="n">Binlog</span> <span class="n">ver</span><span class="p">:</span> <span class="mi">4</span>                         <span class="o">|</span>
-<span class="o">|</span> <span class="n">bin</span><span class="o">-</span><span class="n">log</span><span class="p">.</span><span class="mi">000001</span> <span class="o">|</span>  <span class="mi">107</span> <span class="o">|</span> <span class="n">Query</span>       <span class="o">|</span>         <span class="mi">1</span> <span class="o">|</span>         <span class="mi">175</span> <span class="o">|</span> <span class="k">BEGIN</span> <span class="o">|</span>
-<span class="o">|</span> <span class="n">bin</span><span class="o">-</span><span class="n">log</span><span class="p">.</span><span class="mi">000001</span> <span class="o">|</span>  <span class="mi">175</span> <span class="o">|</span> <span class="n">Intvar</span>      <span class="o">|</span>         <span class="mi">1</span> <span class="o">|</span>         <span class="mi">203</span> <span class="o">|</span> <span class="n">INSERT_ID</span><span class="o">=</span><span class="mi">9</span> <span class="o">|</span>
-<span class="o">|</span> <span class="n">bin</span><span class="o">-</span><span class="n">log</span><span class="p">.</span><span class="mi">000001</span> <span class="o">|</span>  <span class="mi">203</span> <span class="o">|</span> <span class="n">Query</span>       <span class="o">|</span>         <span class="mi">1</span> <span class="o">|</span>         <span class="mi">315</span> <span class="o">|</span> <span class="n">use</span> <span class="o">`</span><span class="n">test</span><span class="o">`</span><span class="p">;</span> <span class="k">in</span> <span class="n">sert</span> <span class="k">into</span> <span class="k">user</span> <span class="p">(</span><span class="n">age</span><span class="p">,</span><span class="n">name</span><span class="p">)</span> <span class="k">values</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="s2">&#34;zhaohui&#34;</span><span class="p">)</span> <span class="o">|</span>
-<span class="o">|</span> <span class="n">bin</span><span class="o">-</span><span class="n">log</span><span class="p">.</span><span class="mi">000001</span> <span class="o">|</span>  <span class="mi">315</span> <span class="o">|</span> <span class="n">Xid</span>         <span class="o">|</span>         <span class="mi">1</span> <span class="o">|</span>         <span class="mi">342</span> <span class="o">|</span> <span class="k">COMMIT</span> <span class="cm">/* xid= 41 */</span>                                           <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------------+------+-------------+-----------+-------------+--------------- ------------------------------------------------+
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">show</span><span class="w"> </span><span class="n">binlog</span><span class="w"> </span><span class="n">events</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------------+------+-------------+-----------+-------------+---------------------------------------------------------------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">Log_name</span><span class="w">       </span><span class="o">|</span><span class="w"> </span><span class="n">Pos</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="n">Event_type</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="n">Server_id</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">End_log_pos</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Info</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------------+------+-------------+-----------+-------------+---------------------------------------------------------------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">bin</span><span class="o">-</span><span class="n">log</span><span class="p">.</span><span class="mi">000001</span><span class="w"> </span><span class="o">|</span><span class="w">    </span><span class="mi">4</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Format_desc</span><span class="w"> </span><span class="o">|</span><span class="w">         </span><span class="mi">1</span><span class="w"> </span><span class="o">|</span><span class="w">         </span><span class="mi">107</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Server</span><span class="w"> </span><span class="n">ver</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">.</span><span class="w">  </span><span class="mi">5</span><span class="p">.</span><span class="mi">29</span><span class="o">-</span><span class="n">log</span><span class="p">,</span><span class="w"> </span><span class="n">Binlog</span><span class="w"> </span><span class="n">ver</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="w">                         </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">bin</span><span class="o">-</span><span class="n">log</span><span class="p">.</span><span class="mi">000001</span><span class="w"> </span><span class="o">|</span><span class="w">  </span><span class="mi">107</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Query</span><span class="w">       </span><span class="o">|</span><span class="w">         </span><span class="mi">1</span><span class="w"> </span><span class="o">|</span><span class="w">         </span><span class="mi">175</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">BEGIN</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">bin</span><span class="o">-</span><span class="n">log</span><span class="p">.</span><span class="mi">000001</span><span class="w"> </span><span class="o">|</span><span class="w">  </span><span class="mi">175</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Intvar</span><span class="w">      </span><span class="o">|</span><span class="w">         </span><span class="mi">1</span><span class="w"> </span><span class="o">|</span><span class="w">         </span><span class="mi">203</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">INSERT_ID</span><span class="o">=</span><span class="mi">9</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">bin</span><span class="o">-</span><span class="n">log</span><span class="p">.</span><span class="mi">000001</span><span class="w"> </span><span class="o">|</span><span class="w">  </span><span class="mi">203</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Query</span><span class="w">       </span><span class="o">|</span><span class="w">         </span><span class="mi">1</span><span class="w"> </span><span class="o">|</span><span class="w">         </span><span class="mi">315</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">use</span><span class="w"> </span><span class="o">`</span><span class="n">test</span><span class="o">`</span><span class="p">;</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">sert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="p">(</span><span class="n">age</span><span class="p">,</span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="s2">&#34;zhaohui&#34;</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">bin</span><span class="o">-</span><span class="n">log</span><span class="p">.</span><span class="mi">000001</span><span class="w"> </span><span class="o">|</span><span class="w">  </span><span class="mi">315</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Xid</span><span class="w">         </span><span class="o">|</span><span class="w">         </span><span class="mi">1</span><span class="w"> </span><span class="o">|</span><span class="w">         </span><span class="mi">342</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">COMMIT</span><span class="w"> </span><span class="cm">/* xid= 41 */</span><span class="w">                                           </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------------+------+-------------+-----------+-------------+--------------- ------------------------------------------------+
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>Binlog相关参数
 通过执行如下命令可以获得关于Binlog 的相关参数：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -282,28 +283,28 @@
 </span><span class="lnt">14
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="n">variables</span> <span class="k">like</span> <span class="s1">&#39;%binlog%&#39;</span><span class="p">;</span>
-<span class="o">+</span><span class="c1">-----------------------------------------+----------------------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">Variable_name</span>                           <span class="o">|</span> <span class="n">Value</span>                <span class="o">|</span>
-<span class="o">+</span><span class="c1">-----------------------------------------+----------------------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">binlog_cache_size</span>                       <span class="o">|</span> <span class="mi">32768</span>                <span class="o">|</span>
-<span class="o">|</span> <span class="n">binlog_direct_non_transactional_updates</span> <span class="o">|</span> <span class="k">OFF</span>                  <span class="o">|</span>
-<span class="o">|</span> <span class="n">binlog_format</span>                           <span class="o">|</span> <span class="k">STATEMENT</span>            <span class="o">|</span>
-<span class="o">|</span> <span class="n">binlog_stmt_cache_size</span>                  <span class="o">|</span> <span class="mi">32768</span>                <span class="o">|</span>
-<span class="o">|</span> <span class="n">innodb_locks_unsafe_for_binlog</span>          <span class="o">|</span> <span class="k">OFF</span>                  <span class="o">|</span>
-<span class="o">|</span> <span class="n">max_binlog_cache_size</span>                   <span class="o">|</span> <span class="mi">18446744073709547520</span> <span class="o">|</span>
-<span class="o">|</span> <span class="n">max_binlog_size</span>                         <span class="o">|</span> <span class="mi">1073741824</span>           <span class="o">|</span>
-<span class="o">|</span> <span class="n">max_binlog_stmt_cache_size</span>              <span class="o">|</span> <span class="mi">18446744073709547520</span> <span class="o">|</span>
-<span class="o">|</span> <span class="n">sync_binlog</span>                             <span class="o">|</span> <span class="mi">0</span>                    <span class="o">|</span>
-<span class="o">+</span><span class="c1">-----------------------------------------+----------------------+
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">show</span><span class="w"> </span><span class="n">variables</span><span class="w"> </span><span class="k">like</span><span class="w"> </span><span class="s1">&#39;%binlog%&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">-----------------------------------------+----------------------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">Variable_name</span><span class="w">                           </span><span class="o">|</span><span class="w"> </span><span class="n">Value</span><span class="w">                </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">-----------------------------------------+----------------------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">binlog_cache_size</span><span class="w">                       </span><span class="o">|</span><span class="w"> </span><span class="mi">32768</span><span class="w">                </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">binlog_direct_non_transactional_updates</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">OFF</span><span class="w">                  </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">binlog_format</span><span class="w">                           </span><span class="o">|</span><span class="w"> </span><span class="k">STATEMENT</span><span class="w">            </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">binlog_stmt_cache_size</span><span class="w">                  </span><span class="o">|</span><span class="w"> </span><span class="mi">32768</span><span class="w">                </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">innodb_locks_unsafe_for_binlog</span><span class="w">          </span><span class="o">|</span><span class="w"> </span><span class="k">OFF</span><span class="w">                  </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">max_binlog_cache_size</span><span class="w">                   </span><span class="o">|</span><span class="w"> </span><span class="mi">18446744073709547520</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">max_binlog_size</span><span class="w">                         </span><span class="o">|</span><span class="w"> </span><span class="mi">1073741824</span><span class="w">           </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">max_binlog_stmt_cache_size</span><span class="w">              </span><span class="o">|</span><span class="w"> </span><span class="mi">18446744073709547520</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">sync_binlog</span><span class="w">                             </span><span class="o">|</span><span class="w"> </span><span class="mi">0</span><span class="w">                    </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">-----------------------------------------+----------------------+
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>1.binlog_cache_size</p>
 <p>在事务过程中容纳binlog SQL语句的缓存大小；binlog缓存是服务器支持事务存储引擎并且服务器启用了二进制日志(—log-bin选项)的前提下为每个Session分配的内存；
 主要是用来提高binlog的写速度；可以通过MySQL的以下个状态变量来判断当前的binlog_cache_size的状况：Binlog_cache_use和Binlog_cache_disk_use</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -312,14 +313,14 @@
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="n">status</span> <span class="k">like</span> <span class="s1">&#39;Binlog_cache%&#39;</span><span class="p">;</span>
-<span class="o">+</span><span class="c1">-----------------------+-------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">Variable_name</span>         <span class="o">|</span> <span class="n">Value</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">-----------------------+-------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">Binlog_cache_disk_use</span> <span class="o">|</span> <span class="mi">0</span>     <span class="o">|</span>
-<span class="o">|</span> <span class="n">Binlog_cache_use</span>      <span class="o">|</span> <span class="mi">4</span>     <span class="o">|</span>
-<span class="o">+</span><span class="c1">-----------------------+-------+
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">show</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="k">like</span><span class="w"> </span><span class="s1">&#39;Binlog_cache%&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">-----------------------+-------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">Variable_name</span><span class="w">         </span><span class="o">|</span><span class="w"> </span><span class="n">Value</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">-----------------------+-------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">Binlog_cache_disk_use</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">0</span><span class="w">     </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">Binlog_cache_use</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="mi">4</span><span class="w">     </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">-----------------------+-------+
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>Binlog_cache_use：使用缓冲区存放binlog的次数
 Binlog_cache_disk_use：使用临时文件存放binlog的次数</p>
@@ -327,7 +328,7 @@ Binlog_cache_disk_use：使用临时文件存放binlog的次数</p>
 <p>发生事务时非事务语句的缓存的大小，可以通过MySQL 的以下个状态变量来判断当前的binlog_stmt_cache_size的状况：Binlog_stmt_cache_use和Binlog_stmt_cache_disk_use</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -336,14 +337,14 @@ Binlog_cache_disk_use：使用临时文件存放binlog的次数</p>
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="n">status</span> <span class="k">like</span> <span class="s1">&#39;binlog_stmt_cache%&#39;</span><span class="p">;</span>
-<span class="o">+</span><span class="c1">----------------------------+-------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">Variable_name</span>              <span class="o">|</span> <span class="n">Value</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------------------------+-------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">Binlog_stmt_cache_disk_use</span> <span class="o">|</span> <span class="mi">0</span>     <span class="o">|</span>
-<span class="o">|</span> <span class="n">Binlog_stmt_cache_use</span>      <span class="o">|</span> <span class="mi">1</span>     <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------------------------+-------+
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">show</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="k">like</span><span class="w"> </span><span class="s1">&#39;binlog_stmt_cache%&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------------------------+-------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">Variable_name</span><span class="w">              </span><span class="o">|</span><span class="w"> </span><span class="n">Value</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------------------------+-------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">Binlog_stmt_cache_disk_use</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">0</span><span class="w">     </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">Binlog_stmt_cache_use</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="mi">1</span><span class="w">     </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------------------------+-------+
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>Binlog_stmt_cache_use：缓冲区存放binlog的次数
 Binlog_stmt_cache_disk_use：临时文件存放binlog的次数</p>
@@ -383,18 +384,18 @@ sync_binlog=n（区间0-4294967295）
 6.Binlog的索引文件是一个文本文件，其中内容为当前的binlog文件列表，比如：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">D:\mysql\bin-log.000001
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">D:\mysql\bin-log.000001
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>参考：https://dev.mysql.com/doc/internals/en/binary-log-structure-and-contents.html</p>
 <p>Binlog的Event类型
 官方提供的可能Event类型有36种，具体看下面的枚举：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -436,47 +437,47 @@ sync_binlog=n（区间0-4294967295）
 </span><span class="lnt">40
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">enum Log_event_type { 
-  UNKNOWN_EVENT= 0, 
-  START_EVENT_V3= 1, 
-  QUERY_EVENT= 2, 
-  STOP_EVENT= 3, 
-  ROTATE_EVENT= 4, 
-  INTVAR_EVENT= 5, 
-  LOAD_EVENT= 6, 
-  SLAVE_EVENT= 7, 
-  CREATE_FILE_EVENT= 8, 
-  APPEND_BLOCK_EVENT= 9, 
-  EXEC_LOAD_EVENT= 10, 
-  DELETE_FILE_EVENT= 11, 
-  NEW_LOAD_EVENT= 12, 
-  RAND_EVENT= 13, 
-  USER_VAR_EVENT= 14, 
-  FORMAT_DESCRIPTION_EVENT= 15, 
-  XID_EVENT= 16, 
-  BEGIN_LOAD_QUERY_EVENT= 17, 
-  EXECUTE_LOAD_QUERY_EVENT= 18, 
-  TABLE_MAP_EVENT = 19, 
-  PRE_GA_WRITE_ROWS_EVENT = 20, 
-  PRE_GA_UPDATE_ROWS_EVENT = 21, 
-  PRE_GA_DELETE_ROWS_EVENT = 22, 
-  WRITE_ROWS_EVENT = 23, 
-  UPDATE_ROWS_EVENT = 24, 
-  DELETE_ROWS_EVENT = 25, 
-  INCIDENT_EVENT= 26, 
-  HEARTBEAT_LOG_EVENT= 27, 
-  IGNORABLE_LOG_EVENT= 28,
-  ROWS_QUERY_LOG_EVENT= 29,
-  WRITE_ROWS_EVENT = 30,
-  UPDATE_ROWS_EVENT = 31,
-  DELETE_ROWS_EVENT = 32,
-  GTID_LOG_EVENT= 33,
-  ANONYMOUS_GTID_LOG_EVENT= 34,
-  PREVIOUS_GTIDS_LOG_EVENT= 35, 
-  ENUM_END_EVENT 
-  /* end marker */
-};
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="k">enum</span> <span class="n">Log_event_type</span> <span class="p">{</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">UNKNOWN_EVENT</span><span class="o">=</span> <span class="mi">0</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">START_EVENT_V3</span><span class="o">=</span> <span class="mi">1</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">QUERY_EVENT</span><span class="o">=</span> <span class="mi">2</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">STOP_EVENT</span><span class="o">=</span> <span class="mi">3</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">ROTATE_EVENT</span><span class="o">=</span> <span class="mi">4</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">INTVAR_EVENT</span><span class="o">=</span> <span class="mi">5</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">LOAD_EVENT</span><span class="o">=</span> <span class="mi">6</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">SLAVE_EVENT</span><span class="o">=</span> <span class="mi">7</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">CREATE_FILE_EVENT</span><span class="o">=</span> <span class="mi">8</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">APPEND_BLOCK_EVENT</span><span class="o">=</span> <span class="mi">9</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">EXEC_LOAD_EVENT</span><span class="o">=</span> <span class="mi">10</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">DELETE_FILE_EVENT</span><span class="o">=</span> <span class="mi">11</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">NEW_LOAD_EVENT</span><span class="o">=</span> <span class="mi">12</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">RAND_EVENT</span><span class="o">=</span> <span class="mi">13</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">USER_VAR_EVENT</span><span class="o">=</span> <span class="mi">14</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">FORMAT_DESCRIPTION_EVENT</span><span class="o">=</span> <span class="mi">15</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">XID_EVENT</span><span class="o">=</span> <span class="mi">16</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">BEGIN_LOAD_QUERY_EVENT</span><span class="o">=</span> <span class="mi">17</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">EXECUTE_LOAD_QUERY_EVENT</span><span class="o">=</span> <span class="mi">18</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">TABLE_MAP_EVENT</span> <span class="o">=</span> <span class="mi">19</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">PRE_GA_WRITE_ROWS_EVENT</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">PRE_GA_UPDATE_ROWS_EVENT</span> <span class="o">=</span> <span class="mi">21</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">PRE_GA_DELETE_ROWS_EVENT</span> <span class="o">=</span> <span class="mi">22</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">WRITE_ROWS_EVENT</span> <span class="o">=</span> <span class="mi">23</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">UPDATE_ROWS_EVENT</span> <span class="o">=</span> <span class="mi">24</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">DELETE_ROWS_EVENT</span> <span class="o">=</span> <span class="mi">25</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">INCIDENT_EVENT</span><span class="o">=</span> <span class="mi">26</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">HEARTBEAT_LOG_EVENT</span><span class="o">=</span> <span class="mi">27</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">IGNORABLE_LOG_EVENT</span><span class="o">=</span> <span class="mi">28</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">ROWS_QUERY_LOG_EVENT</span><span class="o">=</span> <span class="mi">29</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">WRITE_ROWS_EVENT</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">UPDATE_ROWS_EVENT</span> <span class="o">=</span> <span class="mi">31</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">DELETE_ROWS_EVENT</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">GTID_LOG_EVENT</span><span class="o">=</span> <span class="mi">33</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">ANONYMOUS_GTID_LOG_EVENT</span><span class="o">=</span> <span class="mi">34</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">PREVIOUS_GTIDS_LOG_EVENT</span><span class="o">=</span> <span class="mi">35</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">  <span class="n">ENUM_END_EVENT</span> 
+</span></span><span class="line"><span class="cl">  <span class="o">/*</span> <span class="n">end</span> <span class="n">marker</span> <span class="o">*/</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>参考：https://dev.mysql.com/doc/internals/en/event-classes-and-types.html</p>
 <p>Event结构官网提供了3个版本，分别是v1，v3，v4：</p>
@@ -486,7 +487,7 @@ sync_binlog=n（区间0-4294967295）
 <p>现在MySQL的版本基本都使用5.0之后的版本，可以直接看v4，具体如下：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -507,26 +508,26 @@ sync_binlog=n（区间0-4294967295）
 </span><span class="lnt">19
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">+=====================================+
-| event  | timestamp         0 : 4    |
-| header +----------------------------+
-|        | type_code         4 : 1    |
-|        +----------------------------+
-|        | server_id         5 : 4    |
-|        +----------------------------+
-|        | event_length      9 : 4    |
-|        +----------------------------+
-|        | next_position    13 : 4    |
-|        +----------------------------+
-|        | flags            17 : 2    |
-|        +----------------------------+
-|        | extra_headers    19 : x-19 |
-+=====================================+
-| event  | fixed part        x : y    |
-| data   +----------------------------+
-|        | variable part              |
-+=====================================+
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="o">+=====================================+</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span> <span class="n">event</span>  <span class="o">|</span> <span class="n">timestamp</span>         <span class="mi">0</span> <span class="p">:</span> <span class="mi">4</span>    <span class="o">|</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span> <span class="n">header</span> <span class="o">+----------------------------+</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>        <span class="o">|</span> <span class="n">type_code</span>         <span class="mi">4</span> <span class="p">:</span> <span class="mi">1</span>    <span class="o">|</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>        <span class="o">+----------------------------+</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>        <span class="o">|</span> <span class="n">server_id</span>         <span class="mi">5</span> <span class="p">:</span> <span class="mi">4</span>    <span class="o">|</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>        <span class="o">+----------------------------+</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>        <span class="o">|</span> <span class="n">event_length</span>      <span class="mi">9</span> <span class="p">:</span> <span class="mi">4</span>    <span class="o">|</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>        <span class="o">+----------------------------+</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>        <span class="o">|</span> <span class="n">next_position</span>    <span class="mi">13</span> <span class="p">:</span> <span class="mi">4</span>    <span class="o">|</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>        <span class="o">+----------------------------+</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>        <span class="o">|</span> <span class="n">flags</span>            <span class="mi">17</span> <span class="p">:</span> <span class="mi">2</span>    <span class="o">|</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>        <span class="o">+----------------------------+</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>        <span class="o">|</span> <span class="n">extra_headers</span>    <span class="mi">19</span> <span class="p">:</span> <span class="n">x</span><span class="o">-</span><span class="mi">19</span> <span class="o">|</span>
+</span></span><span class="line"><span class="cl"><span class="o">+=====================================+</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span> <span class="n">event</span>  <span class="o">|</span> <span class="n">fixed</span> <span class="n">part</span>        <span class="n">x</span> <span class="p">:</span> <span class="n">y</span>    <span class="o">|</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span> <span class="n">data</span>   <span class="o">+----------------------------+</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>        <span class="o">|</span> <span class="n">variable</span> <span class="n">part</span>              <span class="o">|</span>
+</span></span><span class="line"><span class="cl"><span class="o">+=====================================+</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>名字后面的两个数字表示：offset : length即从第几个字节开始，后面多少个字节用来存放数据
 比如：timestamp(0 : 4)表示从第0个字节开始，往后四个字节用来存放timestamp
@@ -536,7 +537,7 @@ sync_binlog=n（区间0-4294967295）
 <p>1.从一个最简单的实例来分析其中的Event，包括创建表，插入数据，更新数据，删除数据；binlog_format使用的是默认的STATEMENT；</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -548,32 +549,30 @@ sync_binlog=n（区间0-4294967295）
 </span><span class="lnt">10
 </span><span class="lnt">11
 </span><span class="lnt">12
-</span><span class="lnt">13
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">btest</span><span class="o">`</span> <span class="p">(</span>
-  <span class="o">`</span><span class="n">id</span><span class="o">`</span> <span class="nb">bigint</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span>
-  <span class="o">`</span><span class="n">age</span><span class="o">`</span> <span class="nb">int</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="k">NULL</span><span class="p">,</span>
-  <span class="o">`</span><span class="n">name</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="k">NULL</span><span class="p">,</span>
-  <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">)</span>
-<span class="p">)</span> <span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span> <span class="k">DEFAULT</span> <span class="n">CHARSET</span><span class="o">=</span><span class="n">utf8</span>
- 
-<span class="k">insert</span> <span class="k">into</span> <span class="n">btest</span> <span class="k">values</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="s1">&#39;zhaohui&#39;</span><span class="p">);</span>
- 
-<span class="k">update</span> <span class="n">btest</span> <span class="k">set</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;zhaohui_new&#39;</span> <span class="k">where</span> <span class="n">id</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
- 
-<span class="k">delete</span> <span class="k">from</span> <span class="n">btest</span> <span class="k">where</span> <span class="n">id</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="o">`</span><span class="n">btest</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="w"> </span><span class="nb">bigint</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">age</span><span class="o">`</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">name</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w"> </span><span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">CHARSET</span><span class="o">=</span><span class="n">utf8</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">btest</span><span class="w"> </span><span class="k">values</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="s1">&#39;zhaohui&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">update</span><span class="w"> </span><span class="n">btest</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;zhaohui_new&#39;</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">id</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">delete</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">btest</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">id</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>2.查看所有的Events</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">show</span> <span class="n">binlog</span> <span class="n">events</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">show</span><span class="w"> </span><span class="n">binlog</span><span class="w"> </span><span class="n">events</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p><img src="/mysql/mysql-binlog01.jpeg" alt="mysql-binlog" title="mysql binlog"></p>
 <p>上图中一共出现了3中类型的Event，分别是Format_desc，Query和Xid，下面进行简单的分析</p>
@@ -581,7 +580,7 @@ sync_binlog=n（区间0-4294967295）
 <p>官网格式如下：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -608,32 +607,32 @@ sync_binlog=n（区间0-4294967295）
 </span><span class="lnt">25
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">+=====================================+
-| event  | timestamp         0 : 4    |
-| header +----------------------------+
-|        | type_code         4 : 1    | = FORMAT_DESCRIPTION_EVENT = 15
-|        +----------------------------+
-|        | server_id         5 : 4    |
-|        +----------------------------+
-|        | event_length      9 : 4    | &gt;= 91
-|        +----------------------------+
-|        | next_position    13 : 4    |
-|        +----------------------------+
-|        | flags            17 : 2    |
-+=====================================+
-| event  | binlog_version   19 : 2    | = 4
-| data   +----------------------------+
-|        | server_version   21 : 50   |
-|        +----------------------------+
-|        | create_timestamp 71 : 4    |
-|        +----------------------------+
-|        | header_length    75 : 1    |
-|        +----------------------------+
-|        | post-header      76 : n    | = array of n bytes, one byte per event
-|        | lengths for all            |   type that the server knows about
-|        | event types                |
-+=====================================+
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">+=====================================+
+</span></span><span class="line"><span class="cl">| event  | timestamp         0 : 4    |
+</span></span><span class="line"><span class="cl">| header +----------------------------+
+</span></span><span class="line"><span class="cl">|        | type_code         4 : 1    | = FORMAT_DESCRIPTION_EVENT = 15
+</span></span><span class="line"><span class="cl">|        +----------------------------+
+</span></span><span class="line"><span class="cl">|        | server_id         5 : 4    |
+</span></span><span class="line"><span class="cl">|        +----------------------------+
+</span></span><span class="line"><span class="cl">|        | event_length      9 : 4    | &gt;= 91
+</span></span><span class="line"><span class="cl">|        +----------------------------+
+</span></span><span class="line"><span class="cl">|        | next_position    13 : 4    |
+</span></span><span class="line"><span class="cl">|        +----------------------------+
+</span></span><span class="line"><span class="cl">|        | flags            17 : 2    |
+</span></span><span class="line"><span class="cl">+=====================================+
+</span></span><span class="line"><span class="cl">| event  | binlog_version   19 : 2    | = 4
+</span></span><span class="line"><span class="cl">| data   +----------------------------+
+</span></span><span class="line"><span class="cl">|        | server_version   21 : 50   |
+</span></span><span class="line"><span class="cl">|        +----------------------------+
+</span></span><span class="line"><span class="cl">|        | create_timestamp 71 : 4    |
+</span></span><span class="line"><span class="cl">|        +----------------------------+
+</span></span><span class="line"><span class="cl">|        | header_length    75 : 1    |
+</span></span><span class="line"><span class="cl">|        +----------------------------+
+</span></span><span class="line"><span class="cl">|        | post-header      76 : n    | = array of n bytes, one byte per event
+</span></span><span class="line"><span class="cl">|        | lengths for all            |   type that the server knows about
+</span></span><span class="line"><span class="cl">|        | event types                |
+</span></span><span class="line"><span class="cl">+=====================================+
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>使用十六进制方式打开文件bin-log.000001：</p>
 <p><img src="/mysql/mysql-binlog02.jpeg" alt="mysql-binlog" title="mysql binlog"></p>
@@ -653,7 +652,7 @@ variable part=257-19-13=225字节
 具体fix data和variable data：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -666,18 +665,18 @@ variable part=257-19-13=225字节
 </span><span class="lnt">11
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">+==============================================================+
-| fix    | The ID of the thread                      19 : 4    | 
-| data   +-----------------------------------------------------+
-|        | The time in seconds                       23 : 4    |
-|        +-----------------------------------------------------+
-|        | The length of the name of the database    27 : 1    |
-|        +-----------------------------------------------------+
-|        | The error code                            28 : 2    |
-|        +-----------------------------------------------------+
-|        | The length of the status variable block   30 : 2    | 
-+==============================================================+
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="o">+==============================================================+</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span> <span class="n">fix</span>    <span class="o">|</span> <span class="n">The</span> <span class="n">ID</span> <span class="n">of</span> <span class="n">the</span> <span class="n">thread</span>                      <span class="mi">19</span> <span class="p">:</span> <span class="mi">4</span>    <span class="o">|</span> 
+</span></span><span class="line"><span class="cl"><span class="o">|</span> <span class="n">data</span>   <span class="o">+-----------------------------------------------------+</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>        <span class="o">|</span> <span class="n">The</span> <span class="n">time</span> <span class="ow">in</span> <span class="n">seconds</span>                       <span class="mi">23</span> <span class="p">:</span> <span class="mi">4</span>    <span class="o">|</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>        <span class="o">+-----------------------------------------------------+</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>        <span class="o">|</span> <span class="n">The</span> <span class="n">length</span> <span class="n">of</span> <span class="n">the</span> <span class="n">name</span> <span class="n">of</span> <span class="n">the</span> <span class="n">database</span>    <span class="mi">27</span> <span class="p">:</span> <span class="mi">1</span>    <span class="o">|</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>        <span class="o">+-----------------------------------------------------+</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>        <span class="o">|</span> <span class="n">The</span> <span class="n">error</span> <span class="n">code</span>                            <span class="mi">28</span> <span class="p">:</span> <span class="mi">2</span>    <span class="o">|</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>        <span class="o">+-----------------------------------------------------+</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>        <span class="o">|</span> <span class="n">The</span> <span class="n">length</span> <span class="n">of</span> <span class="n">the</span> <span class="n">status</span> <span class="n">variable</span> <span class="n">block</span>   <span class="mi">30</span> <span class="p">:</span> <span class="mi">2</span>    <span class="o">|</span> 
+</span></span><span class="line"><span class="cl"><span class="o">+==============================================================+</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>在创建表产生一个Query_Event，insert、update以及delete执行之后分别产生了2个Query_Event和一个Xid_Event。</p>
 <p>更多详细：https://dev.mysql.com/doc/internals/en/event-data-for-specific-event-types.html</p>
@@ -793,7 +792,7 @@ variable part=27-19=8字节
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -810,7 +809,7 @@ variable part=27-19=8字节
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

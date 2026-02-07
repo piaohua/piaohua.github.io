@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20200809-golang-quic/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Go] Golang Quic" />
-<meta property="og:description" content="Quick UDP Internet Connection QUIC 概述 QUIC（Quick UDP Internet Connection，快速 UDP 互联网连接协议）是一种以 UDP 为底层传输协议，支持加密、多路复用，工作在用户空" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20200809-golang-quic/" />
-<meta property="article:published_time" content="2020-08-09T23:53:01+08:00" />
-<meta property="article:modified_time" content="2020-08-09T23:53:01+08:00" />
-<meta itemprop="name" content="[Go] Golang Quic">
-<meta itemprop="description" content="Quick UDP Internet Connection QUIC 概述 QUIC（Quick UDP Internet Connection，快速 UDP 互联网连接协议）是一种以 UDP 为底层传输协议，支持加密、多路复用，工作在用户空">
-<meta itemprop="datePublished" content="2020-08-09T23:53:01&#43;08:00" />
-<meta itemprop="dateModified" content="2020-08-09T23:53:01&#43;08:00" />
-<meta itemprop="wordCount" content="662">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20200809-golang-quic/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Go] Golang Quic">
+  <meta property="og:description" content="Quick UDP Internet Connection QUIC 概述 QUIC（Quick UDP Internet Connection，快速 UDP 互联网连接协议）是一种以 UDP 为底层传输协议，支持加密、多路复用，工作在用户空">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2020-08-09T23:53:01+08:00">
+    <meta property="article:modified_time" content="2020-08-09T23:53:01+08:00">
+    <meta property="article:tag" content="Golang">
 
-
-
-<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Go] Golang Quic"/>
-<meta name="twitter:description" content="Quick UDP Internet Connection QUIC 概述 QUIC（Quick UDP Internet Connection，快速 UDP 互联网连接协议）是一种以 UDP 为底层传输协议，支持加密、多路复用，工作在用户空"/>
+  <meta itemprop="name" content="[Go] Golang Quic">
+  <meta itemprop="description" content="Quick UDP Internet Connection QUIC 概述 QUIC（Quick UDP Internet Connection，快速 UDP 互联网连接协议）是一种以 UDP 为底层传输协议，支持加密、多路复用，工作在用户空">
+  <meta itemprop="datePublished" content="2020-08-09T23:53:01+08:00">
+  <meta itemprop="dateModified" content="2020-08-09T23:53:01+08:00">
+  <meta itemprop="wordCount" content="661">
+  <meta itemprop="keywords" content="Golang"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Go] Golang Quic">
+<meta name="twitter:description" content="Quick UDP Internet Connection QUIC 概述 QUIC（Quick UDP Internet Connection，快速 UDP 互联网连接协议）是一种以 UDP 为底层传输协议，支持加密、多路复用，工作在用户空">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -143,7 +144,7 @@
         <div class="post-category">
             <a href="/categories/golang/"> golang </a>
             </div>
-          <span class="more-meta"> 662 words </span>
+          <span class="more-meta"> 661 words </span>
           <span class="more-meta"> 2 mins read </span>
         
       </div>
@@ -180,7 +181,7 @@
 <h2 id="quic-golang-server">quic golang server</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -268,98 +269,98 @@
 </span><span class="lnt">86
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-	<span class="s">&#34;context&#34;</span>
-	<span class="s">&#34;crypto/rand&#34;</span>
-	<span class="s">&#34;crypto/rsa&#34;</span>
-	<span class="s">&#34;crypto/tls&#34;</span>
-	<span class="s">&#34;crypto/x509&#34;</span>
-	<span class="s">&#34;encoding/pem&#34;</span>
-	<span class="s">&#34;fmt&#34;</span>
-	<span class="s">&#34;io&#34;</span>
-	<span class="s">&#34;math/big&#34;</span>
-	<span class="s">&#34;time&#34;</span>
-
-	<span class="s">&#34;github.com/lucas-clemente/quic-go&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">const</span> <span class="nx">saddr</span> <span class="p">=</span> <span class="s">&#34;localhost:9999&#34;</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-	<span class="nx">listener</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">quic</span><span class="p">.</span><span class="nf">ListenAddr</span><span class="p">(</span><span class="nx">saddr</span><span class="p">,</span> <span class="nf">generateTLSConfig</span><span class="p">(),</span> <span class="kc">nil</span><span class="p">)</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-
-	<span class="p">}</span>
-	<span class="k">for</span> <span class="p">{</span>
-		<span class="nx">sess</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">listener</span><span class="p">.</span><span class="nf">Accept</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">())</span>
-		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-			<span class="k">go</span> <span class="nf">dealSession</span><span class="p">(</span><span class="nx">sess</span><span class="p">)</span>
-		<span class="p">}</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">dealSession</span><span class="p">(</span><span class="nx">sess</span> <span class="nx">quic</span><span class="p">.</span><span class="nx">Session</span><span class="p">)</span> <span class="p">{</span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;LocalAddr %s, RemoteAddr %s\n&#34;</span><span class="p">,</span>
-		<span class="nx">sess</span><span class="p">.</span><span class="nf">LocalAddr</span><span class="p">().</span><span class="nf">String</span><span class="p">(),</span>
-		<span class="nx">sess</span><span class="p">.</span><span class="nf">RemoteAddr</span><span class="p">().</span><span class="nf">String</span><span class="p">())</span>
-	<span class="nx">ctx</span><span class="p">,</span> <span class="nx">cancel</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">WithTimeout</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="mi">3</span><span class="o">*</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
-	<span class="k">defer</span> <span class="nf">cancel</span><span class="p">()</span>
-	<span class="nx">stream</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">sess</span><span class="p">.</span><span class="nf">AcceptStream</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="c1">//panic(err)
-</span><span class="c1"></span>		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-		<span class="k">for</span> <span class="p">{</span>
-			<span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">io</span><span class="p">.</span><span class="nf">Copy</span><span class="p">(</span><span class="nx">loggingWriter</span><span class="p">{</span><span class="nx">stream</span><span class="p">},</span> <span class="nx">stream</span><span class="p">)</span>
-			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-				<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;err &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-				<span class="k">break</span>
-			<span class="p">}</span>
-		<span class="p">}</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">type</span> <span class="nx">loggingWriter</span> <span class="kd">struct</span><span class="p">{</span> <span class="nx">io</span><span class="p">.</span><span class="nx">Writer</span> <span class="p">}</span>
-
-<span class="kd">func</span> <span class="p">(</span><span class="nx">w</span> <span class="nx">loggingWriter</span><span class="p">)</span> <span class="nf">Write</span><span class="p">(</span><span class="nx">b</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="p">(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Server: Got &#39;%s&#39;\n&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">))</span>
-	<span class="k">return</span> <span class="nx">w</span><span class="p">.</span><span class="nx">Writer</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
-<span class="p">}</span>
-
-<span class="c1">// Setup a bare-bones TLS config for the server
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">generateTLSConfig</span><span class="p">()</span> <span class="o">*</span><span class="nx">tls</span><span class="p">.</span><span class="nx">Config</span> <span class="p">{</span>
-	<span class="nx">key</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">rsa</span><span class="p">.</span><span class="nf">GenerateKey</span><span class="p">(</span><span class="nx">rand</span><span class="p">.</span><span class="nx">Reader</span><span class="p">,</span> <span class="mi">1024</span><span class="p">)</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-	<span class="p">}</span>
-	<span class="nx">template</span> <span class="o">:=</span> <span class="nx">x509</span><span class="p">.</span><span class="nx">Certificate</span><span class="p">{</span><span class="nx">SerialNumber</span><span class="p">:</span> <span class="nx">big</span><span class="p">.</span><span class="nf">NewInt</span><span class="p">(</span><span class="mi">1</span><span class="p">)}</span>
-	<span class="nx">certDER</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">x509</span><span class="p">.</span><span class="nf">CreateCertificate</span><span class="p">(</span><span class="nx">rand</span><span class="p">.</span><span class="nx">Reader</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">template</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">template</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">key</span><span class="p">.</span><span class="nx">PublicKey</span><span class="p">,</span> <span class="nx">key</span><span class="p">)</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-	<span class="p">}</span>
-	<span class="nx">keyPEM</span> <span class="o">:=</span> <span class="nx">pem</span><span class="p">.</span><span class="nf">EncodeToMemory</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">pem</span><span class="p">.</span><span class="nx">Block</span><span class="p">{</span><span class="nx">Type</span><span class="p">:</span> <span class="s">&#34;RSA PRIVATE KEY&#34;</span><span class="p">,</span> <span class="nx">Bytes</span><span class="p">:</span> <span class="nx">x509</span><span class="p">.</span><span class="nf">MarshalPKCS1PrivateKey</span><span class="p">(</span><span class="nx">key</span><span class="p">)})</span>
-	<span class="nx">certPEM</span> <span class="o">:=</span> <span class="nx">pem</span><span class="p">.</span><span class="nf">EncodeToMemory</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">pem</span><span class="p">.</span><span class="nx">Block</span><span class="p">{</span><span class="nx">Type</span><span class="p">:</span> <span class="s">&#34;CERTIFICATE&#34;</span><span class="p">,</span> <span class="nx">Bytes</span><span class="p">:</span> <span class="nx">certDER</span><span class="p">})</span>
-
-	<span class="nx">tlsCert</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">tls</span><span class="p">.</span><span class="nf">X509KeyPair</span><span class="p">(</span><span class="nx">certPEM</span><span class="p">,</span> <span class="nx">keyPEM</span><span class="p">)</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-	<span class="p">}</span>
-	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">tls</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
-		<span class="nx">Certificates</span><span class="p">:</span> <span class="p">[]</span><span class="nx">tls</span><span class="p">.</span><span class="nx">Certificate</span><span class="p">{</span><span class="nx">tlsCert</span><span class="p">},</span>
-		<span class="nx">NextProtos</span><span class="p">:</span>   <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;quic-example&#34;</span><span class="p">},</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;context&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;crypto/rand&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;crypto/rsa&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;crypto/tls&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;crypto/x509&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;encoding/pem&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;io&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;math/big&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/lucas-clemente/quic-go&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">const</span> <span class="nx">saddr</span> <span class="p">=</span> <span class="s">&#34;localhost:9999&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">listener</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">quic</span><span class="p">.</span><span class="nf">ListenAddr</span><span class="p">(</span><span class="nx">saddr</span><span class="p">,</span> <span class="nf">generateTLSConfig</span><span class="p">(),</span> <span class="kc">nil</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">sess</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">listener</span><span class="p">.</span><span class="nf">Accept</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="k">go</span> <span class="nf">dealSession</span><span class="p">(</span><span class="nx">sess</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">dealSession</span><span class="p">(</span><span class="nx">sess</span> <span class="nx">quic</span><span class="p">.</span><span class="nx">Session</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;LocalAddr %s, RemoteAddr %s\n&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">sess</span><span class="p">.</span><span class="nf">LocalAddr</span><span class="p">().</span><span class="nf">String</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">sess</span><span class="p">.</span><span class="nf">RemoteAddr</span><span class="p">().</span><span class="nf">String</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">ctx</span><span class="p">,</span> <span class="nx">cancel</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">WithTimeout</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="mi">3</span><span class="o">*</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nf">cancel</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">stream</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">sess</span><span class="p">.</span><span class="nf">AcceptStream</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">//panic(err)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">io</span><span class="p">.</span><span class="nf">Copy</span><span class="p">(</span><span class="nx">loggingWriter</span><span class="p">{</span><span class="nx">stream</span><span class="p">},</span> <span class="nx">stream</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;err &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">				<span class="k">break</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">loggingWriter</span> <span class="kd">struct</span><span class="p">{</span> <span class="nx">io</span><span class="p">.</span><span class="nx">Writer</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">w</span> <span class="nx">loggingWriter</span><span class="p">)</span> <span class="nf">Write</span><span class="p">(</span><span class="nx">b</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="p">(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Server: Got &#39;%s&#39;\n&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">w</span><span class="p">.</span><span class="nx">Writer</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Setup a bare-bones TLS config for the server
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">generateTLSConfig</span><span class="p">()</span> <span class="o">*</span><span class="nx">tls</span><span class="p">.</span><span class="nx">Config</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">key</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">rsa</span><span class="p">.</span><span class="nf">GenerateKey</span><span class="p">(</span><span class="nx">rand</span><span class="p">.</span><span class="nx">Reader</span><span class="p">,</span> <span class="mi">1024</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">template</span> <span class="o">:=</span> <span class="nx">x509</span><span class="p">.</span><span class="nx">Certificate</span><span class="p">{</span><span class="nx">SerialNumber</span><span class="p">:</span> <span class="nx">big</span><span class="p">.</span><span class="nf">NewInt</span><span class="p">(</span><span class="mi">1</span><span class="p">)}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">certDER</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">x509</span><span class="p">.</span><span class="nf">CreateCertificate</span><span class="p">(</span><span class="nx">rand</span><span class="p">.</span><span class="nx">Reader</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">template</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">template</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">key</span><span class="p">.</span><span class="nx">PublicKey</span><span class="p">,</span> <span class="nx">key</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">keyPEM</span> <span class="o">:=</span> <span class="nx">pem</span><span class="p">.</span><span class="nf">EncodeToMemory</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">pem</span><span class="p">.</span><span class="nx">Block</span><span class="p">{</span><span class="nx">Type</span><span class="p">:</span> <span class="s">&#34;RSA PRIVATE KEY&#34;</span><span class="p">,</span> <span class="nx">Bytes</span><span class="p">:</span> <span class="nx">x509</span><span class="p">.</span><span class="nf">MarshalPKCS1PrivateKey</span><span class="p">(</span><span class="nx">key</span><span class="p">)})</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">certPEM</span> <span class="o">:=</span> <span class="nx">pem</span><span class="p">.</span><span class="nf">EncodeToMemory</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">pem</span><span class="p">.</span><span class="nx">Block</span><span class="p">{</span><span class="nx">Type</span><span class="p">:</span> <span class="s">&#34;CERTIFICATE&#34;</span><span class="p">,</span> <span class="nx">Bytes</span><span class="p">:</span> <span class="nx">certDER</span><span class="p">})</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">tlsCert</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">tls</span><span class="p">.</span><span class="nf">X509KeyPair</span><span class="p">(</span><span class="nx">certPEM</span><span class="p">,</span> <span class="nx">keyPEM</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">tls</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Certificates</span><span class="p">:</span> <span class="p">[]</span><span class="nx">tls</span><span class="p">.</span><span class="nx">Certificate</span><span class="p">{</span><span class="nx">tlsCert</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">NextProtos</span><span class="p">:</span>   <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;quic-example&#34;</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="quic-golang-client">quic golang client</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -408,59 +409,59 @@
 </span><span class="lnt">47
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-	<span class="s">&#34;context&#34;</span>
-	<span class="s">&#34;crypto/tls&#34;</span>
-	<span class="s">&#34;fmt&#34;</span>
-	<span class="s">&#34;io&#34;</span>
-	<span class="s">&#34;time&#34;</span>
-
-	<span class="s">&#34;github.com/lucas-clemente/quic-go&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">const</span> <span class="nx">addr</span> <span class="p">=</span> <span class="s">&#34;localhost:9999&#34;</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-	<span class="nx">tlsConf</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">tls</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
-		<span class="nx">InsecureSkipVerify</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
-		<span class="nx">NextProtos</span><span class="p">:</span>         <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;quic-example&#34;</span><span class="p">},</span>
-	<span class="p">}</span>
-	<span class="nx">session</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">quic</span><span class="p">.</span><span class="nf">DialAddr</span><span class="p">(</span><span class="nx">addr</span><span class="p">,</span> <span class="nx">tlsConf</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-		<span class="k">return</span>
-	<span class="p">}</span>
-	<span class="nx">stream</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">session</span><span class="p">.</span><span class="nf">OpenStreamSync</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">())</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-		<span class="k">return</span>
-	<span class="p">}</span>
-
-	<span class="nx">ticker</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">NewTicker</span><span class="p">(</span><span class="mi">2000</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
-	<span class="k">for</span> <span class="nx">t</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">ticker</span><span class="p">.</span><span class="nx">C</span> <span class="p">{</span>
-		<span class="nx">message</span> <span class="o">:=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;Client: Sending &#39;%d&#39;&#34;</span><span class="p">,</span> <span class="nx">t</span><span class="p">.</span><span class="nf">Nanosecond</span><span class="p">())</span>
-		<span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">stream</span><span class="p">.</span><span class="nf">Write</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">message</span><span class="p">))</span>
-		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-			<span class="k">return</span>
-		<span class="p">}</span>
-		<span class="nx">buf</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="nx">message</span><span class="p">))</span>
-		<span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">io</span><span class="p">.</span><span class="nf">ReadFull</span><span class="p">(</span><span class="nx">stream</span><span class="p">,</span> <span class="nx">buf</span><span class="p">)</span>
-		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-			<span class="k">return</span>
-		<span class="p">}</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Client: Got &#39;%s&#39;\n&#34;</span><span class="p">,</span> <span class="nx">buf</span><span class="p">)</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;context&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;crypto/tls&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;io&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/lucas-clemente/quic-go&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">const</span> <span class="nx">addr</span> <span class="p">=</span> <span class="s">&#34;localhost:9999&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">tlsConf</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">tls</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">InsecureSkipVerify</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">NextProtos</span><span class="p">:</span>         <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;quic-example&#34;</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">session</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">quic</span><span class="p">.</span><span class="nf">DialAddr</span><span class="p">(</span><span class="nx">addr</span><span class="p">,</span> <span class="nx">tlsConf</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">stream</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">session</span><span class="p">.</span><span class="nf">OpenStreamSync</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">ticker</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">NewTicker</span><span class="p">(</span><span class="mi">2000</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">t</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">ticker</span><span class="p">.</span><span class="nx">C</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">message</span> <span class="o">:=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;Client: Sending &#39;%d&#39;&#34;</span><span class="p">,</span> <span class="nx">t</span><span class="p">.</span><span class="nf">Nanosecond</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">stream</span><span class="p">.</span><span class="nf">Write</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">message</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">return</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">buf</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="nx">message</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">io</span><span class="p">.</span><span class="nf">ReadFull</span><span class="p">(</span><span class="nx">stream</span><span class="p">,</span> <span class="nx">buf</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">return</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Client: Got &#39;%s&#39;\n&#34;</span><span class="p">,</span> <span class="nx">buf</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="运行">运行</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -470,21 +471,19 @@
 </span><span class="lnt"> 8
 </span><span class="lnt"> 9
 </span><span class="lnt">10
-</span><span class="lnt">11
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">&gt; go run quic_server.go
-LocalAddr 127.0.0.1:9999, RemoteAddr 127.0.0.1:53893
-Server: Got &#39;Client: Sending &#39;519247000&#39;&#39;
-Server: Got &#39;Client: Sending &#39;522181000&#39;&#39;
-Server: Got &#39;Client: Sending &#39;519381000&#39;&#39;
-
-&gt; go run quic_client.go
-Client: Got &#39;Client: Sending &#39;519247000&#39;&#39;
-Client: Got &#39;Client: Sending &#39;522181000&#39;&#39;
-Client: Got &#39;Client: Sending &#39;519381000&#39;&#39;
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">&gt; go run quic_server.go
+</span></span><span class="line"><span class="cl">LocalAddr 127.0.0.1:9999, RemoteAddr 127.0.0.1:53893
+</span></span><span class="line"><span class="cl">Server: Got &#39;Client: Sending &#39;519247000&#39;&#39;
+</span></span><span class="line"><span class="cl">Server: Got &#39;Client: Sending &#39;522181000&#39;&#39;
+</span></span><span class="line"><span class="cl">Server: Got &#39;Client: Sending &#39;519381000&#39;&#39;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">&gt; go run quic_client.go
+</span></span><span class="line"><span class="cl">Client: Got &#39;Client: Sending &#39;519247000&#39;&#39;
+</span></span><span class="line"><span class="cl">Client: Got &#39;Client: Sending &#39;522181000&#39;&#39;
+</span></span><span class="line"><span class="cl">Client: Got &#39;Client: Sending &#39;519381000&#39;&#39;
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -591,7 +590,7 @@ Client: Got &#39;Client: Sending &#39;519381000&#39;&#39;
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -608,7 +607,7 @@ Client: Got &#39;Client: Sending &#39;519381000&#39;&#39;
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

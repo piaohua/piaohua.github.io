@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20240114-embed/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="Go 1.16新特性-embed包及其使用" />
-<meta property="og:description" content="Go 1.16新特性-embed包及其使用 embed是什么 embed是在Go 1.16中新加包。它通过//go:embed指令，可以在编译阶段将静" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20240114-embed/" />
-<meta property="article:published_time" content="2024-01-14T16:04:59+08:00" />
-<meta property="article:modified_time" content="2024-01-14T16:04:59+08:00" />
-<meta itemprop="name" content="Go 1.16新特性-embed包及其使用">
-<meta itemprop="description" content="Go 1.16新特性-embed包及其使用 embed是什么 embed是在Go 1.16中新加包。它通过//go:embed指令，可以在编译阶段将静">
-<meta itemprop="datePublished" content="2024-01-14T16:04:59&#43;08:00" />
-<meta itemprop="dateModified" content="2024-01-14T16:04:59&#43;08:00" />
-<meta itemprop="wordCount" content="1355">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20240114-embed/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="Go 1.16新特性-embed包及其使用">
+  <meta property="og:description" content="Go 1.16新特性-embed包及其使用 embed是什么 embed是在Go 1.16中新加包。它通过//go:embed指令，可以在编译阶段将静">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2024-01-14T16:04:59+08:00">
+    <meta property="article:modified_time" content="2024-01-14T16:04:59+08:00">
+    <meta property="article:tag" content="Golang">
 
-
-
-<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Go 1.16新特性-embed包及其使用"/>
-<meta name="twitter:description" content="Go 1.16新特性-embed包及其使用 embed是什么 embed是在Go 1.16中新加包。它通过//go:embed指令，可以在编译阶段将静"/>
+  <meta itemprop="name" content="Go 1.16新特性-embed包及其使用">
+  <meta itemprop="description" content="Go 1.16新特性-embed包及其使用 embed是什么 embed是在Go 1.16中新加包。它通过//go:embed指令，可以在编译阶段将静">
+  <meta itemprop="datePublished" content="2024-01-14T16:04:59+08:00">
+  <meta itemprop="dateModified" content="2024-01-14T16:04:59+08:00">
+  <meta itemprop="wordCount" content="1355">
+  <meta itemprop="keywords" content="Golang"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="Go 1.16新特性-embed包及其使用">
+<meta name="twitter:description" content="Go 1.16新特性-embed包及其使用 embed是什么 embed是在Go 1.16中新加包。它通过//go:embed指令，可以在编译阶段将静">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -192,7 +193,7 @@
 <p>基本语法非常简单，首先导入embed包，然后使用指令//go:embed 文件名 将对应的文件或目录结构导入到对应的变量上。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -207,27 +208,27 @@
 </span><span class="lnt">13
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-    <span class="nx">_</span> <span class="s">&#34;embed&#34;</span>
-    <span class="s">&#34;fmt&#34;</span>
-<span class="p">)</span>
-
-<span class="c1">//go:embed version.txt
-</span><span class="c1"></span><span class="kd">var</span> <span class="nx">version</span> <span class="kt">string</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;version: %q\n&#34;</span><span class="p">,</span> <span class="nx">version</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">_</span> <span class="s">&#34;embed&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//go:embed version.txt
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">var</span> <span class="nx">version</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;version: %q\n&#34;</span><span class="p">,</span> <span class="nx">version</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>在version.txt文件中输入内容，编译打包后，可将文件中的内容绑定到version变量。</p>
 <h2 id="三种数据类型支持">三种数据类型支持</h2>
 <p>在embed中，可以将静态资源文件嵌入到三种类型的变量，分别为：字符串、字节数组、embed.FS文件类型</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -237,20 +238,20 @@
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">//go:embed hello.txt
-</span><span class="c1"></span><span class="kd">var</span> <span class="nx">s</span> <span class="kt">string</span>
-
-<span class="c1">//go:embed hello.txt
-</span><span class="c1"></span><span class="kd">var</span> <span class="nx">b</span> <span class="p">[]</span><span class="kt">byte</span>
-
-<span class="c1">//go:embed hello.txt
-</span><span class="c1"></span><span class="kd">var</span> <span class="nx">f</span> <span class="nx">embed</span><span class="p">.</span><span class="nx">FS</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">//go:embed hello.txt
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">var</span> <span class="nx">s</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//go:embed hello.txt
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">var</span> <span class="nx">b</span> <span class="p">[]</span><span class="kt">byte</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//go:embed hello.txt
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">var</span> <span class="nx">f</span> <span class="nx">embed</span><span class="p">.</span><span class="nx">FS</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>将文件目录结构映射成embed.FS文件类型。embed.FS结构主要有3个对外方法</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -260,21 +261,21 @@
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Open 打开要读取的文件，并返回文件的fs.File结构.
-</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">f</span> <span class="nx">FS</span><span class="p">)</span> <span class="nf">Open</span><span class="p">(</span><span class="nx">name</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nx">File</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
-
-<span class="c1">// ReadDir 读取并返回整个命名目录
-</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">f</span> <span class="nx">FS</span><span class="p">)</span> <span class="nf">ReadDir</span><span class="p">(</span><span class="nx">name</span> <span class="kt">string</span><span class="p">)</span> <span class="p">([]</span><span class="nx">fs</span><span class="p">.</span><span class="nx">DirEntry</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
-
-<span class="c1">// ReadFile 读取并返回name文件的内容.
-</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">f</span> <span class="nx">FS</span><span class="p">)</span> <span class="nf">ReadFile</span><span class="p">(</span><span class="nx">name</span> <span class="kt">string</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// Open 打开要读取的文件，并返回文件的fs.File结构.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">f</span> <span class="nx">FS</span><span class="p">)</span> <span class="nf">Open</span><span class="p">(</span><span class="nx">name</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nx">File</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// ReadDir 读取并返回整个命名目录
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">f</span> <span class="nx">FS</span><span class="p">)</span> <span class="nf">ReadDir</span><span class="p">(</span><span class="nx">name</span> <span class="kt">string</span><span class="p">)</span> <span class="p">([]</span><span class="nx">fs</span><span class="p">.</span><span class="nx">DirEntry</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// ReadFile 读取并返回name文件的内容.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">f</span> <span class="nx">FS</span><span class="p">)</span> <span class="nf">ReadFile</span><span class="p">(</span><span class="nx">name</span> <span class="kt">string</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="拓展用法">拓展用法</h2>
 <p>在指定 go:embed 注解时可以一次性多个文件来读取，并且也可以一个变量多行注解</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -286,52 +287,52 @@
 </span><span class="lnt">10
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">//go:embed hello1.txt hello2.txt
-</span><span class="c1"></span><span class="kd">var</span> <span class="nx">f</span> <span class="nx">embed</span><span class="p">.</span><span class="nx">FS</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
- <span class="nx">data1</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">f</span><span class="p">.</span><span class="nf">ReadFile</span><span class="p">(</span><span class="s">&#34;hello1.txt&#34;</span><span class="p">)</span>
- <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">data1</span><span class="p">))</span>
-
- <span class="nx">data2</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">f</span><span class="p">.</span><span class="nf">ReadFile</span><span class="p">(</span><span class="s">&#34;hello2.txt&#34;</span><span class="p">)</span>
- <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">data2</span><span class="p">))</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">//go:embed hello1.txt hello2.txt
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">var</span> <span class="nx">f</span> <span class="nx">embed</span><span class="p">.</span><span class="nx">FS</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"> <span class="nx">data1</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">f</span><span class="p">.</span><span class="nf">ReadFile</span><span class="p">(</span><span class="s">&#34;hello1.txt&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">data1</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"> <span class="nx">data2</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">f</span><span class="p">.</span><span class="nf">ReadFile</span><span class="p">(</span><span class="s">&#34;hello2.txt&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">data2</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>多行注解</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">//go:embed hello1.txt 
-</span><span class="c1">//go:embed hello2.txt
-</span><span class="c1"></span><span class="kd">var</span> <span class="nx">f</span> <span class="nx">embed</span><span class="p">.</span><span class="nx">FS</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">//go:embed hello1.txt 
+</span></span></span><span class="line"><span class="cl"><span class="c1">//go:embed hello2.txt
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">var</span> <span class="nx">f</span> <span class="nx">embed</span><span class="p">.</span><span class="nx">FS</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>也可以通过在注解中指定目录 helloworld，再对应读取文件：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">//go:embed helloworld
-</span><span class="c1"></span><span class="kd">var</span> <span class="nx">f</span> <span class="nx">embed</span><span class="p">.</span><span class="nx">FS</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">//go:embed helloworld
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">var</span> <span class="nx">f</span> <span class="nx">embed</span><span class="p">.</span><span class="nx">FS</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>同时既然能够支持目录读取，也能支持贪婪模式的匹配：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">//go:embed helloworld/*
-</span><span class="c1"></span><span class="kd">var</span> <span class="nx">f</span> <span class="nx">embed</span><span class="p">.</span><span class="nx">FS</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">//go:embed helloworld/*
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">var</span> <span class="nx">f</span> <span class="nx">embed</span><span class="p">.</span><span class="nx">FS</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>embed.FS 也能调各类文件系统的接口，其实本质是 embed.FS 实现了 io/fs 接口。</p>
 <h2 id="参考">参考</h2>
@@ -441,7 +442,7 @@
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -458,7 +459,7 @@
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

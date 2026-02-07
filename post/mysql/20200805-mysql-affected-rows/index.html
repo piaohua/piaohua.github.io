@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/mysql/20200805-mysql-affected-rows/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[MySQL] MySQL Affected Rows" />
-<meta property="og:description" content="MySQL INSERT/INSERT &hellip; ON DUPLICATE KEY UPDATE Affected Rows 问题 问题描述 在INSERT/INSERT ... ON DUPLICATE KEY UPDATE操作时, 会存在MySQL连接client_flag是否设置CL" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/mysql/20200805-mysql-affected-rows/" />
-<meta property="article:published_time" content="2020-08-05T21:27:39+08:00" />
-<meta property="article:modified_time" content="2020-08-05T21:27:39+08:00" />
-<meta itemprop="name" content="[MySQL] MySQL Affected Rows">
-<meta itemprop="description" content="MySQL INSERT/INSERT &hellip; ON DUPLICATE KEY UPDATE Affected Rows 问题 问题描述 在INSERT/INSERT ... ON DUPLICATE KEY UPDATE操作时, 会存在MySQL连接client_flag是否设置CL">
-<meta itemprop="datePublished" content="2020-08-05T21:27:39&#43;08:00" />
-<meta itemprop="dateModified" content="2020-08-05T21:27:39&#43;08:00" />
-<meta itemprop="wordCount" content="496">
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20200805-mysql-affected-rows/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[MySQL] MySQL Affected Rows">
+  <meta property="og:description" content="MySQL INSERT/INSERT … ON DUPLICATE KEY UPDATE Affected Rows 问题 问题描述 在INSERT/INSERT ... ON DUPLICATE KEY UPDATE操作时, 会存在MySQL连接client_flag是否设置CL">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2020-08-05T21:27:39+08:00">
+    <meta property="article:modified_time" content="2020-08-05T21:27:39+08:00">
+    <meta property="article:tag" content="Mysql">
 
-
-
-<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[MySQL] MySQL Affected Rows"/>
-<meta name="twitter:description" content="MySQL INSERT/INSERT &hellip; ON DUPLICATE KEY UPDATE Affected Rows 问题 问题描述 在INSERT/INSERT ... ON DUPLICATE KEY UPDATE操作时, 会存在MySQL连接client_flag是否设置CL"/>
+  <meta itemprop="name" content="[MySQL] MySQL Affected Rows">
+  <meta itemprop="description" content="MySQL INSERT/INSERT &hellip; ON DUPLICATE KEY UPDATE Affected Rows 问题 问题描述 在INSERT/INSERT ... ON DUPLICATE KEY UPDATE操作时, 会存在MySQL连接client_flag是否设置CL">
+  <meta itemprop="datePublished" content="2020-08-05T21:27:39+08:00">
+  <meta itemprop="dateModified" content="2020-08-05T21:27:39+08:00">
+  <meta itemprop="wordCount" content="496">
+  <meta itemprop="keywords" content="Mysql"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[MySQL] MySQL Affected Rows">
+<meta name="twitter:description" content="MySQL INSERT/INSERT &hellip; ON DUPLICATE KEY UPDATE Affected Rows 问题 问题描述 在INSERT/INSERT ... ON DUPLICATE KEY UPDATE操作时, 会存在MySQL连接client_flag是否设置CL">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -175,7 +176,7 @@ CLIENT_FOUND_ROWS 表示返回匹配到的行数，而不是更改的行数；</
 <p>默认连接时没有设置的，比如MySQL客户端</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -183,57 +184,57 @@ CLIENT_FOUND_ROWS 表示返回匹配到的行数，而不是更改的行数；</
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">test_table</span><span class="o">`</span> <span class="p">(</span>
-  <span class="o">`</span><span class="n">id</span><span class="o">`</span> <span class="nb">int</span> <span class="n">unsigned</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="n">AUTO_INCREMENT</span> <span class="k">PRIMARY</span> <span class="k">KEY</span><span class="p">,</span>
-  <span class="o">`</span><span class="n">name</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span>
- <span class="p">)</span> <span class="k">COMMENT</span><span class="o">=</span><span class="s1">&#39;test&#39;</span> <span class="n">ENGINE</span><span class="o">=</span><span class="s1">&#39;InnoDB&#39;</span><span class="p">;</span>
-
-<span class="k">INSERT</span> <span class="k">INTO</span> <span class="o">`</span><span class="n">test_table</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">name</span><span class="o">`</span><span class="p">)</span> <span class="k">VALUES</span> <span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;Jane&#39;</span><span class="p">);</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="o">`</span><span class="n">test_table</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="w"> </span><span class="nb">int</span><span class="w"> </span><span class="n">unsigned</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">name</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">COMMENT</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="w"> </span><span class="n">ENGINE</span><span class="o">=</span><span class="s1">&#39;InnoDB&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="o">`</span><span class="n">test_table</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">name</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Jane&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">UPDATE</span> <span class="n">test_table</span> <span class="k">SET</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Tom&#39;</span> <span class="k">WHERE</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-
-<span class="n">Query</span> <span class="n">OK</span><span class="p">,</span> <span class="mi">1</span> <span class="k">row</span> <span class="n">affected</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
-<span class="k">Rows</span> <span class="n">matched</span><span class="p">:</span> <span class="mi">1</span>  <span class="n">Changed</span><span class="p">:</span> <span class="mi">1</span>  <span class="n">Warnings</span><span class="p">:</span> <span class="mi">0</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">UPDATE</span><span class="w"> </span><span class="n">test_table</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Tom&#39;</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">Query</span><span class="w"> </span><span class="n">OK</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">row</span><span class="w"> </span><span class="n">affected</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span><span class="w"> </span><span class="n">sec</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">Rows</span><span class="w"> </span><span class="n">matched</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">  </span><span class="n">Changed</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">  </span><span class="n">Warnings</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">UPDATE</span> <span class="n">test_table</span> <span class="k">SET</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Tom&#39;</span> <span class="k">WHERE</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-
-<span class="n">Query</span> <span class="n">OK</span><span class="p">,</span> <span class="mi">0</span> <span class="k">rows</span> <span class="n">affected</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
-<span class="k">Rows</span> <span class="n">matched</span><span class="p">:</span> <span class="mi">1</span>  <span class="n">Changed</span><span class="p">:</span> <span class="mi">0</span>  <span class="n">Warnings</span><span class="p">:</span> <span class="mi">0</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">UPDATE</span><span class="w"> </span><span class="n">test_table</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Tom&#39;</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">Query</span><span class="w"> </span><span class="n">OK</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">rows</span><span class="w"> </span><span class="n">affected</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span><span class="w"> </span><span class="n">sec</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">Rows</span><span class="w"> </span><span class="n">matched</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">  </span><span class="n">Changed</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="n">Warnings</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>当重复更新返回结果中 affected rows 是0</p>
 <h2 id="设置连接">设置连接</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">UPDATE</span> <span class="n">test_table</span> <span class="k">SET</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Tom&#39;</span> <span class="k">WHERE</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-
-<span class="n">Query</span> <span class="n">OK</span><span class="p">,</span> <span class="mi">1</span> <span class="k">rows</span> <span class="n">affected</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
-<span class="k">Rows</span> <span class="n">matched</span><span class="p">:</span> <span class="mi">1</span>  <span class="n">Changed</span><span class="p">:</span> <span class="mi">0</span>  <span class="n">Warnings</span><span class="p">:</span> <span class="mi">0</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">UPDATE</span><span class="w"> </span><span class="n">test_table</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Tom&#39;</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">Query</span><span class="w"> </span><span class="n">OK</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">rows</span><span class="w"> </span><span class="n">affected</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span><span class="w"> </span><span class="n">sec</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">Rows</span><span class="w"> </span><span class="n">matched</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">  </span><span class="n">Changed</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="n">Warnings</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>当连接时client_flag参数设置了CLIENT_FOUND_ROWS时重复更新返回结果中 affected rows 是1</p>
 <p>matched信息是通过info字段返回,和错误信息一样</p>
@@ -357,7 +358,7 @@ the affected-rows value is the number of rows “found”; that is, matched by t
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -374,7 +375,7 @@ the affected-rows value is the number of rows “found”; that is, matched by t
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20200902-golang-zookeeper/" />
@@ -35,27 +35,29 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Go] Zookeeper Client 数据结构详解" />
-<meta property="og:description" content="Zookeeper 分布式应用的分布式协调服务 Zookeeper简介 ZooKeeper是一种为分布式应用所设计的高可用、高性能且一致的开源协调服务， 一些基本应" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20200902-golang-zookeeper/" />
-<meta property="article:published_time" content="2020-09-02T22:40:59+08:00" />
-<meta property="article:modified_time" content="2020-09-02T22:40:59+08:00" />
-<meta itemprop="name" content="[Go] Zookeeper Client 数据结构详解">
-<meta itemprop="description" content="Zookeeper 分布式应用的分布式协调服务 Zookeeper简介 ZooKeeper是一种为分布式应用所设计的高可用、高性能且一致的开源协调服务， 一些基本应">
-<meta itemprop="datePublished" content="2020-09-02T22:40:59&#43;08:00" />
-<meta itemprop="dateModified" content="2020-09-02T22:40:59&#43;08:00" />
-<meta itemprop="wordCount" content="1398">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20200902-golang-zookeeper/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Go] Zookeeper Client 数据结构详解">
+  <meta property="og:description" content="Zookeeper 分布式应用的分布式协调服务 Zookeeper简介 ZooKeeper是一种为分布式应用所设计的高可用、高性能且一致的开源协调服务， 一些基本应">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2020-09-02T22:40:59+08:00">
+    <meta property="article:modified_time" content="2020-09-02T22:40:59+08:00">
+    <meta property="article:tag" content="Golang">
+    <meta property="article:tag" content="Zookeeper">
 
-
-
-<meta itemprop="keywords" content="golang,zookeeper," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Go] Zookeeper Client 数据结构详解"/>
-<meta name="twitter:description" content="Zookeeper 分布式应用的分布式协调服务 Zookeeper简介 ZooKeeper是一种为分布式应用所设计的高可用、高性能且一致的开源协调服务， 一些基本应"/>
+  <meta itemprop="name" content="[Go] Zookeeper Client 数据结构详解">
+  <meta itemprop="description" content="Zookeeper 分布式应用的分布式协调服务 Zookeeper简介 ZooKeeper是一种为分布式应用所设计的高可用、高性能且一致的开源协调服务， 一些基本应">
+  <meta itemprop="datePublished" content="2020-09-02T22:40:59+08:00">
+  <meta itemprop="dateModified" content="2020-09-02T22:40:59+08:00">
+  <meta itemprop="wordCount" content="1398">
+  <meta itemprop="keywords" content="Golang,Zookeeper"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Go] Zookeeper Client 数据结构详解">
+<meta name="twitter:description" content="Zookeeper 分布式应用的分布式协调服务 Zookeeper简介 ZooKeeper是一种为分布式应用所设计的高可用、高性能且一致的开源协调服务， 一些基本应">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -176,7 +178,7 @@
 <p>以golang客户端<a href="https://github.com/go-zookeeper/zk">go-zookeeper</a>为例</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -188,17 +190,17 @@
 </span><span class="lnt">10
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">Connect</span><span class="p">(</span><span class="nx">servers</span> <span class="p">[]</span><span class="kt">string</span><span class="p">,</span> <span class="nx">sessionTimeout</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span><span class="p">,</span> <span class="nx">options</span> <span class="o">...</span><span class="nx">connOption</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">Conn</span><span class="p">,</span> <span class="o">&lt;-</span><span class="kd">chan</span> <span class="nx">Event</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-    <span class="cm">/*...*/</span>
-    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-        <span class="nx">conn</span><span class="p">.</span><span class="nf">loop</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span> <span class="c1">//循环获取服务器地址建立连接,并发送心跳和接收消息
-</span><span class="c1"></span>        <span class="nx">conn</span><span class="p">.</span><span class="nf">flushRequests</span><span class="p">(</span><span class="nx">ErrClosing</span><span class="p">)</span>
-        <span class="nx">conn</span><span class="p">.</span><span class="nf">invalidateWatches</span><span class="p">(</span><span class="nx">ErrClosing</span><span class="p">)</span>
-        <span class="nb">close</span><span class="p">(</span><span class="nx">conn</span><span class="p">.</span><span class="nx">eventChan</span><span class="p">)</span>
-    <span class="p">}()</span>
-    <span class="k">return</span> <span class="nx">conn</span><span class="p">,</span> <span class="nx">ec</span><span class="p">,</span> <span class="kc">nil</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">Connect</span><span class="p">(</span><span class="nx">servers</span> <span class="p">[]</span><span class="kt">string</span><span class="p">,</span> <span class="nx">sessionTimeout</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span><span class="p">,</span> <span class="nx">options</span> <span class="o">...</span><span class="nx">connOption</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">Conn</span><span class="p">,</span> <span class="o">&lt;-</span><span class="kd">chan</span> <span class="nx">Event</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/*...*/</span>
+</span></span><span class="line"><span class="cl">    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">conn</span><span class="p">.</span><span class="nf">loop</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span> <span class="c1">//循环获取服务器地址建立连接,并发送心跳和接收消息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nx">conn</span><span class="p">.</span><span class="nf">flushRequests</span><span class="p">(</span><span class="nx">ErrClosing</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">conn</span><span class="p">.</span><span class="nf">invalidateWatches</span><span class="p">(</span><span class="nx">ErrClosing</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">close</span><span class="p">(</span><span class="nx">conn</span><span class="p">.</span><span class="nx">eventChan</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">conn</span><span class="p">,</span> <span class="nx">ec</span><span class="p">,</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="zookeeper数据结构">Zookeeper数据结构</h2>
 <p>ZooKeeper命名空间中的Znode，兼具文件和目录两种特点。既像文件一样维护着数据、元信息、ACL、时间戳等数据结构，
@@ -222,7 +224,7 @@
 <p>watch事件类型</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -233,21 +235,21 @@
 </span><span class="lnt">9
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">const</span> <span class="p">(</span>
-    <span class="nx">EventNodeCreated</span>         <span class="nx">EventType</span> <span class="p">=</span> <span class="mi">1</span> <span class="c1">// 创建节点成功通知
-</span><span class="c1"></span>    <span class="nx">EventNodeDeleted</span>         <span class="nx">EventType</span> <span class="p">=</span> <span class="mi">2</span> <span class="c1">// 节点移除通知
-</span><span class="c1"></span>    <span class="nx">EventNodeDataChanged</span>     <span class="nx">EventType</span> <span class="p">=</span> <span class="mi">3</span> <span class="c1">// 当前节点数据变化通知
-</span><span class="c1"></span>    <span class="nx">EventNodeChildrenChanged</span> <span class="nx">EventType</span> <span class="p">=</span> <span class="mi">4</span> <span class="c1">// 子节点列表变化通知
-</span><span class="c1"></span>
-    <span class="nx">EventSession</span>     <span class="nx">EventType</span> <span class="p">=</span> <span class="o">-</span><span class="mi">1</span>
-    <span class="nx">EventNotWatching</span> <span class="nx">EventType</span> <span class="p">=</span> <span class="o">-</span><span class="mi">2</span>
-<span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">const</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">EventNodeCreated</span>         <span class="nx">EventType</span> <span class="p">=</span> <span class="mi">1</span> <span class="c1">// 创建节点成功通知
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">EventNodeDeleted</span>         <span class="nx">EventType</span> <span class="p">=</span> <span class="mi">2</span> <span class="c1">// 节点移除通知
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">EventNodeDataChanged</span>     <span class="nx">EventType</span> <span class="p">=</span> <span class="mi">3</span> <span class="c1">// 当前节点数据变化通知
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">EventNodeChildrenChanged</span> <span class="nx">EventType</span> <span class="p">=</span> <span class="mi">4</span> <span class="c1">// 子节点列表变化通知
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="nx">EventSession</span>     <span class="nx">EventType</span> <span class="p">=</span> <span class="o">-</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">EventNotWatching</span> <span class="nx">EventType</span> <span class="p">=</span> <span class="o">-</span><span class="mi">2</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>watch事件状态</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -261,24 +263,24 @@
 </span><span class="lnt">12
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">const</span> <span class="p">(</span>
-    <span class="nx">StateUnknown</span>           <span class="nx">State</span> <span class="p">=</span> <span class="o">-</span><span class="mi">1</span> <span class="c1">// 未知状态
-</span><span class="c1"></span>    <span class="nx">StateDisconnected</span>      <span class="nx">State</span> <span class="p">=</span> <span class="mi">0</span>  <span class="c1">// 断开连接
-</span><span class="c1"></span>    <span class="nx">StateConnecting</span>        <span class="nx">State</span> <span class="p">=</span> <span class="mi">1</span>  <span class="c1">// 连接中
-</span><span class="c1"></span>    <span class="nx">StateAuthFailed</span>        <span class="nx">State</span> <span class="p">=</span> <span class="mi">4</span>  <span class="c1">// 权限异常
-</span><span class="c1"></span>    <span class="nx">StateConnectedReadOnly</span> <span class="nx">State</span> <span class="p">=</span> <span class="mi">5</span>  <span class="c1">// 当前连接仅支持读操作
-</span><span class="c1"></span>    <span class="nx">StateSaslAuthenticated</span> <span class="nx">State</span> <span class="p">=</span> <span class="mi">6</span>
-    <span class="nx">StateExpired</span>           <span class="nx">State</span> <span class="p">=</span> <span class="o">-</span><span class="mi">112</span> <span class="c1">// 会话超时
-</span><span class="c1"></span>
-    <span class="nx">StateConnected</span>  <span class="p">=</span> <span class="nf">State</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="c1">// 已经连接
-</span><span class="c1"></span>    <span class="nx">StateHasSession</span> <span class="p">=</span> <span class="nf">State</span><span class="p">(</span><span class="mi">101</span><span class="p">)</span>
-<span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">const</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">StateUnknown</span>           <span class="nx">State</span> <span class="p">=</span> <span class="o">-</span><span class="mi">1</span> <span class="c1">// 未知状态
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">StateDisconnected</span>      <span class="nx">State</span> <span class="p">=</span> <span class="mi">0</span>  <span class="c1">// 断开连接
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">StateConnecting</span>        <span class="nx">State</span> <span class="p">=</span> <span class="mi">1</span>  <span class="c1">// 连接中
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">StateAuthFailed</span>        <span class="nx">State</span> <span class="p">=</span> <span class="mi">4</span>  <span class="c1">// 权限异常
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">StateConnectedReadOnly</span> <span class="nx">State</span> <span class="p">=</span> <span class="mi">5</span>  <span class="c1">// 当前连接仅支持读操作
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">StateSaslAuthenticated</span> <span class="nx">State</span> <span class="p">=</span> <span class="mi">6</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">StateExpired</span>           <span class="nx">State</span> <span class="p">=</span> <span class="o">-</span><span class="mi">112</span> <span class="c1">// 会话超时
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="nx">StateConnected</span>  <span class="p">=</span> <span class="nf">State</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="c1">// 已经连接
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">StateHasSession</span> <span class="p">=</span> <span class="nf">State</span><span class="p">(</span><span class="mi">101</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>创建节点时flags参数类型:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -286,18 +288,18 @@
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">const</span> <span class="p">(</span>
-    <span class="c1">// 0 持久节点
-</span><span class="c1"></span>    <span class="nx">FlagEphemeral</span> <span class="p">=</span> <span class="mi">1</span> <span class="c1">// 临时节点
-</span><span class="c1"></span>    <span class="nx">FlagSequence</span>  <span class="p">=</span> <span class="mi">2</span> <span class="c1">// 顺序节点
-</span><span class="c1"></span>    <span class="nx">FlagTTL</span>       <span class="p">=</span> <span class="mi">4</span> <span class="c1">// 
-</span><span class="c1"></span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">const</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 0 持久节点
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">FlagEphemeral</span> <span class="p">=</span> <span class="mi">1</span> <span class="c1">// 临时节点
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">FlagSequence</span>  <span class="p">=</span> <span class="mi">2</span> <span class="c1">// 顺序节点
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">FlagTTL</span>       <span class="p">=</span> <span class="mi">4</span> <span class="c1">// 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>创建节点时控制权限参数：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -318,31 +320,31 @@
 </span><span class="lnt">19
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Constants for ACL permissions
-</span><span class="c1"></span><span class="kd">const</span> <span class="p">(</span>
-    <span class="nx">PermRead</span> <span class="p">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="kc">iota</span> <span class="c1">// 可以读取节点数据及显示子节点列表
-</span><span class="c1"></span>    <span class="nx">PermWrite</span>            <span class="c1">// 可以设置节点数据
-</span><span class="c1"></span>    <span class="nx">PermCreate</span>           <span class="c1">// 可以创建子节点
-</span><span class="c1"></span>    <span class="nx">PermDelete</span>           <span class="c1">// 可以删除子节点（仅下一级节点）
-</span><span class="c1"></span>    <span class="nx">PermAdmin</span>            <span class="c1">// 可以设置节点访问控制列表权限
-</span><span class="c1"></span>    <span class="nx">PermAll</span> <span class="p">=</span> <span class="mh">0x1f</span>       <span class="c1">// 所有权限
-</span><span class="c1"></span><span class="p">)</span>
-
-<span class="c1">// world模式,anyone是唯一值,表示所有人
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">WorldACL</span><span class="p">(</span><span class="nx">perms</span> <span class="kt">int32</span><span class="p">)</span> <span class="p">[]</span><span class="nx">ACL</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="p">[]</span><span class="nx">ACL</span><span class="p">{{</span><span class="nx">perms</span><span class="p">,</span> <span class="s">&#34;world&#34;</span><span class="p">,</span> <span class="s">&#34;anyone&#34;</span><span class="p">}}</span>
-<span class="p">}</span>
-
-<span class="c1">// auth模式,表示所有通过身份验证的用户
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">AuthACL</span><span class="p">(</span><span class="nx">perms</span> <span class="kt">int32</span><span class="p">)</span> <span class="p">[]</span><span class="nx">ACL</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="p">[]</span><span class="nx">ACL</span><span class="p">{{</span><span class="nx">perms</span><span class="p">,</span> <span class="s">&#34;auth&#34;</span><span class="p">,</span> <span class="s">&#34;&#34;</span><span class="p">}}</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// Constants for ACL permissions
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">const</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">PermRead</span> <span class="p">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="kc">iota</span> <span class="c1">// 可以读取节点数据及显示子节点列表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">PermWrite</span>            <span class="c1">// 可以设置节点数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">PermCreate</span>           <span class="c1">// 可以创建子节点
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">PermDelete</span>           <span class="c1">// 可以删除子节点（仅下一级节点）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">PermAdmin</span>            <span class="c1">// 可以设置节点访问控制列表权限
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">PermAll</span> <span class="p">=</span> <span class="mh">0x1f</span>       <span class="c1">// 所有权限
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// world模式,anyone是唯一值,表示所有人
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">WorldACL</span><span class="p">(</span><span class="nx">perms</span> <span class="kt">int32</span><span class="p">)</span> <span class="p">[]</span><span class="nx">ACL</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="p">[]</span><span class="nx">ACL</span><span class="p">{{</span><span class="nx">perms</span><span class="p">,</span> <span class="s">&#34;world&#34;</span><span class="p">,</span> <span class="s">&#34;anyone&#34;</span><span class="p">}}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// auth模式,表示所有通过身份验证的用户
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">AuthACL</span><span class="p">(</span><span class="nx">perms</span> <span class="kt">int32</span><span class="p">)</span> <span class="p">[]</span><span class="nx">ACL</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="p">[]</span><span class="nx">ACL</span><span class="p">{{</span><span class="nx">perms</span><span class="p">,</span> <span class="s">&#34;auth&#34;</span><span class="p">,</span> <span class="s">&#34;&#34;</span><span class="p">}}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Znode状态信息：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -357,20 +359,20 @@
 </span><span class="lnt">13
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Stat</span> <span class="kd">struct</span> <span class="p">{</span>
-    <span class="nx">Czxid</span>          <span class="kt">int64</span> <span class="c1">// 创建节点的事物ID
-</span><span class="c1"></span>    <span class="nx">Mzxid</span>          <span class="kt">int64</span> <span class="c1">// 修改节点的事务ID
-</span><span class="c1"></span>    <span class="nx">Ctime</span>          <span class="kt">int64</span> <span class="c1">// 创建时间(milliseconds)
-</span><span class="c1"></span>    <span class="nx">Mtime</span>          <span class="kt">int64</span> <span class="c1">// 最后修改时间(milliseconds)
-</span><span class="c1"></span>    <span class="nx">Version</span>        <span class="kt">int32</span> <span class="c1">// 数据版本变更次数
-</span><span class="c1"></span>    <span class="nx">Cversion</span>       <span class="kt">int32</span> <span class="c1">// 子节点进行的更改次数（不包括子节点）
-</span><span class="c1"></span>    <span class="nx">Aversion</span>       <span class="kt">int32</span> <span class="c1">// 权限版本变更次数
-</span><span class="c1"></span>    <span class="nx">EphemeralOwner</span> <span class="kt">int64</span> <span class="c1">// 临时节点会话属性ID
-</span><span class="c1"></span>    <span class="nx">DataLength</span>     <span class="kt">int32</span> <span class="c1">// 数据长度
-</span><span class="c1"></span>    <span class="nx">NumChildren</span>    <span class="kt">int32</span> <span class="c1">// 子节点数(不包括子子节点)
-</span><span class="c1"></span>    <span class="nx">Pzxid</span>          <span class="kt">int64</span> <span class="c1">// 子节点变更的事务ID
-</span><span class="c1"></span><span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">Stat</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">Czxid</span>          <span class="kt">int64</span> <span class="c1">// 创建节点的事物ID
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">Mzxid</span>          <span class="kt">int64</span> <span class="c1">// 修改节点的事务ID
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">Ctime</span>          <span class="kt">int64</span> <span class="c1">// 创建时间(milliseconds)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">Mtime</span>          <span class="kt">int64</span> <span class="c1">// 最后修改时间(milliseconds)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">Version</span>        <span class="kt">int32</span> <span class="c1">// 数据版本变更次数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">Cversion</span>       <span class="kt">int32</span> <span class="c1">// 子节点进行的更改次数（不包括子节点）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">Aversion</span>       <span class="kt">int32</span> <span class="c1">// 权限版本变更次数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">EphemeralOwner</span> <span class="kt">int64</span> <span class="c1">// 临时节点会话属性ID
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">DataLength</span>     <span class="kt">int32</span> <span class="c1">// 数据长度
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">NumChildren</span>    <span class="kt">int32</span> <span class="c1">// 子节点数(不包括子子节点)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">Pzxid</span>          <span class="kt">int64</span> <span class="c1">// 子节点变更的事务ID
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -479,7 +481,7 @@
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -496,7 +498,7 @@
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

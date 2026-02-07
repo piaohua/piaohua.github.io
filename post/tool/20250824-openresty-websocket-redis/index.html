@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/tool/20250824-openresty-websocket-redis/" />
@@ -35,27 +35,33 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="Openresty &#43; Websocket &#43; Redis Stream 实现一个简单聊天室，保持长连接，并通过Redis转发消息" />
-<meta property="og:description" content="用 Openresty &#43; Websocket &#43; Redis Stream 实现一个简单聊天室，保持长连接，并通过Redis Stream 转发消息 在 Openresty &#43; Websocket &#43; Redis 实现一个简单聊天室，保持长连接，并通过Redis转发消息" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/tool/20250824-openresty-websocket-redis/" />
-<meta property="article:published_time" content="2025-08-24T19:30:50+08:00" />
-<meta property="article:modified_time" content="2025-08-24T19:30:50+08:00" />
-<meta itemprop="name" content="Openresty &#43; Websocket &#43; Redis Stream 实现一个简单聊天室，保持长连接，并通过Redis转发消息">
-<meta itemprop="description" content="用 Openresty &#43; Websocket &#43; Redis Stream 实现一个简单聊天室，保持长连接，并通过Redis Stream 转发消息 在 Openresty &#43; Websocket &#43; Redis 实现一个简单聊天室，保持长连接，并通过Redis转发消息">
-<meta itemprop="datePublished" content="2025-08-24T19:30:50&#43;08:00" />
-<meta itemprop="dateModified" content="2025-08-24T19:30:50&#43;08:00" />
-<meta itemprop="wordCount" content="2946">
+<meta property="og:url" content="https://piaohua.github.io/post/tool/20250824-openresty-websocket-redis/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="Openresty &#43; Websocket &#43; Redis Stream 实现一个简单聊天室，保持长连接，并通过Redis转发消息">
+  <meta property="og:description" content="用 Openresty &#43; Websocket &#43; Redis Stream 实现一个简单聊天室，保持长连接，并通过Redis Stream 转发消息 在 Openresty &#43; Websocket &#43; Redis 实现一个简单聊天室，保持长连接，并通过Redis转发消息">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2025-08-24T19:30:50+08:00">
+    <meta property="article:modified_time" content="2025-08-24T19:30:50+08:00">
+    <meta property="article:tag" content="Openresty">
+    <meta property="article:tag" content="Nginx">
+    <meta property="article:tag" content="Docker">
+    <meta property="article:tag" content="Http">
+    <meta property="article:tag" content="Websocket">
+    <meta property="article:tag" content="Golang">
 
-
-
-<meta itemprop="keywords" content="openresty,nginx,docker,http,websocket,golang," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Openresty &#43; Websocket &#43; Redis Stream 实现一个简单聊天室，保持长连接，并通过Redis转发消息"/>
-<meta name="twitter:description" content="用 Openresty &#43; Websocket &#43; Redis Stream 实现一个简单聊天室，保持长连接，并通过Redis Stream 转发消息 在 Openresty &#43; Websocket &#43; Redis 实现一个简单聊天室，保持长连接，并通过Redis转发消息"/>
+  <meta itemprop="name" content="Openresty &#43; Websocket &#43; Redis Stream 实现一个简单聊天室，保持长连接，并通过Redis转发消息">
+  <meta itemprop="description" content="用 Openresty &#43; Websocket &#43; Redis Stream 实现一个简单聊天室，保持长连接，并通过Redis Stream 转发消息 在 Openresty &#43; Websocket &#43; Redis 实现一个简单聊天室，保持长连接，并通过Redis转发消息">
+  <meta itemprop="datePublished" content="2025-08-24T19:30:50+08:00">
+  <meta itemprop="dateModified" content="2025-08-24T19:30:50+08:00">
+  <meta itemprop="wordCount" content="2945">
+  <meta itemprop="keywords" content="Openresty,Nginx,Docker,Http,Websocket,Golang"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="Openresty &#43; Websocket &#43; Redis Stream 实现一个简单聊天室，保持长连接，并通过Redis转发消息">
+<meta name="twitter:description" content="用 Openresty &#43; Websocket &#43; Redis Stream 实现一个简单聊天室，保持长连接，并通过Redis Stream 转发消息 在 Openresty &#43; Websocket &#43; Redis 实现一个简单聊天室，保持长连接，并通过Redis转发消息">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -145,7 +151,7 @@
             <a href="/categories/nginx/"> nginx </a>
             <a href="/categories/docker/"> docker </a>
             </div>
-          <span class="more-meta"> 2946 words </span>
+          <span class="more-meta"> 2945 words </span>
           <span class="more-meta"> 6 mins read </span>
         
       </div>
@@ -182,7 +188,7 @@
 <p>将消息发送到 Redis Streams 中，然后订阅 Redis Streams，然后从 Redis Streams 中获取消息响应客户端。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">  1
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
 </span><span class="lnt">  2
 </span><span class="lnt">  3
 </span><span class="lnt">  4
@@ -431,266 +437,264 @@
 </span><span class="lnt">247
 </span><span class="lnt">248
 </span><span class="lnt">249
-</span><span class="lnt">250
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-lua" data-lang="lua"><span class="c1">-- 简易聊天室</span>
-<span class="kd">local</span> <span class="n">server</span> <span class="o">=</span> <span class="n">require</span> <span class="s2">&#34;resty.websocket.server&#34;</span>
-<span class="kd">local</span> <span class="n">redis</span> <span class="o">=</span> <span class="n">require</span> <span class="s2">&#34;resty.redis&#34;</span>
-<span class="kd">local</span> <span class="n">cjson</span> <span class="o">=</span> <span class="n">require</span> <span class="s2">&#34;cjson&#34;</span>
-
-<span class="kd">local</span> <span class="n">uri</span> <span class="o">=</span> <span class="n">ngx.var</span><span class="p">.</span><span class="n">uri</span>
-<span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;uri: &#34;</span><span class="p">,</span> <span class="n">uri</span><span class="p">)</span>
-<span class="kd">local</span> <span class="n">channel_name</span> <span class="o">=</span> <span class="s2">&#34;user:&#34;</span>
-<span class="kd">local</span> <span class="n">uname</span> <span class="o">=</span> <span class="n">uri</span>
-
-<span class="c1">-- 创建 websocket 连接</span>
-<span class="kd">local</span> <span class="n">wb</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">server</span><span class="p">:</span><span class="n">new</span><span class="p">{</span>
-  <span class="n">timeout</span> <span class="o">=</span> <span class="mi">30000</span><span class="p">,</span>  <span class="c1">-- 增加到30秒</span>
-  <span class="n">max_payload_len</span> <span class="o">=</span> <span class="mi">65535</span>
-<span class="p">}</span>
-
-<span class="c1">-- 输出连接ID到error.log</span>
-<span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;WS connected, ID: &#34;</span><span class="p">,</span> <span class="n">ngx.var</span><span class="p">.</span><span class="n">connection</span><span class="p">)</span>
-
-<span class="kr">if</span> <span class="ow">not</span> <span class="n">wb</span> <span class="kr">then</span>
-  <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.ERR</span><span class="p">,</span> <span class="s2">&#34;failed to create new websocket: &#34;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
-  <span class="kr">return</span> <span class="n">ngx.exit</span><span class="p">(</span><span class="mi">444</span><span class="p">)</span>
-<span class="kr">end</span>
-
-<span class="kd">local</span> <span class="kr">function</span> <span class="nf">get_redis</span><span class="p">()</span>
-    <span class="kd">local</span> <span class="n">red</span> <span class="o">=</span> <span class="n">redis</span><span class="p">:</span><span class="n">new</span><span class="p">()</span>
-    <span class="n">red</span><span class="p">:</span><span class="n">set_timeout</span><span class="p">(</span><span class="mi">5000</span><span class="p">)</span>  <span class="c1">-- 5秒超时</span>
-    
-    <span class="c1">-- 仅当没有活跃连接时创建新连接</span>
-    <span class="kd">local</span> <span class="n">ok</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">red</span><span class="p">:</span><span class="n">connect</span><span class="p">(</span><span class="s2">&#34;172.17.0.3&#34;</span><span class="p">,</span> <span class="mi">6379</span><span class="p">)</span>
-    <span class="c1">-- ngx.log(ngx.INFO, &#34;---------- connect &#34;, ok, err)</span>
-    <span class="kr">if</span> <span class="ow">not</span> <span class="n">ok</span> <span class="kr">then</span>
-        <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.ERR</span><span class="p">,</span> <span class="s2">&#34;failed to connect redis: &#34;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
-        <span class="kr">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="n">err</span>
-    <span class="kr">end</span>
-    <span class="c1">-- ok, err = red:auth(&#34;123456&#34;)</span>
-    <span class="c1">-- ok, err = red:select(1)</span>
-    <span class="kr">return</span> <span class="n">red</span>
-<span class="kr">end</span>
-
-<span class="c1">-- 消息发布方式，使用 Redis Streams</span>
-<span class="kd">local</span> <span class="n">push</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span>
-    <span class="kd">local</span> <span class="n">last_id</span> <span class="o">=</span> <span class="s2">&#34;$&#34;</span>  <span class="c1">-- 从最新消息开始</span>
-    <span class="kd">local</span> <span class="n">poll_interval</span> <span class="o">=</span> <span class="mf">0.5</span>
-    
-    <span class="c1">-- 为每个连接创建唯一的消费者名称</span>
-    <span class="c1">-- local consumer_name = &#34;consumer_&#34; .. ngx.var.connection .. &#34;_&#34; .. ngx.time()</span>
-
-    <span class="kr">while</span> <span class="ow">not</span> <span class="n">wb.fatal</span> <span class="kr">do</span>
-        <span class="n">ngx.sleep</span><span class="p">(</span><span class="n">poll_interval</span><span class="p">)</span>
-        
-        <span class="kd">local</span> <span class="n">red</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">get_redis</span><span class="p">()</span>
-        <span class="kr">if</span> <span class="n">red</span> <span class="kr">then</span>
-            <span class="c1">-- red:set_timeout(2000)</span>
-            
-            <span class="c1">-- 使用 XREAD 读取新消息（修正参数格式）</span>
-            <span class="kd">local</span> <span class="n">res</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">red</span><span class="p">:</span><span class="n">xread</span><span class="p">(</span><span class="s2">&#34;COUNT&#34;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&#34;BLOCK&#34;</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="s2">&#34;STREAMS&#34;</span><span class="p">,</span> <span class="s2">&#34;chat_stream&#34;</span><span class="p">,</span> <span class="n">last_id</span><span class="p">)</span>
-            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;----- Received messages from stream res: &#34;</span><span class="p">,</span> <span class="n">cjson.encode</span><span class="p">(</span><span class="n">res</span><span class="p">),</span> <span class="s2">&#34;err:&#34;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
-            <span class="kr">if</span> <span class="n">res</span> <span class="ow">and</span> <span class="n">type</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&#34;table&#34;</span> <span class="kr">then</span>
-                <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;Received messages from stream res: &#34;</span><span class="p">,</span> <span class="n">cjson.encode</span><span class="p">(</span><span class="n">res</span><span class="p">))</span>
-                <span class="kr">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">stream_data</span> <span class="kr">in</span> <span class="n">ipairs</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="kr">do</span>
-                    <span class="kd">local</span> <span class="n">stream_name</span> <span class="o">=</span> <span class="n">stream_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-                    <span class="kd">local</span> <span class="n">messages</span> <span class="o">=</span> <span class="n">stream_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-                    <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;Received messages from stream: &#34;</span><span class="p">,</span> <span class="n">stream_name</span><span class="p">)</span>
-                    <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;Received messages: &#34;</span><span class="p">,</span> <span class="n">cjson.encode</span><span class="p">(</span><span class="n">messages</span><span class="p">))</span>
-                    
-                    <span class="kr">if</span> <span class="n">type</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&#34;table&#34;</span> <span class="kr">then</span>
-                        <span class="kr">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">message_data</span> <span class="kr">in</span> <span class="n">ipairs</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span> <span class="kr">do</span>
-                            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;Received message_data: &#34;</span><span class="p">,</span> <span class="n">cjson.encode</span><span class="p">(</span><span class="n">message_data</span><span class="p">))</span>
-                            <span class="kd">local</span> <span class="n">message_id</span> <span class="o">=</span> <span class="n">message_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-                            <span class="kd">local</span> <span class="n">fields</span> <span class="o">=</span> <span class="n">message_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-                            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;Received message_id: &#34;</span><span class="p">,</span> <span class="n">message_id</span><span class="p">)</span>
-                            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;Received fields: &#34;</span><span class="p">,</span> <span class="n">cjson.encode</span><span class="p">(</span><span class="n">fields</span><span class="p">))</span>
-                            
-                            <span class="c1">-- 从字段中提取消息内容</span>
-                            <span class="kd">local</span> <span class="n">message</span> <span class="o">=</span> <span class="kc">nil</span>
-                            <span class="kr">if</span> <span class="n">type</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&#34;table&#34;</span> <span class="kr">then</span>
-                                <span class="c1">-- 遍历字段键值对找到 message 内容</span>
-                                <span class="kr">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">#</span><span class="n">fields</span><span class="p">,</span> <span class="mi">2</span> <span class="kr">do</span>
-                                    <span class="kr">if</span> <span class="n">fields</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&#34;message&#34;</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="o">#</span><span class="n">fields</span> <span class="kr">then</span>
-                                        <span class="n">message</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
-                                        <span class="kr">break</span>
-                                    <span class="kr">end</span>
-                                <span class="kr">end</span>
-                            <span class="kr">end</span>
-                            
-                            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;Extracted message: &#34;</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
-                            
-                            <span class="c1">-- 发送消息到客户端</span>
-                            <span class="kr">if</span> <span class="ow">not</span> <span class="n">wb.fatal</span> <span class="ow">and</span> <span class="n">message</span> <span class="kr">then</span>
-                                <span class="kd">local</span> <span class="n">bytes</span><span class="p">,</span> <span class="n">send_err</span> <span class="o">=</span> <span class="n">wb</span><span class="p">:</span><span class="n">send_text</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-                                <span class="kr">if</span> <span class="ow">not</span> <span class="n">bytes</span> <span class="kr">then</span>
-                                    <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.ERR</span><span class="p">,</span> <span class="s2">&#34;Failed to send message: &#34;</span><span class="p">,</span> <span class="n">send_err</span><span class="p">)</span>
-                                    <span class="kr">break</span>
-                                <span class="kr">end</span>
-                                <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;Successfully sent message to client: &#34;</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
-                            <span class="kr">end</span>
-                            
-                            <span class="c1">-- 更新最后读取的ID</span>
-                            <span class="n">last_id</span> <span class="o">=</span> <span class="n">message_id</span>
-                            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;Last message ID: &#34;</span><span class="p">,</span> <span class="n">last_id</span><span class="p">)</span>
-                        <span class="kr">end</span>
-                    <span class="kr">end</span>
-                <span class="kr">end</span>
-            <span class="kr">elseif</span> <span class="n">err</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">string.find</span><span class="p">(</span><span class="n">err</span><span class="p">:</span><span class="n">lower</span><span class="p">(),</span> <span class="s2">&#34;timeout&#34;</span><span class="p">)</span> <span class="kr">then</span>
-                <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.ERR</span><span class="p">,</span> <span class="s2">&#34;Redis stream read error: &#34;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
-            <span class="kr">end</span>
-            
-            <span class="c1">-- 返回连接池</span>
-            <span class="kd">local</span> <span class="n">ok</span><span class="p">,</span> <span class="n">keep_err</span> <span class="o">=</span> <span class="n">red</span><span class="p">:</span><span class="n">set_keepalive</span><span class="p">(</span><span class="mi">10000</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;red to set keepalive: &#34;</span><span class="p">,</span> <span class="n">ok</span><span class="p">,</span> <span class="n">keep_err</span><span class="p">)</span>
-            <span class="kr">if</span> <span class="ow">not</span> <span class="n">ok</span> <span class="kr">then</span>
-                <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.WARN</span><span class="p">,</span> <span class="s2">&#34;Failed to set keepalive: &#34;</span><span class="p">,</span> <span class="n">keep_err</span><span class="p">)</span>
-                <span class="c1">-- 清理资源</span>
-                <span class="n">pcall</span><span class="p">(</span><span class="kr">function</span><span class="p">()</span> <span class="n">red</span><span class="p">:</span><span class="n">close</span><span class="p">()</span> <span class="kr">end</span><span class="p">)</span>
-            <span class="kr">end</span>
-        <span class="kr">end</span>
-    <span class="kr">end</span>
-<span class="kr">end</span>
-
-<span class="c1">-- 启用一个线程用来发送信息</span>
-<span class="kd">local</span> <span class="n">co</span> <span class="o">=</span> <span class="n">ngx.thread</span><span class="p">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">push</span><span class="p">)</span>
-
-<span class="c1">-- 主线程</span>
-<span class="kd">local</span> <span class="n">last_ping_time</span> <span class="o">=</span> <span class="n">ngx.now</span><span class="p">()</span>
-<span class="kd">local</span> <span class="n">ping_interval</span> <span class="o">=</span> <span class="mi">25</span>  <span class="c1">-- 25秒发送一次ping</span>
-
-<span class="kr">while</span> <span class="kc">true</span> <span class="kr">do</span>
-    <span class="c1">-- 如果连接损坏 退出</span>
-    <span class="kr">if</span> <span class="n">wb.fatal</span> <span class="kr">then</span>
-        <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.ERR</span><span class="p">,</span> <span class="s2">&#34;WebSocket connection is fatal: &#34;</span><span class="p">,</span> <span class="n">wb.fatal</span><span class="p">)</span>
-        <span class="kr">break</span>
-    <span class="kr">end</span>
-
-    <span class="kd">local</span> <span class="n">data</span><span class="p">,</span> <span class="n">typ</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">wb</span><span class="p">:</span><span class="n">recv_frame</span><span class="p">()</span>
-    <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;---------- recv_frame &#34;</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="s2">&#34; data: &#34;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="s2">&#34; typ: &#34;</span><span class="p">,</span> <span class="n">typ</span><span class="p">)</span>
-
-    <span class="kr">if</span> <span class="ow">not</span> <span class="n">data</span> <span class="kr">then</span>
-        <span class="c1">-- 检查是否是超时错误（包括各种形式的超时）</span>
-        <span class="kr">if</span> <span class="n">err</span> <span class="kr">then</span>
-            <span class="kd">local</span> <span class="n">is_timeout</span> <span class="o">=</span> <span class="p">(</span><span class="n">err</span> <span class="o">==</span> <span class="s2">&#34;timeout&#34;</span> <span class="ow">or</span> <span class="n">string.find</span><span class="p">(</span><span class="n">err</span><span class="p">:</span><span class="n">lower</span><span class="p">(),</span> <span class="s2">&#34;timeout&#34;</span><span class="p">))</span>
-            
-            <span class="kr">if</span> <span class="n">is_timeout</span> <span class="kr">then</span>
-                <span class="c1">-- 超时情况下发送心跳</span>
-                <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.DEBUG</span><span class="p">,</span> <span class="s2">&#34;WebSocket recv timeout, checking ping interval&#34;</span><span class="p">)</span>
-                <span class="kr">if</span> <span class="n">ngx.now</span><span class="p">()</span> <span class="o">-</span> <span class="n">last_ping_time</span> <span class="o">&gt;</span> <span class="n">ping_interval</span> <span class="kr">then</span>
-                    <span class="kd">local</span> <span class="n">bytes</span><span class="p">,</span> <span class="n">ping_err</span> <span class="o">=</span> <span class="n">wb</span><span class="p">:</span><span class="n">send_ping</span><span class="p">()</span>
-                    <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;send ping: &#34;</span><span class="p">,</span> <span class="n">bytes</span><span class="p">,</span> <span class="s2">&#34; err: &#34;</span><span class="p">,</span> <span class="n">ping_err</span><span class="p">)</span>
-                    <span class="kr">if</span> <span class="ow">not</span> <span class="n">bytes</span> <span class="kr">then</span>
-                      <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.WARN</span><span class="p">,</span> <span class="s2">&#34;failed to send ping: &#34;</span><span class="p">,</span> <span class="n">ping_err</span><span class="p">)</span>
-                      <span class="c1">-- 如果发送ping失败，可能连接已断开</span>
-                      <span class="kr">if</span> <span class="n">ping_err</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">string.find</span><span class="p">(</span><span class="n">ping_err</span><span class="p">:</span><span class="n">lower</span><span class="p">(),</span> <span class="s2">&#34;timeout&#34;</span><span class="p">)</span> <span class="kr">then</span>
-                          <span class="kr">break</span>
-                      <span class="kr">end</span>
-                    <span class="kr">end</span>
-                    <span class="n">last_ping_time</span> <span class="o">=</span> <span class="n">ngx.now</span><span class="p">()</span>
-                <span class="kr">end</span>
-                <span class="c1">-- 超时是正常的，继续循环</span>
-            <span class="kr">else</span>
-                <span class="c1">-- 非超时错误，记录并退出</span>
-                <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.ERR</span><span class="p">,</span> <span class="s2">&#34;failed to receive frame: &#34;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
-                <span class="kr">break</span>
-            <span class="kr">end</span>
-        <span class="kr">else</span>
-            <span class="c1">-- err 为 nil，这可能表示连接正常关闭</span>
-            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;WebSocket connection closed normally&#34;</span><span class="p">)</span>
-            <span class="kr">break</span>
-        <span class="kr">end</span>
-    <span class="kr">elseif</span> <span class="n">typ</span> <span class="o">==</span> <span class="s2">&#34;close&#34;</span> <span class="kr">then</span>
-        <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;ws closed by client, connection ID: &#34;</span><span class="p">,</span> <span class="n">ngx.var</span><span class="p">.</span><span class="n">connection</span><span class="p">)</span>
-        <span class="kr">break</span>
-    <span class="kr">elseif</span> <span class="n">typ</span> <span class="o">==</span> <span class="s2">&#34;ping&#34;</span> <span class="kr">then</span>
-        <span class="c1">-- 回复心跳</span>
-        <span class="kd">local</span> <span class="n">bytes</span><span class="p">,</span> <span class="n">pong_err</span> <span class="o">=</span> <span class="n">wb</span><span class="p">:</span><span class="n">send_pong</span><span class="p">()</span>
-        <span class="c1">-- ngx.log(ngx.INFO, &#34;----------- send_pong&#34;, pong_err)</span>
-        <span class="kr">if</span> <span class="ow">not</span> <span class="n">bytes</span> <span class="kr">then</span>
-            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.ERR</span><span class="p">,</span> <span class="s2">&#34;failed to send pong: &#34;</span><span class="p">,</span> <span class="n">pong_err</span><span class="p">)</span>
-            <span class="kr">break</span>
-        <span class="kr">end</span>
-        <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;client ping received, WS connected, ID: &#34;</span><span class="p">,</span> <span class="n">ngx.var</span><span class="p">.</span><span class="n">connection</span><span class="p">)</span>
-    <span class="kr">elseif</span> <span class="n">typ</span> <span class="o">==</span> <span class="s2">&#34;pong&#34;</span> <span class="kr">then</span>
-        <span class="c1">-- 心跳回包</span>
-        <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;client ponged&#34;</span><span class="p">)</span>
-        <span class="n">last_ping_time</span> <span class="o">=</span> <span class="n">ngx.now</span><span class="p">()</span>  <span class="c1">-- 重置ping时间</span>
-    <span class="kr">elseif</span> <span class="n">typ</span> <span class="o">==</span> <span class="s2">&#34;text&#34;</span> <span class="kr">then</span>
-        <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;received text message: &#34;</span><span class="p">,</span> <span class="n">uname</span> <span class="o">..</span> <span class="n">data</span><span class="p">)</span>
-        <span class="c1">-- 将消息发送到 redis 频道</span>
-        <span class="kd">local</span> <span class="n">red2</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">get_redis</span><span class="p">()</span>
-        <span class="c1">-- ngx.log(ngx.INFO, &#34;----------- get_redis2 ----&#34;, err)</span>
-        <span class="kr">if</span> <span class="ow">not</span> <span class="n">red2</span> <span class="kr">then</span>
-            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.ERR</span><span class="p">,</span> <span class="s2">&#34;failed to connect redis: &#34;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
-            <span class="kr">break</span>
-        <span class="kr">end</span>
-
-        <span class="c1">-- 发布到 Redis Stream 而不是 Pub/Sub</span>
-        <span class="c1">-- 使用 XADD 发布消息到 Stream</span>
-        <span class="kd">local</span> <span class="n">res</span><span class="p">,</span> <span class="n">pub_err</span> <span class="o">=</span> <span class="n">red2</span><span class="p">:</span><span class="n">xadd</span><span class="p">(</span><span class="s2">&#34;chat_stream&#34;</span><span class="p">,</span> <span class="s2">&#34;*&#34;</span><span class="p">,</span> 
-            <span class="s2">&#34;sender&#34;</span><span class="p">,</span> <span class="n">uname</span><span class="p">,</span> <span class="s2">&#34;message&#34;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="s2">&#34;timestamp&#34;</span><span class="p">,</span> <span class="n">tostring</span><span class="p">(</span><span class="n">ngx.time</span><span class="p">()))</span>
-        <span class="c1">-- ngx.log(ngx.INFO, &#34;----------- xadd result ----&#34;, res)</span>
-        <span class="c1">-- ngx.log(ngx.INFO, &#34;----------- xadd error ----&#34;, pub_err)</span>
-        <span class="kr">if</span> <span class="ow">not</span> <span class="n">res</span> <span class="kr">then</span>
-            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.ERR</span><span class="p">,</span> <span class="s2">&#34;failed to add to redis stream: &#34;</span><span class="p">,</span> <span class="n">pub_err</span><span class="p">)</span>
-        <span class="kr">else</span>
-            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;Successfully added message to stream, ID: &#34;</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
-        <span class="kr">end</span>
-
-        <span class="c1">-- 关键！将连接放回池中</span>
-        <span class="kd">local</span> <span class="n">ok</span><span class="p">,</span> <span class="n">keepalive_err</span> <span class="o">=</span> <span class="n">red2</span><span class="p">:</span><span class="n">set_keepalive</span><span class="p">(</span><span class="mi">10000</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-        <span class="c1">-- ngx.log(ngx.INFO, &#34;----------- set_keepalive ----&#34;, keepalive_err)</span>
-        <span class="kr">if</span> <span class="ow">not</span> <span class="n">ok</span> <span class="kr">then</span>
-            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.WARN</span><span class="p">,</span> <span class="s2">&#34;failed to set keepalive: &#34;</span><span class="p">,</span> <span class="n">keepalive_err</span><span class="p">)</span>
-            <span class="c1">-- 即使放回连接池失败，也要关闭连接</span>
-            <span class="n">pcall</span><span class="p">(</span><span class="kr">function</span><span class="p">()</span> <span class="n">red2</span><span class="p">:</span><span class="n">close</span><span class="p">()</span> <span class="kr">end</span><span class="p">)</span>
-        <span class="kr">end</span>
-    <span class="kr">else</span>
-        <span class="c1">-- 处理其他类型的消息</span>
-        <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;received frame type: &#34;</span><span class="p">,</span> <span class="n">typ</span><span class="p">,</span> <span class="s2">&#34; data: &#34;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-    <span class="kr">end</span>
-<span class="kr">end</span>
-
-<span class="n">wb</span><span class="p">:</span><span class="n">send_close</span><span class="p">()</span>
-
-<span class="c1">-- 等待推送线程结束，但设置超时避免永久等待</span>
-<span class="kd">local</span> <span class="n">ok</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">ngx.thread</span><span class="p">.</span><span class="n">kill</span><span class="p">(</span><span class="n">co</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>  <span class="c1">-- 5秒超时</span>
-<span class="kr">if</span> <span class="ow">not</span> <span class="n">ok</span> <span class="kr">then</span>
-    <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.ERR</span><span class="p">,</span> <span class="s2">&#34;failed to kill thread: &#34;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
-<span class="kr">end</span>
-
-<span class="c1">-- 清理资源</span>
-<span class="kd">local</span> <span class="n">red</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">get_redis</span><span class="p">()</span>
-<span class="kr">if</span> <span class="n">red</span> <span class="kr">then</span>
-    <span class="c1">-- 删除 Stream </span>
-    <span class="kd">local</span> <span class="n">res</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">red</span><span class="p">:</span><span class="n">del</span><span class="p">({</span><span class="s2">&#34;chat_stream&#34;</span><span class="p">})</span>
-    <span class="kr">if</span> <span class="ow">not</span> <span class="n">res</span> <span class="kr">then</span>
-        <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.ERR</span><span class="p">,</span> <span class="s2">&#34;failed to delete stream: &#34;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
-    <span class="kr">else</span>
-        <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;deleted stream: &#34;</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
-    <span class="kr">end</span>
-
-    <span class="kd">local</span> <span class="n">ok</span><span class="p">,</span> <span class="n">keepalive_err</span> <span class="o">=</span> <span class="n">red</span><span class="p">:</span><span class="n">set_keepalive</span><span class="p">(</span><span class="mi">10000</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-    <span class="c1">-- ngx.log(ngx.INFO, &#34;----------- set_keepalive ----&#34;, keepalive_err)</span>
-    <span class="kr">if</span> <span class="ow">not</span> <span class="n">ok</span> <span class="kr">then</span>
-        <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.WARN</span><span class="p">,</span> <span class="s2">&#34;failed to set keepalive: &#34;</span><span class="p">,</span> <span class="n">keepalive_err</span><span class="p">)</span>
-        <span class="c1">-- 即使放回连接池失败，也要关闭连接</span>
-        <span class="n">pcall</span><span class="p">(</span><span class="kr">function</span><span class="p">()</span> <span class="n">red</span><span class="p">:</span><span class="n">close</span><span class="p">()</span> <span class="kr">end</span><span class="p">)</span>
-    <span class="kr">end</span>
-<span class="kr">end</span>
-
-<span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;WS closed, ID: &#34;</span><span class="p">,</span> <span class="n">ngx.var</span><span class="p">.</span><span class="n">connection</span><span class="p">)</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="c1">-- 简易聊天室</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">server</span> <span class="o">=</span> <span class="n">require</span> <span class="s2">&#34;resty.websocket.server&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">redis</span> <span class="o">=</span> <span class="n">require</span> <span class="s2">&#34;resty.redis&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">cjson</span> <span class="o">=</span> <span class="n">require</span> <span class="s2">&#34;cjson&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">uri</span> <span class="o">=</span> <span class="n">ngx.var</span><span class="p">.</span><span class="n">uri</span>
+</span></span><span class="line"><span class="cl"><span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;uri: &#34;</span><span class="p">,</span> <span class="n">uri</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">channel_name</span> <span class="o">=</span> <span class="s2">&#34;user:&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">uname</span> <span class="o">=</span> <span class="n">uri</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">-- 创建 websocket 连接</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">wb</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">server</span><span class="p">:</span><span class="n">new</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">timeout</span> <span class="o">=</span> <span class="mi">30000</span><span class="p">,</span>  <span class="c1">-- 增加到30秒</span>
+</span></span><span class="line"><span class="cl">  <span class="n">max_payload_len</span> <span class="o">=</span> <span class="mi">65535</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">-- 输出连接ID到error.log</span>
+</span></span><span class="line"><span class="cl"><span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;WS connected, ID: &#34;</span><span class="p">,</span> <span class="n">ngx.var</span><span class="p">.</span><span class="n">connection</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">if</span> <span class="ow">not</span> <span class="n">wb</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">  <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.ERR</span><span class="p">,</span> <span class="s2">&#34;failed to create new websocket: &#34;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="kr">return</span> <span class="n">ngx.exit</span><span class="p">(</span><span class="mi">444</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="kr">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="kr">function</span> <span class="nf">get_redis</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">local</span> <span class="n">red</span> <span class="o">=</span> <span class="n">redis</span><span class="p">:</span><span class="n">new</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">red</span><span class="p">:</span><span class="n">set_timeout</span><span class="p">(</span><span class="mi">5000</span><span class="p">)</span>  <span class="c1">-- 5秒超时</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1">-- 仅当没有活跃连接时创建新连接</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">local</span> <span class="n">ok</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">red</span><span class="p">:</span><span class="n">connect</span><span class="p">(</span><span class="s2">&#34;172.17.0.3&#34;</span><span class="p">,</span> <span class="mi">6379</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">-- ngx.log(ngx.INFO, &#34;---------- connect &#34;, ok, err)</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">if</span> <span class="ow">not</span> <span class="n">ok</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.ERR</span><span class="p">,</span> <span class="s2">&#34;failed to connect redis: &#34;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="kr">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="n">err</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">-- ok, err = red:auth(&#34;123456&#34;)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">-- ok, err = red:select(1)</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">return</span> <span class="n">red</span>
+</span></span><span class="line"><span class="cl"><span class="kr">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">-- 消息发布方式，使用 Redis Streams</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">push</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">local</span> <span class="n">last_id</span> <span class="o">=</span> <span class="s2">&#34;$&#34;</span>  <span class="c1">-- 从最新消息开始</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">local</span> <span class="n">poll_interval</span> <span class="o">=</span> <span class="mf">0.5</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1">-- 为每个连接创建唯一的消费者名称</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">-- local consumer_name = &#34;consumer_&#34; .. ngx.var.connection .. &#34;_&#34; .. ngx.time()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kr">while</span> <span class="ow">not</span> <span class="n">wb.fatal</span> <span class="kr">do</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ngx.sleep</span><span class="p">(</span><span class="n">poll_interval</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">        <span class="kd">local</span> <span class="n">red</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">get_redis</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="kr">if</span> <span class="n">red</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">-- red:set_timeout(2000)</span>
+</span></span><span class="line"><span class="cl">            
+</span></span><span class="line"><span class="cl">            <span class="c1">-- 使用 XREAD 读取新消息（修正参数格式）</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">local</span> <span class="n">res</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">red</span><span class="p">:</span><span class="n">xread</span><span class="p">(</span><span class="s2">&#34;COUNT&#34;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&#34;BLOCK&#34;</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="s2">&#34;STREAMS&#34;</span><span class="p">,</span> <span class="s2">&#34;chat_stream&#34;</span><span class="p">,</span> <span class="n">last_id</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;----- Received messages from stream res: &#34;</span><span class="p">,</span> <span class="n">cjson.encode</span><span class="p">(</span><span class="n">res</span><span class="p">),</span> <span class="s2">&#34;err:&#34;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="kr">if</span> <span class="n">res</span> <span class="ow">and</span> <span class="n">type</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&#34;table&#34;</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">                <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;Received messages from stream res: &#34;</span><span class="p">,</span> <span class="n">cjson.encode</span><span class="p">(</span><span class="n">res</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">                <span class="kr">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">stream_data</span> <span class="kr">in</span> <span class="n">ipairs</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="kr">do</span>
+</span></span><span class="line"><span class="cl">                    <span class="kd">local</span> <span class="n">stream_name</span> <span class="o">=</span> <span class="n">stream_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">                    <span class="kd">local</span> <span class="n">messages</span> <span class="o">=</span> <span class="n">stream_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;Received messages from stream: &#34;</span><span class="p">,</span> <span class="n">stream_name</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;Received messages: &#34;</span><span class="p">,</span> <span class="n">cjson.encode</span><span class="p">(</span><span class="n">messages</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">                    
+</span></span><span class="line"><span class="cl">                    <span class="kr">if</span> <span class="n">type</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&#34;table&#34;</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">                        <span class="kr">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">message_data</span> <span class="kr">in</span> <span class="n">ipairs</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span> <span class="kr">do</span>
+</span></span><span class="line"><span class="cl">                            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;Received message_data: &#34;</span><span class="p">,</span> <span class="n">cjson.encode</span><span class="p">(</span><span class="n">message_data</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">                            <span class="kd">local</span> <span class="n">message_id</span> <span class="o">=</span> <span class="n">message_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">                            <span class="kd">local</span> <span class="n">fields</span> <span class="o">=</span> <span class="n">message_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">                            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;Received message_id: &#34;</span><span class="p">,</span> <span class="n">message_id</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;Received fields: &#34;</span><span class="p">,</span> <span class="n">cjson.encode</span><span class="p">(</span><span class="n">fields</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">                            
+</span></span><span class="line"><span class="cl">                            <span class="c1">-- 从字段中提取消息内容</span>
+</span></span><span class="line"><span class="cl">                            <span class="kd">local</span> <span class="n">message</span> <span class="o">=</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl">                            <span class="kr">if</span> <span class="n">type</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&#34;table&#34;</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">                                <span class="c1">-- 遍历字段键值对找到 message 内容</span>
+</span></span><span class="line"><span class="cl">                                <span class="kr">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">#</span><span class="n">fields</span><span class="p">,</span> <span class="mi">2</span> <span class="kr">do</span>
+</span></span><span class="line"><span class="cl">                                    <span class="kr">if</span> <span class="n">fields</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&#34;message&#34;</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="o">#</span><span class="n">fields</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">                                        <span class="n">message</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">                                        <span class="kr">break</span>
+</span></span><span class="line"><span class="cl">                                    <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">                                <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">                            <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">                            
+</span></span><span class="line"><span class="cl">                            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;Extracted message: &#34;</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                            
+</span></span><span class="line"><span class="cl">                            <span class="c1">-- 发送消息到客户端</span>
+</span></span><span class="line"><span class="cl">                            <span class="kr">if</span> <span class="ow">not</span> <span class="n">wb.fatal</span> <span class="ow">and</span> <span class="n">message</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">                                <span class="kd">local</span> <span class="n">bytes</span><span class="p">,</span> <span class="n">send_err</span> <span class="o">=</span> <span class="n">wb</span><span class="p">:</span><span class="n">send_text</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                                <span class="kr">if</span> <span class="ow">not</span> <span class="n">bytes</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">                                    <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.ERR</span><span class="p">,</span> <span class="s2">&#34;Failed to send message: &#34;</span><span class="p">,</span> <span class="n">send_err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                                    <span class="kr">break</span>
+</span></span><span class="line"><span class="cl">                                <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">                                <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;Successfully sent message to client: &#34;</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                            <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">                            
+</span></span><span class="line"><span class="cl">                            <span class="c1">-- 更新最后读取的ID</span>
+</span></span><span class="line"><span class="cl">                            <span class="n">last_id</span> <span class="o">=</span> <span class="n">message_id</span>
+</span></span><span class="line"><span class="cl">                            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;Last message ID: &#34;</span><span class="p">,</span> <span class="n">last_id</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                        <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">                    <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">                <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">            <span class="kr">elseif</span> <span class="n">err</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">string.find</span><span class="p">(</span><span class="n">err</span><span class="p">:</span><span class="n">lower</span><span class="p">(),</span> <span class="s2">&#34;timeout&#34;</span><span class="p">)</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">                <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.ERR</span><span class="p">,</span> <span class="s2">&#34;Redis stream read error: &#34;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">            
+</span></span><span class="line"><span class="cl">            <span class="c1">-- 返回连接池</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">local</span> <span class="n">ok</span><span class="p">,</span> <span class="n">keep_err</span> <span class="o">=</span> <span class="n">red</span><span class="p">:</span><span class="n">set_keepalive</span><span class="p">(</span><span class="mi">10000</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;red to set keepalive: &#34;</span><span class="p">,</span> <span class="n">ok</span><span class="p">,</span> <span class="n">keep_err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="kr">if</span> <span class="ow">not</span> <span class="n">ok</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">                <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.WARN</span><span class="p">,</span> <span class="s2">&#34;Failed to set keepalive: &#34;</span><span class="p">,</span> <span class="n">keep_err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">-- 清理资源</span>
+</span></span><span class="line"><span class="cl">                <span class="n">pcall</span><span class="p">(</span><span class="kr">function</span><span class="p">()</span> <span class="n">red</span><span class="p">:</span><span class="n">close</span><span class="p">()</span> <span class="kr">end</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">        <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">end</span>
+</span></span><span class="line"><span class="cl"><span class="kr">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">-- 启用一个线程用来发送信息</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">co</span> <span class="o">=</span> <span class="n">ngx.thread</span><span class="p">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">push</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">-- 主线程</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">last_ping_time</span> <span class="o">=</span> <span class="n">ngx.now</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">ping_interval</span> <span class="o">=</span> <span class="mi">25</span>  <span class="c1">-- 25秒发送一次ping</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">while</span> <span class="kc">true</span> <span class="kr">do</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">-- 如果连接损坏 退出</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">if</span> <span class="n">wb.fatal</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.ERR</span><span class="p">,</span> <span class="s2">&#34;WebSocket connection is fatal: &#34;</span><span class="p">,</span> <span class="n">wb.fatal</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="kr">break</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">local</span> <span class="n">data</span><span class="p">,</span> <span class="n">typ</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">wb</span><span class="p">:</span><span class="n">recv_frame</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;---------- recv_frame &#34;</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="s2">&#34; data: &#34;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="s2">&#34; typ: &#34;</span><span class="p">,</span> <span class="n">typ</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kr">if</span> <span class="ow">not</span> <span class="n">data</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">-- 检查是否是超时错误（包括各种形式的超时）</span>
+</span></span><span class="line"><span class="cl">        <span class="kr">if</span> <span class="n">err</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">local</span> <span class="n">is_timeout</span> <span class="o">=</span> <span class="p">(</span><span class="n">err</span> <span class="o">==</span> <span class="s2">&#34;timeout&#34;</span> <span class="ow">or</span> <span class="n">string.find</span><span class="p">(</span><span class="n">err</span><span class="p">:</span><span class="n">lower</span><span class="p">(),</span> <span class="s2">&#34;timeout&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">            
+</span></span><span class="line"><span class="cl">            <span class="kr">if</span> <span class="n">is_timeout</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">-- 超时情况下发送心跳</span>
+</span></span><span class="line"><span class="cl">                <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.DEBUG</span><span class="p">,</span> <span class="s2">&#34;WebSocket recv timeout, checking ping interval&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="kr">if</span> <span class="n">ngx.now</span><span class="p">()</span> <span class="o">-</span> <span class="n">last_ping_time</span> <span class="o">&gt;</span> <span class="n">ping_interval</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">                    <span class="kd">local</span> <span class="n">bytes</span><span class="p">,</span> <span class="n">ping_err</span> <span class="o">=</span> <span class="n">wb</span><span class="p">:</span><span class="n">send_ping</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;send ping: &#34;</span><span class="p">,</span> <span class="n">bytes</span><span class="p">,</span> <span class="s2">&#34; err: &#34;</span><span class="p">,</span> <span class="n">ping_err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                    <span class="kr">if</span> <span class="ow">not</span> <span class="n">bytes</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">                      <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.WARN</span><span class="p">,</span> <span class="s2">&#34;failed to send ping: &#34;</span><span class="p">,</span> <span class="n">ping_err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                      <span class="c1">-- 如果发送ping失败，可能连接已断开</span>
+</span></span><span class="line"><span class="cl">                      <span class="kr">if</span> <span class="n">ping_err</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">string.find</span><span class="p">(</span><span class="n">ping_err</span><span class="p">:</span><span class="n">lower</span><span class="p">(),</span> <span class="s2">&#34;timeout&#34;</span><span class="p">)</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">                          <span class="kr">break</span>
+</span></span><span class="line"><span class="cl">                      <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">                    <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">last_ping_time</span> <span class="o">=</span> <span class="n">ngx.now</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">                <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">-- 超时是正常的，继续循环</span>
+</span></span><span class="line"><span class="cl">            <span class="kr">else</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">-- 非超时错误，记录并退出</span>
+</span></span><span class="line"><span class="cl">                <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.ERR</span><span class="p">,</span> <span class="s2">&#34;failed to receive frame: &#34;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="kr">break</span>
+</span></span><span class="line"><span class="cl">            <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">        <span class="kr">else</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">-- err 为 nil，这可能表示连接正常关闭</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;WebSocket connection closed normally&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="kr">break</span>
+</span></span><span class="line"><span class="cl">        <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">elseif</span> <span class="n">typ</span> <span class="o">==</span> <span class="s2">&#34;close&#34;</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;ws closed by client, connection ID: &#34;</span><span class="p">,</span> <span class="n">ngx.var</span><span class="p">.</span><span class="n">connection</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="kr">break</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">elseif</span> <span class="n">typ</span> <span class="o">==</span> <span class="s2">&#34;ping&#34;</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">-- 回复心跳</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">local</span> <span class="n">bytes</span><span class="p">,</span> <span class="n">pong_err</span> <span class="o">=</span> <span class="n">wb</span><span class="p">:</span><span class="n">send_pong</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">-- ngx.log(ngx.INFO, &#34;----------- send_pong&#34;, pong_err)</span>
+</span></span><span class="line"><span class="cl">        <span class="kr">if</span> <span class="ow">not</span> <span class="n">bytes</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.ERR</span><span class="p">,</span> <span class="s2">&#34;failed to send pong: &#34;</span><span class="p">,</span> <span class="n">pong_err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="kr">break</span>
+</span></span><span class="line"><span class="cl">        <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;client ping received, WS connected, ID: &#34;</span><span class="p">,</span> <span class="n">ngx.var</span><span class="p">.</span><span class="n">connection</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">elseif</span> <span class="n">typ</span> <span class="o">==</span> <span class="s2">&#34;pong&#34;</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">-- 心跳回包</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;client ponged&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">last_ping_time</span> <span class="o">=</span> <span class="n">ngx.now</span><span class="p">()</span>  <span class="c1">-- 重置ping时间</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">elseif</span> <span class="n">typ</span> <span class="o">==</span> <span class="s2">&#34;text&#34;</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;received text message: &#34;</span><span class="p">,</span> <span class="n">uname</span> <span class="o">..</span> <span class="n">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">-- 将消息发送到 redis 频道</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">local</span> <span class="n">red2</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">get_redis</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">-- ngx.log(ngx.INFO, &#34;----------- get_redis2 ----&#34;, err)</span>
+</span></span><span class="line"><span class="cl">        <span class="kr">if</span> <span class="ow">not</span> <span class="n">red2</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.ERR</span><span class="p">,</span> <span class="s2">&#34;failed to connect redis: &#34;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="kr">break</span>
+</span></span><span class="line"><span class="cl">        <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">-- 发布到 Redis Stream 而不是 Pub/Sub</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">-- 使用 XADD 发布消息到 Stream</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">local</span> <span class="n">res</span><span class="p">,</span> <span class="n">pub_err</span> <span class="o">=</span> <span class="n">red2</span><span class="p">:</span><span class="n">xadd</span><span class="p">(</span><span class="s2">&#34;chat_stream&#34;</span><span class="p">,</span> <span class="s2">&#34;*&#34;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;sender&#34;</span><span class="p">,</span> <span class="n">uname</span><span class="p">,</span> <span class="s2">&#34;message&#34;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="s2">&#34;timestamp&#34;</span><span class="p">,</span> <span class="n">tostring</span><span class="p">(</span><span class="n">ngx.time</span><span class="p">()))</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">-- ngx.log(ngx.INFO, &#34;----------- xadd result ----&#34;, res)</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">-- ngx.log(ngx.INFO, &#34;----------- xadd error ----&#34;, pub_err)</span>
+</span></span><span class="line"><span class="cl">        <span class="kr">if</span> <span class="ow">not</span> <span class="n">res</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.ERR</span><span class="p">,</span> <span class="s2">&#34;failed to add to redis stream: &#34;</span><span class="p">,</span> <span class="n">pub_err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="kr">else</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;Successfully added message to stream, ID: &#34;</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">-- 关键！将连接放回池中</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">local</span> <span class="n">ok</span><span class="p">,</span> <span class="n">keepalive_err</span> <span class="o">=</span> <span class="n">red2</span><span class="p">:</span><span class="n">set_keepalive</span><span class="p">(</span><span class="mi">10000</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">-- ngx.log(ngx.INFO, &#34;----------- set_keepalive ----&#34;, keepalive_err)</span>
+</span></span><span class="line"><span class="cl">        <span class="kr">if</span> <span class="ow">not</span> <span class="n">ok</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.WARN</span><span class="p">,</span> <span class="s2">&#34;failed to set keepalive: &#34;</span><span class="p">,</span> <span class="n">keepalive_err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">-- 即使放回连接池失败，也要关闭连接</span>
+</span></span><span class="line"><span class="cl">            <span class="n">pcall</span><span class="p">(</span><span class="kr">function</span><span class="p">()</span> <span class="n">red2</span><span class="p">:</span><span class="n">close</span><span class="p">()</span> <span class="kr">end</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">else</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">-- 处理其他类型的消息</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;received frame type: &#34;</span><span class="p">,</span> <span class="n">typ</span><span class="p">,</span> <span class="s2">&#34; data: &#34;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">end</span>
+</span></span><span class="line"><span class="cl"><span class="kr">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">wb</span><span class="p">:</span><span class="n">send_close</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">-- 等待推送线程结束，但设置超时避免永久等待</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">ok</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">ngx.thread</span><span class="p">.</span><span class="n">kill</span><span class="p">(</span><span class="n">co</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>  <span class="c1">-- 5秒超时</span>
+</span></span><span class="line"><span class="cl"><span class="kr">if</span> <span class="ow">not</span> <span class="n">ok</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.ERR</span><span class="p">,</span> <span class="s2">&#34;failed to kill thread: &#34;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="kr">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">-- 清理资源</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">red</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">get_redis</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="kr">if</span> <span class="n">red</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">-- 删除 Stream </span>
+</span></span><span class="line"><span class="cl">    <span class="kd">local</span> <span class="n">res</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">red</span><span class="p">:</span><span class="n">del</span><span class="p">({</span><span class="s2">&#34;chat_stream&#34;</span><span class="p">})</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">if</span> <span class="ow">not</span> <span class="n">res</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.ERR</span><span class="p">,</span> <span class="s2">&#34;failed to delete stream: &#34;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">else</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;deleted stream: &#34;</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">local</span> <span class="n">ok</span><span class="p">,</span> <span class="n">keepalive_err</span> <span class="o">=</span> <span class="n">red</span><span class="p">:</span><span class="n">set_keepalive</span><span class="p">(</span><span class="mi">10000</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">-- ngx.log(ngx.INFO, &#34;----------- set_keepalive ----&#34;, keepalive_err)</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">if</span> <span class="ow">not</span> <span class="n">ok</span> <span class="kr">then</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.WARN</span><span class="p">,</span> <span class="s2">&#34;failed to set keepalive: &#34;</span><span class="p">,</span> <span class="n">keepalive_err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">-- 即使放回连接池失败，也要关闭连接</span>
+</span></span><span class="line"><span class="cl">        <span class="n">pcall</span><span class="p">(</span><span class="kr">function</span><span class="p">()</span> <span class="n">red</span><span class="p">:</span><span class="n">close</span><span class="p">()</span> <span class="kr">end</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">end</span>
+</span></span><span class="line"><span class="cl"><span class="kr">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">ngx.log</span><span class="p">(</span><span class="n">ngx.INFO</span><span class="p">,</span> <span class="s2">&#34;WS closed, ID: &#34;</span><span class="p">,</span> <span class="n">ngx.var</span><span class="p">.</span><span class="n">connection</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="客户端html">客户端html</h2>
 <p>简单的websocket客户端demo</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">  1
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
 </span><span class="lnt">  2
 </span><span class="lnt">  3
 </span><span class="lnt">  4
@@ -806,127 +810,127 @@
 </span><span class="lnt">114
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-html" data-lang="html"><span class="cp">&lt;!DOCTYPE HTML&gt;</span>
-<span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-
-<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">&#34;utf-8&#34;</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;viewport&#34;</span> <span class="na">content</span><span class="o">=</span><span class="s">&#34;width=device-width, initial-scale=1.0, user-scalable=no&#34;</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">style</span><span class="p">&gt;</span>
-        <span class="nt">p</span><span class="p">{</span><span class="k">margin</span><span class="p">:</span><span class="mi">0</span><span class="p">;}</span>
-    <span class="p">&lt;/</span><span class="nt">style</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">&#34;https://code.jquery.com/jquery-3.3.1.min.js&#34;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;text/javascript&#34;</span><span class="p">&gt;</span>
-        <span class="kd">var</span> <span class="nx">ws</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
-        <span class="kd">var</span> <span class="nx">pingInterval</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span> <span class="c1">// 用于保存定时器ID
-</span><span class="c1"></span>
-        <span class="kd">function</span> <span class="nx">WebSocketConn</span><span class="p">()</span> <span class="p">{</span>
-            <span class="k">if</span> <span class="p">(</span><span class="nx">ws</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="nx">ws</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-                <span class="nx">log</span><span class="p">(</span><span class="s2">&#34;已经在线&#34;</span><span class="p">);</span>
-                <span class="k">return</span>
-            <span class="p">}</span>
-
-            <span class="k">if</span> <span class="p">(</span><span class="s2">&#34;WebSocket&#34;</span> <span class="k">in</span> <span class="nb">window</span><span class="p">)</span> <span class="p">{</span>
-                <span class="c1">// Let us open a web socket
-</span><span class="c1"></span>                <span class="nx">ws</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">WebSocket</span><span class="p">(</span><span class="s2">&#34;ws://127.0.0.1/ws/stream/user001&#34;</span><span class="p">);</span>
-
-                <span class="nx">ws</span><span class="p">.</span><span class="nx">onopen</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-                    <span class="nx">log</span><span class="p">(</span><span class="s1">&#39;成功进入聊天室&#39;</span><span class="p">);</span>
-                    <span class="c1">// 启动定时发送ping消息
-</span><span class="c1"></span>                    <span class="nx">startPing</span><span class="p">();</span>
-                <span class="p">};</span>
-
-                <span class="nx">ws</span><span class="p">.</span><span class="nx">onmessage</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
-                    <span class="nx">log</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">)</span>
-                <span class="p">};</span>
-
-                <span class="nx">ws</span><span class="p">.</span><span class="nx">onclose</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-                    <span class="c1">// websocket is closed.
-</span><span class="c1"></span>                    <span class="nx">log</span><span class="p">(</span><span class="s2">&#34;已经和服务器断开&#34;</span><span class="p">);</span>
-                    <span class="nx">stopPing</span><span class="p">();</span> <span class="c1">// 停止ping
-</span><span class="c1"></span>                <span class="p">};</span>
-
-                <span class="nx">ws</span><span class="p">.</span><span class="nx">onerror</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
-                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&#34;error &#34;</span> <span class="o">+</span> <span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
-                    <span class="nx">stopPing</span><span class="p">();</span> <span class="c1">// 出错时也停止ping
-</span><span class="c1"></span>                <span class="p">};</span>
-            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-                <span class="c1">// The browser doesn&#39;t support WebSocket
-</span><span class="c1"></span>                <span class="nx">alert</span><span class="p">(</span><span class="s2">&#34;WebSocket NOT supported by your Browser!&#34;</span><span class="p">);</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-
-        <span class="kd">function</span> <span class="nx">SendMsg</span><span class="p">()</span> <span class="p">{</span>
-            <span class="k">if</span> <span class="p">(</span><span class="nx">ws</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="nx">ws</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-                <span class="kd">var</span> <span class="nx">msg</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;msgtext&#39;</span><span class="p">).</span><span class="nx">value</span><span class="p">;</span>
-                <span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">msg</span><span class="p">);</span>
-            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-                <span class="nx">log</span><span class="p">(</span><span class="s1">&#39;请先进入聊天室&#39;</span><span class="p">);</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-
-        <span class="kd">function</span> <span class="nx">WebSocketClose</span><span class="p">()</span> <span class="p">{</span>
-            <span class="k">if</span> <span class="p">(</span><span class="nx">ws</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="nx">ws</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-                <span class="nx">ws</span><span class="p">.</span><span class="nx">close</span><span class="p">();</span>
-                <span class="nx">log</span><span class="p">(</span><span class="s2">&#34;发送断开服务器请求&#34;</span><span class="p">);</span>
-            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-                <span class="nx">log</span><span class="p">(</span><span class="s2">&#34;当前没有连接服务器&#34;</span><span class="p">)</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-
-        <span class="c1">// 新增：启动定时发送ping
-</span><span class="c1"></span>        <span class="kd">function</span> <span class="nx">startPing</span><span class="p">()</span> <span class="p">{</span>
-            <span class="k">if</span> <span class="p">(</span><span class="nx">pingInterval</span><span class="p">)</span> <span class="nx">clearInterval</span><span class="p">(</span><span class="nx">pingInterval</span><span class="p">);</span>
-            <span class="nx">pingInterval</span> <span class="o">=</span> <span class="nx">setInterval</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-                <span class="k">if</span> <span class="p">(</span><span class="nx">ws</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="nx">ws</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-                    <span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="s1">&#39;ping&#39;</span><span class="p">);</span>
-                <span class="p">}</span>
-            <span class="p">},</span> <span class="mi">10000</span><span class="p">);</span> <span class="c1">// 每30秒发送一次ping
-</span><span class="c1"></span>        <span class="p">}</span>
-
-        <span class="c1">// 新增：停止定时发送ping
-</span><span class="c1"></span>        <span class="kd">function</span> <span class="nx">stopPing</span><span class="p">()</span> <span class="p">{</span>
-            <span class="k">if</span> <span class="p">(</span><span class="nx">pingInterval</span><span class="p">)</span> <span class="p">{</span>
-                <span class="nx">clearInterval</span><span class="p">(</span><span class="nx">pingInterval</span><span class="p">);</span>
-                <span class="nx">pingInterval</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-
-        <span class="kd">function</span> <span class="nx">log</span><span class="p">(</span><span class="nx">text</span><span class="p">)</span> <span class="p">{</span>
-            <span class="kd">var</span> <span class="nx">li</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">);</span>
-            <span class="nx">li</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">createTextNode</span><span class="p">(</span><span class="nx">text</span><span class="p">));</span>
-            <span class="c1">//document.getElementById(&#39;log&#39;).appendChild(li);
-</span><span class="c1"></span>            <span class="nx">$</span><span class="p">(</span><span class="s2">&#34;#log&#34;</span><span class="p">).</span><span class="nx">prepend</span><span class="p">(</span><span class="nx">li</span><span class="p">);</span>
-            <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
-        <span class="p">}</span>
-
-        <span class="nx">WebSocketConn</span><span class="p">();</span>
-    <span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
-
-<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">div</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;sse&#34;</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&#34;javascript:WebSocketConn()&#34;</span><span class="p">&gt;</span>进入聊天室<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span> <span class="ni">&amp;nbsp;</span>
-    <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&#34;javascript:WebSocketClose()&#34;</span><span class="p">&gt;</span>离开聊天室<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">input</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;msgtext&#34;</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;text&#34;</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&#34;javascript:SendMsg()&#34;</span><span class="p">&gt;</span>发送信息<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;log&#34;</span><span class="p">&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-
-<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="cp">&lt;!DOCTYPE HTML&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">&#34;utf-8&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;viewport&#34;</span> <span class="na">content</span><span class="o">=</span><span class="s">&#34;width=device-width, initial-scale=1.0, user-scalable=no&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">style</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">p</span><span class="p">{</span><span class="k">margin</span><span class="p">:</span><span class="mi">0</span><span class="p">;}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;/</span><span class="nt">style</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">&#34;https://code.jquery.com/jquery-3.3.1.min.js&#34;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;text/javascript&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">var</span> <span class="nx">ws</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">var</span> <span class="nx">pingInterval</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span> <span class="c1">// 用于保存定时器ID
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">        <span class="kd">function</span> <span class="nx">WebSocketConn</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="nx">ws</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="nx">ws</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">log</span><span class="p">(</span><span class="s2">&#34;已经在线&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="s2">&#34;WebSocket&#34;</span> <span class="k">in</span> <span class="nb">window</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">// Let us open a web socket
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="nx">ws</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">WebSocket</span><span class="p">(</span><span class="s2">&#34;ws://127.0.0.1/ws/stream/user001&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="nx">ws</span><span class="p">.</span><span class="nx">onopen</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="nx">log</span><span class="p">(</span><span class="s1">&#39;成功进入聊天室&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">                    <span class="c1">// 启动定时发送ping消息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                    <span class="nx">startPing</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">                <span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="nx">ws</span><span class="p">.</span><span class="nx">onmessage</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="nx">log</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="nx">ws</span><span class="p">.</span><span class="nx">onclose</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="c1">// websocket is closed.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                    <span class="nx">log</span><span class="p">(</span><span class="s2">&#34;已经和服务器断开&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">                    <span class="nx">stopPing</span><span class="p">();</span> <span class="c1">// 停止ping
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="nx">ws</span><span class="p">.</span><span class="nx">onerror</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&#34;error &#34;</span> <span class="o">+</span> <span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">                    <span class="nx">stopPing</span><span class="p">();</span> <span class="c1">// 出错时也停止ping
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="p">};</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">// The browser doesn&#39;t support WebSocket
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="nx">alert</span><span class="p">(</span><span class="s2">&#34;WebSocket NOT supported by your Browser!&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">function</span> <span class="nx">SendMsg</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="nx">ws</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="nx">ws</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="kd">var</span> <span class="nx">msg</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;msgtext&#39;</span><span class="p">).</span><span class="nx">value</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">msg</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">log</span><span class="p">(</span><span class="s1">&#39;请先进入聊天室&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">function</span> <span class="nx">WebSocketClose</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="nx">ws</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="nx">ws</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">ws</span><span class="p">.</span><span class="nx">close</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">log</span><span class="p">(</span><span class="s2">&#34;发送断开服务器请求&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">log</span><span class="p">(</span><span class="s2">&#34;当前没有连接服务器&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 新增：启动定时发送ping
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="kd">function</span> <span class="nx">startPing</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="nx">pingInterval</span><span class="p">)</span> <span class="nx">clearInterval</span><span class="p">(</span><span class="nx">pingInterval</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">pingInterval</span> <span class="o">=</span> <span class="nx">setInterval</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="p">(</span><span class="nx">ws</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="nx">ws</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="s1">&#39;ping&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span> <span class="mi">10000</span><span class="p">);</span> <span class="c1">// 每30秒发送一次ping
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 新增：停止定时发送ping
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="kd">function</span> <span class="nx">stopPing</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="nx">pingInterval</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">clearInterval</span><span class="p">(</span><span class="nx">pingInterval</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">pingInterval</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">function</span> <span class="nx">log</span><span class="p">(</span><span class="nx">text</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">var</span> <span class="nx">li</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">li</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">createTextNode</span><span class="p">(</span><span class="nx">text</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">//document.getElementById(&#39;log&#39;).appendChild(li);
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="nx">$</span><span class="p">(</span><span class="s2">&#34;#log&#34;</span><span class="p">).</span><span class="nx">prepend</span><span class="p">(</span><span class="nx">li</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nx">WebSocketConn</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;sse&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&#34;javascript:WebSocketConn()&#34;</span><span class="p">&gt;</span>进入聊天室<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span> <span class="ni">&amp;nbsp;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&#34;javascript:WebSocketClose()&#34;</span><span class="p">&gt;</span>离开聊天室<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">input</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;msgtext&#34;</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;text&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&#34;javascript:SendMsg()&#34;</span><span class="p">&gt;</span>发送信息<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;log&#34;</span><span class="p">&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>浏览器中打开测试页面，进入聊天室，输入信息，点击发送信息，即可看到信息发送到聊天室。</p>
 <h2 id="openresty-配置">openresty 配置</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -939,23 +943,23 @@
 </span><span class="lnt">11
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">    location /ws/stream {
-        access_log logs/ws_access.log ws_log;  # 专用WS日志文件
-        # WebSocket 支持
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection &#34;upgrade&#34;;
-        proxy_set_header Host $host;
-        proxy_read_timeout 300s;
-        
-        content_by_lua_file lua/websocket_stream.lua;
-    }
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">    location /ws/stream {
+</span></span><span class="line"><span class="cl">        access_log logs/ws_access.log ws_log;  # 专用WS日志文件
+</span></span><span class="line"><span class="cl">        # WebSocket 支持
+</span></span><span class="line"><span class="cl">        proxy_http_version 1.1;
+</span></span><span class="line"><span class="cl">        proxy_set_header Upgrade $http_upgrade;
+</span></span><span class="line"><span class="cl">        proxy_set_header Connection &#34;upgrade&#34;;
+</span></span><span class="line"><span class="cl">        proxy_set_header Host $host;
+</span></span><span class="line"><span class="cl">        proxy_read_timeout 300s;
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">        content_by_lua_file lua/websocket_stream.lua;
+</span></span><span class="line"><span class="cl">    }
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="golang-redis-stream-测试示例">golang redis stream 测试示例</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -1023,73 +1027,73 @@
 </span><span class="lnt">66
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-	<span class="s">&#34;context&#34;</span>
-	<span class="s">&#34;fmt&#34;</span>
-	<span class="s">&#34;log&#34;</span>
-	<span class="s">&#34;time&#34;</span>
-
-	<span class="s">&#34;github.com/redis/go-redis/v9&#34;</span>
-<span class="p">)</span>
-
-<span class="c1">// Writing to a Stream in Go
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-	<span class="nx">rdb</span> <span class="o">:=</span> <span class="nx">redis</span><span class="p">.</span><span class="nf">NewClient</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">redis</span><span class="p">.</span><span class="nx">Options</span><span class="p">{</span>
-		<span class="nx">Addr</span><span class="p">:</span>     <span class="s">&#34;localhost:6379&#34;</span><span class="p">,</span>
-		<span class="nx">Password</span><span class="p">:</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="c1">// 没有密码，默认值
-</span><span class="c1"></span>		<span class="nx">DB</span><span class="p">:</span>       <span class="mi">0</span><span class="p">,</span>  <span class="c1">// 默认DB 0
-</span><span class="c1"></span>	<span class="p">})</span>
-
-	<span class="kd">var</span> <span class="nx">ctx</span> <span class="p">=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">()</span>
-
-	<span class="c1">// Reading from a Stream in Go
-</span><span class="c1"></span>	<span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-		<span class="k">for</span> <span class="p">{</span>
-			<span class="nx">streams</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">rdb</span><span class="p">.</span><span class="nf">XRead</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">redis</span><span class="p">.</span><span class="nx">XReadArgs</span><span class="p">{</span>
-				<span class="nx">Streams</span><span class="p">:</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;events&#34;</span><span class="p">,</span> <span class="s">&#34;$&#34;</span><span class="p">},</span>
-				<span class="nx">Block</span><span class="p">:</span>   <span class="mi">0</span><span class="p">,</span> <span class="c1">// 阻塞毫秒数，没有设置就是非阻塞模式
-</span><span class="c1"></span>				<span class="nx">Count</span><span class="p">:</span>   <span class="mi">1</span><span class="p">,</span> <span class="c1">// 数量
-</span><span class="c1"></span>			<span class="p">}).</span><span class="nf">Result</span><span class="p">()</span>
-			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-				<span class="nx">log</span><span class="p">.</span><span class="nf">Fatalf</span><span class="p">(</span><span class="s">&#34;XRead failed: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-			<span class="p">}</span>
-
-			<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">stream</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">streams</span> <span class="p">{</span>
-				<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">msg</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">stream</span><span class="p">.</span><span class="nx">Messages</span> <span class="p">{</span>
-					<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;ID: %s, Values: %v\n&#34;</span><span class="p">,</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">ID</span><span class="p">,</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">Values</span><span class="p">)</span>
-				<span class="p">}</span>
-			<span class="p">}</span>
-		<span class="p">}</span>
-	<span class="p">}()</span>
-
-	<span class="nx">streamKey</span> <span class="o">:=</span> <span class="s">&#34;events&#34;</span>
-
-	<span class="nx">ticker</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">NewTicker</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
-	<span class="k">for</span> <span class="k">range</span> <span class="nx">ticker</span><span class="p">.</span><span class="nx">C</span> <span class="p">{</span>
-		<span class="c1">// 使用 XADD 向队列添加消息
-</span><span class="c1"></span>		<span class="c1">// XADD key ID field value [field value ...]
-</span><span class="c1"></span>		<span class="c1">// XADD events * name Alice action login time xxx
-</span><span class="c1"></span>		<span class="nx">args</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">redis</span><span class="p">.</span><span class="nx">XAddArgs</span><span class="p">{</span>
-			<span class="nx">Stream</span><span class="p">:</span> <span class="nx">streamKey</span><span class="p">,</span>
-			<span class="nx">MaxLen</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
-			<span class="nx">Approx</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
-			<span class="nx">Values</span><span class="p">:</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{}{</span>
-				<span class="s">&#34;user&#34;</span><span class="p">:</span>   <span class="s">&#34;Alice&#34;</span><span class="p">,</span>
-				<span class="s">&#34;action&#34;</span><span class="p">:</span> <span class="s">&#34;login&#34;</span><span class="p">,</span>
-				<span class="s">&#34;time&#34;</span><span class="p">:</span>   <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Format</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">RFC3339</span><span class="p">),</span>
-			<span class="p">},</span>
-		<span class="p">}</span>
-		<span class="nx">id</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">rdb</span><span class="p">.</span><span class="nf">XAdd</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">args</span><span class="p">).</span><span class="nf">Result</span><span class="p">()</span>
-		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-			<span class="nx">log</span><span class="p">.</span><span class="nf">Fatalf</span><span class="p">(</span><span class="s">&#34;XAdd failed: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-		<span class="p">}</span>
-
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Written to stream with ID: %s\n&#34;</span><span class="p">,</span> <span class="nx">id</span><span class="p">)</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;context&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;log&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/redis/go-redis/v9&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Writing to a Stream in Go
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">rdb</span> <span class="o">:=</span> <span class="nx">redis</span><span class="p">.</span><span class="nf">NewClient</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">redis</span><span class="p">.</span><span class="nx">Options</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Addr</span><span class="p">:</span>     <span class="s">&#34;localhost:6379&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Password</span><span class="p">:</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="c1">// 没有密码，默认值
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="nx">DB</span><span class="p">:</span>       <span class="mi">0</span><span class="p">,</span>  <span class="c1">// 默认DB 0
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="p">})</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">var</span> <span class="nx">ctx</span> <span class="p">=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// Reading from a Stream in Go
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">streams</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">rdb</span><span class="p">.</span><span class="nf">XRead</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">redis</span><span class="p">.</span><span class="nx">XReadArgs</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">Streams</span><span class="p">:</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;events&#34;</span><span class="p">,</span> <span class="s">&#34;$&#34;</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">Block</span><span class="p">:</span>   <span class="mi">0</span><span class="p">,</span> <span class="c1">// 阻塞毫秒数，没有设置就是非阻塞模式
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>				<span class="nx">Count</span><span class="p">:</span>   <span class="mi">1</span><span class="p">,</span> <span class="c1">// 数量
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="p">}).</span><span class="nf">Result</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">log</span><span class="p">.</span><span class="nf">Fatalf</span><span class="p">(</span><span class="s">&#34;XRead failed: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">			<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">stream</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">streams</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">msg</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">stream</span><span class="p">.</span><span class="nx">Messages</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">					<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;ID: %s, Values: %v\n&#34;</span><span class="p">,</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">ID</span><span class="p">,</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">Values</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">				<span class="p">}</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">streamKey</span> <span class="o">:=</span> <span class="s">&#34;events&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">ticker</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">NewTicker</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="k">range</span> <span class="nx">ticker</span><span class="p">.</span><span class="nx">C</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">// 使用 XADD 向队列添加消息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">// XADD key ID field value [field value ...]
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">// XADD events * name Alice action login time xxx
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="nx">args</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">redis</span><span class="p">.</span><span class="nx">XAddArgs</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Stream</span><span class="p">:</span> <span class="nx">streamKey</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">MaxLen</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Approx</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Values</span><span class="p">:</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{}{</span>
+</span></span><span class="line"><span class="cl">				<span class="s">&#34;user&#34;</span><span class="p">:</span>   <span class="s">&#34;Alice&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">				<span class="s">&#34;action&#34;</span><span class="p">:</span> <span class="s">&#34;login&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">				<span class="s">&#34;time&#34;</span><span class="p">:</span>   <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Format</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">RFC3339</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">			<span class="p">},</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">id</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">rdb</span><span class="p">.</span><span class="nf">XAdd</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">args</span><span class="p">).</span><span class="nf">Result</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">log</span><span class="p">.</span><span class="nf">Fatalf</span><span class="p">(</span><span class="s">&#34;XAdd failed: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Written to stream with ID: %s\n&#34;</span><span class="p">,</span> <span class="nx">id</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -1206,7 +1210,7 @@
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -1223,7 +1227,7 @@
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

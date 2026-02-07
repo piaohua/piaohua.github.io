@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20230527-google-authenticator/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Go] 实现 Google Authenticator 二次验证" />
-<meta property="og:description" content="Google Authenticator 二次验证 Google Authenticator 使用一次性密码(One-time Passcodes)(OTP)进行两步验证。 广泛应用于网站或APP登录二次验证。 Google Authe" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20230527-google-authenticator/" />
-<meta property="article:published_time" content="2023-05-27T13:20:27+08:00" />
-<meta property="article:modified_time" content="2023-05-27T13:20:27+08:00" />
-<meta itemprop="name" content="[Go] 实现 Google Authenticator 二次验证">
-<meta itemprop="description" content="Google Authenticator 二次验证 Google Authenticator 使用一次性密码(One-time Passcodes)(OTP)进行两步验证。 广泛应用于网站或APP登录二次验证。 Google Authe">
-<meta itemprop="datePublished" content="2023-05-27T13:20:27&#43;08:00" />
-<meta itemprop="dateModified" content="2023-05-27T13:20:27&#43;08:00" />
-<meta itemprop="wordCount" content="1329">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20230527-google-authenticator/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Go] 实现 Google Authenticator 二次验证">
+  <meta property="og:description" content="Google Authenticator 二次验证 Google Authenticator 使用一次性密码(One-time Passcodes)(OTP)进行两步验证。 广泛应用于网站或APP登录二次验证。 Google Authe">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2023-05-27T13:20:27+08:00">
+    <meta property="article:modified_time" content="2023-05-27T13:20:27+08:00">
+    <meta property="article:tag" content="Golang">
 
-
-
-<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Go] 实现 Google Authenticator 二次验证"/>
-<meta name="twitter:description" content="Google Authenticator 二次验证 Google Authenticator 使用一次性密码(One-time Passcodes)(OTP)进行两步验证。 广泛应用于网站或APP登录二次验证。 Google Authe"/>
+  <meta itemprop="name" content="[Go] 实现 Google Authenticator 二次验证">
+  <meta itemprop="description" content="Google Authenticator 二次验证 Google Authenticator 使用一次性密码(One-time Passcodes)(OTP)进行两步验证。 广泛应用于网站或APP登录二次验证。 Google Authe">
+  <meta itemprop="datePublished" content="2023-05-27T13:20:27+08:00">
+  <meta itemprop="dateModified" content="2023-05-27T13:20:27+08:00">
+  <meta itemprop="wordCount" content="1329">
+  <meta itemprop="keywords" content="Golang"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Go] 实现 Google Authenticator 二次验证">
+<meta name="twitter:description" content="Google Authenticator 二次验证 Google Authenticator 使用一次性密码(One-time Passcodes)(OTP)进行两步验证。 广泛应用于网站或APP登录二次验证。 Google Authe">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -173,7 +174,7 @@
 <p>每隔30s会动态生成一个6位数的数字，只要手机端时间与服务器时间误差不超过30秒，基本上生成生成动态口令一致。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">  1
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
 </span><span class="lnt">  2
 </span><span class="lnt">  3
 </span><span class="lnt">  4
@@ -308,144 +309,144 @@
 </span><span class="lnt">133
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// @Title
-</span><span class="c1">// @Description from https://www.jianshu.com/p/5b3ccc5569e6
-</span><span class="c1">// @Author  55
-</span><span class="c1">// @Date  2021/9/16
-</span><span class="c1"></span><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-    <span class="s">&#34;crypto/hmac&#34;</span>
-    <span class="s">&#34;crypto/rand&#34;</span>
-    <span class="s">&#34;crypto/sha1&#34;</span>
-    <span class="s">&#34;encoding/base32&#34;</span>
-    <span class="s">&#34;fmt&#34;</span>
-    <span class="s">&#34;strings&#34;</span>
-    <span class="s">&#34;time&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;----------------- 生成secret -------------------&#34;</span><span class="p">)</span>
-    <span class="nx">secret</span> <span class="o">:=</span> <span class="nf">GetSecret</span><span class="p">()</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;secret:&#34;</span> <span class="o">+</span> <span class="nx">secret</span><span class="p">)</span>
-
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;----------------- 信息校验----------------------&#34;</span><span class="p">)</span>
-    <span class="kd">var</span> <span class="nx">code</span> <span class="kt">int32</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Print</span><span class="p">(</span><span class="s">&#34;请输入Google Code:&#34;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="p">{</span>
-        <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Scan</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">code</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nx">err</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
-            <span class="k">break</span>
-        <span class="p">}</span>
-
-        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Print</span><span class="p">(</span><span class="s">&#34;输入错误，请重新输入：&#34;</span><span class="p">)</span>
-    <span class="p">}</span>
-
-    <span class="nx">b</span> <span class="o">:=</span> <span class="nf">VerifyCode</span><span class="p">(</span><span class="nx">secret</span><span class="p">,</span> <span class="nx">code</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">b</span> <span class="p">{</span>
-        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;验证成功！&#34;</span><span class="p">)</span>
-    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;验证失败！&#34;</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">GetSecret</span><span class="p">()</span> <span class="kt">string</span> <span class="p">{</span>
-    <span class="nx">randomStr</span> <span class="o">:=</span> <span class="nf">randStr</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">ToUpper</span><span class="p">(</span><span class="nx">randomStr</span><span class="p">)</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">randStr</span><span class="p">(</span><span class="nx">strSize</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
-    <span class="nx">dictionary</span> <span class="o">:=</span> <span class="s">&#34;ABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span>
-    <span class="kd">var</span> <span class="nx">bytes</span> <span class="p">=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">strSize</span><span class="p">)</span>
-    <span class="nx">_</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">Read</span><span class="p">(</span><span class="nx">bytes</span><span class="p">)</span>
-    <span class="k">for</span> <span class="nx">k</span><span class="p">,</span> <span class="nx">v</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">bytes</span> <span class="p">{</span>
-        <span class="nx">bytes</span><span class="p">[</span><span class="nx">k</span><span class="p">]</span> <span class="p">=</span> <span class="nx">dictionary</span><span class="p">[</span><span class="nx">v</span><span class="o">%</span><span class="nb">byte</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">dictionary</span><span class="p">))]</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">bytes</span><span class="p">)</span>
-<span class="p">}</span>
-
-<span class="c1">// 为了考虑时间误差，判断前当前时间及前后30秒时间
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">VerifyCode</span><span class="p">(</span><span class="nx">secret</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">code</span> <span class="kt">int32</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
-    <span class="c1">// 当前google值
-</span><span class="c1"></span>    <span class="k">if</span> <span class="nf">getCode</span><span class="p">(</span><span class="nx">secret</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="nx">code</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="kc">true</span>
-    <span class="p">}</span>
-
-    <span class="c1">// 前30秒google值
-</span><span class="c1"></span>    <span class="k">if</span> <span class="nf">getCode</span><span class="p">(</span><span class="nx">secret</span><span class="p">,</span> <span class="o">-</span><span class="mi">30</span><span class="p">)</span> <span class="o">==</span> <span class="nx">code</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="kc">true</span>
-    <span class="p">}</span>
-
-    <span class="c1">// 后30秒google值
-</span><span class="c1"></span>    <span class="k">if</span> <span class="nf">getCode</span><span class="p">(</span><span class="nx">secret</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span> <span class="o">==</span> <span class="nx">code</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="kc">true</span>
-    <span class="p">}</span>
-
-    <span class="k">return</span> <span class="kc">false</span>
-<span class="p">}</span>
-
-<span class="c1">// 获取Google Code
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">getCode</span><span class="p">(</span><span class="nx">secret</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">offset</span> <span class="kt">int64</span><span class="p">)</span> <span class="kt">int32</span> <span class="p">{</span>
-    <span class="nx">key</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">base32</span><span class="p">.</span><span class="nx">StdEncoding</span><span class="p">.</span><span class="nf">DecodeString</span><span class="p">(</span><span class="nx">secret</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-        <span class="k">return</span> <span class="mi">0</span>
-    <span class="p">}</span>
-
-    <span class="c1">// generate a one-time password using the time at 30-second intervals
-</span><span class="c1"></span>    <span class="nx">epochSeconds</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Unix</span><span class="p">()</span> <span class="o">+</span> <span class="nx">offset</span>
-    <span class="k">return</span> <span class="nb">int32</span><span class="p">(</span><span class="nf">oneTimePassword</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nf">toBytes</span><span class="p">(</span><span class="nx">epochSeconds</span><span class="o">/</span><span class="mi">30</span><span class="p">)))</span>
-<span class="p">}</span>
-
-<span class="c1">// from https://github.com/robbiev/two-factor-auth/blob/master/main.go
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">toBytes</span><span class="p">(</span><span class="nx">value</span> <span class="kt">int64</span><span class="p">)</span> <span class="p">[]</span><span class="kt">byte</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">result</span> <span class="p">[]</span><span class="kt">byte</span>
-    <span class="nx">mask</span> <span class="o">:=</span> <span class="nb">int64</span><span class="p">(</span><span class="mh">0xFF</span><span class="p">)</span>
-    <span class="nx">shifts</span> <span class="o">:=</span> <span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="kt">uint16</span><span class="p">{</span><span class="mi">56</span><span class="p">,</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">0</span><span class="p">}</span>
-    <span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">shift</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">shifts</span> <span class="p">{</span>
-        <span class="nx">result</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">result</span><span class="p">,</span> <span class="nb">byte</span><span class="p">((</span><span class="nx">value</span><span class="o">&gt;&gt;</span><span class="nx">shift</span><span class="p">)</span><span class="o">&amp;</span><span class="nx">mask</span><span class="p">))</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="nx">result</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">toUint32</span><span class="p">(</span><span class="nx">bytes</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="kt">uint32</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="p">(</span><span class="nb">uint32</span><span class="p">(</span><span class="nx">bytes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="mi">24</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="nb">uint32</span><span class="p">(</span><span class="nx">bytes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">+</span>
-        <span class="p">(</span><span class="nb">uint32</span><span class="p">(</span><span class="nx">bytes</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">+</span> <span class="nb">uint32</span><span class="p">(</span><span class="nx">bytes</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">oneTimePassword</span><span class="p">(</span><span class="nx">key</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">value</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="kt">uint32</span> <span class="p">{</span>
-    <span class="c1">// sign the value using HMAC-SHA1
-</span><span class="c1"></span>    <span class="nx">hmacSha1</span> <span class="o">:=</span> <span class="nx">hmac</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">sha1</span><span class="p">.</span><span class="nx">New</span><span class="p">,</span> <span class="nx">key</span><span class="p">)</span>
-    <span class="nx">hmacSha1</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span>
-    <span class="nx">hash</span> <span class="o">:=</span> <span class="nx">hmacSha1</span><span class="p">.</span><span class="nf">Sum</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
-
-    <span class="c1">// We&#39;re going to use a subset of the generated hash.
-</span><span class="c1"></span>    <span class="c1">// Using the last nibble (half-byte) to choose the index to start from.
-</span><span class="c1"></span>    <span class="c1">// This number is always appropriate as it&#39;s maximum decimal 15, the hash will
-</span><span class="c1"></span>    <span class="c1">// have the maximum index 19 (20 bytes of SHA1) and we need 4 bytes.
-</span><span class="c1"></span>    <span class="nx">offset</span> <span class="o">:=</span> <span class="nx">hash</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="nx">hash</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0x0F</span>
-
-    <span class="c1">// get a 32-bit (4-byte) chunk from the hash starting at offset
-</span><span class="c1"></span>    <span class="nx">hashParts</span> <span class="o">:=</span> <span class="nx">hash</span><span class="p">[</span><span class="nx">offset</span> <span class="p">:</span> <span class="nx">offset</span><span class="o">+</span><span class="mi">4</span><span class="p">]</span>
-
-    <span class="c1">// ignore the most significant bit as per RFC 4226
-</span><span class="c1"></span>    <span class="nx">hashParts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">=</span> <span class="nx">hashParts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0x7F</span>
-
-    <span class="nx">number</span> <span class="o">:=</span> <span class="nf">toUint32</span><span class="p">(</span><span class="nx">hashParts</span><span class="p">)</span>
-
-    <span class="c1">// size to 6 digits
-</span><span class="c1"></span>    <span class="c1">// one million is the first number with 7 digits so the remainder
-</span><span class="c1"></span>    <span class="c1">// of the division will always return &lt; 7 digits
-</span><span class="c1"></span>    <span class="nx">pwd</span> <span class="o">:=</span> <span class="nx">number</span> <span class="o">%</span> <span class="mi">1000000</span>
-
-    <span class="k">return</span> <span class="nx">pwd</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// @Title
+</span></span></span><span class="line"><span class="cl"><span class="c1">// @Description from https://www.jianshu.com/p/5b3ccc5569e6
+</span></span></span><span class="line"><span class="cl"><span class="c1">// @Author  55
+</span></span></span><span class="line"><span class="cl"><span class="c1">// @Date  2021/9/16
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;crypto/hmac&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;crypto/rand&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;crypto/sha1&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;encoding/base32&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;strings&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;----------------- 生成secret -------------------&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">secret</span> <span class="o">:=</span> <span class="nf">GetSecret</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;secret:&#34;</span> <span class="o">+</span> <span class="nx">secret</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;----------------- 信息校验----------------------&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">code</span> <span class="kt">int32</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Print</span><span class="p">(</span><span class="s">&#34;请输入Google Code:&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Scan</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">code</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">err</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">break</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Print</span><span class="p">(</span><span class="s">&#34;输入错误，请重新输入：&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span> <span class="o">:=</span> <span class="nf">VerifyCode</span><span class="p">(</span><span class="nx">secret</span><span class="p">,</span> <span class="nx">code</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">b</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;验证成功！&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;验证失败！&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">GetSecret</span><span class="p">()</span> <span class="kt">string</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">randomStr</span> <span class="o">:=</span> <span class="nf">randStr</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">ToUpper</span><span class="p">(</span><span class="nx">randomStr</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">randStr</span><span class="p">(</span><span class="nx">strSize</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">dictionary</span> <span class="o">:=</span> <span class="s">&#34;ABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">bytes</span> <span class="p">=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">strSize</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">_</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">Read</span><span class="p">(</span><span class="nx">bytes</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">k</span><span class="p">,</span> <span class="nx">v</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">bytes</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">bytes</span><span class="p">[</span><span class="nx">k</span><span class="p">]</span> <span class="p">=</span> <span class="nx">dictionary</span><span class="p">[</span><span class="nx">v</span><span class="o">%</span><span class="nb">byte</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">dictionary</span><span class="p">))]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">bytes</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 为了考虑时间误差，判断前当前时间及前后30秒时间
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">VerifyCode</span><span class="p">(</span><span class="nx">secret</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">code</span> <span class="kt">int32</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 当前google值
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="nf">getCode</span><span class="p">(</span><span class="nx">secret</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="nx">code</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// 前30秒google值
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="nf">getCode</span><span class="p">(</span><span class="nx">secret</span><span class="p">,</span> <span class="o">-</span><span class="mi">30</span><span class="p">)</span> <span class="o">==</span> <span class="nx">code</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// 后30秒google值
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="nf">getCode</span><span class="p">(</span><span class="nx">secret</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span> <span class="o">==</span> <span class="nx">code</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 获取Google Code
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">getCode</span><span class="p">(</span><span class="nx">secret</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">offset</span> <span class="kt">int64</span><span class="p">)</span> <span class="kt">int32</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">key</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">base32</span><span class="p">.</span><span class="nx">StdEncoding</span><span class="p">.</span><span class="nf">DecodeString</span><span class="p">(</span><span class="nx">secret</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// generate a one-time password using the time at 30-second intervals
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">epochSeconds</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Unix</span><span class="p">()</span> <span class="o">+</span> <span class="nx">offset</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">int32</span><span class="p">(</span><span class="nf">oneTimePassword</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nf">toBytes</span><span class="p">(</span><span class="nx">epochSeconds</span><span class="o">/</span><span class="mi">30</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// from https://github.com/robbiev/two-factor-auth/blob/master/main.go
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">toBytes</span><span class="p">(</span><span class="nx">value</span> <span class="kt">int64</span><span class="p">)</span> <span class="p">[]</span><span class="kt">byte</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">result</span> <span class="p">[]</span><span class="kt">byte</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">mask</span> <span class="o">:=</span> <span class="nb">int64</span><span class="p">(</span><span class="mh">0xFF</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">shifts</span> <span class="o">:=</span> <span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="kt">uint16</span><span class="p">{</span><span class="mi">56</span><span class="p">,</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">0</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">shift</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">shifts</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">result</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">result</span><span class="p">,</span> <span class="nb">byte</span><span class="p">((</span><span class="nx">value</span><span class="o">&gt;&gt;</span><span class="nx">shift</span><span class="p">)</span><span class="o">&amp;</span><span class="nx">mask</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">result</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">toUint32</span><span class="p">(</span><span class="nx">bytes</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="kt">uint32</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="p">(</span><span class="nb">uint32</span><span class="p">(</span><span class="nx">bytes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="mi">24</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="nb">uint32</span><span class="p">(</span><span class="nx">bytes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">+</span>
+</span></span><span class="line"><span class="cl">        <span class="p">(</span><span class="nb">uint32</span><span class="p">(</span><span class="nx">bytes</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">+</span> <span class="nb">uint32</span><span class="p">(</span><span class="nx">bytes</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">oneTimePassword</span><span class="p">(</span><span class="nx">key</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">value</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="kt">uint32</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// sign the value using HMAC-SHA1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">hmacSha1</span> <span class="o">:=</span> <span class="nx">hmac</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">sha1</span><span class="p">.</span><span class="nx">New</span><span class="p">,</span> <span class="nx">key</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">hmacSha1</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">hash</span> <span class="o">:=</span> <span class="nx">hmacSha1</span><span class="p">.</span><span class="nf">Sum</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// We&#39;re going to use a subset of the generated hash.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// Using the last nibble (half-byte) to choose the index to start from.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// This number is always appropriate as it&#39;s maximum decimal 15, the hash will
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// have the maximum index 19 (20 bytes of SHA1) and we need 4 bytes.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">offset</span> <span class="o">:=</span> <span class="nx">hash</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="nx">hash</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0x0F</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// get a 32-bit (4-byte) chunk from the hash starting at offset
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">hashParts</span> <span class="o">:=</span> <span class="nx">hash</span><span class="p">[</span><span class="nx">offset</span> <span class="p">:</span> <span class="nx">offset</span><span class="o">+</span><span class="mi">4</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// ignore the most significant bit as per RFC 4226
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">hashParts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">=</span> <span class="nx">hashParts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0x7F</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">number</span> <span class="o">:=</span> <span class="nf">toUint32</span><span class="p">(</span><span class="nx">hashParts</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// size to 6 digits
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// one million is the first number with 7 digits so the remainder
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// of the division will always return &lt; 7 digits
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">pwd</span> <span class="o">:=</span> <span class="nx">number</span> <span class="o">%</span> <span class="mi">1000000</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">pwd</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -502,62 +503,62 @@
 </span><span class="lnt">55
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// from https://github.com/sunreaver/gotools/blob/master/googleauth/google_authenticator.go
-</span><span class="c1"></span><span class="kn">package</span> <span class="nx">googleauth</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-	<span class="s">&#34;crypto/hmac&#34;</span>
-	<span class="s">&#34;crypto/sha1&#34;</span>
-	<span class="s">&#34;encoding/base32&#34;</span>
-	<span class="s">&#34;encoding/binary&#34;</span>
-	<span class="s">&#34;fmt&#34;</span>
-	<span class="s">&#34;time&#34;</span>
-<span class="p">)</span>
-
-<span class="c1">// MakeGoogleAuthenticator 获取key&amp;t对应的验证码
-</span><span class="c1">// key 秘钥
-</span><span class="c1">// t 1970年的秒
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">MakeGoogleAuthenticator</span><span class="p">(</span><span class="nx">key</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">t</span> <span class="kt">int64</span><span class="p">)</span> <span class="p">(</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-	<span class="nx">hs</span><span class="p">,</span> <span class="nx">e</span> <span class="o">:=</span> <span class="nf">hmacSha1</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">t</span><span class="o">/</span><span class="mi">30</span><span class="p">)</span>
-	<span class="k">if</span> <span class="nx">e</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">e</span>
-	<span class="p">}</span>
-	<span class="nx">snum</span> <span class="o">:=</span> <span class="nf">lastBit4byte</span><span class="p">(</span><span class="nx">hs</span><span class="p">)</span>
-	<span class="nx">d</span> <span class="o">:=</span> <span class="nx">snum</span> <span class="o">%</span> <span class="mi">1000000</span>
-	<span class="k">return</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;%06d&#34;</span><span class="p">,</span> <span class="nx">d</span><span class="p">),</span> <span class="kc">nil</span>
-<span class="p">}</span>
-
-<span class="c1">// MakeGoogleAuthenticatorForNow 获取key对应的验证码
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">MakeGoogleAuthenticatorForNow</span><span class="p">(</span><span class="nx">key</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-	<span class="k">return</span> <span class="nf">MakeGoogleAuthenticator</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Unix</span><span class="p">())</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">lastBit4byte</span><span class="p">(</span><span class="nx">hmacSha1</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="kt">int32</span> <span class="p">{</span>
-	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nx">hmacSha1</span><span class="p">)</span> <span class="o">!=</span> <span class="nx">sha1</span><span class="p">.</span><span class="nx">Size</span> <span class="p">{</span>
-		<span class="k">return</span> <span class="mi">0</span>
-	<span class="p">}</span>
-	<span class="nx">offsetBits</span> <span class="o">:=</span> <span class="nb">int8</span><span class="p">(</span><span class="nx">hmacSha1</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="nx">hmacSha1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="mh">0x0f</span>
-	<span class="nx">p</span> <span class="o">:=</span> <span class="p">(</span><span class="nb">int32</span><span class="p">(</span><span class="nx">hmacSha1</span><span class="p">[</span><span class="nx">offsetBits</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="mi">24</span><span class="p">)</span> <span class="p">|</span> <span class="p">(</span><span class="nb">int32</span><span class="p">(</span><span class="nx">hmacSha1</span><span class="p">[</span><span class="nx">offsetBits</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="mi">16</span><span class="p">)</span> <span class="p">|</span> <span class="p">(</span><span class="nb">int32</span><span class="p">(</span><span class="nx">hmacSha1</span><span class="p">[</span><span class="nx">offsetBits</span><span class="o">+</span><span class="mi">2</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="p">|</span> <span class="p">(</span><span class="nb">int32</span><span class="p">(</span><span class="nx">hmacSha1</span><span class="p">[</span><span class="nx">offsetBits</span><span class="o">+</span><span class="mi">3</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span><span class="p">)</span>
-	<span class="k">return</span> <span class="p">(</span><span class="nx">p</span> <span class="o">&amp;</span> <span class="mh">0x7fffffff</span><span class="p">)</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">hmacSha1</span><span class="p">(</span><span class="nx">key</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">t</span> <span class="kt">int64</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-	<span class="nx">decodeKey</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">base32</span><span class="p">.</span><span class="nx">StdEncoding</span><span class="p">.</span><span class="nf">WithPadding</span><span class="p">(</span><span class="nx">base32</span><span class="p">.</span><span class="nx">NoPadding</span><span class="p">).</span><span class="nf">DecodeString</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
-	<span class="p">}</span>
-
-	<span class="nx">cData</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-	<span class="nx">binary</span><span class="p">.</span><span class="nx">BigEndian</span><span class="p">.</span><span class="nf">PutUint64</span><span class="p">(</span><span class="nx">cData</span><span class="p">,</span> <span class="nb">uint64</span><span class="p">(</span><span class="nx">t</span><span class="p">))</span>
-
-	<span class="nx">h1</span> <span class="o">:=</span> <span class="nx">hmac</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">sha1</span><span class="p">.</span><span class="nx">New</span><span class="p">,</span> <span class="nx">decodeKey</span><span class="p">)</span>
-	<span class="nx">_</span><span class="p">,</span> <span class="nx">e</span> <span class="o">:=</span> <span class="nx">h1</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">cData</span><span class="p">)</span>
-	<span class="k">if</span> <span class="nx">e</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">e</span>
-	<span class="p">}</span>
-	<span class="k">return</span> <span class="nx">h1</span><span class="p">.</span><span class="nf">Sum</span><span class="p">(</span><span class="kc">nil</span><span class="p">),</span> <span class="kc">nil</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// from https://github.com/sunreaver/gotools/blob/master/googleauth/google_authenticator.go
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kn">package</span> <span class="nx">googleauth</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;crypto/hmac&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;crypto/sha1&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;encoding/base32&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;encoding/binary&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// MakeGoogleAuthenticator 获取key&amp;t对应的验证码
+</span></span></span><span class="line"><span class="cl"><span class="c1">// key 秘钥
+</span></span></span><span class="line"><span class="cl"><span class="c1">// t 1970年的秒
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">MakeGoogleAuthenticator</span><span class="p">(</span><span class="nx">key</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">t</span> <span class="kt">int64</span><span class="p">)</span> <span class="p">(</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">hs</span><span class="p">,</span> <span class="nx">e</span> <span class="o">:=</span> <span class="nf">hmacSha1</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">t</span><span class="o">/</span><span class="mi">30</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">e</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">e</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">snum</span> <span class="o">:=</span> <span class="nf">lastBit4byte</span><span class="p">(</span><span class="nx">hs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">d</span> <span class="o">:=</span> <span class="nx">snum</span> <span class="o">%</span> <span class="mi">1000000</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;%06d&#34;</span><span class="p">,</span> <span class="nx">d</span><span class="p">),</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// MakeGoogleAuthenticatorForNow 获取key对应的验证码
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">MakeGoogleAuthenticatorForNow</span><span class="p">(</span><span class="nx">key</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nf">MakeGoogleAuthenticator</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Unix</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">lastBit4byte</span><span class="p">(</span><span class="nx">hmacSha1</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="kt">int32</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nx">hmacSha1</span><span class="p">)</span> <span class="o">!=</span> <span class="nx">sha1</span><span class="p">.</span><span class="nx">Size</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">offsetBits</span> <span class="o">:=</span> <span class="nb">int8</span><span class="p">(</span><span class="nx">hmacSha1</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="nx">hmacSha1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="mh">0x0f</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">p</span> <span class="o">:=</span> <span class="p">(</span><span class="nb">int32</span><span class="p">(</span><span class="nx">hmacSha1</span><span class="p">[</span><span class="nx">offsetBits</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="mi">24</span><span class="p">)</span> <span class="p">|</span> <span class="p">(</span><span class="nb">int32</span><span class="p">(</span><span class="nx">hmacSha1</span><span class="p">[</span><span class="nx">offsetBits</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="mi">16</span><span class="p">)</span> <span class="p">|</span> <span class="p">(</span><span class="nb">int32</span><span class="p">(</span><span class="nx">hmacSha1</span><span class="p">[</span><span class="nx">offsetBits</span><span class="o">+</span><span class="mi">2</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="p">|</span> <span class="p">(</span><span class="nb">int32</span><span class="p">(</span><span class="nx">hmacSha1</span><span class="p">[</span><span class="nx">offsetBits</span><span class="o">+</span><span class="mi">3</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="p">(</span><span class="nx">p</span> <span class="o">&amp;</span> <span class="mh">0x7fffffff</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">hmacSha1</span><span class="p">(</span><span class="nx">key</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">t</span> <span class="kt">int64</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">decodeKey</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">base32</span><span class="p">.</span><span class="nx">StdEncoding</span><span class="p">.</span><span class="nf">WithPadding</span><span class="p">(</span><span class="nx">base32</span><span class="p">.</span><span class="nx">NoPadding</span><span class="p">).</span><span class="nf">DecodeString</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">cData</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">binary</span><span class="p">.</span><span class="nx">BigEndian</span><span class="p">.</span><span class="nf">PutUint64</span><span class="p">(</span><span class="nx">cData</span><span class="p">,</span> <span class="nb">uint64</span><span class="p">(</span><span class="nx">t</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">h1</span> <span class="o">:=</span> <span class="nx">hmac</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">sha1</span><span class="p">.</span><span class="nx">New</span><span class="p">,</span> <span class="nx">decodeKey</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">_</span><span class="p">,</span> <span class="nx">e</span> <span class="o">:=</span> <span class="nx">h1</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">cData</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">e</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">e</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">h1</span><span class="p">.</span><span class="nf">Sum</span><span class="p">(</span><span class="kc">nil</span><span class="p">),</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -669,7 +670,7 @@
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -686,7 +687,7 @@
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

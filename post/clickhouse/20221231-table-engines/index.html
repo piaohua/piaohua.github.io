@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/clickhouse/20221231-table-engines/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[ClickHouse] ClickHouse 表引擎介绍" />
-<meta property="og:description" content="ClickHouse 表引擎介绍 表引擎 表引擎（即表的类型）决定了： 数据的存储方式和位置，写到哪里以及从哪里读取数据 支持哪些查询以及如何支持。 并发数据访问。 索引的" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/clickhouse/20221231-table-engines/" />
-<meta property="article:published_time" content="2022-12-31T21:13:27+08:00" />
-<meta property="article:modified_time" content="2022-12-31T21:13:27+08:00" />
-<meta itemprop="name" content="[ClickHouse] ClickHouse 表引擎介绍">
-<meta itemprop="description" content="ClickHouse 表引擎介绍 表引擎 表引擎（即表的类型）决定了： 数据的存储方式和位置，写到哪里以及从哪里读取数据 支持哪些查询以及如何支持。 并发数据访问。 索引的">
-<meta itemprop="datePublished" content="2022-12-31T21:13:27&#43;08:00" />
-<meta itemprop="dateModified" content="2022-12-31T21:13:27&#43;08:00" />
-<meta itemprop="wordCount" content="2722">
+<meta property="og:url" content="https://piaohua.github.io/post/clickhouse/20221231-table-engines/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[ClickHouse] ClickHouse 表引擎介绍">
+  <meta property="og:description" content="ClickHouse 表引擎介绍 表引擎 表引擎（即表的类型）决定了： 数据的存储方式和位置，写到哪里以及从哪里读取数据 支持哪些查询以及如何支持。 并发数据访问。 索引的">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2022-12-31T21:13:27+08:00">
+    <meta property="article:modified_time" content="2022-12-31T21:13:27+08:00">
+    <meta property="article:tag" content="Clickhouse">
 
-
-
-<meta itemprop="keywords" content="clickhouse," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[ClickHouse] ClickHouse 表引擎介绍"/>
-<meta name="twitter:description" content="ClickHouse 表引擎介绍 表引擎 表引擎（即表的类型）决定了： 数据的存储方式和位置，写到哪里以及从哪里读取数据 支持哪些查询以及如何支持。 并发数据访问。 索引的"/>
+  <meta itemprop="name" content="[ClickHouse] ClickHouse 表引擎介绍">
+  <meta itemprop="description" content="ClickHouse 表引擎介绍 表引擎 表引擎（即表的类型）决定了： 数据的存储方式和位置，写到哪里以及从哪里读取数据 支持哪些查询以及如何支持。 并发数据访问。 索引的">
+  <meta itemprop="datePublished" content="2022-12-31T21:13:27+08:00">
+  <meta itemprop="dateModified" content="2022-12-31T21:13:27+08:00">
+  <meta itemprop="wordCount" content="2722">
+  <meta itemprop="keywords" content="Clickhouse"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[ClickHouse] ClickHouse 表引擎介绍">
+<meta name="twitter:description" content="ClickHouse 表引擎介绍 表引擎 表引擎（即表的类型）决定了： 数据的存储方式和位置，写到哪里以及从哪里读取数据 支持哪些查询以及如何支持。 并发数据访问。 索引的">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -212,7 +213,7 @@
 <p>建表DDL语法如下：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -228,21 +229,21 @@
 </span><span class="lnt">14
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="p">[</span><span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span><span class="p">]</span> <span class="p">[</span><span class="n">db</span><span class="p">.]</span><span class="k">table_name</span> <span class="p">[</span><span class="k">ON</span> <span class="k">CLUSTER</span> <span class="k">cluster</span><span class="p">]</span>
-<span class="p">(</span>
-    <span class="n">name1</span> <span class="p">[</span><span class="n">type1</span><span class="p">]</span> <span class="p">[</span><span class="k">DEFAULT</span><span class="o">|</span><span class="n">MATERIALIZED</span><span class="o">|</span><span class="k">ALIAS</span> <span class="n">expr1</span><span class="p">]</span> <span class="p">[</span><span class="n">TTL</span> <span class="n">expr1</span><span class="p">],</span>
-    <span class="n">name2</span> <span class="p">[</span><span class="n">type2</span><span class="p">]</span> <span class="p">[</span><span class="k">DEFAULT</span><span class="o">|</span><span class="n">MATERIALIZED</span><span class="o">|</span><span class="k">ALIAS</span> <span class="n">expr2</span><span class="p">]</span> <span class="p">[</span><span class="n">TTL</span> <span class="n">expr2</span><span class="p">],</span>
-    <span class="p">...</span>
-    <span class="k">INDEX</span> <span class="n">index_name1</span> <span class="n">expr1</span> <span class="k">TYPE</span> <span class="n">type1</span><span class="p">(...)</span> <span class="n">GRANULARITY</span> <span class="n">value1</span><span class="p">,</span>
-    <span class="k">INDEX</span> <span class="n">index_name2</span> <span class="n">expr2</span> <span class="k">TYPE</span> <span class="n">type2</span><span class="p">(...)</span> <span class="n">GRANULARITY</span> <span class="n">value2</span>
-<span class="p">)</span> <span class="n">ENGINE</span> <span class="o">=</span> <span class="n">MergeTree</span><span class="p">()</span>
-<span class="k">ORDER</span> <span class="k">BY</span> <span class="n">expr</span>
-<span class="p">[</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">expr</span><span class="p">]</span>
-<span class="p">[</span><span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="n">expr</span><span class="p">]</span>
-<span class="p">[</span><span class="n">SAMPLE</span> <span class="k">BY</span> <span class="n">expr</span><span class="p">]</span>
-<span class="p">[</span><span class="n">TTL</span> <span class="n">expr</span> <span class="p">[</span><span class="k">DELETE</span><span class="o">|</span><span class="k">TO</span> <span class="n">DISK</span> <span class="s1">&#39;xxx&#39;</span><span class="o">|</span><span class="k">TO</span> <span class="n">VOLUME</span> <span class="s1">&#39;xxx&#39;</span><span class="p">],</span> <span class="p">...]</span>
-<span class="p">[</span><span class="n">SETTINGS</span> <span class="n">name</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="p">...]</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="p">[</span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">db</span><span class="p">.]</span><span class="k">table_name</span><span class="w"> </span><span class="p">[</span><span class="k">ON</span><span class="w"> </span><span class="k">CLUSTER</span><span class="w"> </span><span class="k">cluster</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">name1</span><span class="w"> </span><span class="p">[</span><span class="n">type1</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="k">DEFAULT</span><span class="o">|</span><span class="n">MATERIALIZED</span><span class="o">|</span><span class="k">ALIAS</span><span class="w"> </span><span class="n">expr1</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">TTL</span><span class="w"> </span><span class="n">expr1</span><span class="p">],</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">name2</span><span class="w"> </span><span class="p">[</span><span class="n">type2</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="k">DEFAULT</span><span class="o">|</span><span class="n">MATERIALIZED</span><span class="o">|</span><span class="k">ALIAS</span><span class="w"> </span><span class="n">expr2</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">TTL</span><span class="w"> </span><span class="n">expr2</span><span class="p">],</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">...</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">INDEX</span><span class="w"> </span><span class="n">index_name1</span><span class="w"> </span><span class="n">expr1</span><span class="w"> </span><span class="k">TYPE</span><span class="w"> </span><span class="n">type1</span><span class="p">(...)</span><span class="w"> </span><span class="n">GRANULARITY</span><span class="w"> </span><span class="n">value1</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">INDEX</span><span class="w"> </span><span class="n">index_name2</span><span class="w"> </span><span class="n">expr2</span><span class="w"> </span><span class="k">TYPE</span><span class="w"> </span><span class="n">type2</span><span class="p">(...)</span><span class="w"> </span><span class="n">GRANULARITY</span><span class="w"> </span><span class="n">value2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w"> </span><span class="n">ENGINE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MergeTree</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">expr</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">expr</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="n">expr</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="n">SAMPLE</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">expr</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="n">TTL</span><span class="w"> </span><span class="n">expr</span><span class="w"> </span><span class="p">[</span><span class="k">DELETE</span><span class="o">|</span><span class="k">TO</span><span class="w"> </span><span class="n">DISK</span><span class="w"> </span><span class="s1">&#39;xxx&#39;</span><span class="o">|</span><span class="k">TO</span><span class="w"> </span><span class="n">VOLUME</span><span class="w"> </span><span class="s1">&#39;xxx&#39;</span><span class="p">],</span><span class="w"> </span><span class="p">...]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="n">SETTINGS</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="p">...]</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>主要参数说明：</p>
 <p>必选参数：</p>
@@ -289,7 +290,7 @@
 <p>创建分区表后，可以使用如下命令查看表分区相关信息：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -301,17 +302,17 @@
 </span><span class="lnt">10
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"> <span class="k">SELECT</span> 
- <span class="k">database</span><span class="p">,</span> 
- <span class="k">table</span><span class="p">,</span> 
- <span class="n">partition</span><span class="p">,</span> 
- <span class="n">partition_id</span><span class="p">,</span> 
- <span class="n">name</span><span class="p">,</span> 
- <span class="n">active</span><span class="p">,</span> 
- <span class="n">path</span> 
- <span class="k">FROM</span> <span class="k">system</span><span class="p">.</span><span class="n">parts</span> 
- <span class="k">WHERE</span> <span class="k">table</span> <span class="o">=</span> <span class="s1">&#39;&lt;table_name&gt;&#39;</span> 
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="w"> </span><span class="k">SELECT</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="k">database</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="k">table</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">partition</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">partition_id</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">active</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">path</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="k">system</span><span class="p">.</span><span class="n">parts</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&lt;table_name&gt;&#39;</span><span class="w"> 
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><ul>
 <li>partitionid: 分区ID</li>
@@ -339,11 +340,11 @@
 <p>目录命名规则如下：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">PartitionId_MinBlockNum_MaxBlockNum_Level
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">PartitionId_MinBlockNum_MaxBlockNum_Level
+</span></span></code></pre></td></tr></table>
 </div>
 </div><ul>
 <li>PartitionId</li>
@@ -469,7 +470,7 @@
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -486,7 +487,7 @@
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

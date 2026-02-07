@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/mysql/20210919-mysql-moha/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[MySQL] Mobike 高可用MySQL集群方案使用实践" />
-<meta property="og:description" content="MoHA 是 Mobike 开源的跨数据中心的 MySQL 集群的高可用（HA）解决方案 MoHA 提供了详细的设计和使用说明文档，点击查看 启动使用 下载项目 1 git clone https://gitee.com/piao/moha.git $GOPATH/src/github.com/moiot/moha 可选择修改配置中的" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/mysql/20210919-mysql-moha/" />
-<meta property="article:published_time" content="2021-09-19T10:38:47+08:00" />
-<meta property="article:modified_time" content="2021-09-19T10:38:47+08:00" />
-<meta itemprop="name" content="[MySQL] Mobike 高可用MySQL集群方案使用实践">
-<meta itemprop="description" content="MoHA 是 Mobike 开源的跨数据中心的 MySQL 集群的高可用（HA）解决方案 MoHA 提供了详细的设计和使用说明文档，点击查看 启动使用 下载项目 1 git clone https://gitee.com/piao/moha.git $GOPATH/src/github.com/moiot/moha 可选择修改配置中的">
-<meta itemprop="datePublished" content="2021-09-19T10:38:47&#43;08:00" />
-<meta itemprop="dateModified" content="2021-09-19T10:38:47&#43;08:00" />
-<meta itemprop="wordCount" content="794">
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20210919-mysql-moha/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[MySQL] Mobike 高可用MySQL集群方案使用实践">
+  <meta property="og:description" content="MoHA 是 Mobike 开源的跨数据中心的 MySQL 集群的高可用（HA）解决方案 MoHA 提供了详细的设计和使用说明文档，点击查看 启动使用 下载项目 1 git clone https://gitee.com/piao/moha.git $GOPATH/src/github.com/moiot/moha 可选择修改配置中的">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2021-09-19T10:38:47+08:00">
+    <meta property="article:modified_time" content="2021-09-19T10:38:47+08:00">
+    <meta property="article:tag" content="Mysql">
 
-
-
-<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[MySQL] Mobike 高可用MySQL集群方案使用实践"/>
-<meta name="twitter:description" content="MoHA 是 Mobike 开源的跨数据中心的 MySQL 集群的高可用（HA）解决方案 MoHA 提供了详细的设计和使用说明文档，点击查看 启动使用 下载项目 1 git clone https://gitee.com/piao/moha.git $GOPATH/src/github.com/moiot/moha 可选择修改配置中的"/>
+  <meta itemprop="name" content="[MySQL] Mobike 高可用MySQL集群方案使用实践">
+  <meta itemprop="description" content="MoHA 是 Mobike 开源的跨数据中心的 MySQL 集群的高可用（HA）解决方案 MoHA 提供了详细的设计和使用说明文档，点击查看 启动使用 下载项目 1 git clone https://gitee.com/piao/moha.git $GOPATH/src/github.com/moiot/moha 可选择修改配置中的">
+  <meta itemprop="datePublished" content="2021-09-19T10:38:47+08:00">
+  <meta itemprop="dateModified" content="2021-09-19T10:38:47+08:00">
+  <meta itemprop="wordCount" content="793">
+  <meta itemprop="keywords" content="Mysql"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[MySQL] Mobike 高可用MySQL集群方案使用实践">
+<meta name="twitter:description" content="MoHA 是 Mobike 开源的跨数据中心的 MySQL 集群的高可用（HA）解决方案 MoHA 提供了详细的设计和使用说明文档，点击查看 启动使用 下载项目 1 git clone https://gitee.com/piao/moha.git $GOPATH/src/github.com/moiot/moha 可选择修改配置中的">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -143,7 +144,7 @@
         <div class="post-category">
             <a href="/categories/mysql/"> mysql </a>
             </div>
-          <span class="more-meta"> 794 words </span>
+          <span class="more-meta"> 793 words </span>
           <span class="more-meta"> 2 mins read </span>
         
       </div>
@@ -180,31 +181,31 @@
 <h3 id="下载项目">下载项目</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">git clone https://gitee.com/piao/moha.git <span class="nv">$GOPATH</span>/src/github.com/moiot/moha
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">git clone https://gitee.com/piao/moha.git <span class="nv">$GOPATH</span>/src/github.com/moiot/moha
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>可选择修改配置中的账号密码，下面演示未修改，使用默认值</p>
 <p>编译项目</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh"><span class="nb">cd</span> <span class="nv">$GOPATH</span>/src/github.com/moiot/moha
-
-make docker-agent
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="nb">cd</span> <span class="nv">$GOPATH</span>/src/github.com/moiot/moha
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">make docker-agent
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>编译依赖Docker，需要先安装启动Docker</p>
 <h3 id="启动集群">启动集群</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -220,26 +221,26 @@ make docker-agent
 </span><span class="lnt">14
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">github.com/moiot/moha/etc/docker-compose git:<span class="o">(</span>master<span class="o">)</span> ✗ &gt; docker-compose -f docker-compose.yml up -d
-Creating network <span class="s2">&#34;docker-compose_default&#34;</span> with the default driver
-Creating volume <span class="s2">&#34;docker-compose_mysql-node-3-data&#34;</span> with default driver
-Creating etcd-node-2    ... <span class="k">done</span>
-Creating haproxy-slave  ... <span class="k">done</span>
-Creating haproxy-master ... <span class="k">done</span>
-Creating etcd-node-1    ... <span class="k">done</span>
-Creating etcd-node-3    ... <span class="k">done</span>
-Creating etcd-node-0    ... <span class="k">done</span>
-Creating etcd-node-4    ... <span class="k">done</span>
-Creating pmm-server     ... <span class="k">done</span>
-Creating mysql-node-2   ... <span class="k">done</span>
-Creating mysql-node-1   ... <span class="k">done</span>
-Creating mysql-node-3   ... <span class="k">done</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">github.com/moiot/moha/etc/docker-compose git:<span class="o">(</span>master<span class="o">)</span> ✗ &gt; docker-compose -f docker-compose.yml up -d
+</span></span><span class="line"><span class="cl">Creating network <span class="s2">&#34;docker-compose_default&#34;</span> with the default driver
+</span></span><span class="line"><span class="cl">Creating volume <span class="s2">&#34;docker-compose_mysql-node-3-data&#34;</span> with default driver
+</span></span><span class="line"><span class="cl">Creating etcd-node-2    ... <span class="k">done</span>
+</span></span><span class="line"><span class="cl">Creating haproxy-slave  ... <span class="k">done</span>
+</span></span><span class="line"><span class="cl">Creating haproxy-master ... <span class="k">done</span>
+</span></span><span class="line"><span class="cl">Creating etcd-node-1    ... <span class="k">done</span>
+</span></span><span class="line"><span class="cl">Creating etcd-node-3    ... <span class="k">done</span>
+</span></span><span class="line"><span class="cl">Creating etcd-node-0    ... <span class="k">done</span>
+</span></span><span class="line"><span class="cl">Creating etcd-node-4    ... <span class="k">done</span>
+</span></span><span class="line"><span class="cl">Creating pmm-server     ... <span class="k">done</span>
+</span></span><span class="line"><span class="cl">Creating mysql-node-2   ... <span class="k">done</span>
+</span></span><span class="line"><span class="cl">Creating mysql-node-1   ... <span class="k">done</span>
+</span></span><span class="line"><span class="cl">Creating mysql-node-3   ... <span class="k">done</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="查看运行状态">查看运行状态</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -255,28 +256,28 @@ Creating mysql-node-3   ... <span class="k">done</span>
 </span><span class="lnt">14
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">github.com/moiot/moha/etc/docker-compose git:<span class="o">(</span>master<span class="o">)</span> ✗ &gt; docker-compose -f docker-compose.yml ps
-     Name                   Command               State                                                   Ports
----------------------------------------------------------------------------------------------------------------------------------------------------------------
-etcd-node-0      /opt/bitnami/scripts/etcd/ ...   Up      0.0.0.0:32768-&gt;2379/tcp, 2380/tcp
-etcd-node-1      /opt/bitnami/scripts/etcd/ ...   Up      0.0.0.0:32769-&gt;2379/tcp, 2380/tcp
-etcd-node-2      /opt/bitnami/scripts/etcd/ ...   Up      0.0.0.0:32770-&gt;2379/tcp, 2380/tcp
-etcd-node-3      /opt/bitnami/scripts/etcd/ ...   Up      0.0.0.0:32771-&gt;2379/tcp, 2380/tcp
-etcd-node-4      /opt/bitnami/scripts/etcd/ ...   Up      0.0.0.0:32772-&gt;2379/tcp, 2380/tcp
-haproxy-master   /docker-entrypoint.sh hapr ...   Up      0.0.0.0:5000-&gt;5000/tcp, 0.0.0.0:7000-&gt;7000/tcp
-haproxy-slave    /docker-entrypoint.sh hapr ...   Up      0.0.0.0:5001-&gt;5000/tcp, 0.0.0.0:7001-&gt;7000/tcp
-mysql-node-1     /agent/supervise                 Up      0.0.0.0:13307-&gt;13306/tcp, 0.0.0.0:3307-&gt;3306/tcp
-mysql-node-2     /agent/supervise                 Up      0.0.0.0:13308-&gt;13306/tcp, 0.0.0.0:3308-&gt;3306/tcp
-mysql-node-3     /agent/supervise                 Up      0.0.0.0:13309-&gt;13306/tcp, 0.0.0.0:3309-&gt;3306/tcp
-pmm-server       /opt/entrypoint.sh               Up      0.0.0.0:3000-&gt;3000/tcp, 443/tcp, 0.0.0.0:8080-&gt;80/tcp, 0.0.0.0:8500-&gt;8500/tcp, 0.0.0.0:9090-&gt;9090/tcp
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">github.com/moiot/moha/etc/docker-compose git:<span class="o">(</span>master<span class="o">)</span> ✗ &gt; docker-compose -f docker-compose.yml ps
+</span></span><span class="line"><span class="cl">     Name                   Command               State                                                   Ports
+</span></span><span class="line"><span class="cl">---------------------------------------------------------------------------------------------------------------------------------------------------------------
+</span></span><span class="line"><span class="cl">etcd-node-0      /opt/bitnami/scripts/etcd/ ...   Up      0.0.0.0:32768-&gt;2379/tcp, 2380/tcp
+</span></span><span class="line"><span class="cl">etcd-node-1      /opt/bitnami/scripts/etcd/ ...   Up      0.0.0.0:32769-&gt;2379/tcp, 2380/tcp
+</span></span><span class="line"><span class="cl">etcd-node-2      /opt/bitnami/scripts/etcd/ ...   Up      0.0.0.0:32770-&gt;2379/tcp, 2380/tcp
+</span></span><span class="line"><span class="cl">etcd-node-3      /opt/bitnami/scripts/etcd/ ...   Up      0.0.0.0:32771-&gt;2379/tcp, 2380/tcp
+</span></span><span class="line"><span class="cl">etcd-node-4      /opt/bitnami/scripts/etcd/ ...   Up      0.0.0.0:32772-&gt;2379/tcp, 2380/tcp
+</span></span><span class="line"><span class="cl">haproxy-master   /docker-entrypoint.sh hapr ...   Up      0.0.0.0:5000-&gt;5000/tcp, 0.0.0.0:7000-&gt;7000/tcp
+</span></span><span class="line"><span class="cl">haproxy-slave    /docker-entrypoint.sh hapr ...   Up      0.0.0.0:5001-&gt;5000/tcp, 0.0.0.0:7001-&gt;7000/tcp
+</span></span><span class="line"><span class="cl">mysql-node-1     /agent/supervise                 Up      0.0.0.0:13307-&gt;13306/tcp, 0.0.0.0:3307-&gt;3306/tcp
+</span></span><span class="line"><span class="cl">mysql-node-2     /agent/supervise                 Up      0.0.0.0:13308-&gt;13306/tcp, 0.0.0.0:3308-&gt;3306/tcp
+</span></span><span class="line"><span class="cl">mysql-node-3     /agent/supervise                 Up      0.0.0.0:13309-&gt;13306/tcp, 0.0.0.0:3309-&gt;3306/tcp
+</span></span><span class="line"><span class="cl">pmm-server       /opt/entrypoint.sh               Up      0.0.0.0:3000-&gt;3000/tcp, 443/tcp, 0.0.0.0:8080-&gt;80/tcp, 0.0.0.0:8500-&gt;8500/tcp, 0.0.0.0:9090-&gt;9090/tcp
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="浏览器访问监控数据">浏览器访问监控数据</h3>
 <p><code>http://localhost:8080/</code></p>
 <h3 id="查看etcd目录">查看etcd目录</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -302,49 +303,49 @@ pmm-server       /opt/entrypoint.sh               Up      0.0.0.0:3000-&gt;3000/
 </span><span class="lnt">24
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; docker <span class="nb">exec</span> -it etcd-node-0 /bin/sh -c <span class="s2">&#34;etcdctl get / --prefix --keys-only&#34;</span>
-/dbproxy/clustername/ks_cfg/nodes/node-test/election/master/id
-
-/dbproxy/clustername/ks_cfg/nodes/node-test/election/master/last_gtid
-
-/dbproxy/clustername/ks_cfg/nodes/node-test/election/master/last_txnid
-
-/dbproxy/clustername/ks_cfg/nodes/node-test/election/master/last_uuid
-
-/dbproxy/clustername/ks_cfg/nodes/node-test/election/master/meta_version
-
-/dbproxy/clustername/ks_cfg/nodes/node-test/election/master/term
-
-/dbproxy/clustername/ks_cfg/nodes/node-test/election/terms/127.0.0.1:3307
-
-/dbproxy/clustername/ks_cfg/nodes/node-test/election/terms/127.0.0.1:3308
-
-/dbproxy/clustername/ks_cfg/nodes/node-test/election/terms/127.0.0.1:3309
-
-/dbproxy/clustername/ks_cfg/nodes/node-test/master
-
-/dbproxy/clustername/ks_cfg/nodes/node-test/slave/127.0.0.1:3307
-
-/dbproxy/clustername/ks_cfg/nodes/node-test/slave/127.0.0.1:3308
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">&gt; docker <span class="nb">exec</span> -it etcd-node-0 /bin/sh -c <span class="s2">&#34;etcdctl get / --prefix --keys-only&#34;</span>
+</span></span><span class="line"><span class="cl">/dbproxy/clustername/ks_cfg/nodes/node-test/election/master/id
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">/dbproxy/clustername/ks_cfg/nodes/node-test/election/master/last_gtid
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">/dbproxy/clustername/ks_cfg/nodes/node-test/election/master/last_txnid
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">/dbproxy/clustername/ks_cfg/nodes/node-test/election/master/last_uuid
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">/dbproxy/clustername/ks_cfg/nodes/node-test/election/master/meta_version
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">/dbproxy/clustername/ks_cfg/nodes/node-test/election/master/term
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">/dbproxy/clustername/ks_cfg/nodes/node-test/election/terms/127.0.0.1:3307
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">/dbproxy/clustername/ks_cfg/nodes/node-test/election/terms/127.0.0.1:3308
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">/dbproxy/clustername/ks_cfg/nodes/node-test/election/terms/127.0.0.1:3309
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">/dbproxy/clustername/ks_cfg/nodes/node-test/master
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">/dbproxy/clustername/ks_cfg/nodes/node-test/slave/127.0.0.1:3307
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">/dbproxy/clustername/ks_cfg/nodes/node-test/slave/127.0.0.1:3308
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="查看mysql集群主节点">查看mysql集群主节点</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; docker <span class="nb">exec</span> -it etcd-node-0 /bin/sh -c <span class="s2">&#34;etcdctl get /dbproxy/clustername/ks_cfg/nodes/node-test/master&#34;</span>
-/dbproxy/clustername/ks_cfg/nodes/node-test/master
-127.0.0.1:3307
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">&gt; docker <span class="nb">exec</span> -it etcd-node-0 /bin/sh -c <span class="s2">&#34;etcdctl get /dbproxy/clustername/ks_cfg/nodes/node-test/master&#34;</span>
+</span></span><span class="line"><span class="cl">/dbproxy/clustername/ks_cfg/nodes/node-test/master
+</span></span><span class="line"><span class="cl">127.0.0.1:3307
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="访问mysql集群主节点">访问mysql集群主节点</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -354,26 +355,24 @@ pmm-server       /opt/entrypoint.sh               Up      0.0.0.0:3000-&gt;3000/
 </span><span class="lnt"> 8
 </span><span class="lnt"> 9
 </span><span class="lnt">10
-</span><span class="lnt">11
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; docker <span class="nb">exec</span> -it mysql-node-1 /bin/bash
-root@9936e9af59be:/# mysql -umysql_user -pmysql_master_user_pwd
-
-<span class="o">[</span>mysql_user@localhost<span class="o">][</span>checker<span class="o">]</span>&gt; show grants<span class="p">;</span>
-+-----------------------------------------------------------------------------------------------------------------------+
-<span class="p">|</span> Grants <span class="k">for</span> mysql_user@%                                                                                               <span class="p">|</span>
-+-----------------------------------------------------------------------------------------------------------------------+
-<span class="p">|</span> GRANT SELECT, INSERT, UPDATE, DELETE, RELOAD, SUPER, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO <span class="s1">&#39;mysql_user&#39;</span>@<span class="s1">&#39;%&#39;</span> <span class="p">|</span>
-+-----------------------------------------------------------------------------------------------------------------------+
-<span class="m">1</span> row in <span class="nb">set</span> <span class="o">(</span>0.00 sec<span class="o">)</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">&gt; docker <span class="nb">exec</span> -it mysql-node-1 /bin/bash
+</span></span><span class="line"><span class="cl">root@9936e9af59be:/# mysql -umysql_user -pmysql_master_user_pwd
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>mysql_user@localhost<span class="o">][</span>checker<span class="o">]</span>&gt; show grants<span class="p">;</span>
+</span></span><span class="line"><span class="cl">+-----------------------------------------------------------------------------------------------------------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Grants <span class="k">for</span> mysql_user@%                                                                                               <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+-----------------------------------------------------------------------------------------------------------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> GRANT SELECT, INSERT, UPDATE, DELETE, RELOAD, SUPER, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO <span class="s1">&#39;mysql_user&#39;</span>@<span class="s1">&#39;%&#39;</span> <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+-----------------------------------------------------------------------------------------------------------------------+
+</span></span><span class="line"><span class="cl"><span class="m">1</span> row in <span class="nb">set</span> <span class="o">(</span>0.00 sec<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="使用root账号访问mysql集群主节点">使用root账号访问mysql集群主节点</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -382,19 +381,19 @@ root@9936e9af59be:/# mysql -umysql_user -pmysql_master_user_pwd
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-mysql" data-lang="mysql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="o">`</span><span class="n">mo_tbl</span><span class="o">`</span><span class="p">(</span>
-   <span class="o">`</span><span class="n">id</span><span class="o">`</span> <span class="kt">INT</span> <span class="k">UNSIGNED</span> <span class="kp">AUTO_INCREMENT</span><span class="p">,</span>
-   <span class="o">`</span><span class="n">title</span><span class="o">`</span> <span class="kt">VARCHAR</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
-   <span class="o">`</span><span class="n">author</span><span class="o">`</span> <span class="kt">VARCHAR</span><span class="p">(</span><span class="mi">40</span><span class="p">)</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
-   <span class="o">`</span><span class="kt">date</span><span class="o">`</span> <span class="kt">DATE</span><span class="p">,</span>
-   <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span> <span class="o">`</span><span class="n">id</span><span class="o">`</span> <span class="p">)</span>
-<span class="p">)</span><span class="kp">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span> <span class="k">DEFAULT</span> <span class="kp">CHARSET</span><span class="o">=</span><span class="n">utf8</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-mysql" data-lang="mysql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="o">`</span><span class="n">mo_tbl</span><span class="o">`</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="w"> </span><span class="kt">INT</span><span class="w"> </span><span class="k">UNSIGNED</span><span class="w"> </span><span class="kp">AUTO_INCREMENT</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="o">`</span><span class="n">title</span><span class="o">`</span><span class="w"> </span><span class="kt">VARCHAR</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="no">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="o">`</span><span class="n">author</span><span class="o">`</span><span class="w"> </span><span class="kt">VARCHAR</span><span class="p">(</span><span class="mi">40</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="no">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="o">`</span><span class="kt">date</span><span class="o">`</span><span class="w"> </span><span class="kt">DATE</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="w"> </span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="kp">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="kp">CHARSET</span><span class="o">=</span><span class="n">utf8</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>创建数据表并写入数据</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -438,49 +437,49 @@ root@9936e9af59be:/# mysql -umysql_user -pmysql_master_user_pwd
 </span><span class="lnt">42
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; docker <span class="nb">exec</span> -it mysql-node-1 /bin/bash
-root@9936e9af59be:/# mysql -uroot -pmaster_root_pwd
-
-<span class="o">[</span>root@localhost<span class="o">][</span>checker<span class="o">]</span>&gt; show grants<span class="p">;</span>
-+---------------------------------------------------------------------+
-<span class="p">|</span> Grants <span class="k">for</span> root@localhost                                           <span class="p">|</span>
-+---------------------------------------------------------------------+
-<span class="p">|</span> GRANT ALL PRIVILEGES ON *.* TO <span class="s1">&#39;root&#39;</span>@<span class="s1">&#39;localhost&#39;</span> WITH GRANT OPTION <span class="p">|</span>
-<span class="p">|</span> GRANT PROXY ON <span class="s1">&#39;&#39;</span>@<span class="s1">&#39;&#39;</span> TO <span class="s1">&#39;root&#39;</span>@<span class="s1">&#39;localhost&#39;</span> WITH GRANT OPTION        <span class="p">|</span>
-+---------------------------------------------------------------------+
-<span class="m">2</span> rows in <span class="nb">set</span> <span class="o">(</span>0.00 sec<span class="o">)</span>
-
-<span class="o">[</span>root@localhost<span class="o">][</span>checker<span class="o">]</span>&gt; CREATE TABLE IF NOT EXISTS <span class="sb">`</span>mo_tbl<span class="sb">`</span><span class="o">(</span>
-    -&gt;    <span class="sb">`</span>id<span class="sb">`</span> INT UNSIGNED AUTO_INCREMENT,
-    -&gt;    <span class="sb">`</span>title<span class="sb">`</span> VARCHAR<span class="o">(</span>100<span class="o">)</span> NOT NULL,
-    -&gt;    <span class="sb">`</span>author<span class="sb">`</span> VARCHAR<span class="o">(</span>40<span class="o">)</span> NOT NULL,
-    -&gt;    <span class="sb">`</span>date<span class="sb">`</span> DATE,
-    -&gt;    PRIMARY KEY <span class="o">(</span> <span class="sb">`</span>id<span class="sb">`</span> <span class="o">)</span>
-    -&gt; <span class="o">)</span><span class="nv">ENGINE</span><span class="o">=</span>InnoDB DEFAULT <span class="nv">CHARSET</span><span class="o">=</span>utf8<span class="p">;</span>
-Query OK, <span class="m">0</span> rows affected <span class="o">(</span>0.03 sec<span class="o">)</span>
-
-<span class="o">[</span>root@localhost<span class="o">][</span>checker<span class="o">]</span>&gt; desc mo_tbl<span class="p">;</span>
-+--------+------------------+------+-----+---------+----------------+
-<span class="p">|</span> Field  <span class="p">|</span> Type             <span class="p">|</span> Null <span class="p">|</span> Key <span class="p">|</span> Default <span class="p">|</span> Extra          <span class="p">|</span>
-+--------+------------------+------+-----+---------+----------------+
-<span class="p">|</span> id     <span class="p">|</span> int<span class="o">(</span>10<span class="o">)</span> unsigned <span class="p">|</span> NO   <span class="p">|</span> PRI <span class="p">|</span> NULL    <span class="p">|</span> auto_increment <span class="p">|</span>
-<span class="p">|</span> title  <span class="p">|</span> varchar<span class="o">(</span>100<span class="o">)</span>     <span class="p">|</span> NO   <span class="p">|</span>     <span class="p">|</span> NULL    <span class="p">|</span>                <span class="p">|</span>
-<span class="p">|</span> author <span class="p">|</span> varchar<span class="o">(</span>40<span class="o">)</span>      <span class="p">|</span> NO   <span class="p">|</span>     <span class="p">|</span> NULL    <span class="p">|</span>                <span class="p">|</span>
-<span class="p">|</span> date   <span class="p">|</span> date             <span class="p">|</span> YES  <span class="p">|</span>     <span class="p">|</span> NULL    <span class="p">|</span>                <span class="p">|</span>
-+--------+------------------+------+-----+---------+----------------+
-<span class="m">4</span> rows in <span class="nb">set</span> <span class="o">(</span>0.02 sec<span class="o">)</span>
-
-<span class="o">[</span>root@localhost<span class="o">][</span>checker<span class="o">]</span>&gt; insert into mo_tbl <span class="o">(</span>title, author, date<span class="o">)</span> values <span class="o">(</span><span class="s2">&#34;test&#34;</span>, <span class="s2">&#34;piao&#34;</span>, <span class="s2">&#34;2021-09-04&#34;</span><span class="o">)</span><span class="p">;</span>
-Query OK, <span class="m">1</span> row affected <span class="o">(</span>0.01 sec<span class="o">)</span>
-
-<span class="o">[</span>root@localhost<span class="o">][</span>checker<span class="o">]</span>&gt; <span class="k">select</span> * from mo_tbl<span class="p">;</span>
-+----+-------+--------+------------+
-<span class="p">|</span> id <span class="p">|</span> title <span class="p">|</span> author <span class="p">|</span> date       <span class="p">|</span>
-+----+-------+--------+------------+
-<span class="p">|</span>  <span class="m">1</span> <span class="p">|</span> <span class="nb">test</span>  <span class="p">|</span> piao   <span class="p">|</span> 2021-09-04 <span class="p">|</span>
-+----+-------+--------+------------+
-<span class="m">1</span> row in <span class="nb">set</span> <span class="o">(</span>0.00 sec<span class="o">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">&gt; docker <span class="nb">exec</span> -it mysql-node-1 /bin/bash
+</span></span><span class="line"><span class="cl">root@9936e9af59be:/# mysql -uroot -pmaster_root_pwd
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost<span class="o">][</span>checker<span class="o">]</span>&gt; show grants<span class="p">;</span>
+</span></span><span class="line"><span class="cl">+---------------------------------------------------------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Grants <span class="k">for</span> root@localhost                                           <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+---------------------------------------------------------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> GRANT ALL PRIVILEGES ON *.* TO <span class="s1">&#39;root&#39;</span>@<span class="s1">&#39;localhost&#39;</span> WITH GRANT OPTION <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> GRANT PROXY ON <span class="s1">&#39;&#39;</span>@<span class="s1">&#39;&#39;</span> TO <span class="s1">&#39;root&#39;</span>@<span class="s1">&#39;localhost&#39;</span> WITH GRANT OPTION        <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+---------------------------------------------------------------------+
+</span></span><span class="line"><span class="cl"><span class="m">2</span> rows in <span class="nb">set</span> <span class="o">(</span>0.00 sec<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost<span class="o">][</span>checker<span class="o">]</span>&gt; CREATE TABLE IF NOT EXISTS <span class="sb">`</span>mo_tbl<span class="sb">`</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">    -&gt;    <span class="sb">`</span>id<span class="sb">`</span> INT UNSIGNED AUTO_INCREMENT,
+</span></span><span class="line"><span class="cl">    -&gt;    <span class="sb">`</span>title<span class="sb">`</span> VARCHAR<span class="o">(</span>100<span class="o">)</span> NOT NULL,
+</span></span><span class="line"><span class="cl">    -&gt;    <span class="sb">`</span>author<span class="sb">`</span> VARCHAR<span class="o">(</span>40<span class="o">)</span> NOT NULL,
+</span></span><span class="line"><span class="cl">    -&gt;    <span class="sb">`</span>date<span class="sb">`</span> DATE,
+</span></span><span class="line"><span class="cl">    -&gt;    PRIMARY KEY <span class="o">(</span> <span class="sb">`</span>id<span class="sb">`</span> <span class="o">)</span>
+</span></span><span class="line"><span class="cl">    -&gt; <span class="o">)</span><span class="nv">ENGINE</span><span class="o">=</span>InnoDB DEFAULT <span class="nv">CHARSET</span><span class="o">=</span>utf8<span class="p">;</span>
+</span></span><span class="line"><span class="cl">Query OK, <span class="m">0</span> rows affected <span class="o">(</span>0.03 sec<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost<span class="o">][</span>checker<span class="o">]</span>&gt; desc mo_tbl<span class="p">;</span>
+</span></span><span class="line"><span class="cl">+--------+------------------+------+-----+---------+----------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Field  <span class="p">|</span> Type             <span class="p">|</span> Null <span class="p">|</span> Key <span class="p">|</span> Default <span class="p">|</span> Extra          <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+--------+------------------+------+-----+---------+----------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> id     <span class="p">|</span> int<span class="o">(</span>10<span class="o">)</span> unsigned <span class="p">|</span> NO   <span class="p">|</span> PRI <span class="p">|</span> NULL    <span class="p">|</span> auto_increment <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> title  <span class="p">|</span> varchar<span class="o">(</span>100<span class="o">)</span>     <span class="p">|</span> NO   <span class="p">|</span>     <span class="p">|</span> NULL    <span class="p">|</span>                <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> author <span class="p">|</span> varchar<span class="o">(</span>40<span class="o">)</span>      <span class="p">|</span> NO   <span class="p">|</span>     <span class="p">|</span> NULL    <span class="p">|</span>                <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> date   <span class="p">|</span> date             <span class="p">|</span> YES  <span class="p">|</span>     <span class="p">|</span> NULL    <span class="p">|</span>                <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+--------+------------------+------+-----+---------+----------------+
+</span></span><span class="line"><span class="cl"><span class="m">4</span> rows in <span class="nb">set</span> <span class="o">(</span>0.02 sec<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost<span class="o">][</span>checker<span class="o">]</span>&gt; insert into mo_tbl <span class="o">(</span>title, author, date<span class="o">)</span> values <span class="o">(</span><span class="s2">&#34;test&#34;</span>, <span class="s2">&#34;piao&#34;</span>, <span class="s2">&#34;2021-09-04&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">Query OK, <span class="m">1</span> row affected <span class="o">(</span>0.01 sec<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost<span class="o">][</span>checker<span class="o">]</span>&gt; <span class="k">select</span> * from mo_tbl<span class="p">;</span>
+</span></span><span class="line"><span class="cl">+----+-------+--------+------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> id <span class="p">|</span> title <span class="p">|</span> author <span class="p">|</span> date       <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+----+-------+--------+------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span>  <span class="m">1</span> <span class="p">|</span> <span class="nb">test</span>  <span class="p">|</span> piao   <span class="p">|</span> 2021-09-04 <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+----+-------+--------+------------+
+</span></span><span class="line"><span class="cl"><span class="m">1</span> row in <span class="nb">set</span> <span class="o">(</span>0.00 sec<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -588,7 +587,7 @@ Query OK, <span class="m">1</span> row affected <span class="o">(</span>0.01 sec
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -605,7 +604,7 @@ Query OK, <span class="m">1</span> row affected <span class="o">(</span>0.01 sec
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

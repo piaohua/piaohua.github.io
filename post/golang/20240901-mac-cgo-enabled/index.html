@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20240901-mac-cgo-enabled/" />
@@ -35,27 +35,31 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="macos golang 程序依赖 cgo 编译不兼容问题解决方案" />
-<meta property="og:description" content="macos golang 程序依赖 cgo 编译不兼容问题解决方案 在本地macos环境上编译程序，上传到linux环境，发现运行失败，失败信息如下： 1 [error] failed to initialize database, got error Binary was compiled" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20240901-mac-cgo-enabled/" />
-<meta property="article:published_time" content="2024-09-01T11:25:58+08:00" />
-<meta property="article:modified_time" content="2024-09-01T11:25:58+08:00" />
-<meta itemprop="name" content="macos golang 程序依赖 cgo 编译不兼容问题解决方案">
-<meta itemprop="description" content="macos golang 程序依赖 cgo 编译不兼容问题解决方案 在本地macos环境上编译程序，上传到linux环境，发现运行失败，失败信息如下： 1 [error] failed to initialize database, got error Binary was compiled">
-<meta itemprop="datePublished" content="2024-09-01T11:25:58&#43;08:00" />
-<meta itemprop="dateModified" content="2024-09-01T11:25:58&#43;08:00" />
-<meta itemprop="wordCount" content="701">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20240901-mac-cgo-enabled/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="macos golang 程序依赖 cgo 编译不兼容问题解决方案">
+  <meta property="og:description" content="macos golang 程序依赖 cgo 编译不兼容问题解决方案 在本地macos环境上编译程序，上传到linux环境，发现运行失败，失败信息如下： 1 [error] failed to initialize database, got error Binary was compiled">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2024-09-01T11:25:58+08:00">
+    <meta property="article:modified_time" content="2024-09-01T11:25:58+08:00">
+    <meta property="article:tag" content="Golang">
+    <meta property="article:tag" content="Macos">
+    <meta property="article:tag" content="Gcc">
+    <meta property="article:tag" content="G&#43;&#43;">
 
-
-
-<meta itemprop="keywords" content="golang,macos,gcc,g&#43;&#43;," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="macos golang 程序依赖 cgo 编译不兼容问题解决方案"/>
-<meta name="twitter:description" content="macos golang 程序依赖 cgo 编译不兼容问题解决方案 在本地macos环境上编译程序，上传到linux环境，发现运行失败，失败信息如下： 1 [error] failed to initialize database, got error Binary was compiled"/>
+  <meta itemprop="name" content="macos golang 程序依赖 cgo 编译不兼容问题解决方案">
+  <meta itemprop="description" content="macos golang 程序依赖 cgo 编译不兼容问题解决方案 在本地macos环境上编译程序，上传到linux环境，发现运行失败，失败信息如下： 1 [error] failed to initialize database, got error Binary was compiled">
+  <meta itemprop="datePublished" content="2024-09-01T11:25:58+08:00">
+  <meta itemprop="dateModified" content="2024-09-01T11:25:58+08:00">
+  <meta itemprop="wordCount" content="700">
+  <meta itemprop="keywords" content="Golang,Macos,Gcc,G&#43;&#43;"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="macos golang 程序依赖 cgo 编译不兼容问题解决方案">
+<meta name="twitter:description" content="macos golang 程序依赖 cgo 编译不兼容问题解决方案 在本地macos环境上编译程序，上传到linux环境，发现运行失败，失败信息如下： 1 [error] failed to initialize database, got error Binary was compiled">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -143,7 +147,7 @@
         <div class="post-category">
             <a href="/categories/golang/"> golang </a>
             </div>
-          <span class="more-meta"> 701 words </span>
+          <span class="more-meta"> 700 words </span>
           <span class="more-meta"> 2 mins read </span>
         
       </div>
@@ -167,11 +171,11 @@
 <p>在本地macos环境上编译程序，上传到linux环境，发现运行失败，失败信息如下：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">[error] failed to initialize database, got error Binary was compiled with &#39;CGO_ENABLED=0&#39;, go-sqlite3 requires cgo to work. This is a stub
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">[error] failed to initialize database, got error Binary was compiled with &#39;CGO_ENABLED=0&#39;, go-sqlite3 requires cgo to work. This is a stub
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>提示程序中使用了<a href="https://github.com/mattn/go-sqlite3?tab=readme-ov-file#cross-compiling-from-macos">github.com/mattn/go-sqlite3</a>, 依赖cgo，编译需要开启 <code>CGO_ENABLED=1</code></p>
 <p><code>go-sqlite3</code> is cgo package. If you want to build your app using go-sqlite3, you need gcc. However, after you have built and installed go-sqlite3 with go install <code>github.com/mattn/go-sqlite3</code> (which requires gcc), you can build your app without relying on gcc in future.</p>
@@ -179,7 +183,7 @@
 <p>SQLite使用示例：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -187,24 +191,22 @@
 </span><span class="lnt">6
 </span><span class="lnt">7
 </span><span class="lnt">8
-</span><span class="lnt">9
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">import</span> <span class="p">(</span>
-    <span class="s">&#34;gorm.io/driver/sqlite&#34;</span> <span class="c1">// Sqlite driver based on CGO
-</span><span class="c1"></span>    <span class="c1">// &#34;github.com/glebarez/sqlite&#34; // Pure go SQLite driver, checkout https://github.com/glebarez/sqlite for details
-</span><span class="c1"></span>    <span class="s">&#34;gorm.io/gorm&#34;</span>
-<span class="p">)</span>
-
-<span class="c1">// github.com/mattn/go-sqlite3
-</span><span class="c1"></span><span class="nx">db</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">gorm</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="nx">sqlite</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="s">&#34;gorm.db&#34;</span><span class="p">),</span> <span class="o">&amp;</span><span class="nx">gorm</span><span class="p">.</span><span class="nx">Config</span><span class="p">{})</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;gorm.io/driver/sqlite&#34;</span> <span class="c1">// Sqlite driver based on CGO
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// &#34;github.com/glebarez/sqlite&#34; // Pure go SQLite driver, checkout https://github.com/glebarez/sqlite for details
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="s">&#34;gorm.io/gorm&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// github.com/mattn/go-sqlite3
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">db</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">gorm</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="nx">sqlite</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="s">&#34;gorm.db&#34;</span><span class="p">),</span> <span class="o">&amp;</span><span class="nx">gorm</span><span class="p">.</span><span class="nx">Config</span><span class="p">{})</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>开启<code>CGO_ENABLED=1</code>后编译失败，报错信息如下：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -213,14 +215,14 @@
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback"># runtime/cgo
-linux_syscall.c:67:13: error: implicit declaration of function &#39;setresgid&#39; is invalid in C99 [-Werror,-Wimplicit-function-declaration]
-linux_syscall.c:67:13: note: did you mean &#39;setregid&#39;?
-/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/unistd.h:593:6: note: &#39;setregid&#39; declared here
-linux_syscall.c:73:13: error: implicit declaration of function &#39;setresuid&#39; is invalid in C99 [-Werror,-Wimplicit-function-declaration]
-linux_syscall.c:73:13: note: did you mean &#39;setreuid&#39;?
-/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/unistd.h:595:6: note: &#39;setreuid&#39; declared here
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># runtime/cgo
+</span></span><span class="line"><span class="cl">linux_syscall.c:67:13: error: implicit declaration of function &#39;setresgid&#39; is invalid in C99 [-Werror,-Wimplicit-function-declaration]
+</span></span><span class="line"><span class="cl">linux_syscall.c:67:13: note: did you mean &#39;setregid&#39;?
+</span></span><span class="line"><span class="cl">/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/unistd.h:593:6: note: &#39;setregid&#39; declared here
+</span></span><span class="line"><span class="cl">linux_syscall.c:73:13: error: implicit declaration of function &#39;setresuid&#39; is invalid in C99 [-Werror,-Wimplicit-function-declaration]
+</span></span><span class="line"><span class="cl">linux_syscall.c:73:13: note: did you mean &#39;setreuid&#39;?
+</span></span><span class="line"><span class="cl">/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/unistd.h:595:6: note: &#39;setreuid&#39; declared here
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>提示macos下cgo系统依赖库不兼容，需要安装linux环境版本</p>
 <h2 id="解决方法">解决方法</h2>
@@ -231,37 +233,37 @@ linux_syscall.c:73:13: note: did you mean &#39;setreuid&#39;?
 </ol>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">brew install FiloSottile/musl-cross/musl-cross
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">brew install FiloSottile/musl-cross/musl-cross
+</span></span></code></pre></td></tr></table>
 </div>
 </div><ol start="2">
 <li>Set build parameters</li>
 </ol>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh"><span class="nv">CC</span><span class="o">=</span>x86_64-linux-musl-gcc <span class="nv">CXX</span><span class="o">=</span>x86_64-linux-musl-g++ <span class="nv">GOARCH</span><span class="o">=</span>amd64 <span class="nv">GOOS</span><span class="o">=</span>linux <span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">1</span> go build -ldflags <span class="s2">&#34;-linkmode external -extldflags -static&#34;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="nv">CC</span><span class="o">=</span>x86_64-linux-musl-gcc <span class="nv">CXX</span><span class="o">=</span>x86_64-linux-musl-g++ <span class="nv">GOARCH</span><span class="o">=</span>amd64 <span class="nv">GOOS</span><span class="o">=</span>linux <span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">1</span> go build -ldflags <span class="s2">&#34;-linkmode external -extldflags -static&#34;</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>在安装musl-cross时，可能出现网络问题导致安装失败，如下：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">curl: (28) Failed to connect to cyfuture.dl.sourceforge.net port 443 after 75011 ms: Couldn&#39;t connect to server                                                          #    #  # #
-
-Error: musl-cross: Failed to download resource &#34;musl-cross--isl-0.21.tar.bz2&#34;
-Download failed: https://downloads.sourceforge.net/project/libisl/isl-0.21.tar.bz2
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="n">curl</span><span class="p">:</span> <span class="p">(</span><span class="mi">28</span><span class="p">)</span> <span class="n">Failed</span> <span class="n">to</span> <span class="n">connect</span> <span class="n">to</span> <span class="n">cyfuture</span><span class="o">.</span><span class="n">dl</span><span class="o">.</span><span class="n">sourceforge</span><span class="o">.</span><span class="n">net</span> <span class="n">port</span> <span class="mi">443</span> <span class="n">after</span> <span class="mi">75011</span> <span class="n">ms</span><span class="p">:</span> <span class="n">Couldn</span><span class="s1">&#39;t connect to server                                                          #    #  # #</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">Error</span><span class="p">:</span> <span class="n">musl</span><span class="o">-</span><span class="n">cross</span><span class="p">:</span> <span class="n">Failed</span> <span class="n">to</span> <span class="n">download</span> <span class="n">resource</span> <span class="s2">&#34;musl-cross--isl-0.21.tar.bz2&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">Download</span> <span class="n">failed</span><span class="p">:</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">downloads</span><span class="o">.</span><span class="n">sourceforge</span><span class="o">.</span><span class="n">net</span><span class="o">/</span><span class="n">project</span><span class="o">/</span><span class="n">libisl</span><span class="o">/</span><span class="n">isl</span><span class="o">-</span><span class="mf">0.21</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">bz2</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>这个时候可以考虑使用Docker编译部署</p>
 <p>如果都不行，还有一个解决办法，就是使用纯Go的解决方案，</p>
@@ -271,7 +273,7 @@ Download failed: https://downloads.sourceforge.net/project/libisl/isl-0.21.tar.b
 <p>使用示例：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -279,13 +281,13 @@ Download failed: https://downloads.sourceforge.net/project/libisl/isl-0.21.tar.b
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">import</span> <span class="p">(</span>
-    <span class="s">&#34;github.com/glebarez/sqlite&#34;</span>
-    <span class="s">&#34;gorm.io/gorm&#34;</span>
-<span class="p">)</span>
-
-<span class="nx">db</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">gorm</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="nx">sqlite</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="s">&#34;sqlite.db&#34;</span><span class="p">),</span> <span class="o">&amp;</span><span class="nx">gorm</span><span class="p">.</span><span class="nx">Config</span><span class="p">{})</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;github.com/glebarez/sqlite&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;gorm.io/gorm&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nx">db</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">gorm</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="nx">sqlite</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="s">&#34;sqlite.db&#34;</span><span class="p">),</span> <span class="o">&amp;</span><span class="nx">gorm</span><span class="p">.</span><span class="nx">Config</span><span class="p">{})</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -396,7 +398,7 @@ Download failed: https://downloads.sourceforge.net/project/libisl/isl-0.21.tar.b
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -413,7 +415,7 @@ Download failed: https://downloads.sourceforge.net/project/libisl/isl-0.21.tar.b
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

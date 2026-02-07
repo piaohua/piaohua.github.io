@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20230713-gracefully-restarting/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Go] Golang服务平滑重启更新" />
-<meta property="og:description" content="重启更新Golang服务，不中断请求中的连接，请求会继续响应，实现服务平滑处理。 Github开源稳定解决方案 facebookgo/grace - Package grace provides a library that makes it easy to build socket based servers" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20230713-gracefully-restarting/" />
-<meta property="article:published_time" content="2023-07-13T11:24:38+08:00" />
-<meta property="article:modified_time" content="2023-07-13T11:24:38+08:00" />
-<meta itemprop="name" content="[Go] Golang服务平滑重启更新">
-<meta itemprop="description" content="重启更新Golang服务，不中断请求中的连接，请求会继续响应，实现服务平滑处理。 Github开源稳定解决方案 facebookgo/grace - Package grace provides a library that makes it easy to build socket based servers">
-<meta itemprop="datePublished" content="2023-07-13T11:24:38&#43;08:00" />
-<meta itemprop="dateModified" content="2023-07-13T11:24:38&#43;08:00" />
-<meta itemprop="wordCount" content="705">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20230713-gracefully-restarting/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Go] Golang服务平滑重启更新">
+  <meta property="og:description" content="重启更新Golang服务，不中断请求中的连接，请求会继续响应，实现服务平滑处理。 Github开源稳定解决方案 facebookgo/grace - Package grace provides a library that makes it easy to build socket based servers">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2023-07-13T11:24:38+08:00">
+    <meta property="article:modified_time" content="2023-07-13T11:24:38+08:00">
+    <meta property="article:tag" content="Golang">
 
-
-
-<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Go] Golang服务平滑重启更新"/>
-<meta name="twitter:description" content="重启更新Golang服务，不中断请求中的连接，请求会继续响应，实现服务平滑处理。 Github开源稳定解决方案 facebookgo/grace - Package grace provides a library that makes it easy to build socket based servers"/>
+  <meta itemprop="name" content="[Go] Golang服务平滑重启更新">
+  <meta itemprop="description" content="重启更新Golang服务，不中断请求中的连接，请求会继续响应，实现服务平滑处理。 Github开源稳定解决方案 facebookgo/grace - Package grace provides a library that makes it easy to build socket based servers">
+  <meta itemprop="datePublished" content="2023-07-13T11:24:38+08:00">
+  <meta itemprop="dateModified" content="2023-07-13T11:24:38+08:00">
+  <meta itemprop="wordCount" content="705">
+  <meta itemprop="keywords" content="Golang"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Go] Golang服务平滑重启更新">
+<meta name="twitter:description" content="重启更新Golang服务，不中断请求中的连接，请求会继续响应，实现服务平滑处理。 Github开源稳定解决方案 facebookgo/grace - Package grace provides a library that makes it easy to build socket based servers">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -178,7 +179,7 @@
 <h2 id="gracedemo示例">gracedemo示例</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -230,57 +231,57 @@
 </span><span class="lnt">50
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Command gracedemo implements a demo server showing how to gracefully
-</span><span class="c1">// terminate an HTTP server using grace.
-</span><span class="c1"></span><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-        <span class="s">&#34;flag&#34;</span>
-        <span class="s">&#34;fmt&#34;</span>
-        <span class="s">&#34;net/http&#34;</span>
-        <span class="s">&#34;os&#34;</span>
-        <span class="s">&#34;time&#34;</span>
-
-        <span class="s">&#34;github.com/facebookgo/grace/gracehttp&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">var</span> <span class="p">(</span>
-        <span class="nx">address0</span> <span class="p">=</span> <span class="nx">flag</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="s">&#34;a0&#34;</span><span class="p">,</span> <span class="s">&#34;:48567&#34;</span><span class="p">,</span> <span class="s">&#34;Zero address to bind to.&#34;</span><span class="p">)</span>
-        <span class="nx">address1</span> <span class="p">=</span> <span class="nx">flag</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="s">&#34;a1&#34;</span><span class="p">,</span> <span class="s">&#34;:48568&#34;</span><span class="p">,</span> <span class="s">&#34;First address to bind to.&#34;</span><span class="p">)</span>
-        <span class="nx">address2</span> <span class="p">=</span> <span class="nx">flag</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="s">&#34;a2&#34;</span><span class="p">,</span> <span class="s">&#34;:48569&#34;</span><span class="p">,</span> <span class="s">&#34;Second address to bind to.&#34;</span><span class="p">)</span>
-        <span class="nx">now</span>      <span class="p">=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">()</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-        <span class="nx">flag</span><span class="p">.</span><span class="nf">Parse</span><span class="p">()</span>
-        <span class="nx">gracehttp</span><span class="p">.</span><span class="nf">Serve</span><span class="p">(</span>
-                <span class="o">&amp;</span><span class="nx">http</span><span class="p">.</span><span class="nx">Server</span><span class="p">{</span><span class="nx">Addr</span><span class="p">:</span> <span class="o">*</span><span class="nx">address0</span><span class="p">,</span> <span class="nx">Handler</span><span class="p">:</span> <span class="nf">newHandler</span><span class="p">(</span><span class="s">&#34;Zero  &#34;</span><span class="p">)},</span>
-                <span class="o">&amp;</span><span class="nx">http</span><span class="p">.</span><span class="nx">Server</span><span class="p">{</span><span class="nx">Addr</span><span class="p">:</span> <span class="o">*</span><span class="nx">address1</span><span class="p">,</span> <span class="nx">Handler</span><span class="p">:</span> <span class="nf">newHandler</span><span class="p">(</span><span class="s">&#34;First &#34;</span><span class="p">)},</span>
-                <span class="o">&amp;</span><span class="nx">http</span><span class="p">.</span><span class="nx">Server</span><span class="p">{</span><span class="nx">Addr</span><span class="p">:</span> <span class="o">*</span><span class="nx">address2</span><span class="p">,</span> <span class="nx">Handler</span><span class="p">:</span> <span class="nf">newHandler</span><span class="p">(</span><span class="s">&#34;Second&#34;</span><span class="p">)},</span>
-        <span class="p">)</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">newHandler</span><span class="p">(</span><span class="nx">name</span> <span class="kt">string</span><span class="p">)</span> <span class="nx">http</span><span class="p">.</span><span class="nx">Handler</span> <span class="p">{</span>
-        <span class="nx">mux</span> <span class="o">:=</span> <span class="nx">http</span><span class="p">.</span><span class="nf">NewServeMux</span><span class="p">()</span>
-        <span class="nx">mux</span><span class="p">.</span><span class="nf">HandleFunc</span><span class="p">(</span><span class="s">&#34;/sleep/&#34;</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
-                <span class="nx">duration</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">ParseDuration</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nf">FormValue</span><span class="p">(</span><span class="s">&#34;duration&#34;</span><span class="p">))</span>
-                <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-                        <span class="nx">http</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">(),</span> <span class="mi">400</span><span class="p">)</span>
-                        <span class="k">return</span>
-                <span class="p">}</span>
-                <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="nx">duration</span><span class="p">)</span>
-                <span class="nx">fmt</span><span class="p">.</span><span class="nf">Fprintf</span><span class="p">(</span>
-                        <span class="nx">w</span><span class="p">,</span>
-                        <span class="s">&#34;%s started at %s slept for %d nanoseconds from pid %d.\n&#34;</span><span class="p">,</span>
-                        <span class="nx">name</span><span class="p">,</span>
-                        <span class="nx">now</span><span class="p">,</span>
-                        <span class="nx">duration</span><span class="p">.</span><span class="nf">Nanoseconds</span><span class="p">(),</span>
-                        <span class="nx">os</span><span class="p">.</span><span class="nf">Getpid</span><span class="p">(),</span>
-                <span class="p">)</span>
-        <span class="p">})</span>
-        <span class="k">return</span> <span class="nx">mux</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// Command gracedemo implements a demo server showing how to gracefully
+</span></span></span><span class="line"><span class="cl"><span class="c1">// terminate an HTTP server using grace.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="s">&#34;flag&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="s">&#34;net/http&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="s">&#34;os&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="s">&#34;github.com/facebookgo/grace/gracehttp&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">address0</span> <span class="p">=</span> <span class="nx">flag</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="s">&#34;a0&#34;</span><span class="p">,</span> <span class="s">&#34;:48567&#34;</span><span class="p">,</span> <span class="s">&#34;Zero address to bind to.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">address1</span> <span class="p">=</span> <span class="nx">flag</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="s">&#34;a1&#34;</span><span class="p">,</span> <span class="s">&#34;:48568&#34;</span><span class="p">,</span> <span class="s">&#34;First address to bind to.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">address2</span> <span class="p">=</span> <span class="nx">flag</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="s">&#34;a2&#34;</span><span class="p">,</span> <span class="s">&#34;:48569&#34;</span><span class="p">,</span> <span class="s">&#34;Second address to bind to.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">now</span>      <span class="p">=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">flag</span><span class="p">.</span><span class="nf">Parse</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">gracehttp</span><span class="p">.</span><span class="nf">Serve</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                <span class="o">&amp;</span><span class="nx">http</span><span class="p">.</span><span class="nx">Server</span><span class="p">{</span><span class="nx">Addr</span><span class="p">:</span> <span class="o">*</span><span class="nx">address0</span><span class="p">,</span> <span class="nx">Handler</span><span class="p">:</span> <span class="nf">newHandler</span><span class="p">(</span><span class="s">&#34;Zero  &#34;</span><span class="p">)},</span>
+</span></span><span class="line"><span class="cl">                <span class="o">&amp;</span><span class="nx">http</span><span class="p">.</span><span class="nx">Server</span><span class="p">{</span><span class="nx">Addr</span><span class="p">:</span> <span class="o">*</span><span class="nx">address1</span><span class="p">,</span> <span class="nx">Handler</span><span class="p">:</span> <span class="nf">newHandler</span><span class="p">(</span><span class="s">&#34;First &#34;</span><span class="p">)},</span>
+</span></span><span class="line"><span class="cl">                <span class="o">&amp;</span><span class="nx">http</span><span class="p">.</span><span class="nx">Server</span><span class="p">{</span><span class="nx">Addr</span><span class="p">:</span> <span class="o">*</span><span class="nx">address2</span><span class="p">,</span> <span class="nx">Handler</span><span class="p">:</span> <span class="nf">newHandler</span><span class="p">(</span><span class="s">&#34;Second&#34;</span><span class="p">)},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">newHandler</span><span class="p">(</span><span class="nx">name</span> <span class="kt">string</span><span class="p">)</span> <span class="nx">http</span><span class="p">.</span><span class="nx">Handler</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">mux</span> <span class="o">:=</span> <span class="nx">http</span><span class="p">.</span><span class="nf">NewServeMux</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">mux</span><span class="p">.</span><span class="nf">HandleFunc</span><span class="p">(</span><span class="s">&#34;/sleep/&#34;</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">duration</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">ParseDuration</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nf">FormValue</span><span class="p">(</span><span class="s">&#34;duration&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                        <span class="nx">http</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">(),</span> <span class="mi">400</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                        <span class="k">return</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="nx">duration</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">fmt</span><span class="p">.</span><span class="nf">Fprintf</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                        <span class="nx">w</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                        <span class="s">&#34;%s started at %s slept for %d nanoseconds from pid %d.\n&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                        <span class="nx">name</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                        <span class="nx">now</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                        <span class="nx">duration</span><span class="p">.</span><span class="nf">Nanoseconds</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">                        <span class="nx">os</span><span class="p">.</span><span class="nf">Getpid</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">                <span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">})</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="nx">mux</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="重启更新示例操作流程如下">重启更新示例操作流程如下：</h3>
 <ol>
@@ -288,7 +289,7 @@
 </ol>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -307,24 +308,24 @@
 </span><span class="lnt">17
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh"><span class="c1"># 构建示例</span>
-<span class="nv">GOOS</span><span class="o">=</span>linux go build -o gracedemo gracedemo/demo.go
-
-<span class="c1"># 启动服务,启动后进程id: 3832021</span>
-./gracedemo <span class="p">&amp;</span>
-<span class="o">[</span>1<span class="o">]</span> <span class="m">3832021</span>
-
-<span class="c1"># 访问服务</span>
-curl <span class="s1">&#39;http://localhost:48567/sleep/?duration=1s&#39;</span>
-Zero   started at 2023-07-13 11:11:36.732597048 +0800 CST <span class="nv">m</span><span class="o">=</span>+0.000495072 slept <span class="k">for</span> <span class="m">1000000000</span> nanoseconds from pid 3832021.
-
-curl <span class="s1">&#39;http://localhost:48567/sleep/?duration=20s&#39;</span>
-Zero   started at 2023-07-13 11:11:36.732597048 +0800 CST <span class="nv">m</span><span class="o">=</span>+0.000495072 slept <span class="k">for</span> <span class="m">20000000000</span> nanoseconds from pid 3832021.
-
-<span class="c1">#  kill -USR2 3832021</span>
-<span class="o">[</span>root@10-8-36-181 ~<span class="o">]</span><span class="c1">#  curl &#39;http://localhost:48567/sleep/?duration=0s&#39;</span>
-Zero   ------- started at 2023-07-13 11:14:31.781938014 +0800 CST <span class="nv">m</span><span class="o">=</span>+0.000556973 slept <span class="k">for</span> <span class="m">0</span> nanoseconds from pid 3832267.
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1"># 构建示例</span>
+</span></span><span class="line"><span class="cl"><span class="nv">GOOS</span><span class="o">=</span>linux go build -o gracedemo gracedemo/demo.go
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 启动服务,启动后进程id: 3832021</span>
+</span></span><span class="line"><span class="cl">./gracedemo <span class="p">&amp;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>1<span class="o">]</span> <span class="m">3832021</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 访问服务</span>
+</span></span><span class="line"><span class="cl">curl <span class="s1">&#39;http://localhost:48567/sleep/?duration=1s&#39;</span>
+</span></span><span class="line"><span class="cl">Zero   started at 2023-07-13 11:11:36.732597048 +0800 CST <span class="nv">m</span><span class="o">=</span>+0.000495072 slept <span class="k">for</span> <span class="m">1000000000</span> nanoseconds from pid 3832021.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">curl <span class="s1">&#39;http://localhost:48567/sleep/?duration=20s&#39;</span>
+</span></span><span class="line"><span class="cl">Zero   started at 2023-07-13 11:11:36.732597048 +0800 CST <span class="nv">m</span><span class="o">=</span>+0.000495072 slept <span class="k">for</span> <span class="m">20000000000</span> nanoseconds from pid 3832021.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#  kill -USR2 3832021</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@10-8-36-181 ~<span class="o">]</span><span class="c1">#  curl &#39;http://localhost:48567/sleep/?duration=0s&#39;</span>
+</span></span><span class="line"><span class="cl">Zero   ------- started at 2023-07-13 11:14:31.781938014 +0800 CST <span class="nv">m</span><span class="o">=</span>+0.000556973 slept <span class="k">for</span> <span class="m">0</span> nanoseconds from pid 3832267.
+</span></span></code></pre></td></tr></table>
 </div>
 </div><ol start="2">
 <li>平滑更新示例服务</li>
@@ -332,7 +333,7 @@ Zero   ------- started at 2023-07-13 11:14:31.781938014 +0800 CST <span class="n
 <p>修改示例响应结果代码如下：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -342,20 +343,20 @@ Zero   ------- started at 2023-07-13 11:14:31.781938014 +0800 CST <span class="n
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">fmt</span><span class="p">.</span><span class="nf">Fprintf</span><span class="p">(</span>
-                        <span class="nx">w</span><span class="p">,</span>
-                        <span class="s">&#34;%s ------- started at %s slept for %d nanoseconds from pid %d.\n&#34;</span><span class="p">,</span>
-                        <span class="nx">name</span><span class="p">,</span>
-                        <span class="nx">now</span><span class="p">,</span>
-                        <span class="nx">duration</span><span class="p">.</span><span class="nf">Nanoseconds</span><span class="p">(),</span>
-                        <span class="nx">os</span><span class="p">.</span><span class="nf">Getpid</span><span class="p">(),</span>
-                <span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="nx">fmt</span><span class="p">.</span><span class="nf">Fprintf</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                        <span class="nx">w</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                        <span class="s">&#34;%s ------- started at %s slept for %d nanoseconds from pid %d.\n&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                        <span class="nx">name</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                        <span class="nx">now</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                        <span class="nx">duration</span><span class="p">.</span><span class="nf">Nanoseconds</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">                        <span class="nx">os</span><span class="p">.</span><span class="nf">Getpid</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">                <span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>重新构建并替换二进制文件</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -370,20 +371,20 @@ Zero   ------- started at 2023-07-13 11:14:31.781938014 +0800 CST <span class="n
 </span><span class="lnt">13
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh"><span class="c1"># 发起一个请求，并等待响应</span>
-curl <span class="s1">&#39;http://localhost:48567/sleep/?duration=20s&#39;</span>
-
-<span class="c1"># 在请求响应前更新gracedemo服务</span>
-<span class="nb">kill</span> -USR2 <span class="m">3832021</span>
-
-<span class="c1"># 发起一个新请求，响应结果显示已经更新</span>
-curl <span class="s1">&#39;http://localhost:48567/sleep/?duration=0s&#39;</span>
-Zero   ------- started at 2023-07-13 11:14:31.781938014 +0800 CST <span class="nv">m</span><span class="o">=</span>+0.000556973 slept <span class="k">for</span> <span class="m">0</span> nanoseconds from pid 3832267.
-
-<span class="c1"># 更新前未响应的请求，当sleep处理结束后，响应结果为旧的内容</span>
-curl <span class="s1">&#39;http://localhost:48567/sleep/?duration=20s&#39;</span>
-Zero   started at 2023-07-13 11:11:36.732597048 +0800 CST <span class="nv">m</span><span class="o">=</span>+0.000495072 slept <span class="k">for</span> <span class="m">20000000000</span> nanoseconds from pid 3832021.
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1"># 发起一个请求，并等待响应</span>
+</span></span><span class="line"><span class="cl">curl <span class="s1">&#39;http://localhost:48567/sleep/?duration=20s&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 在请求响应前更新gracedemo服务</span>
+</span></span><span class="line"><span class="cl"><span class="nb">kill</span> -USR2 <span class="m">3832021</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 发起一个新请求，响应结果显示已经更新</span>
+</span></span><span class="line"><span class="cl">curl <span class="s1">&#39;http://localhost:48567/sleep/?duration=0s&#39;</span>
+</span></span><span class="line"><span class="cl">Zero   ------- started at 2023-07-13 11:14:31.781938014 +0800 CST <span class="nv">m</span><span class="o">=</span>+0.000556973 slept <span class="k">for</span> <span class="m">0</span> nanoseconds from pid 3832267.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 更新前未响应的请求，当sleep处理结束后，响应结果为旧的内容</span>
+</span></span><span class="line"><span class="cl">curl <span class="s1">&#39;http://localhost:48567/sleep/?duration=20s&#39;</span>
+</span></span><span class="line"><span class="cl">Zero   started at 2023-07-13 11:11:36.732597048 +0800 CST <span class="nv">m</span><span class="o">=</span>+0.000495072 slept <span class="k">for</span> <span class="m">20000000000</span> nanoseconds from pid 3832021.
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -494,7 +495,7 @@ Zero   started at 2023-07-13 11:11:36.732597048 +0800 CST <span class="nv">m</sp
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -511,7 +512,7 @@ Zero   started at 2023-07-13 11:11:36.732597048 +0800 CST <span class="nv">m</sp
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

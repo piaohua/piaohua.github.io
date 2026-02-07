@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/redis/20240327-type-struct/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="redis的底层数据结构" />
-<meta property="og:description" content="redis有String、List、Hash、Set、Sorted Set这五大基本数据类型，不同的数据类型适用不同的场景。 redis数据类型" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/redis/20240327-type-struct/" />
-<meta property="article:published_time" content="2024-03-27T23:02:18+08:00" />
-<meta property="article:modified_time" content="2024-03-27T23:02:18+08:00" />
-<meta itemprop="name" content="redis的底层数据结构">
-<meta itemprop="description" content="redis有String、List、Hash、Set、Sorted Set这五大基本数据类型，不同的数据类型适用不同的场景。 redis数据类型">
-<meta itemprop="datePublished" content="2024-03-27T23:02:18&#43;08:00" />
-<meta itemprop="dateModified" content="2024-03-27T23:02:18&#43;08:00" />
-<meta itemprop="wordCount" content="1943">
+<meta property="og:url" content="https://piaohua.github.io/post/redis/20240327-type-struct/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="redis的底层数据结构">
+  <meta property="og:description" content="redis有String、List、Hash、Set、Sorted Set这五大基本数据类型，不同的数据类型适用不同的场景。 redis数据类型">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2024-03-27T23:02:18+08:00">
+    <meta property="article:modified_time" content="2024-03-27T23:02:18+08:00">
+    <meta property="article:tag" content="Redis">
 
-
-
-<meta itemprop="keywords" content="redis," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="redis的底层数据结构"/>
-<meta name="twitter:description" content="redis有String、List、Hash、Set、Sorted Set这五大基本数据类型，不同的数据类型适用不同的场景。 redis数据类型"/>
+  <meta itemprop="name" content="redis的底层数据结构">
+  <meta itemprop="description" content="redis有String、List、Hash、Set、Sorted Set这五大基本数据类型，不同的数据类型适用不同的场景。 redis数据类型">
+  <meta itemprop="datePublished" content="2024-03-27T23:02:18+08:00">
+  <meta itemprop="dateModified" content="2024-03-27T23:02:18+08:00">
+  <meta itemprop="wordCount" content="1949">
+  <meta itemprop="keywords" content="Redis"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="redis的底层数据结构">
+<meta name="twitter:description" content="redis有String、List、Hash、Set、Sorted Set这五大基本数据类型，不同的数据类型适用不同的场景。 redis数据类型">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -143,7 +144,7 @@
         <div class="post-category">
             <a href="/categories/redis/"> redis </a>
             </div>
-          <span class="more-meta"> 1943 words </span>
+          <span class="more-meta"> 1949 words </span>
           <span class="more-meta"> 4 mins read </span>
         
       </div>
@@ -190,7 +191,7 @@
 <ol>
 <li>动态调整大小：SDS可以根据字符串的长度动态调整内存大小。这意味着当我们向SDS中添加更多的字符时，SDS会自动分配更多的内存空间来容纳新的字符，而不需要手动管理内存分配和释放。这样可以避免频繁的内存重新分配操作，提高了性能。</li>
 <li>O(1)时间复杂度的长度获取：SDS在内部维护了字符串的长度信息。因此，无论字符串的长度是多少，我们都可以在常数时间内获取字符串的长度，而不需要遍历整个字符串。这使得获取字符串长度的操作非常高效。</li>
-<li>二进制安全：SDS可以存储任意二进制数据，而不仅仅局限于文本字符串。这意味着我们可以在SDS中存储包含空字符（'\0&rsquo;）在内的任意二进制数据，而不会导致字符串的截断或错误解析。</li>
+<li>二进制安全：SDS可以存储任意二进制数据，而不仅仅局限于文本字符串。这意味着我们可以在SDS中存储包含空字符（&rsquo;\0&rsquo;）在内的任意二进制数据，而不会导致字符串的截断或错误解析。</li>
 <li>缓冲区溢出保护：SDS在内部维护了字符串的长度信息，这使得Redis能够有效地防止缓冲区溢出的问题。当我们向SDS中添加新的字符时，Redis会检查是否有足够的空间来容纳新的字符，如果没有足够的空间，Redis会自动分配更多的内存空间，以避免溢出。</li>
 <li>兼容C字符串：SDS可以通过转换函数与C字符串进行互相转换。这意味着我们可以在Redis中使用SDS来存储字符串，然后将其转换为C字符串，以便与现有的C代码进行交互。反之，我们也可以将C字符串转换为SDS，以便在Redis中使用更多的字符串操作功能。</li>
 </ol>
@@ -318,7 +319,7 @@
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -335,7 +336,7 @@
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/linux/20220807-understanding-iptables/" />
@@ -35,27 +35,29 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Linux] 理解 Iptables" />
-<meta property="og:description" content="iptables 作为 Linux 内核中的重要功能，有着广泛的应用，在 Istio 中默认就是利用 iptables 做透明流量劫持的。 iptables 简介 iptables 是 Linux 内核中的防火墙软件 netfilter 的管理工具，位于用户空间，同" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/linux/20220807-understanding-iptables/" />
-<meta property="article:published_time" content="2022-08-07T10:10:32+08:00" />
-<meta property="article:modified_time" content="2022-08-07T10:10:32+08:00" />
-<meta itemprop="name" content="[Linux] 理解 Iptables">
-<meta itemprop="description" content="iptables 作为 Linux 内核中的重要功能，有着广泛的应用，在 Istio 中默认就是利用 iptables 做透明流量劫持的。 iptables 简介 iptables 是 Linux 内核中的防火墙软件 netfilter 的管理工具，位于用户空间，同">
-<meta itemprop="datePublished" content="2022-08-07T10:10:32&#43;08:00" />
-<meta itemprop="dateModified" content="2022-08-07T10:10:32&#43;08:00" />
-<meta itemprop="wordCount" content="1031">
+<meta property="og:url" content="https://piaohua.github.io/post/linux/20220807-understanding-iptables/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Linux] 理解 Iptables">
+  <meta property="og:description" content="iptables 作为 Linux 内核中的重要功能，有着广泛的应用，在 Istio 中默认就是利用 iptables 做透明流量劫持的。 iptables 简介 iptables 是 Linux 内核中的防火墙软件 netfilter 的管理工具，位于用户空间，同">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2022-08-07T10:10:32+08:00">
+    <meta property="article:modified_time" content="2022-08-07T10:10:32+08:00">
+    <meta property="article:tag" content="Linux">
+    <meta property="article:tag" content="Iptables">
 
-
-
-<meta itemprop="keywords" content="linux,iptables," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Linux] 理解 Iptables"/>
-<meta name="twitter:description" content="iptables 作为 Linux 内核中的重要功能，有着广泛的应用，在 Istio 中默认就是利用 iptables 做透明流量劫持的。 iptables 简介 iptables 是 Linux 内核中的防火墙软件 netfilter 的管理工具，位于用户空间，同"/>
+  <meta itemprop="name" content="[Linux] 理解 Iptables">
+  <meta itemprop="description" content="iptables 作为 Linux 内核中的重要功能，有着广泛的应用，在 Istio 中默认就是利用 iptables 做透明流量劫持的。 iptables 简介 iptables 是 Linux 内核中的防火墙软件 netfilter 的管理工具，位于用户空间，同">
+  <meta itemprop="datePublished" content="2022-08-07T10:10:32+08:00">
+  <meta itemprop="dateModified" content="2022-08-07T10:10:32+08:00">
+  <meta itemprop="wordCount" content="1031">
+  <meta itemprop="keywords" content="Linux,Iptables"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Linux] 理解 Iptables">
+<meta name="twitter:description" content="iptables 作为 Linux 内核中的重要功能，有着广泛的应用，在 Istio 中默认就是利用 iptables 做透明流量劫持的。 iptables 简介 iptables 是 Linux 内核中的防火墙软件 netfilter 的管理工具，位于用户空间，同">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -183,54 +185,54 @@
 <table>
 <thead>
 <tr>
-<th align="left">规则名称</th>
-<th align="center">raw</th>
-<th align="center">filter</th>
-<th align="center">nat</th>
-<th align="center">mangle</th>
-<th align="center">security</th>
+<th style="text-align:left">规则名称</th>
+<th style="text-align:center">raw</th>
+<th style="text-align:center">filter</th>
+<th style="text-align:center">nat</th>
+<th style="text-align:center">mangle</th>
+<th style="text-align:center">security</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="left">PREROUTING</td>
-<td align="center">✓</td>
-<td align="center"></td>
-<td align="center">✓</td>
-<td align="center">✓</td>
-<td align="center"></td>
+<td style="text-align:left">PREROUTING</td>
+<td style="text-align:center">✓</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">✓</td>
+<td style="text-align:center">✓</td>
+<td style="text-align:center"></td>
 </tr>
 <tr>
-<td align="left">INPUT</td>
-<td align="center"></td>
-<td align="center">✓</td>
-<td align="center"></td>
-<td align="center">✓</td>
-<td align="center">✓</td>
+<td style="text-align:left">INPUT</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">✓</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">✓</td>
+<td style="text-align:center">✓</td>
 </tr>
 <tr>
-<td align="left">OUTPUT</td>
-<td align="center">✓</td>
-<td align="center">✓</td>
-<td align="center">✓</td>
-<td align="center">✓</td>
-<td align="center">✓</td>
+<td style="text-align:left">OUTPUT</td>
+<td style="text-align:center">✓</td>
+<td style="text-align:center">✓</td>
+<td style="text-align:center">✓</td>
+<td style="text-align:center">✓</td>
+<td style="text-align:center">✓</td>
 </tr>
 <tr>
-<td align="left">POSTROUTING</td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center">✓</td>
-<td align="center">✓</td>
-<td align="center"></td>
+<td style="text-align:left">POSTROUTING</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">✓</td>
+<td style="text-align:center">✓</td>
+<td style="text-align:center"></td>
 </tr>
 <tr>
-<td align="left">FORWARD</td>
-<td align="center"></td>
-<td align="center">✓</td>
-<td align="center"></td>
-<td align="center">✓</td>
-<td align="center">✓</td>
+<td style="text-align:left">FORWARD</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">✓</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">✓</td>
+<td style="text-align:center">✓</td>
 </tr>
 </tbody>
 </table>
@@ -238,7 +240,7 @@
 <p>查看 <code>iptables</code> 规则，默认查看的是 <code>filter</code> 表中的规则。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -249,16 +251,16 @@
 </span><span class="lnt">9
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">$ iptables -L -v
-Chain INPUT (policy ACCEPT 350K packets, 63M bytes)
- pkts bytes target     prot opt in     out     source               destination
-
-Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
- pkts bytes target     prot opt in     out     source               destination
-
-Chain OUTPUT (policy ACCEPT 18M packets, 1916M bytes)
- pkts bytes target     prot opt in     out     source               destination
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">$ iptables -L -v
+</span></span><span class="line"><span class="cl">Chain INPUT (policy ACCEPT 350K packets, 63M bytes)
+</span></span><span class="line"><span class="cl"> pkts bytes target     prot opt in     out     source               destination
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
+</span></span><span class="line"><span class="cl"> pkts bytes target     prot opt in     out     source               destination
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Chain OUTPUT (policy ACCEPT 18M packets, 1916M bytes)
+</span></span><span class="line"><span class="cl"> pkts bytes target     prot opt in     out     source               destination
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>可以看到三个默认的链，分别是 <code>INPUT</code>、<code>FORWARD</code> 和 <code>OUTPUT</code>，每个链中的第一行输出表示链名称（在本例中为INPUT/FORWARD/OUTPUT），后跟默认策略（ACCEPT）。</p>
 <p>每条链中都可以添加多条规则，规则是按照顺序从前到后执行的。规则的表头定义。</p>
@@ -382,7 +384,7 @@ Chain OUTPUT (policy ACCEPT 18M packets, 1916M bytes)
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -399,7 +401,7 @@ Chain OUTPUT (policy ACCEPT 18M packets, 1916M bytes)
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

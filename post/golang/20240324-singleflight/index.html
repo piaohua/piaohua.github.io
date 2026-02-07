@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20240324-singleflight/" />
@@ -35,27 +35,29 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Go] 防缓存击穿利器 singleflight" />
-<meta property="og:description" content="Package singleflight provides a duplicate function call suppression mechanism. 原文： Go singleflight：防缓存击穿利器 Documentation 什么是缓存击穿 缓存击穿 是指在高并发的情况下，某个热点的 key 突然过期，导致大" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20240324-singleflight/" />
-<meta property="article:published_time" content="2024-03-24T18:02:35+08:00" />
-<meta property="article:modified_time" content="2024-03-24T18:02:35+08:00" />
-<meta itemprop="name" content="[Go] 防缓存击穿利器 singleflight">
-<meta itemprop="description" content="Package singleflight provides a duplicate function call suppression mechanism. 原文： Go singleflight：防缓存击穿利器 Documentation 什么是缓存击穿 缓存击穿 是指在高并发的情况下，某个热点的 key 突然过期，导致大">
-<meta itemprop="datePublished" content="2024-03-24T18:02:35&#43;08:00" />
-<meta itemprop="dateModified" content="2024-03-24T18:02:35&#43;08:00" />
-<meta itemprop="wordCount" content="1447">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20240324-singleflight/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Go] 防缓存击穿利器 singleflight">
+  <meta property="og:description" content="Package singleflight provides a duplicate function call suppression mechanism. 原文： Go singleflight：防缓存击穿利器 Documentation 什么是缓存击穿 缓存击穿 是指在高并发的情况下，某个热点的 key 突然过期，导致大">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2024-03-24T18:02:35+08:00">
+    <meta property="article:modified_time" content="2024-03-24T18:02:35+08:00">
+    <meta property="article:tag" content="Golang">
+    <meta property="article:tag" content="Cache">
 
-
-
-<meta itemprop="keywords" content="golang,cache," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Go] 防缓存击穿利器 singleflight"/>
-<meta name="twitter:description" content="Package singleflight provides a duplicate function call suppression mechanism. 原文： Go singleflight：防缓存击穿利器 Documentation 什么是缓存击穿 缓存击穿 是指在高并发的情况下，某个热点的 key 突然过期，导致大"/>
+  <meta itemprop="name" content="[Go] 防缓存击穿利器 singleflight">
+  <meta itemprop="description" content="Package singleflight provides a duplicate function call suppression mechanism. 原文： Go singleflight：防缓存击穿利器 Documentation 什么是缓存击穿 缓存击穿 是指在高并发的情况下，某个热点的 key 突然过期，导致大">
+  <meta itemprop="datePublished" content="2024-03-24T18:02:35+08:00">
+  <meta itemprop="dateModified" content="2024-03-24T18:02:35+08:00">
+  <meta itemprop="wordCount" content="1447">
+  <meta itemprop="keywords" content="Golang,Cache"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Go] 防缓存击穿利器 singleflight">
+<meta name="twitter:description" content="Package singleflight provides a duplicate function call suppression mechanism. 原文： Go singleflight：防缓存击穿利器 Documentation 什么是缓存击穿 缓存击穿 是指在高并发的情况下，某个热点的 key 突然过期，导致大">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -217,7 +219,7 @@
 <h2 id="使用示例">使用示例</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -272,60 +274,60 @@
 </span><span class="lnt">53
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// https://github.com/chenmingyong0423/blog/blob/master/tutorial-code/go/singleflight/usage/main.go
-</span><span class="c1"></span><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-    <span class="s">&#34;errors&#34;</span>
-    <span class="s">&#34;fmt&#34;</span>
-    <span class="s">&#34;sync&#34;</span>
-
-    <span class="s">&#34;golang.org/x/sync/singleflight&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">var</span> <span class="nx">errRedisKeyNotFound</span> <span class="p">=</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;redis: key not found&#34;</span><span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">fetchDataFromCache</span><span class="p">()</span> <span class="p">(</span><span class="nx">any</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;fetch data from cache&#34;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errRedisKeyNotFound</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">fetchDataFromDataBase</span><span class="p">()</span> <span class="p">(</span><span class="nx">any</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;fetch data from database&#34;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="s">&#34;value&#34;</span><span class="p">,</span> <span class="kc">nil</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">fetchData</span><span class="p">()</span> <span class="p">(</span><span class="nx">any</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">cache</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">fetchDataFromCache</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="o">&amp;&amp;</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">Is</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">errRedisKeyNotFound</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">errRedisKeyNotFound</span><span class="p">.</span><span class="nf">Error</span><span class="p">())</span>
-        <span class="k">return</span> <span class="nf">fetchDataFromDataBase</span><span class="p">()</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="nx">cache</span><span class="p">,</span> <span class="nx">err</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="p">(</span>
-        <span class="nx">sg</span> <span class="nx">singleflight</span><span class="p">.</span><span class="nx">Group</span>
-        <span class="nx">wg</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">WaitGroup</span>
-    <span class="p">)</span>
-
-    <span class="k">for</span> <span class="nx">_</span> <span class="k">range</span> <span class="mi">7</span> <span class="p">{</span>
-        <span class="nx">wg</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-        <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-            <span class="k">defer</span> <span class="nx">wg</span><span class="p">.</span><span class="nf">Done</span><span class="p">()</span>
-
-            <span class="nx">v</span><span class="p">,</span> <span class="nx">err</span><span class="p">,</span> <span class="nx">shared</span> <span class="o">:=</span> <span class="nx">sg</span><span class="p">.</span><span class="nf">Do</span><span class="p">(</span><span class="s">&#34;key&#34;</span><span class="p">,</span> <span class="nx">fetchData</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-                <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-            <span class="p">}</span>
-            <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;v: %v, shared: %v\n&#34;</span><span class="p">,</span> <span class="nx">v</span><span class="p">,</span> <span class="nx">shared</span><span class="p">)</span>
-        <span class="p">}()</span>
-    <span class="p">}</span>
-    <span class="nx">wg</span><span class="p">.</span><span class="nf">Wait</span><span class="p">()</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// https://github.com/chenmingyong0423/blog/blob/master/tutorial-code/go/singleflight/usage/main.go
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;errors&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;sync&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;golang.org/x/sync/singleflight&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">errRedisKeyNotFound</span> <span class="p">=</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;redis: key not found&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">fetchDataFromCache</span><span class="p">()</span> <span class="p">(</span><span class="nx">any</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;fetch data from cache&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errRedisKeyNotFound</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">fetchDataFromDataBase</span><span class="p">()</span> <span class="p">(</span><span class="nx">any</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;fetch data from database&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="s">&#34;value&#34;</span><span class="p">,</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">fetchData</span><span class="p">()</span> <span class="p">(</span><span class="nx">any</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">cache</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">fetchDataFromCache</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="o">&amp;&amp;</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">Is</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">errRedisKeyNotFound</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">errRedisKeyNotFound</span><span class="p">.</span><span class="nf">Error</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="nf">fetchDataFromDataBase</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">cache</span><span class="p">,</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">sg</span> <span class="nx">singleflight</span><span class="p">.</span><span class="nx">Group</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">wg</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">WaitGroup</span>
+</span></span><span class="line"><span class="cl">    <span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">_</span> <span class="k">range</span> <span class="mi">7</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">wg</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">defer</span> <span class="nx">wg</span><span class="p">.</span><span class="nf">Done</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="nx">v</span><span class="p">,</span> <span class="nx">err</span><span class="p">,</span> <span class="nx">shared</span> <span class="o">:=</span> <span class="nx">sg</span><span class="p">.</span><span class="nf">Do</span><span class="p">(</span><span class="s">&#34;key&#34;</span><span class="p">,</span> <span class="nx">fetchData</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;v: %v, shared: %v\n&#34;</span><span class="p">,</span> <span class="nx">v</span><span class="p">,</span> <span class="nx">shared</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">wg</span><span class="p">.</span><span class="nf">Wait</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>这段代码模拟了一个典型的并发访问场景：从缓存获取数据，若缓存未命中，则从数据库检索。在此过程中，singleflight 库起到了至关重要的作用。它确保在多个并发请求尝试同时获取相同数据时，实际的获取操作（不论是访问缓存还是查询数据库）只会执行一次。这样不仅减轻了数据库的压力，还有效防止了高并发环境下可能发生的缓存击穿问题。</p>
 <h2 id="参考">参考</h2>
@@ -437,7 +439,7 @@
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -454,7 +456,7 @@
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

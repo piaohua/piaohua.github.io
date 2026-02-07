@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20200907-golang-signal/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Go] Golang 中信号(signal)处理" />
-<meta property="og:description" content="Golang 中信号(signal)处理 Go信号通知机制可以通过往一个channel中发送 os.Signal 实现。 使用 signal.Notify 注册要接收的信号。signal.Stop 取消监听" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20200907-golang-signal/" />
-<meta property="article:published_time" content="2020-09-07T22:52:58+08:00" />
-<meta property="article:modified_time" content="2020-09-07T22:52:58+08:00" />
-<meta itemprop="name" content="[Go] Golang 中信号(signal)处理">
-<meta itemprop="description" content="Golang 中信号(signal)处理 Go信号通知机制可以通过往一个channel中发送 os.Signal 实现。 使用 signal.Notify 注册要接收的信号。signal.Stop 取消监听">
-<meta itemprop="datePublished" content="2020-09-07T22:52:58&#43;08:00" />
-<meta itemprop="dateModified" content="2020-09-07T22:52:58&#43;08:00" />
-<meta itemprop="wordCount" content="1243">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20200907-golang-signal/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Go] Golang 中信号(signal)处理">
+  <meta property="og:description" content="Golang 中信号(signal)处理 Go信号通知机制可以通过往一个channel中发送 os.Signal 实现。 使用 signal.Notify 注册要接收的信号。signal.Stop 取消监听">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2020-09-07T22:52:58+08:00">
+    <meta property="article:modified_time" content="2020-09-07T22:52:58+08:00">
+    <meta property="article:tag" content="Golang">
 
-
-
-<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Go] Golang 中信号(signal)处理"/>
-<meta name="twitter:description" content="Golang 中信号(signal)处理 Go信号通知机制可以通过往一个channel中发送 os.Signal 实现。 使用 signal.Notify 注册要接收的信号。signal.Stop 取消监听"/>
+  <meta itemprop="name" content="[Go] Golang 中信号(signal)处理">
+  <meta itemprop="description" content="Golang 中信号(signal)处理 Go信号通知机制可以通过往一个channel中发送 os.Signal 实现。 使用 signal.Notify 注册要接收的信号。signal.Stop 取消监听">
+  <meta itemprop="datePublished" content="2020-09-07T22:52:58+08:00">
+  <meta itemprop="dateModified" content="2020-09-07T22:52:58+08:00">
+  <meta itemprop="wordCount" content="1243">
+  <meta itemprop="keywords" content="Golang"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Go] Golang 中信号(signal)处理">
+<meta name="twitter:description" content="Golang 中信号(signal)处理 Go信号通知机制可以通过往一个channel中发送 os.Signal 实现。 使用 signal.Notify 注册要接收的信号。signal.Stop 取消监听">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -170,7 +171,7 @@
 <h2 id="使用示例">使用示例</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -206,41 +207,41 @@
 </span><span class="lnt">34
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="c1">//TODO do-somethings
-</span><span class="c1"></span>    <span class="c1">// block forever
-</span><span class="c1"></span>    <span class="nf">signals</span><span class="p">()</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">signals</span><span class="p">()</span> <span class="p">{</span>
-    <span class="c1">// Go signal notification works by sending `os.Signal`
-</span><span class="c1"></span>    <span class="c1">// values on a channel. We&#39;ll create a channel to
-</span><span class="c1"></span>    <span class="c1">// receive these notifications (we&#39;ll also make one to
-</span><span class="c1"></span>    <span class="c1">// notify us when the program can exit).
-</span><span class="c1"></span>    <span class="nx">sigs</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Signal</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="nx">done</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">bool</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-
-    <span class="c1">// `signal.Notify` registers the given channel to
-</span><span class="c1"></span>    <span class="c1">// receive notifications of the specified signals.
-</span><span class="c1"></span>    <span class="nx">signal</span><span class="p">.</span><span class="nf">Notify</span><span class="p">(</span><span class="nx">sigs</span><span class="p">,</span> <span class="nx">syscall</span><span class="p">.</span><span class="nx">SIGINT</span><span class="p">,</span> <span class="nx">syscall</span><span class="p">.</span><span class="nx">SIGTERM</span><span class="p">)</span>
-
-    <span class="c1">// This goroutine executes a blocking receive for
-</span><span class="c1"></span>    <span class="c1">// signals. When it gets one it&#39;ll print it out
-</span><span class="c1"></span>    <span class="c1">// and then notify the program that it can finish.
-</span><span class="c1"></span>    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-        <span class="nx">sig</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">sigs</span>
-        <span class="nb">println</span><span class="p">(</span><span class="nx">sig</span><span class="p">)</span>
-        <span class="nx">done</span> <span class="o">&lt;-</span> <span class="kc">true</span>
-    <span class="p">}()</span>
-
-    <span class="c1">// The program will wait here until it gets the
-</span><span class="c1"></span>    <span class="c1">// expected signal (as indicated by the goroutine
-</span><span class="c1"></span>    <span class="c1">// above sending a value on `done`) and then exit.
-</span><span class="c1"></span>    <span class="nb">println</span><span class="p">(</span><span class="s">&#34;awaiting signal&#34;</span><span class="p">)</span>
-    <span class="o">&lt;-</span><span class="nx">done</span>
-    <span class="nb">println</span><span class="p">(</span><span class="s">&#34;exiting&#34;</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//TODO do-somethings
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// block forever
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">signals</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">signals</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Go signal notification works by sending `os.Signal`
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// values on a channel. We&#39;ll create a channel to
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// receive these notifications (we&#39;ll also make one to
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// notify us when the program can exit).
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">sigs</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Signal</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">done</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">bool</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// `signal.Notify` registers the given channel to
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// receive notifications of the specified signals.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">signal</span><span class="p">.</span><span class="nf">Notify</span><span class="p">(</span><span class="nx">sigs</span><span class="p">,</span> <span class="nx">syscall</span><span class="p">.</span><span class="nx">SIGINT</span><span class="p">,</span> <span class="nx">syscall</span><span class="p">.</span><span class="nx">SIGTERM</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// This goroutine executes a blocking receive for
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// signals. When it gets one it&#39;ll print it out
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// and then notify the program that it can finish.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">sig</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">sigs</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">println</span><span class="p">(</span><span class="nx">sig</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">done</span> <span class="o">&lt;-</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// The program will wait here until it gets the
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// expected signal (as indicated by the goroutine
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// above sending a value on `done`) and then exit.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nb">println</span><span class="p">(</span><span class="s">&#34;awaiting signal&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="o">&lt;-</span><span class="nx">done</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">println</span><span class="p">(</span><span class="s">&#34;exiting&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="信号类型">信号类型</h2>
 <p>各个系统平台信号定义可能不完全相同，在POSIX.1-1990标准中定义的信号列表</p>
@@ -248,124 +249,124 @@
 <thead>
 <tr>
 <th>信号</th>
-<th align="center">值</th>
-<th align="right">动作</th>
+<th style="text-align:center">值</th>
+<th style="text-align:right">动作</th>
 <th>说明</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>SIGHUP</td>
-<td align="center">1</td>
-<td align="right">Term</td>
+<td style="text-align:center">1</td>
+<td style="text-align:right">Term</td>
 <td>终端控制进程结束(终端连接断开)</td>
 </tr>
 <tr>
 <td>SIGINT</td>
-<td align="center">2</td>
-<td align="right">Term</td>
+<td style="text-align:center">2</td>
+<td style="text-align:right">Term</td>
 <td>用户发送INTR字符(Ctrl+C)触发</td>
 </tr>
 <tr>
 <td>SIGQUIT</td>
-<td align="center">3</td>
-<td align="right">Core</td>
+<td style="text-align:center">3</td>
+<td style="text-align:right">Core</td>
 <td>用户发送QUIT字符(Ctrl+/)触发</td>
 </tr>
 <tr>
 <td>SIGILL</td>
-<td align="center">4</td>
-<td align="right">Core</td>
+<td style="text-align:center">4</td>
+<td style="text-align:right">Core</td>
 <td>非法指令(程序错误、试图执行数据段、栈溢出等)</td>
 </tr>
 <tr>
 <td>SIGABRT</td>
-<td align="center">6</td>
-<td align="right">Core</td>
+<td style="text-align:center">6</td>
+<td style="text-align:right">Core</td>
 <td>调用abort函数触发</td>
 </tr>
 <tr>
 <td>SIGFPE</td>
-<td align="center">8</td>
-<td align="right">Core</td>
+<td style="text-align:center">8</td>
+<td style="text-align:right">Core</td>
 <td>算术运行错误(浮点运算错误、除数为零等)</td>
 </tr>
 <tr>
 <td>SIGKILL</td>
-<td align="center">9</td>
-<td align="right">Term</td>
+<td style="text-align:center">9</td>
+<td style="text-align:right">Term</td>
 <td>无条件结束程序(不能被捕获、阻塞或忽略)</td>
 </tr>
 <tr>
 <td>SIGSEGV</td>
-<td align="center">11</td>
-<td align="right">Core</td>
+<td style="text-align:center">11</td>
+<td style="text-align:right">Core</td>
 <td>无效内存引用(试图访问不属于自己的内存空间、对只读内存空间进行写操作)</td>
 </tr>
 <tr>
 <td>SIGPIPE</td>
-<td align="center">13</td>
-<td align="right">Term</td>
+<td style="text-align:center">13</td>
+<td style="text-align:right">Term</td>
 <td>消息管道损坏(FIFO/Socket通信时，管道未打开而进行写操作)</td>
 </tr>
 <tr>
 <td>SIGALRM</td>
-<td align="center">14</td>
-<td align="right">Term</td>
+<td style="text-align:center">14</td>
+<td style="text-align:right">Term</td>
 <td>时钟定时信号</td>
 </tr>
 <tr>
 <td>SIGTERM</td>
-<td align="center">15</td>
-<td align="right">Term</td>
+<td style="text-align:center">15</td>
+<td style="text-align:right">Term</td>
 <td>结束程序(可以被捕获、阻塞或忽略)</td>
 </tr>
 <tr>
 <td>SIGUSR1</td>
-<td align="center">30,10,16</td>
-<td align="right">Term</td>
+<td style="text-align:center">30,10,16</td>
+<td style="text-align:right">Term</td>
 <td>用户保留</td>
 </tr>
 <tr>
 <td>SIGUSR2</td>
-<td align="center">31,12,17</td>
-<td align="right">Term</td>
+<td style="text-align:center">31,12,17</td>
+<td style="text-align:right">Term</td>
 <td>用户保留</td>
 </tr>
 <tr>
 <td>SIGCHLD</td>
-<td align="center">20,17,18</td>
-<td align="right">Ign</td>
+<td style="text-align:center">20,17,18</td>
+<td style="text-align:right">Ign</td>
 <td>子进程结束(由父进程接收)</td>
 </tr>
 <tr>
 <td>SIGCONT</td>
-<td align="center">19,18,25</td>
-<td align="right">Cont</td>
+<td style="text-align:center">19,18,25</td>
+<td style="text-align:right">Cont</td>
 <td>继续执行已经停止的进程(不能被阻塞)</td>
 </tr>
 <tr>
 <td>SIGSTOP</td>
-<td align="center">17,19,23</td>
-<td align="right">Stop</td>
+<td style="text-align:center">17,19,23</td>
+<td style="text-align:right">Stop</td>
 <td>停止进程(不能被捕获、阻塞或忽略)</td>
 </tr>
 <tr>
 <td>SIGTSTP</td>
-<td align="center">18,20,24</td>
-<td align="right">Stop</td>
+<td style="text-align:center">18,20,24</td>
+<td style="text-align:right">Stop</td>
 <td>停止进程(可以被捕获、阻塞或忽略)</td>
 </tr>
 <tr>
 <td>SIGTTIN</td>
-<td align="center">21,21,26</td>
-<td align="right">Stop</td>
+<td style="text-align:center">21,21,26</td>
+<td style="text-align:right">Stop</td>
 <td>后台程序从终端中读取数据时触发</td>
 </tr>
 <tr>
 <td>SIGTTOU</td>
-<td align="center">22,22,27</td>
-<td align="right">Stop</td>
+<td style="text-align:center">22,22,27</td>
+<td style="text-align:right">Stop</td>
 <td>后台程序向终端中写数据时触发</td>
 </tr>
 </tbody>
@@ -386,7 +387,7 @@
 <p>darwin amd64操作系统下信号</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -422,41 +423,41 @@
 </span><span class="lnt">34
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Signal table
-</span><span class="c1"></span><span class="kd">var</span> <span class="nx">signals</span> <span class="p">=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span><span class="kt">string</span><span class="p">{</span>
-    <span class="mi">1</span><span class="p">:</span>  <span class="s">&#34;hangup&#34;</span><span class="p">,</span>
-    <span class="mi">2</span><span class="p">:</span>  <span class="s">&#34;interrupt&#34;</span><span class="p">,</span>
-    <span class="mi">3</span><span class="p">:</span>  <span class="s">&#34;quit&#34;</span><span class="p">,</span>
-    <span class="mi">4</span><span class="p">:</span>  <span class="s">&#34;illegal instruction&#34;</span><span class="p">,</span>
-    <span class="mi">5</span><span class="p">:</span>  <span class="s">&#34;trace/BPT trap&#34;</span><span class="p">,</span>
-    <span class="mi">6</span><span class="p">:</span>  <span class="s">&#34;abort trap&#34;</span><span class="p">,</span>
-    <span class="mi">7</span><span class="p">:</span>  <span class="s">&#34;EMT trap&#34;</span><span class="p">,</span>
-    <span class="mi">8</span><span class="p">:</span>  <span class="s">&#34;floating point exception&#34;</span><span class="p">,</span>
-    <span class="mi">9</span><span class="p">:</span>  <span class="s">&#34;killed&#34;</span><span class="p">,</span>
-    <span class="mi">10</span><span class="p">:</span> <span class="s">&#34;bus error&#34;</span><span class="p">,</span>
-    <span class="mi">11</span><span class="p">:</span> <span class="s">&#34;segmentation fault&#34;</span><span class="p">,</span>
-    <span class="mi">12</span><span class="p">:</span> <span class="s">&#34;bad system call&#34;</span><span class="p">,</span>
-    <span class="mi">13</span><span class="p">:</span> <span class="s">&#34;broken pipe&#34;</span><span class="p">,</span>
-    <span class="mi">14</span><span class="p">:</span> <span class="s">&#34;alarm clock&#34;</span><span class="p">,</span>
-    <span class="mi">15</span><span class="p">:</span> <span class="s">&#34;terminated&#34;</span><span class="p">,</span>
-    <span class="mi">16</span><span class="p">:</span> <span class="s">&#34;urgent I/O condition&#34;</span><span class="p">,</span>
-    <span class="mi">17</span><span class="p">:</span> <span class="s">&#34;suspended (signal)&#34;</span><span class="p">,</span>
-    <span class="mi">18</span><span class="p">:</span> <span class="s">&#34;suspended&#34;</span><span class="p">,</span>
-    <span class="mi">19</span><span class="p">:</span> <span class="s">&#34;continued&#34;</span><span class="p">,</span>
-    <span class="mi">20</span><span class="p">:</span> <span class="s">&#34;child exited&#34;</span><span class="p">,</span>
-    <span class="mi">21</span><span class="p">:</span> <span class="s">&#34;stopped (tty input)&#34;</span><span class="p">,</span>
-    <span class="mi">22</span><span class="p">:</span> <span class="s">&#34;stopped (tty output)&#34;</span><span class="p">,</span>
-    <span class="mi">23</span><span class="p">:</span> <span class="s">&#34;I/O possible&#34;</span><span class="p">,</span>
-    <span class="mi">24</span><span class="p">:</span> <span class="s">&#34;cputime limit exceeded&#34;</span><span class="p">,</span>
-    <span class="mi">25</span><span class="p">:</span> <span class="s">&#34;filesize limit exceeded&#34;</span><span class="p">,</span>
-    <span class="mi">26</span><span class="p">:</span> <span class="s">&#34;virtual timer expired&#34;</span><span class="p">,</span>
-    <span class="mi">27</span><span class="p">:</span> <span class="s">&#34;profiling timer expired&#34;</span><span class="p">,</span>
-    <span class="mi">28</span><span class="p">:</span> <span class="s">&#34;window size changes&#34;</span><span class="p">,</span>
-    <span class="mi">29</span><span class="p">:</span> <span class="s">&#34;information request&#34;</span><span class="p">,</span>
-    <span class="mi">30</span><span class="p">:</span> <span class="s">&#34;user defined signal 1&#34;</span><span class="p">,</span>
-    <span class="mi">31</span><span class="p">:</span> <span class="s">&#34;user defined signal 2&#34;</span><span class="p">,</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// Signal table
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">var</span> <span class="nx">signals</span> <span class="p">=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span><span class="kt">string</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">1</span><span class="p">:</span>  <span class="s">&#34;hangup&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">2</span><span class="p">:</span>  <span class="s">&#34;interrupt&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">3</span><span class="p">:</span>  <span class="s">&#34;quit&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">4</span><span class="p">:</span>  <span class="s">&#34;illegal instruction&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">5</span><span class="p">:</span>  <span class="s">&#34;trace/BPT trap&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">6</span><span class="p">:</span>  <span class="s">&#34;abort trap&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">7</span><span class="p">:</span>  <span class="s">&#34;EMT trap&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">8</span><span class="p">:</span>  <span class="s">&#34;floating point exception&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">9</span><span class="p">:</span>  <span class="s">&#34;killed&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">10</span><span class="p">:</span> <span class="s">&#34;bus error&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">11</span><span class="p">:</span> <span class="s">&#34;segmentation fault&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">12</span><span class="p">:</span> <span class="s">&#34;bad system call&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">13</span><span class="p">:</span> <span class="s">&#34;broken pipe&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">14</span><span class="p">:</span> <span class="s">&#34;alarm clock&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">15</span><span class="p">:</span> <span class="s">&#34;terminated&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">16</span><span class="p">:</span> <span class="s">&#34;urgent I/O condition&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">17</span><span class="p">:</span> <span class="s">&#34;suspended (signal)&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">18</span><span class="p">:</span> <span class="s">&#34;suspended&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">19</span><span class="p">:</span> <span class="s">&#34;continued&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">20</span><span class="p">:</span> <span class="s">&#34;child exited&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">21</span><span class="p">:</span> <span class="s">&#34;stopped (tty input)&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">22</span><span class="p">:</span> <span class="s">&#34;stopped (tty output)&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">23</span><span class="p">:</span> <span class="s">&#34;I/O possible&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">24</span><span class="p">:</span> <span class="s">&#34;cputime limit exceeded&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">25</span><span class="p">:</span> <span class="s">&#34;filesize limit exceeded&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">26</span><span class="p">:</span> <span class="s">&#34;virtual timer expired&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">27</span><span class="p">:</span> <span class="s">&#34;profiling timer expired&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">28</span><span class="p">:</span> <span class="s">&#34;window size changes&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">29</span><span class="p">:</span> <span class="s">&#34;information request&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">30</span><span class="p">:</span> <span class="s">&#34;user defined signal 1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">31</span><span class="p">:</span> <span class="s">&#34;user defined signal 2&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>常见输出方式：</p>
 <ul>
@@ -579,7 +580,7 @@
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -596,7 +597,7 @@
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

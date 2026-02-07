@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/linux/20200825-linux-dev-urandom/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Linux] Linux使用/dev/urandom生成随机数" />
-<meta property="og:description" content="Linux使用/dev/urandom生成随机数 介绍 /dev/random和/dev/urandom是Linux系统中提供的随机伪设备，这两" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/linux/20200825-linux-dev-urandom/" />
-<meta property="article:published_time" content="2020-08-25T23:22:22+08:00" />
-<meta property="article:modified_time" content="2020-08-25T23:22:22+08:00" />
-<meta itemprop="name" content="[Linux] Linux使用/dev/urandom生成随机数">
-<meta itemprop="description" content="Linux使用/dev/urandom生成随机数 介绍 /dev/random和/dev/urandom是Linux系统中提供的随机伪设备，这两">
-<meta itemprop="datePublished" content="2020-08-25T23:22:22&#43;08:00" />
-<meta itemprop="dateModified" content="2020-08-25T23:22:22&#43;08:00" />
-<meta itemprop="wordCount" content="1039">
+<meta property="og:url" content="https://piaohua.github.io/post/linux/20200825-linux-dev-urandom/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Linux] Linux使用/dev/urandom生成随机数">
+  <meta property="og:description" content="Linux使用/dev/urandom生成随机数 介绍 /dev/random和/dev/urandom是Linux系统中提供的随机伪设备，这两">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2020-08-25T23:22:22+08:00">
+    <meta property="article:modified_time" content="2020-08-25T23:22:22+08:00">
+    <meta property="article:tag" content="Linux">
 
-
-
-<meta itemprop="keywords" content="linux," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Linux] Linux使用/dev/urandom生成随机数"/>
-<meta name="twitter:description" content="Linux使用/dev/urandom生成随机数 介绍 /dev/random和/dev/urandom是Linux系统中提供的随机伪设备，这两"/>
+  <meta itemprop="name" content="[Linux] Linux使用/dev/urandom生成随机数">
+  <meta itemprop="description" content="Linux使用/dev/urandom生成随机数 介绍 /dev/random和/dev/urandom是Linux系统中提供的随机伪设备，这两">
+  <meta itemprop="datePublished" content="2020-08-25T23:22:22+08:00">
+  <meta itemprop="dateModified" content="2020-08-25T23:22:22+08:00">
+  <meta itemprop="wordCount" content="1042">
+  <meta itemprop="keywords" content="Linux"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Linux] Linux使用/dev/urandom生成随机数">
+<meta name="twitter:description" content="Linux使用/dev/urandom生成随机数 介绍 /dev/random和/dev/urandom是Linux系统中提供的随机伪设备，这两">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -143,7 +144,7 @@
         <div class="post-category">
             <a href="/categories/linux/"> linux </a>
             </div>
-          <span class="more-meta"> 1039 words </span>
+          <span class="more-meta"> 1042 words </span>
           <span class="more-meta"> 3 mins read </span>
         
       </div>
@@ -174,7 +175,7 @@
 <h2 id="示例">示例</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -190,21 +191,21 @@
 </span><span class="lnt">14
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh"><span class="c1">#/bin/sh -</span>
-cat /dev/urandom <span class="p">|</span>
-od -x <span class="p">|</span>
-head -n 1<span class="p">|</span>
-cut -d <span class="s1">&#39; &#39;</span> -f 2- <span class="p">|</span>
-awk -v <span class="nv">ORS</span><span class="o">=</span><span class="s2">&#34;:&#34;</span>
-<span class="s1">&#39;{
-</span><span class="s1">    for(i=1; i&lt;=NF; i++){
-</span><span class="s1">        if(i == NF){
-</span><span class="s1">            ORS = &#34;\n&#34;;
-</span><span class="s1">        }
-</span><span class="s1">        print substr($i,1,2) &#34;:&#34; substr($i,3,2);
-</span><span class="s1">    }
-</span><span class="s1">}&#39;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">#/bin/sh -</span>
+</span></span><span class="line"><span class="cl">cat /dev/urandom <span class="p">|</span>
+</span></span><span class="line"><span class="cl">od -x <span class="p">|</span>
+</span></span><span class="line"><span class="cl">head -n 1<span class="p">|</span>
+</span></span><span class="line"><span class="cl">cut -d <span class="s1">&#39; &#39;</span> -f 2- <span class="p">|</span>
+</span></span><span class="line"><span class="cl">awk -v <span class="nv">ORS</span><span class="o">=</span><span class="s2">&#34;:&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s1">&#39;{
+</span></span></span><span class="line"><span class="cl"><span class="s1">    for(i=1; i&lt;=NF; i++){
+</span></span></span><span class="line"><span class="cl"><span class="s1">        if(i == NF){
+</span></span></span><span class="line"><span class="cl"><span class="s1">            ORS = &#34;\n&#34;;
+</span></span></span><span class="line"><span class="cl"><span class="s1">        }
+</span></span></span><span class="line"><span class="cl"><span class="s1">        print substr($i,1,2) &#34;:&#34; substr($i,3,2);
+</span></span></span><span class="line"><span class="cl"><span class="s1">    }
+</span></span></span><span class="line"><span class="cl"><span class="s1">}&#39;</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>od -x表示读取一行数据流转换为16进制,cut -d表示数据截取</p>
 <p>随机转换为md5（20位）：</p>
@@ -222,7 +223,7 @@ awk -v <span class="nv">ORS</span><span class="o">=</span><span class="s2">&#34;
 <p>go程序中应用</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -233,21 +234,21 @@ awk -v <span class="nv">ORS</span><span class="o">=</span><span class="s2">&#34;
 </span><span class="lnt">9
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">c</span> <span class="o">:=</span> <span class="s">&#34;cat /dev/urandom | od -x | tr -d &#39; &#39; | head -n 1&#34;</span>
-<span class="nx">cmd</span> <span class="o">:=</span> <span class="nx">exec</span><span class="p">.</span><span class="nf">Command</span><span class="p">(</span><span class="s">&#34;sh&#34;</span><span class="p">,</span> <span class="s">&#34;-c&#34;</span><span class="p">,</span> <span class="nx">c</span><span class="p">)</span>
-<span class="nx">out</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">cmd</span><span class="p">.</span><span class="nf">Output</span><span class="p">()</span>
-<span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;out %s, err %v\n&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">out</span><span class="p">),</span> <span class="nx">err</span><span class="p">)</span>
-
-<span class="nx">c</span> <span class="p">=</span> <span class="s">`cat /dev/urandom | od -x | head -n 1| cut -d &#39; &#39; -f 2- | awk -v ORS=&#34;:&#34; &#39;{ for(i=1; i&lt;=NF; i++){ if(i == NF){ ORS = &#34;\n&#34;; } print substr($i,1,2) &#34;:&#34; substr($i,3,2); } }&#39;`</span>
-<span class="nx">cmd</span> <span class="p">=</span> <span class="nx">exec</span><span class="p">.</span><span class="nf">Command</span><span class="p">(</span><span class="s">&#34;sh&#34;</span><span class="p">,</span> <span class="s">&#34;-c&#34;</span><span class="p">,</span> <span class="nx">c</span><span class="p">)</span>
-<span class="nx">out</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">cmd</span><span class="p">.</span><span class="nf">Output</span><span class="p">()</span>
-<span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;out %s, err %v\n&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">out</span><span class="p">),</span> <span class="nx">err</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="nx">c</span> <span class="o">:=</span> <span class="s">&#34;cat /dev/urandom | od -x | tr -d &#39; &#39; | head -n 1&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">cmd</span> <span class="o">:=</span> <span class="nx">exec</span><span class="p">.</span><span class="nf">Command</span><span class="p">(</span><span class="s">&#34;sh&#34;</span><span class="p">,</span> <span class="s">&#34;-c&#34;</span><span class="p">,</span> <span class="nx">c</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nx">out</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">cmd</span><span class="p">.</span><span class="nf">Output</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;out %s, err %v\n&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">out</span><span class="p">),</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nx">c</span> <span class="p">=</span> <span class="s">`cat /dev/urandom | od -x | head -n 1| cut -d &#39; &#39; -f 2- | awk -v ORS=&#34;:&#34; &#39;{ for(i=1; i&lt;=NF; i++){ if(i == NF){ ORS = &#34;\n&#34;; } print substr($i,1,2) &#34;:&#34; substr($i,3,2); } }&#39;`</span>
+</span></span><span class="line"><span class="cl"><span class="nx">cmd</span> <span class="p">=</span> <span class="nx">exec</span><span class="p">.</span><span class="nf">Command</span><span class="p">(</span><span class="s">&#34;sh&#34;</span><span class="p">,</span> <span class="s">&#34;-c&#34;</span><span class="p">,</span> <span class="nx">c</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nx">out</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">cmd</span><span class="p">.</span><span class="nf">Output</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;out %s, err %v\n&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">out</span><span class="p">),</span> <span class="nx">err</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>c程序中使用</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -267,25 +268,25 @@ awk -v <span class="nv">ORS</span><span class="o">=</span><span class="s2">&#34;
 </span><span class="lnt">18
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&lt;sys/types.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&lt;sys/stat.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&lt;fcntl.h&gt;</span><span class="cp">
-</span><span class="cp"></span>
-<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
-<span class="p">{</span>
-    <span class="kt">int</span> <span class="n">fd</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
-    <span class="kt">char</span> <span class="o">*</span><span class="n">buff</span><span class="o">=</span><span class="nb">NULL</span><span class="p">;</span>
-    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">ulTest</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-
-    <span class="n">fd</span><span class="o">=</span><span class="n">open</span><span class="p">(</span><span class="s">&#34;/dev/urandom&#34;</span><span class="p">,</span><span class="n">O_RDONLY</span><span class="p">);</span>
-
-    <span class="n">read</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="o">&amp;</span><span class="n">ulSeed</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">ulTest</span><span class="p">));</span>
-    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;%ul&#34;</span><span class="p">,</span><span class="n">ulTest</span><span class="p">);</span>
-
-    <span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/types.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/stat.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;fcntl.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">fd</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">char</span> <span class="o">*</span><span class="n">buff</span><span class="o">=</span><span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">ulTest</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">fd</span><span class="o">=</span><span class="nf">open</span><span class="p">(</span><span class="s">&#34;/dev/urandom&#34;</span><span class="p">,</span><span class="n">O_RDONLY</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nf">read</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="o">&amp;</span><span class="n">ulSeed</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">ulTest</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;%ul&#34;</span><span class="p">,</span><span class="n">ulTest</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nf">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>其它生成随机数方式</p>
 <pre><code>head -c 32 /dev/random | base64
@@ -443,7 +444,7 @@ ifconfig | base64
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -460,7 +461,7 @@ ifconfig | base64
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

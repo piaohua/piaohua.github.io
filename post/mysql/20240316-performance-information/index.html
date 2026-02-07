@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/mysql/20240316-performance-information/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="performance_schema 和 information_schema 的区别" />
-<meta property="og:description" content="performance_schema 和 information_schema 的区别 performance_schema performance_schema这个库提供的是MySQL数据库性能的一些指标，主要保存 MySQL 服务器运行过程中的一些状态信息， 算" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/mysql/20240316-performance-information/" />
-<meta property="article:published_time" content="2024-03-16T16:25:56+08:00" />
-<meta property="article:modified_time" content="2024-03-16T16:25:56+08:00" />
-<meta itemprop="name" content="performance_schema 和 information_schema 的区别">
-<meta itemprop="description" content="performance_schema 和 information_schema 的区别 performance_schema performance_schema这个库提供的是MySQL数据库性能的一些指标，主要保存 MySQL 服务器运行过程中的一些状态信息， 算">
-<meta itemprop="datePublished" content="2024-03-16T16:25:56&#43;08:00" />
-<meta itemprop="dateModified" content="2024-03-16T16:25:56&#43;08:00" />
-<meta itemprop="wordCount" content="2858">
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20240316-performance-information/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="performance_schema 和 information_schema 的区别">
+  <meta property="og:description" content="performance_schema 和 information_schema 的区别 performance_schema performance_schema这个库提供的是MySQL数据库性能的一些指标，主要保存 MySQL 服务器运行过程中的一些状态信息， 算">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2024-03-16T16:25:56+08:00">
+    <meta property="article:modified_time" content="2024-03-16T16:25:56+08:00">
+    <meta property="article:tag" content="Mysql">
 
-
-
-<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="performance_schema 和 information_schema 的区别"/>
-<meta name="twitter:description" content="performance_schema 和 information_schema 的区别 performance_schema performance_schema这个库提供的是MySQL数据库性能的一些指标，主要保存 MySQL 服务器运行过程中的一些状态信息， 算"/>
+  <meta itemprop="name" content="performance_schema 和 information_schema 的区别">
+  <meta itemprop="description" content="performance_schema 和 information_schema 的区别 performance_schema performance_schema这个库提供的是MySQL数据库性能的一些指标，主要保存 MySQL 服务器运行过程中的一些状态信息， 算">
+  <meta itemprop="datePublished" content="2024-03-16T16:25:56+08:00">
+  <meta itemprop="dateModified" content="2024-03-16T16:25:56+08:00">
+  <meta itemprop="wordCount" content="2858">
+  <meta itemprop="keywords" content="Mysql"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="performance_schema 和 information_schema 的区别">
+<meta name="twitter:description" content="performance_schema 和 information_schema 的区别 performance_schema performance_schema这个库提供的是MySQL数据库性能的一些指标，主要保存 MySQL 服务器运行过程中的一些状态信息， 算">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -180,24 +181,24 @@
 <p>查看表的默认引擎:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">select</span> <span class="n">table_catalog</span> <span class="p">,</span><span class="n">table_schema</span> <span class="p">,</span><span class="k">table_name</span> <span class="p">,</span><span class="n">engine</span>
-<span class="k">from</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">tables</span>
-<span class="k">where</span>  <span class="n">table_schema</span> <span class="o">=</span> <span class="s1">&#39;performance_schema&#39;</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">select</span><span class="w"> </span><span class="n">table_catalog</span><span class="w"> </span><span class="p">,</span><span class="n">table_schema</span><span class="w"> </span><span class="p">,</span><span class="k">table_name</span><span class="w"> </span><span class="p">,</span><span class="n">engine</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">tables</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">where</span><span class="w">  </span><span class="n">table_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;performance_schema&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>查找执行最多的SQL：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> <span class="k">SCHEMA_NAME</span><span class="p">,</span><span class="n">DIGEST_TEXT</span><span class="p">,</span><span class="n">COUNT_STAR</span><span class="p">,</span><span class="n">SUM_ROWS_SENT</span><span class="p">,</span><span class="n">SUM_ROWS_EXAMINED</span><span class="p">,</span><span class="n">FIRST_SEEN</span><span class="p">,</span><span class="n">LAST_SEEN</span> <span class="k">FROM</span> <span class="n">events_statements_summary_by_digest</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">COUNT_STAR</span> <span class="k">desc</span> <span class="k">LIMIT</span> <span class="mi">1</span><span class="err">\</span><span class="k">G</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="k">SCHEMA_NAME</span><span class="p">,</span><span class="n">DIGEST_TEXT</span><span class="p">,</span><span class="n">COUNT_STAR</span><span class="p">,</span><span class="n">SUM_ROWS_SENT</span><span class="p">,</span><span class="n">SUM_ROWS_EXAMINED</span><span class="p">,</span><span class="n">FIRST_SEEN</span><span class="p">,</span><span class="n">LAST_SEEN</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">events_statements_summary_by_digest</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">COUNT_STAR</span><span class="w"> </span><span class="k">desc</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="err">\</span><span class="k">G</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>此外其他列的含义如下，可以视情况加入select list</p>
 <ul>
@@ -211,63 +212,63 @@
 <p>查找响应时间最长的SQL：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> <span class="k">SCHEMA_NAME</span><span class="p">,</span><span class="n">DIGEST_TEXT</span><span class="p">,</span><span class="n">COUNT_STAR</span><span class="p">,</span><span class="n">AVG_TIMER_WAIT</span><span class="p">,</span><span class="n">SUM_ROWS_SENT</span><span class="p">,</span><span class="n">SUM_ROWS_EXAMINED</span><span class="p">,</span><span class="n">FIRST_SEEN</span><span class="p">,</span><span class="n">LAST_SEEN</span> <span class="k">FROM</span> <span class="n">events_statements_summary_by_digest</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">AVG_TIMER_WAIT</span> <span class="k">desc</span> <span class="k">LIMIT</span> <span class="mi">1</span><span class="err">\</span><span class="k">G</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="k">SCHEMA_NAME</span><span class="p">,</span><span class="n">DIGEST_TEXT</span><span class="p">,</span><span class="n">COUNT_STAR</span><span class="p">,</span><span class="n">AVG_TIMER_WAIT</span><span class="p">,</span><span class="n">SUM_ROWS_SENT</span><span class="p">,</span><span class="n">SUM_ROWS_EXAMINED</span><span class="p">,</span><span class="n">FIRST_SEEN</span><span class="p">,</span><span class="n">LAST_SEEN</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">events_statements_summary_by_digest</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">AVG_TIMER_WAIT</span><span class="w"> </span><span class="k">desc</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="err">\</span><span class="k">G</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>查找逻辑IO最高的表、文件（热数据）：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> <span class="n">FILE_NAME</span><span class="p">,</span><span class="n">EVENT_NAME</span><span class="p">,</span><span class="n">COUNT_READ</span><span class="p">,</span><span class="n">SUM_NUMBER_OF_BYTES_READ</span><span class="p">,</span><span class="n">COUNT_WRITE</span><span class="p">,</span><span class="n">SUM_NUMBER_OF_BYTES_WRITE</span> 
-<span class="k">FROM</span> <span class="n">file_summary_by_instance</span> 
-<span class="k">ORDER</span> <span class="k">BY</span> <span class="n">SUM_NUMBER_OF_BYTES_READ</span><span class="o">+</span><span class="n">SUM_NUMBER_OF_BYTES_WRITE</span> <span class="k">DESC</span> <span class="k">LIMIT</span> <span class="mi">2</span><span class="err">\</span><span class="k">G</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="n">FILE_NAME</span><span class="p">,</span><span class="n">EVENT_NAME</span><span class="p">,</span><span class="n">COUNT_READ</span><span class="p">,</span><span class="n">SUM_NUMBER_OF_BYTES_READ</span><span class="p">,</span><span class="n">COUNT_WRITE</span><span class="p">,</span><span class="n">SUM_NUMBER_OF_BYTES_WRITE</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="n">file_summary_by_instance</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">SUM_NUMBER_OF_BYTES_READ</span><span class="o">+</span><span class="n">SUM_NUMBER_OF_BYTES_WRITE</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">2</span><span class="err">\</span><span class="k">G</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>查找使用最多的索引：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> <span class="n">OBJECT_NAME</span><span class="p">,</span> <span class="n">INDEX_NAME</span><span class="p">,</span> <span class="n">COUNT_FETCH</span><span class="p">,</span> <span class="n">COUNT_INSERT</span><span class="p">,</span> <span class="n">COUNT_UPDATE</span><span class="p">,</span> <span class="n">COUNT_DELETE</span> 
-<span class="k">FROM</span> <span class="n">table_io_waits_summary_by_index_usage</span> 
-<span class="k">ORDER</span> <span class="k">BY</span> <span class="n">SUM_TIMER_WAIT</span> <span class="k">DESC</span> <span class="k">limit</span> <span class="mi">1</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="n">OBJECT_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">INDEX_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">COUNT_FETCH</span><span class="p">,</span><span class="w"> </span><span class="n">COUNT_INSERT</span><span class="p">,</span><span class="w"> </span><span class="n">COUNT_UPDATE</span><span class="p">,</span><span class="w"> </span><span class="n">COUNT_DELETE</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="n">table_io_waits_summary_by_index_usage</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">SUM_TIMER_WAIT</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">limit</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>查找未使用过的索引：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> <span class="n">OBJECT_SCHEMA</span><span class="p">,</span> <span class="n">OBJECT_NAME</span><span class="p">,</span> <span class="n">INDEX_NAME</span> 
-<span class="k">FROM</span> <span class="n">table_io_waits_summary_by_index_usage</span> 
-<span class="k">WHERE</span> <span class="n">INDEX_NAME</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">AND</span> <span class="n">COUNT_STAR</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">AND</span> <span class="n">OBJECT_SCHEMA</span> <span class="o">&lt;&gt;</span> <span class="s1">&#39;mysql&#39;</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">OBJECT_SCHEMA</span><span class="p">,</span><span class="n">OBJECT_NAME</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="n">OBJECT_SCHEMA</span><span class="p">,</span><span class="w"> </span><span class="n">OBJECT_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">INDEX_NAME</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="n">table_io_waits_summary_by_index_usage</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHERE</span><span class="w"> </span><span class="n">INDEX_NAME</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">COUNT_STAR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">OBJECT_SCHEMA</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="s1">&#39;mysql&#39;</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">OBJECT_SCHEMA</span><span class="p">,</span><span class="n">OBJECT_NAME</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>查找最耗时的等待：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> <span class="n">EVENT_NAME</span><span class="p">,</span> <span class="n">COUNT_STAR</span><span class="p">,</span> <span class="n">SUM_TIMER_WAIT</span><span class="p">,</span> <span class="n">AVG_TIMER_WAIT</span> 
-<span class="k">FROM</span> <span class="n">events_waits_summary_global_by_event_name</span> 
-<span class="k">WHERE</span> <span class="n">event_name</span> <span class="o">!=</span> <span class="s1">&#39;idle&#39;</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">SUM_TIMER_WAIT</span> <span class="k">DESC</span> <span class="k">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="n">EVENT_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">COUNT_STAR</span><span class="p">,</span><span class="w"> </span><span class="n">SUM_TIMER_WAIT</span><span class="p">,</span><span class="w"> </span><span class="n">AVG_TIMER_WAIT</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="n">events_waits_summary_global_by_event_name</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHERE</span><span class="w"> </span><span class="n">event_name</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s1">&#39;idle&#39;</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">SUM_TIMER_WAIT</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>更多操作参考：</p>
 <ul>
@@ -278,7 +279,7 @@
 <p>information_schema是mysql数据库的元信息库，里面的表存储了mysql的一些信息。information_schema里面的表本质是一些视图，他们使用了不同的存储引擎，并非全都是默认的innodb存储引擎。通过下面的SQL语句可以看出，有些表是memory的存储引擎，有些表是innodb的存储引擎。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -298,25 +299,25 @@
 </span><span class="lnt">18
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="n">table_schema</span><span class="p">,</span><span class="k">table_name</span><span class="p">,</span><span class="n">engine</span><span class="p">,</span><span class="n">table_type</span> <span class="k">from</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">tables</span> <span class="k">where</span> <span class="n">table_schema</span><span class="o">=</span><span class="s1">&#39;information_schema&#39;</span><span class="p">;</span>
-<span class="o">+</span><span class="c1">--------------------+---------------------------------------+--------+-------------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">table_schema</span>       <span class="o">|</span> <span class="k">table_name</span>                            <span class="o">|</span> <span class="n">engine</span> <span class="o">|</span> <span class="n">table_type</span>  <span class="o">|</span>
-<span class="o">+</span><span class="c1">--------------------+---------------------------------------+--------+-------------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">CHARACTER_SETS</span>                        <span class="o">|</span> <span class="n">MEMORY</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">||</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">COLLATIONS</span>                            <span class="o">|</span> <span class="n">MEMORY</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">|</span>
-<span class="o">|</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">COLLATION_CHARACTER_SET_APPLICABILITY</span> <span class="o">|</span> <span class="n">MEMORY</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">||</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">COLUMNS</span>                               <span class="o">|</span> <span class="n">InnoDB</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">|</span>
-<span class="o">|</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">COLUMN_PRIVILEGES</span>                     <span class="o">|</span> <span class="n">MEMORY</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">||</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">ENGINES</span>                               <span class="o">|</span> <span class="n">MEMORY</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">|</span>
-<span class="o">|</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">EVENTS</span>                                <span class="o">|</span> <span class="n">InnoDB</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">||</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">FILES</span>                                 <span class="o">|</span> <span class="n">MEMORY</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">|</span>
-<span class="o">|</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">GLOBAL_STATUS</span>                         <span class="o">|</span> <span class="n">MEMORY</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">||</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">GLOBAL_VARIABLES</span>                      <span class="o">|</span> <span class="n">MEMORY</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">|</span>
-<span class="o">|</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">KEY_COLUMN_USAGE</span>                      <span class="o">|</span> <span class="n">MEMORY</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">||</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">TRIGGERS</span>                              <span class="o">|</span> <span class="n">InnoDB</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">||</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">USER_PRIVILEGES</span>                       <span class="o">|</span> <span class="n">MEMORY</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">|</span>
-<span class="o">|</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">VIEWS</span>                                 <span class="o">|</span> <span class="n">InnoDB</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">||</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">INNODB_FT_INDEX_TABLE</span>                 <span class="o">|</span> <span class="n">MEMORY</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">|</span>
-<span class="o">|</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">INNODB_FT_INDEX_CACHE</span>                 <span class="o">|</span> <span class="n">MEMORY</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">||</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">INNODB_SYS_TABLESPACES</span>                <span class="o">|</span> <span class="n">MEMORY</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">|</span>
-<span class="o">|</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">INNODB_METRICS</span>                        <span class="o">|</span> <span class="n">MEMORY</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">||</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">INNODB_SYS_FOREIGN_COLS</span>               <span class="o">|</span> <span class="n">MEMORY</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">|</span>
-<span class="o">|</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">INNODB_CMPMEM</span>                         <span class="o">|</span> <span class="n">MEMORY</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">||</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">INNODB_BUFFER_POOL_STATS</span>              <span class="o">|</span> <span class="n">MEMORY</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">|</span>
-<span class="o">|</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">INNODB_SYS_COLUMNS</span>                    <span class="o">|</span> <span class="n">MEMORY</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">||</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">INNODB_SYS_FOREIGN</span>                    <span class="o">|</span> <span class="n">MEMORY</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">|</span>
-<span class="o">|</span> <span class="n">information_schema</span> <span class="o">|</span> <span class="n">INNODB_SYS_TABLESTATS</span>                 <span class="o">|</span> <span class="n">MEMORY</span> <span class="o">|</span> <span class="k">SYSTEM</span> <span class="k">VIEW</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">--------------------+---------------------------------------+--------+-------------+
-</span><span class="c1"></span><span class="n">xxx</span> <span class="k">rows</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="n">table_schema</span><span class="p">,</span><span class="k">table_name</span><span class="p">,</span><span class="n">engine</span><span class="p">,</span><span class="n">table_type</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">tables</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">table_schema</span><span class="o">=</span><span class="s1">&#39;information_schema&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">--------------------+---------------------------------------+--------+-------------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">table_schema</span><span class="w">       </span><span class="o">|</span><span class="w"> </span><span class="k">table_name</span><span class="w">                            </span><span class="o">|</span><span class="w"> </span><span class="n">engine</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">table_type</span><span class="w">  </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">--------------------+---------------------------------------+--------+-------------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">CHARACTER_SETS</span><span class="w">                        </span><span class="o">|</span><span class="w"> </span><span class="n">MEMORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">COLLATIONS</span><span class="w">                            </span><span class="o">|</span><span class="w"> </span><span class="n">MEMORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">COLLATION_CHARACTER_SET_APPLICABILITY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">MEMORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">COLUMNS</span><span class="w">                               </span><span class="o">|</span><span class="w"> </span><span class="n">InnoDB</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">COLUMN_PRIVILEGES</span><span class="w">                     </span><span class="o">|</span><span class="w"> </span><span class="n">MEMORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">ENGINES</span><span class="w">                               </span><span class="o">|</span><span class="w"> </span><span class="n">MEMORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">EVENTS</span><span class="w">                                </span><span class="o">|</span><span class="w"> </span><span class="n">InnoDB</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">FILES</span><span class="w">                                 </span><span class="o">|</span><span class="w"> </span><span class="n">MEMORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">GLOBAL_STATUS</span><span class="w">                         </span><span class="o">|</span><span class="w"> </span><span class="n">MEMORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">GLOBAL_VARIABLES</span><span class="w">                      </span><span class="o">|</span><span class="w"> </span><span class="n">MEMORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">KEY_COLUMN_USAGE</span><span class="w">                      </span><span class="o">|</span><span class="w"> </span><span class="n">MEMORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">TRIGGERS</span><span class="w">                              </span><span class="o">|</span><span class="w"> </span><span class="n">InnoDB</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">USER_PRIVILEGES</span><span class="w">                       </span><span class="o">|</span><span class="w"> </span><span class="n">MEMORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">VIEWS</span><span class="w">                                 </span><span class="o">|</span><span class="w"> </span><span class="n">InnoDB</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">INNODB_FT_INDEX_TABLE</span><span class="w">                 </span><span class="o">|</span><span class="w"> </span><span class="n">MEMORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">INNODB_FT_INDEX_CACHE</span><span class="w">                 </span><span class="o">|</span><span class="w"> </span><span class="n">MEMORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">INNODB_SYS_TABLESPACES</span><span class="w">                </span><span class="o">|</span><span class="w"> </span><span class="n">MEMORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">INNODB_METRICS</span><span class="w">                        </span><span class="o">|</span><span class="w"> </span><span class="n">MEMORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">INNODB_SYS_FOREIGN_COLS</span><span class="w">               </span><span class="o">|</span><span class="w"> </span><span class="n">MEMORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">INNODB_CMPMEM</span><span class="w">                         </span><span class="o">|</span><span class="w"> </span><span class="n">MEMORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">INNODB_BUFFER_POOL_STATS</span><span class="w">              </span><span class="o">|</span><span class="w"> </span><span class="n">MEMORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">INNODB_SYS_COLUMNS</span><span class="w">                    </span><span class="o">|</span><span class="w"> </span><span class="n">MEMORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">INNODB_SYS_FOREIGN</span><span class="w">                    </span><span class="o">|</span><span class="w"> </span><span class="n">MEMORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">information_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">INNODB_SYS_TABLESTATS</span><span class="w">                 </span><span class="o">|</span><span class="w"> </span><span class="n">MEMORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">--------------------+---------------------------------------+--------+-------------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">xxx</span><span class="w"> </span><span class="k">rows</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span><span class="w"> </span><span class="n">sec</span><span class="p">)</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>information_schema数据库表说明:</p>
 <p>1、SCHEMATA表：提供了当前mysql实例中所有数据库的信息。是show databases的结果取之此表。</p>
@@ -344,7 +345,7 @@
 <p>show语句：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -359,20 +360,20 @@
 </span><span class="lnt">13
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SHOW</span> <span class="nb">CHARACTER</span> <span class="k">SET</span>
-<span class="k">SHOW</span> <span class="k">COLLATION</span>
-<span class="k">SHOW</span> <span class="n">COLUMNS</span>
-<span class="k">SHOW</span> <span class="n">DATABASES</span>
-<span class="k">SHOW</span> <span class="k">FUNCTION</span> <span class="n">STATUS</span>
-<span class="k">SHOW</span> <span class="k">INDEX</span>
-<span class="k">SHOW</span> <span class="k">OPEN</span> <span class="n">TABLES</span>
-<span class="k">SHOW</span> <span class="k">PROCEDURE</span> <span class="n">STATUS</span>
-<span class="k">SHOW</span> <span class="n">STATUS</span>
-<span class="k">SHOW</span> <span class="k">TABLE</span> <span class="n">STATUS</span>
-<span class="k">SHOW</span> <span class="n">TABLES</span>
-<span class="k">SHOW</span> <span class="n">TRIGGERS</span>
-<span class="k">SHOW</span> <span class="n">VARIABLES</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SHOW</span><span class="w"> </span><span class="nb">CHARACTER</span><span class="w"> </span><span class="k">SET</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SHOW</span><span class="w"> </span><span class="k">COLLATION</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SHOW</span><span class="w"> </span><span class="n">COLUMNS</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SHOW</span><span class="w"> </span><span class="n">DATABASES</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SHOW</span><span class="w"> </span><span class="k">FUNCTION</span><span class="w"> </span><span class="n">STATUS</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SHOW</span><span class="w"> </span><span class="k">INDEX</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SHOW</span><span class="w"> </span><span class="k">OPEN</span><span class="w"> </span><span class="n">TABLES</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SHOW</span><span class="w"> </span><span class="k">PROCEDURE</span><span class="w"> </span><span class="n">STATUS</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SHOW</span><span class="w"> </span><span class="n">STATUS</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SHOW</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">STATUS</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SHOW</span><span class="w"> </span><span class="n">TABLES</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SHOW</span><span class="w"> </span><span class="n">TRIGGERS</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SHOW</span><span class="w"> </span><span class="n">VARIABLES</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -486,7 +487,7 @@
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -503,7 +504,7 @@
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20240901-docker-build-golang-app/" />
@@ -35,27 +35,29 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="docker.io无法访问情况下，如何构建golang应用" />
-<meta property="og:description" content="最近docker.io国内无法访问，拉取不到最新的镜像，记录使用新的代理获取构建过程 使用镜像加速dockerpull.com拉取镜像 1 2 3 4" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20240901-docker-build-golang-app/" />
-<meta property="article:published_time" content="2024-09-01T19:18:10+08:00" />
-<meta property="article:modified_time" content="2024-09-01T19:18:10+08:00" />
-<meta itemprop="name" content="docker.io无法访问情况下，如何构建golang应用">
-<meta itemprop="description" content="最近docker.io国内无法访问，拉取不到最新的镜像，记录使用新的代理获取构建过程 使用镜像加速dockerpull.com拉取镜像 1 2 3 4">
-<meta itemprop="datePublished" content="2024-09-01T19:18:10&#43;08:00" />
-<meta itemprop="dateModified" content="2024-09-01T19:18:10&#43;08:00" />
-<meta itemprop="wordCount" content="583">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20240901-docker-build-golang-app/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="docker.io无法访问情况下，如何构建golang应用">
+  <meta property="og:description" content="最近docker.io国内无法访问，拉取不到最新的镜像，记录使用新的代理获取构建过程 使用镜像加速dockerpull.com拉取镜像 1 2 3 4">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2024-09-01T19:18:10+08:00">
+    <meta property="article:modified_time" content="2024-09-01T19:18:10+08:00">
+    <meta property="article:tag" content="Golang">
+    <meta property="article:tag" content="Docker">
 
-
-
-<meta itemprop="keywords" content="golang,docker," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="docker.io无法访问情况下，如何构建golang应用"/>
-<meta name="twitter:description" content="最近docker.io国内无法访问，拉取不到最新的镜像，记录使用新的代理获取构建过程 使用镜像加速dockerpull.com拉取镜像 1 2 3 4"/>
+  <meta itemprop="name" content="docker.io无法访问情况下，如何构建golang应用">
+  <meta itemprop="description" content="最近docker.io国内无法访问，拉取不到最新的镜像，记录使用新的代理获取构建过程 使用镜像加速dockerpull.com拉取镜像 1 2 3 4">
+  <meta itemprop="datePublished" content="2024-09-01T19:18:10+08:00">
+  <meta itemprop="dateModified" content="2024-09-01T19:18:10+08:00">
+  <meta itemprop="wordCount" content="613">
+  <meta itemprop="keywords" content="Golang,Docker"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="docker.io无法访问情况下，如何构建golang应用">
+<meta name="twitter:description" content="最近docker.io国内无法访问，拉取不到最新的镜像，记录使用新的代理获取构建过程 使用镜像加速dockerpull.com拉取镜像 1 2 3 4">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -144,7 +146,7 @@
             <a href="/categories/golang/"> golang </a>
             <a href="/categories/docker/"> docker </a>
             </div>
-          <span class="more-meta"> 583 words </span>
+          <span class="more-meta"> 613 words </span>
           <span class="more-meta"> 2 mins read </span>
         
       </div>
@@ -167,7 +169,7 @@
 <p>使用镜像加速<a href="https://dockerpull.com/">dockerpull.com</a>拉取镜像</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -188,59 +190,59 @@
 </span><span class="lnt">19
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">docker pull dockerpull.com/alpine:latest
-latest: Pulling from alpine
-c6a83fedfae6: Pull <span class="nb">complete</span>
-Digest: sha256:0a4eaa0eecf5f8c050e5bba433f58c052be7587ee8af3e8b3910ef9ab5fbe9f5
-Status: Downloaded newer image <span class="k">for</span> dockerpull.com/alpine:latest
-dockerpull.com/alpine:latest
-
-➜  / docker pull dockerpull.com/golang:latest
-latest: Pulling from golang
-903681d87777: Pull <span class="nb">complete</span>
-3cbbe86a28c2: Pull <span class="nb">complete</span>
-6ed93aa58a52: Pull <span class="nb">complete</span>
-aeaef56be71e: Pull <span class="nb">complete</span>
-c4b14fb4020d: Pull <span class="nb">complete</span>
-23d1f4306f6d: Pull <span class="nb">complete</span>
-4f4fb700ef54: Pull <span class="nb">complete</span>
-Digest: sha256:613a108a4a4b1dfb6923305db791a19d088f77632317cfc3446825c54fb862cd
-Status: Downloaded newer image <span class="k">for</span> dockerpull.com/golang:latest
-dockerpull.com/golang:latest
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">docker pull dockerpull.com/alpine:latest
+</span></span><span class="line"><span class="cl">latest: Pulling from alpine
+</span></span><span class="line"><span class="cl">c6a83fedfae6: Pull <span class="nb">complete</span>
+</span></span><span class="line"><span class="cl">Digest: sha256:0a4eaa0eecf5f8c050e5bba433f58c052be7587ee8af3e8b3910ef9ab5fbe9f5
+</span></span><span class="line"><span class="cl">Status: Downloaded newer image <span class="k">for</span> dockerpull.com/alpine:latest
+</span></span><span class="line"><span class="cl">dockerpull.com/alpine:latest
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">➜  / docker pull dockerpull.com/golang:latest
+</span></span><span class="line"><span class="cl">latest: Pulling from golang
+</span></span><span class="line"><span class="cl">903681d87777: Pull <span class="nb">complete</span>
+</span></span><span class="line"><span class="cl">3cbbe86a28c2: Pull <span class="nb">complete</span>
+</span></span><span class="line"><span class="cl">6ed93aa58a52: Pull <span class="nb">complete</span>
+</span></span><span class="line"><span class="cl">aeaef56be71e: Pull <span class="nb">complete</span>
+</span></span><span class="line"><span class="cl">c4b14fb4020d: Pull <span class="nb">complete</span>
+</span></span><span class="line"><span class="cl">23d1f4306f6d: Pull <span class="nb">complete</span>
+</span></span><span class="line"><span class="cl">4f4fb700ef54: Pull <span class="nb">complete</span>
+</span></span><span class="line"><span class="cl">Digest: sha256:613a108a4a4b1dfb6923305db791a19d088f77632317cfc3446825c54fb862cd
+</span></span><span class="line"><span class="cl">Status: Downloaded newer image <span class="k">for</span> dockerpull.com/golang:latest
+</span></span><span class="line"><span class="cl">dockerpull.com/golang:latest
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>查看拉取镜像的版本</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">➜  / docker run --rm -it dockerpull.com/golang:latest go version
-go version go1.23.0 linux/amd64
-➜  / docker run --rm -it dockerpull.com/alpine:latest cat /etc/alpine-release
-3.20.2
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">➜  / docker run --rm -it dockerpull.com/golang:latest go version
+</span></span><span class="line"><span class="cl">go version go1.23.0 linux/amd64
+</span></span><span class="line"><span class="cl">➜  / docker run --rm -it dockerpull.com/alpine:latest cat /etc/alpine-release
+</span></span><span class="line"><span class="cl">3.20.2
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>修改镜像tag为版本号，方便后续使用</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">docker tag dockerpull.com/golang:latest golang:1.23.0
-
-docker tag dockerpull.com/alpine:latest alpine:3.20.2
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">docker tag dockerpull.com/golang:latest golang:1.23.0
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">docker tag dockerpull.com/alpine:latest alpine:3.20.2
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>编写golang app Dockerfile文件</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -295,66 +297,64 @@ docker tag dockerpull.com/alpine:latest alpine:3.20.2
 </span><span class="lnt">53
 </span><span class="lnt">54
 </span><span class="lnt">55
-</span><span class="lnt">56
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="k">FROM</span><span class="s"> golang:1.23.0 AS builder</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">MAINTAINER</span><span class="s"> piao</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">LABEL</span> <span class="nv">stage</span><span class="o">=</span>gobuilder
-
-<span class="k">ENV</span> CGO_ENABLED <span class="m">1</span><span class="err">
-</span><span class="err"></span><span class="k">ENV</span> GOPROXY https://goproxy.cn,direct<span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="c"># RUN apk update --no-cache &amp;&amp; apk add --no-cache tzdata</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /build</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">ADD</span> go.mod .<span class="err">
-</span><span class="err"></span><span class="k">ADD</span> go.sum .<span class="err">
-</span><span class="err"></span><span class="k">RUN</span> go mod download<span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">COPY</span> . .<span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">RUN</span> <span class="nv">GOOS</span><span class="o">=</span>linux <span class="nv">GOARCH</span><span class="o">=</span>amd64 <span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">1</span> <span class="se">\
-</span><span class="se"></span>    go build -mod<span class="o">=</span>mod -ldflags<span class="o">=</span><span class="s2">&#34;-w -s&#34;</span> <span class="se">\
-</span><span class="se"></span>    -o mart-server ./cmd/mart<span class="err">
-</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">FROM</span><span class="s"> alpine:3.20.2</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="c">#RUN apk update --no-cache &amp;&amp; apk add --no-cache ca-certificates</span><span class="err">
-</span><span class="err"></span><span class="c">#COPY --from=builder /usr/share/zoneinfo/Asia/Shanghai /usr/share/zoneinfo/Asia/Shanghai</span><span class="err">
-</span><span class="err"></span><span class="c">#ENV TZ Asia/Shanghai</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="c"># set timezone</span><span class="err">
-</span><span class="err"></span><span class="k">RUN</span> <span class="nb">echo</span> <span class="s2">&#34;https://mirrors.aliyun.com/alpine/v3.10/main/&#34;</span> &gt; /etc/apk/repositories <span class="se">\
-</span><span class="se"></span>    <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="s2">&#34;https://mirrors.aliyun.com/alpine/v3.10/community/&#34;</span> &gt;&gt; /etc/apk/repositories <span class="se">\
-</span><span class="se"></span>    <span class="o">&amp;&amp;</span> apk add --no-cache tzdata <span class="se">\
-</span><span class="se"></span>    <span class="o">&amp;&amp;</span> cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime  <span class="se">\
-</span><span class="se"></span>    <span class="o">&amp;&amp;</span> <span class="nb">echo</span> Asia/Shanghai &gt; /etc/timezone <span class="se">\
-</span><span class="se"></span>    <span class="o">&amp;&amp;</span> apk del tzdata<span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /app</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">COPY</span> --from<span class="o">=</span>builder /build/mart-server .<span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">COPY</span> --from<span class="o">=</span>builder /build/cfg.toml .<span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">RUN</span> chmod +x mart-server<span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">RUN</span> addgroup -S mart <span class="o">&amp;&amp;</span> adduser -S -G mart mart<span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">ENTRYPOINT</span> <span class="p">[</span><span class="s2">&#34;docker-entrypoint.sh&#34;</span><span class="p">]</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">EXPOSE</span><span class="s"> 80</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">VOLUME</span> <span class="p">[</span><span class="s2">&#34;/app/cfg.toml&#34;</span><span class="p">,</span><span class="s2">&#34;/app/log&#34;</span><span class="p">]</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">CMD</span> <span class="p">[</span><span class="s2">&#34;mart-server&#34;</span><span class="p">,</span> <span class="s2">&#34;--conf&#34;</span><span class="p">,</span> <span class="s2">&#34;cfg.toml&#34;</span><span class="p">]</span><span class="err">
-</span><span class="err">
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="line"><span class="cl"><span class="k">FROM</span><span class="s"> golang:1.23.0 AS builder</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">MAINTAINER</span><span class="s"> piao</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">LABEL</span> <span class="nv">stage</span><span class="o">=</span>gobuilder
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">ENV</span> CGO_ENABLED <span class="m">1</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ENV</span> GOPROXY https://goproxy.cn,direct<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c"># RUN apk update --no-cache &amp;&amp; apk add --no-cache tzdata</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /build</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ADD</span> go.mod .<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ADD</span> go.sum .<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> go mod download<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">COPY</span> . .<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> <span class="nv">GOOS</span><span class="o">=</span>linux <span class="nv">GOARCH</span><span class="o">=</span>amd64 <span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">1</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    go build -mod<span class="o">=</span>mod -ldflags<span class="o">=</span><span class="s2">&#34;-w -s&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -o mart-server ./cmd/mart<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">FROM</span><span class="s"> alpine:3.20.2</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c">#RUN apk update --no-cache &amp;&amp; apk add --no-cache ca-certificates</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c">#COPY --from=builder /usr/share/zoneinfo/Asia/Shanghai /usr/share/zoneinfo/Asia/Shanghai</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c">#ENV TZ Asia/Shanghai</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c"># set timezone</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> <span class="nb">echo</span> <span class="s2">&#34;https://mirrors.aliyun.com/alpine/v3.10/main/&#34;</span> &gt; /etc/apk/repositories <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="s2">&#34;https://mirrors.aliyun.com/alpine/v3.10/community/&#34;</span> &gt;&gt; /etc/apk/repositories <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="o">&amp;&amp;</span> apk add --no-cache tzdata <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="o">&amp;&amp;</span> cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime  <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="o">&amp;&amp;</span> <span class="nb">echo</span> Asia/Shanghai &gt; /etc/timezone <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="o">&amp;&amp;</span> apk del tzdata<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /app</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">COPY</span> --from<span class="o">=</span>builder /build/mart-server .<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">COPY</span> --from<span class="o">=</span>builder /build/cfg.toml .<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> chmod +x mart-server<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> addgroup -S mart <span class="o">&amp;&amp;</span> adduser -S -G mart mart<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ENTRYPOINT</span> <span class="p">[</span><span class="s2">&#34;docker-entrypoint.sh&#34;</span><span class="p">]</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">EXPOSE</span><span class="s"> 80</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">VOLUME</span> <span class="p">[</span><span class="s2">&#34;/app/cfg.toml&#34;</span><span class="p">,</span><span class="s2">&#34;/app/log&#34;</span><span class="p">]</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">CMD</span> <span class="p">[</span><span class="s2">&#34;mart-server&#34;</span><span class="p">,</span> <span class="s2">&#34;--conf&#34;</span><span class="p">,</span> <span class="s2">&#34;cfg.toml&#34;</span><span class="p">]</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>apk指令如果因为网络原因访问失败时，可以注释掉。</p>
 <p>如果想编辑二进制文件本地或单独使用，可以直接修改Dockerfile直接编译到当前目录</p>
@@ -362,28 +362,28 @@ docker tag dockerpull.com/alpine:latest alpine:3.20.2
 <p>或者直接在Docker容器中编译：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">docker run --rm -v .:/root -v <span class="si">${</span><span class="nv">GOPATH</span><span class="si">}</span>/go:/go -e <span class="nv">GOPATH</span><span class="o">=</span>/ -e <span class="nv">GOROOT</span><span class="o">=</span>/go <span class="se">\
-</span><span class="se"></span>    -w <span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span> golang:1.23.0 <span class="se">\ </span> 
-    <span class="nv">GOOS</span><span class="o">=</span>linux <span class="nv">GOARCH</span><span class="o">=</span>amd64 <span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">1</span> <span class="se">\
-</span><span class="se"></span>    go build -mod<span class="o">=</span>mod -ldflags<span class="o">=</span><span class="s2">&#34;-w -s&#34;</span> <span class="se">\
-</span><span class="se"></span>    -o mart-server ./cmd/mart
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">docker run --rm -v .:/root -v <span class="si">${</span><span class="nv">GOPATH</span><span class="si">}</span>/go:/go -e <span class="nv">GOPATH</span><span class="o">=</span>/ -e <span class="nv">GOROOT</span><span class="o">=</span>/go <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -w <span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span> golang:1.23.0 <span class="se">\ </span> 
+</span></span><span class="line"><span class="cl">    <span class="nv">GOOS</span><span class="o">=</span>linux <span class="nv">GOARCH</span><span class="o">=</span>amd64 <span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">1</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    go build -mod<span class="o">=</span>mod -ldflags<span class="o">=</span><span class="s2">&#34;-w -s&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -o mart-server ./cmd/mart
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>或者选择执行脚本</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">docker run --rm -v .:/mart -w /mart golang:1.23.0 bash build_linux.sh
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">docker run --rm -v .:/mart -w /mart golang:1.23.0 bash build_linux.sh
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -491,7 +491,7 @@ docker tag dockerpull.com/alpine:latest alpine:3.20.2
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -508,7 +508,7 @@ docker tag dockerpull.com/alpine:latest alpine:3.20.2
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

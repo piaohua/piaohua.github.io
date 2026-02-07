@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20240117-aws-s3-uploading/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="将对象上传到aws s3存储桶方案" />
-<meta property="og:description" content="将对象上传到aws s3存储桶方案 aws s3提供多种文件上传方式： 业务服务器中转，即业务客户端上传对象到业务服务器，业务服务器接收并上传到s3。 这" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20240117-aws-s3-uploading/" />
-<meta property="article:published_time" content="2024-01-17T15:05:09+08:00" />
-<meta property="article:modified_time" content="2024-01-17T15:05:09+08:00" />
-<meta itemprop="name" content="将对象上传到aws s3存储桶方案">
-<meta itemprop="description" content="将对象上传到aws s3存储桶方案 aws s3提供多种文件上传方式： 业务服务器中转，即业务客户端上传对象到业务服务器，业务服务器接收并上传到s3。 这">
-<meta itemprop="datePublished" content="2024-01-17T15:05:09&#43;08:00" />
-<meta itemprop="dateModified" content="2024-01-17T15:05:09&#43;08:00" />
-<meta itemprop="wordCount" content="737">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20240117-aws-s3-uploading/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="将对象上传到aws s3存储桶方案">
+  <meta property="og:description" content="将对象上传到aws s3存储桶方案 aws s3提供多种文件上传方式： 业务服务器中转，即业务客户端上传对象到业务服务器，业务服务器接收并上传到s3。 这">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2024-01-17T15:05:09+08:00">
+    <meta property="article:modified_time" content="2024-01-17T15:05:09+08:00">
+    <meta property="article:tag" content="Golang">
 
-
-
-<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="将对象上传到aws s3存储桶方案"/>
-<meta name="twitter:description" content="将对象上传到aws s3存储桶方案 aws s3提供多种文件上传方式： 业务服务器中转，即业务客户端上传对象到业务服务器，业务服务器接收并上传到s3。 这"/>
+  <meta itemprop="name" content="将对象上传到aws s3存储桶方案">
+  <meta itemprop="description" content="将对象上传到aws s3存储桶方案 aws s3提供多种文件上传方式： 业务服务器中转，即业务客户端上传对象到业务服务器，业务服务器接收并上传到s3。 这">
+  <meta itemprop="datePublished" content="2024-01-17T15:05:09+08:00">
+  <meta itemprop="dateModified" content="2024-01-17T15:05:09+08:00">
+  <meta itemprop="wordCount" content="736">
+  <meta itemprop="keywords" content="Golang"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="将对象上传到aws s3存储桶方案">
+<meta name="twitter:description" content="将对象上传到aws s3存储桶方案 aws s3提供多种文件上传方式： 业务服务器中转，即业务客户端上传对象到业务服务器，业务服务器接收并上传到s3。 这">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -144,7 +145,7 @@
             <a href="/categories/golang/"> golang </a>
             <a href="/categories/s3/"> s3 </a>
             </div>
-          <span class="more-meta"> 737 words </span>
+          <span class="more-meta"> 736 words </span>
           <span class="more-meta"> 2 mins read </span>
         
       </div>
@@ -178,7 +179,7 @@
 <p>使用AWS Go SDK上传文件到S3存储桶的示例代码</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -229,61 +230,61 @@
 </span><span class="lnt">49
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-    <span class="s">&#34;fmt&#34;</span>
-    <span class="s">&#34;os&#34;</span>
-
-    <span class="s">&#34;github.com/aws/aws-sdk-go/aws&#34;</span>
-    <span class="s">&#34;github.com/aws/aws-sdk-go/aws/session&#34;</span>
-    <span class="s">&#34;github.com/aws/aws-sdk-go/service/s3&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="c1">// 配置AWS会话
-</span><span class="c1"></span>    <span class="nx">sess</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">session</span><span class="p">.</span><span class="nf">NewSession</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">aws</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
-        <span class="nx">Region</span><span class="p">:</span> <span class="nx">aws</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="s">&#34;us-west-2&#34;</span><span class="p">),</span>
-    <span class="p">})</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;无法创建AWS会话&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-        <span class="k">return</span>
-    <span class="p">}</span>
-
-    <span class="c1">// 创建S3服务客户端
-</span><span class="c1"></span>    <span class="nx">svc</span> <span class="o">:=</span> <span class="nx">s3</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">sess</span><span class="p">)</span>
-
-    <span class="c1">// 指定要上传的文件
-</span><span class="c1"></span>    <span class="nx">file</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="s">&#34;example.txt&#34;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;无法打开文件&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-        <span class="k">return</span>
-    <span class="p">}</span>
-    <span class="k">defer</span> <span class="nx">file</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
-
-    <span class="c1">// 配置S3对象
-</span><span class="c1"></span>    <span class="nx">key</span> <span class="o">:=</span> <span class="s">&#34;example.txt&#34;</span>
-    <span class="nx">bucket</span> <span class="o">:=</span> <span class="s">&#34;my-bucket&#34;</span>
-
-    <span class="c1">// 上传文件到S3存储桶
-</span><span class="c1"></span>    <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">svc</span><span class="p">.</span><span class="nf">PutObject</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">s3</span><span class="p">.</span><span class="nx">PutObjectInput</span><span class="p">{</span>
-        <span class="nx">Body</span><span class="p">:</span>   <span class="nx">file</span><span class="p">,</span>
-        <span class="nx">Bucket</span><span class="p">:</span> <span class="nx">aws</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="nx">bucket</span><span class="p">),</span>
-        <span class="nx">Key</span><span class="p">:</span>    <span class="nx">aws</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="nx">key</span><span class="p">),</span>
-    <span class="p">})</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;无法上传文件到S3&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-        <span class="k">return</span>
-    <span class="p">}</span>
-
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;文件上传成功&#34;</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;os&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;github.com/aws/aws-sdk-go/aws&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;github.com/aws/aws-sdk-go/aws/session&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;github.com/aws/aws-sdk-go/service/s3&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 配置AWS会话
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">sess</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">session</span><span class="p">.</span><span class="nf">NewSession</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">aws</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Region</span><span class="p">:</span> <span class="nx">aws</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="s">&#34;us-west-2&#34;</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">    <span class="p">})</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;无法创建AWS会话&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// 创建S3服务客户端
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">svc</span> <span class="o">:=</span> <span class="nx">s3</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">sess</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// 指定要上传的文件
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">file</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="s">&#34;example.txt&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;无法打开文件&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">defer</span> <span class="nx">file</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// 配置S3对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">key</span> <span class="o">:=</span> <span class="s">&#34;example.txt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">bucket</span> <span class="o">:=</span> <span class="s">&#34;my-bucket&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// 上传文件到S3存储桶
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">svc</span><span class="p">.</span><span class="nf">PutObject</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">s3</span><span class="p">.</span><span class="nx">PutObjectInput</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Body</span><span class="p">:</span>   <span class="nx">file</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Bucket</span><span class="p">:</span> <span class="nx">aws</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="nx">bucket</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Key</span><span class="p">:</span>    <span class="nx">aws</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="nx">key</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">    <span class="p">})</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;无法上传文件到S3&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;文件上传成功&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="生成预签名url">生成预签名URL</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -313,41 +314,39 @@
 </span><span class="lnt">28
 </span><span class="lnt">29
 </span><span class="lnt">30
-</span><span class="lnt">31
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-    <span class="s">&#34;github.com/aws/aws-sdk-go/aws&#34;</span>
-    <span class="s">&#34;github.com/aws/aws-sdk-go/aws/session&#34;</span>
-    <span class="s">&#34;github.com/aws/aws-sdk-go/service/s3&#34;</span>
-    <span class="s">&#34;log&#34;</span>
-    <span class="s">&#34;strings&#34;</span>
-    <span class="s">&#34;time&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="c1">// Initialize a session in us-west-2 that the SDK will use to load
-</span><span class="c1"></span>    <span class="c1">// credentials from the shared credentials file ~/.aws/credentials.
-</span><span class="c1"></span>    <span class="nx">sess</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">session</span><span class="p">.</span><span class="nf">NewSession</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">aws</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
-        <span class="nx">Region</span><span class="p">:</span> <span class="nx">aws</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="s">&#34;us-west-2&#34;</span><span class="p">)},</span>
-    <span class="p">)</span>
-
-    <span class="c1">// Create S3 service client
-</span><span class="c1"></span>    <span class="nx">svc</span> <span class="o">:=</span> <span class="nx">s3</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">sess</span><span class="p">)</span>
-
-    <span class="nx">req</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">svc</span><span class="p">.</span><span class="nf">PutObjectRequest</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">s3</span><span class="p">.</span><span class="nx">PutObjectInput</span><span class="p">{</span>
-        <span class="nx">Bucket</span><span class="p">:</span> <span class="nx">aws</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="s">&#34;myBucket&#34;</span><span class="p">),</span>
-        <span class="nx">Key</span><span class="p">:</span>    <span class="nx">aws</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="s">&#34;myKey&#34;</span><span class="p">),</span>
-        <span class="nx">Body</span><span class="p">:</span>   <span class="nx">strings</span><span class="p">.</span><span class="nf">NewReader</span><span class="p">(</span><span class="s">&#34;EXPECTED CONTENTS&#34;</span><span class="p">),</span>
-    <span class="p">})</span>
-    <span class="nx">str</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">req</span><span class="p">.</span><span class="nf">Presign</span><span class="p">(</span><span class="mi">15</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Minute</span><span class="p">)</span>
-
-    <span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;The URL is:&#34;</span><span class="p">,</span> <span class="nx">str</span><span class="p">,</span> <span class="s">&#34; err:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-<span class="p">}</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;github.com/aws/aws-sdk-go/aws&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;github.com/aws/aws-sdk-go/aws/session&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;github.com/aws/aws-sdk-go/service/s3&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;log&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;strings&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Initialize a session in us-west-2 that the SDK will use to load
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// credentials from the shared credentials file ~/.aws/credentials.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">sess</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">session</span><span class="p">.</span><span class="nf">NewSession</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">aws</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Region</span><span class="p">:</span> <span class="nx">aws</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="s">&#34;us-west-2&#34;</span><span class="p">)},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// Create S3 service client
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">svc</span> <span class="o">:=</span> <span class="nx">s3</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">sess</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">req</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">svc</span><span class="p">.</span><span class="nf">PutObjectRequest</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">s3</span><span class="p">.</span><span class="nx">PutObjectInput</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Bucket</span><span class="p">:</span> <span class="nx">aws</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="s">&#34;myBucket&#34;</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Key</span><span class="p">:</span>    <span class="nx">aws</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="s">&#34;myKey&#34;</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Body</span><span class="p">:</span>   <span class="nx">strings</span><span class="p">.</span><span class="nf">NewReader</span><span class="p">(</span><span class="s">&#34;EXPECTED CONTENTS&#34;</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">    <span class="p">})</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">str</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">req</span><span class="p">.</span><span class="nf">Presign</span><span class="p">(</span><span class="mi">15</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Minute</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;The URL is:&#34;</span><span class="p">,</span> <span class="nx">str</span><span class="p">,</span> <span class="s">&#34; err:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -459,7 +458,7 @@
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -476,7 +475,7 @@
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

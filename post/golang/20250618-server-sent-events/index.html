@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20250618-server-sent-events/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Go] Golang 实现 Server Sent Events Demo" />
-<meta property="og:description" content="以下是一个完整的 Server-Sent Events (SSE) 在 Go 中的实现示例，包含服务端和客户端的代码。SSE 适用于服务器向客户端单向推送实时数据的场景（如通知、日志流等）。 Server-Sent Events" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20250618-server-sent-events/" />
-<meta property="article:published_time" content="2025-05-18T19:40:59+08:00" />
-<meta property="article:modified_time" content="2025-05-18T19:40:59+08:00" />
-<meta itemprop="name" content="[Go] Golang 实现 Server Sent Events Demo">
-<meta itemprop="description" content="以下是一个完整的 Server-Sent Events (SSE) 在 Go 中的实现示例，包含服务端和客户端的代码。SSE 适用于服务器向客户端单向推送实时数据的场景（如通知、日志流等）。 Server-Sent Events">
-<meta itemprop="datePublished" content="2025-05-18T19:40:59&#43;08:00" />
-<meta itemprop="dateModified" content="2025-05-18T19:40:59&#43;08:00" />
-<meta itemprop="wordCount" content="1102">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20250618-server-sent-events/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Go] Golang 实现 Server Sent Events Demo">
+  <meta property="og:description" content="以下是一个完整的 Server-Sent Events (SSE) 在 Go 中的实现示例，包含服务端和客户端的代码。SSE 适用于服务器向客户端单向推送实时数据的场景（如通知、日志流等）。 Server-Sent Events">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2025-05-18T19:40:59+08:00">
+    <meta property="article:modified_time" content="2025-05-18T19:40:59+08:00">
+    <meta property="article:tag" content="Golang">
 
-
-
-<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Go] Golang 实现 Server Sent Events Demo"/>
-<meta name="twitter:description" content="以下是一个完整的 Server-Sent Events (SSE) 在 Go 中的实现示例，包含服务端和客户端的代码。SSE 适用于服务器向客户端单向推送实时数据的场景（如通知、日志流等）。 Server-Sent Events"/>
+  <meta itemprop="name" content="[Go] Golang 实现 Server Sent Events Demo">
+  <meta itemprop="description" content="以下是一个完整的 Server-Sent Events (SSE) 在 Go 中的实现示例，包含服务端和客户端的代码。SSE 适用于服务器向客户端单向推送实时数据的场景（如通知、日志流等）。 Server-Sent Events">
+  <meta itemprop="datePublished" content="2025-05-18T19:40:59+08:00">
+  <meta itemprop="dateModified" content="2025-05-18T19:40:59+08:00">
+  <meta itemprop="wordCount" content="1102">
+  <meta itemprop="keywords" content="Golang"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Go] Golang 实现 Server Sent Events Demo">
+<meta name="twitter:description" content="以下是一个完整的 Server-Sent Events (SSE) 在 Go 中的实现示例，包含服务端和客户端的代码。SSE 适用于服务器向客户端单向推送实时数据的场景（如通知、日志流等）。 Server-Sent Events">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -226,7 +227,7 @@
 <h3 id="1-服务端代码go"><strong>1. 服务端代码（Go）</strong></h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -283,69 +284,69 @@
 </span><span class="lnt">55
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-	<span class="s">&#34;fmt&#34;</span>
-	<span class="s">&#34;log&#34;</span>
-	<span class="s">&#34;net/http&#34;</span>
-	<span class="s">&#34;time&#34;</span>
-<span class="p">)</span>
-
-<span class="c1">// SSE 事件流处理函数
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">sseHandler</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
-	<span class="c1">// 设置响应头，表明是 SSE 流
-</span><span class="c1"></span>	<span class="nx">w</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Content-Type&#34;</span><span class="p">,</span> <span class="s">&#34;text/event-stream&#34;</span><span class="p">)</span>
-	<span class="nx">w</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Cache-Control&#34;</span><span class="p">,</span> <span class="s">&#34;no-cache&#34;</span><span class="p">)</span>
-	<span class="nx">w</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Connection&#34;</span><span class="p">,</span> <span class="s">&#34;keep-alive&#34;</span><span class="p">)</span>
-
-	<span class="c1">// 创建一个通道用于模拟数据更新
-</span><span class="c1"></span>	<span class="nx">eventChan</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">string</span><span class="p">)</span>
-	<span class="k">defer</span> <span class="nb">close</span><span class="p">(</span><span class="nx">eventChan</span><span class="p">)</span>
-
-	<span class="c1">// 模拟异步数据生成（实际可能是数据库监听、MQ 订阅等）
-</span><span class="c1"></span>	<span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-		<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-			<span class="nx">eventChan</span> <span class="o">&lt;-</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;Event %d: %s&#34;</span><span class="p">,</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Format</span><span class="p">(</span><span class="s">&#34;15:04:05&#34;</span><span class="p">))</span>
-			<span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span> <span class="c1">// 每 2 秒推送一次
-</span><span class="c1"></span>		<span class="p">}</span>
-	<span class="p">}()</span>
-
-	<span class="c1">// 监听客户端断开连接
-</span><span class="c1"></span>	<span class="nx">ctx</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nf">Context</span><span class="p">()</span>
-	<span class="k">for</span> <span class="p">{</span>
-		<span class="k">select</span> <span class="p">{</span>
-		<span class="k">case</span> <span class="o">&lt;-</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">Done</span><span class="p">():</span>
-			<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Client disconnected&#34;</span><span class="p">)</span>
-			<span class="k">return</span>
-		<span class="k">case</span> <span class="nx">event</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">eventChan</span><span class="p">:</span>
-			<span class="c1">// 写入 SSE 格式的数据（data: 开头，结尾用 \n\n）
-</span><span class="c1"></span>			<span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Fprintf</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="s">&#34;data: %s\n\n&#34;</span><span class="p">,</span> <span class="nx">event</span><span class="p">)</span>
-			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-				<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Write error:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-				<span class="k">return</span>
-			<span class="p">}</span>
-			<span class="c1">// 刷新缓冲区，确保数据立即发送
-</span><span class="c1"></span>			<span class="nx">w</span><span class="p">.(</span><span class="nx">http</span><span class="p">.</span><span class="nx">Flusher</span><span class="p">).</span><span class="nf">Flush</span><span class="p">()</span>
-		<span class="p">}</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-	<span class="nx">http</span><span class="p">.</span><span class="nf">HandleFunc</span><span class="p">(</span><span class="s">&#34;/sse&#34;</span><span class="p">,</span> <span class="nx">sseHandler</span><span class="p">)</span>
-	<span class="nx">http</span><span class="p">.</span><span class="nf">Handle</span><span class="p">(</span><span class="s">&#34;/&#34;</span><span class="p">,</span> <span class="nx">http</span><span class="p">.</span><span class="nf">FileServer</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nf">Dir</span><span class="p">(</span><span class="s">&#34;./static&#34;</span><span class="p">)))</span> <span class="c1">// 静态文件服务（放客户端 HTML）
-</span><span class="c1"></span>
-	<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Server started at :8080&#34;</span><span class="p">)</span>
-	<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nf">ListenAndServe</span><span class="p">(</span><span class="s">&#34;:8080&#34;</span><span class="p">,</span> <span class="kc">nil</span><span class="p">))</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;log&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;net/http&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// SSE 事件流处理函数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">sseHandler</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 设置响应头，表明是 SSE 流
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">w</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Content-Type&#34;</span><span class="p">,</span> <span class="s">&#34;text/event-stream&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">w</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Cache-Control&#34;</span><span class="p">,</span> <span class="s">&#34;no-cache&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">w</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Connection&#34;</span><span class="p">,</span> <span class="s">&#34;keep-alive&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 创建一个通道用于模拟数据更新
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">eventChan</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">string</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nb">close</span><span class="p">(</span><span class="nx">eventChan</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 模拟异步数据生成（实际可能是数据库监听、MQ 订阅等）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">eventChan</span> <span class="o">&lt;-</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;Event %d: %s&#34;</span><span class="p">,</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Format</span><span class="p">(</span><span class="s">&#34;15:04:05&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span> <span class="c1">// 每 2 秒推送一次
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 监听客户端断开连接
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">ctx</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nf">Context</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">case</span> <span class="o">&lt;-</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">Done</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Client disconnected&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">return</span>
+</span></span><span class="line"><span class="cl">		<span class="k">case</span> <span class="nx">event</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">eventChan</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">			<span class="c1">// 写入 SSE 格式的数据（data: 开头，结尾用 \n\n）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Fprintf</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="s">&#34;data: %s\n\n&#34;</span><span class="p">,</span> <span class="nx">event</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Write error:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">				<span class="k">return</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">			<span class="c1">// 刷新缓冲区，确保数据立即发送
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="nx">w</span><span class="p">.(</span><span class="nx">http</span><span class="p">.</span><span class="nx">Flusher</span><span class="p">).</span><span class="nf">Flush</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">http</span><span class="p">.</span><span class="nf">HandleFunc</span><span class="p">(</span><span class="s">&#34;/sse&#34;</span><span class="p">,</span> <span class="nx">sseHandler</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">http</span><span class="p">.</span><span class="nf">Handle</span><span class="p">(</span><span class="s">&#34;/&#34;</span><span class="p">,</span> <span class="nx">http</span><span class="p">.</span><span class="nf">FileServer</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nf">Dir</span><span class="p">(</span><span class="s">&#34;./static&#34;</span><span class="p">)))</span> <span class="c1">// 静态文件服务（放客户端 HTML）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">	<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Server started at :8080&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nf">ListenAndServe</span><span class="p">(</span><span class="s">&#34;:8080&#34;</span><span class="p">,</span> <span class="kc">nil</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><hr>
 <h3 id="2-客户端代码html--javascript"><strong>2. 客户端代码（HTML + JavaScript）</strong></h3>
 <p>在项目目录下创建 <code>static/index.html</code>：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -372,32 +373,32 @@
 </span><span class="lnt">25
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-html" data-lang="html"><span class="cp">&lt;!DOCTYPE html&gt;</span>
-<span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>SSE Demo<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>SSE 实时数据流<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;events&#34;</span><span class="p">&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
-
-    <span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
-        <span class="kr">const</span> <span class="nx">eventSource</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">EventSource</span><span class="p">(</span><span class="s2">&#34;/sse&#34;</span><span class="p">);</span>
-
-        <span class="c1">// 监听服务器推送的事件
-</span><span class="c1"></span>        <span class="nx">eventSource</span><span class="p">.</span><span class="nx">onmessage</span> <span class="o">=</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-            <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&#34;events&#34;</span><span class="p">).</span><span class="nx">innerHTML</span> <span class="o">+=</span> <span class="sb">`&lt;p&gt;</span><span class="si">${</span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="si">}</span><span class="sb">&lt;/p&gt;`</span><span class="p">;</span>
-        <span class="p">};</span>
-
-        <span class="c1">// 监听错误（如连接断开）
-</span><span class="c1"></span>        <span class="nx">eventSource</span><span class="p">.</span><span class="nx">onerror</span> <span class="o">=</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-            <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">&#34;SSE Error:&#34;</span><span class="p">,</span> <span class="nx">e</span><span class="p">);</span>
-            <span class="nx">eventSource</span><span class="p">.</span><span class="nx">close</span><span class="p">();</span>
-        <span class="p">};</span>
-    <span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="cp">&lt;!DOCTYPE html&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>SSE Demo<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>SSE 实时数据流<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;events&#34;</span><span class="p">&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="kr">const</span> <span class="nx">eventSource</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">EventSource</span><span class="p">(</span><span class="s2">&#34;/sse&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 监听服务器推送的事件
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nx">eventSource</span><span class="p">.</span><span class="nx">onmessage</span> <span class="o">=</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&#34;events&#34;</span><span class="p">).</span><span class="nx">innerHTML</span> <span class="o">+=</span> <span class="sb">`&lt;p&gt;</span><span class="si">${</span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="si">}</span><span class="sb">&lt;/p&gt;`</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 监听错误（如连接断开）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nx">eventSource</span><span class="p">.</span><span class="nx">onerror</span> <span class="o">=</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">&#34;SSE Error:&#34;</span><span class="p">,</span> <span class="nx">e</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">eventSource</span><span class="p">.</span><span class="nx">close</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><hr>
 <h3 id="3-运行步骤"><strong>3. 运行步骤</strong></h3>
@@ -405,27 +406,27 @@
 <li>创建项目目录结构：
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">your_project/
-├── main.go
-└── static/
-    └── index.html
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">your_project/
+</span></span><span class="line"><span class="cl">├── main.go
+</span></span><span class="line"><span class="cl">└── static/
+</span></span><span class="line"><span class="cl">    └── index.html
+</span></span></code></pre></td></tr></table>
 </div>
 </div></li>
 <li>启动服务端：
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-bash" data-lang="bash">go run main.go
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">go run main.go
+</span></span></code></pre></td></tr></table>
 </div>
 </div></li>
 <li>打开浏览器访问 <code>http://localhost:8080</code>，页面将每 2 秒显示一条服务器推送的事件。</li>
@@ -454,24 +455,24 @@
 </ol>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">fmt</span><span class="p">.</span><span class="nf">Fprintf</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="s">&#34;event: customEvent\ndata: %s\n\n&#34;</span><span class="p">,</span> <span class="s">&#34;Custom Data&#34;</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="nx">fmt</span><span class="p">.</span><span class="nf">Fprintf</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="s">&#34;event: customEvent\ndata: %s\n\n&#34;</span><span class="p">,</span> <span class="s">&#34;Custom Data&#34;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>客户端监听：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-javascript" data-lang="javascript"><span class="nx">eventSource</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&#34;customEvent&#34;</span><span class="p">,</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&#34;Custom Event:&#34;</span><span class="p">,</span> <span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
-<span class="p">});</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="cl"><span class="nx">eventSource</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&#34;customEvent&#34;</span><span class="p">,</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&#34;Custom Event:&#34;</span><span class="p">,</span> <span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">});</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><ol start="2">
 <li><strong>重试机制</strong>：<br>
@@ -579,7 +580,7 @@
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -596,7 +597,7 @@
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

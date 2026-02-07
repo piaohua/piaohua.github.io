@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20200808-golang-channel/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Go] Golang Channel" />
-<meta property="og:description" content="Don&rsquo;t communicate by sharing memory, share memory by communicating. 介绍 channel是GO语言级别提供的goroutine间的通信方式，channel是类型相关的，需要在声明channel" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20200808-golang-channel/" />
-<meta property="article:published_time" content="2020-08-08T11:52:32+08:00" />
-<meta property="article:modified_time" content="2020-08-08T11:52:32+08:00" />
-<meta itemprop="name" content="[Go] Golang Channel">
-<meta itemprop="description" content="Don&rsquo;t communicate by sharing memory, share memory by communicating. 介绍 channel是GO语言级别提供的goroutine间的通信方式，channel是类型相关的，需要在声明channel">
-<meta itemprop="datePublished" content="2020-08-08T11:52:32&#43;08:00" />
-<meta itemprop="dateModified" content="2020-08-08T11:52:32&#43;08:00" />
-<meta itemprop="wordCount" content="1897">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20200808-golang-channel/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Go] Golang Channel">
+  <meta property="og:description" content="Don’t communicate by sharing memory, share memory by communicating. 介绍 channel是GO语言级别提供的goroutine间的通信方式，channel是类型相关的，需要在声明channel">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2020-08-08T11:52:32+08:00">
+    <meta property="article:modified_time" content="2020-08-08T11:52:32+08:00">
+    <meta property="article:tag" content="Golang">
 
-
-
-<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Go] Golang Channel"/>
-<meta name="twitter:description" content="Don&rsquo;t communicate by sharing memory, share memory by communicating. 介绍 channel是GO语言级别提供的goroutine间的通信方式，channel是类型相关的，需要在声明channel"/>
+  <meta itemprop="name" content="[Go] Golang Channel">
+  <meta itemprop="description" content="Don&rsquo;t communicate by sharing memory, share memory by communicating. 介绍 channel是GO语言级别提供的goroutine间的通信方式，channel是类型相关的，需要在声明channel">
+  <meta itemprop="datePublished" content="2020-08-08T11:52:32+08:00">
+  <meta itemprop="dateModified" content="2020-08-08T11:52:32+08:00">
+  <meta itemprop="wordCount" content="1897">
+  <meta itemprop="keywords" content="Golang"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Go] Golang Channel">
+<meta name="twitter:description" content="Don&rsquo;t communicate by sharing memory, share memory by communicating. 介绍 channel是GO语言级别提供的goroutine间的通信方式，channel是类型相关的，需要在声明channel">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -176,7 +177,7 @@
 或者从一个无缓冲的channel接收消息，另一端无发送时，当前goroutine会阻塞。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -185,14 +186,14 @@
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">c0</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">)</span>       <span class="c1">// unbuffered
-</span><span class="c1"></span><span class="nx">c1</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>    <span class="c1">// unbuffered
-</span><span class="c1"></span><span class="nx">c2</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">string</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="c1">// buffered
-</span><span class="c1"></span>
-<span class="nx">c3</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="o">&lt;-</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">)</span> <span class="c1">// can only read
-</span><span class="c1"></span><span class="nx">c4</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span><span class="o">&lt;-</span> <span class="kt">int</span><span class="p">)</span> <span class="c1">// can only write
-</span><span class="c1"></span><span class="nx">c5</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">)</span>   <span class="c1">// can write and read
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="nx">c0</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">)</span>       <span class="c1">// unbuffered
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">c1</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>    <span class="c1">// unbuffered
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">c2</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">string</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="c1">// buffered
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="nx">c3</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="o">&lt;-</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">)</span> <span class="c1">// can only read
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">c4</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span><span class="o">&lt;-</span> <span class="kt">int</span><span class="p">)</span> <span class="c1">// can only write
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">c5</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">)</span>   <span class="c1">// can write and read
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="使用注意">使用注意</h2>
 <ul>
@@ -206,7 +207,7 @@
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -216,21 +217,21 @@
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">var</span> <span class="nx">ch</span> <span class="kd">chan</span> <span class="kt">int</span>
-<span class="nb">close</span><span class="p">(</span><span class="nx">ch</span><span class="p">)</span> <span class="c1">// 关闭一个nil channel, panic
-</span><span class="c1"></span>
-<span class="nx">ch</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="nb">close</span><span class="p">(</span><span class="nx">ch</span><span class="p">)</span>
-<span class="o">&lt;-</span><span class="nx">ch</span> <span class="c1">// 可读取已经关闭channel
-</span><span class="c1"></span><span class="nx">ch</span> <span class="o">&lt;-</span> <span class="mi">1</span> <span class="c1">// 向已经关闭channel写数据，panic
-</span><span class="c1"></span><span class="nb">close</span><span class="p">(</span><span class="nx">ch</span><span class="p">)</span> <span class="c1">// 多次关闭，panic
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">ch</span> <span class="kd">chan</span> <span class="kt">int</span>
+</span></span><span class="line"><span class="cl"><span class="nb">close</span><span class="p">(</span><span class="nx">ch</span><span class="p">)</span> <span class="c1">// 关闭一个nil channel, panic
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="nx">ch</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">close</span><span class="p">(</span><span class="nx">ch</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">&lt;-</span><span class="nx">ch</span> <span class="c1">// 可读取已经关闭channel
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">ch</span> <span class="o">&lt;-</span> <span class="mi">1</span> <span class="c1">// 向已经关闭channel写数据，panic
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nb">close</span><span class="p">(</span><span class="nx">ch</span><span class="p">)</span> <span class="c1">// 多次关闭，panic
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="使用">使用</h2>
 <p>无缓冲channel</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -239,19 +240,19 @@
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">)</span>    
-    <span class="k">go</span> <span class="kd">func</span><span class="p">(</span><span class="nx">ch</span> <span class="kd">chan</span> <span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nx">ch</span> <span class="o">&lt;-</span> <span class="mi">0</span>
-    <span class="p">}(</span><span class="nx">c</span><span class="p">)</span>
-    <span class="o">&lt;-</span><span class="nx">c</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">)</span>    
+</span></span><span class="line"><span class="cl">    <span class="k">go</span> <span class="kd">func</span><span class="p">(</span><span class="nx">ch</span> <span class="kd">chan</span> <span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">ch</span> <span class="o">&lt;-</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}(</span><span class="nx">c</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="o">&lt;-</span><span class="nx">c</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>有缓冲channel</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -259,19 +260,19 @@
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-    <span class="nx">c</span> <span class="o">&lt;-</span> <span class="mi">1</span>
-    <span class="nx">c</span> <span class="o">&lt;-</span> <span class="mi">2</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="o">&lt;-</span><span class="nx">c</span><span class="p">,</span> <span class="o">&lt;-</span><span class="nx">c</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">c</span> <span class="o">&lt;-</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">c</span> <span class="o">&lt;-</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="o">&lt;-</span><span class="nx">c</span><span class="p">,</span> <span class="o">&lt;-</span><span class="nx">c</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>有缓冲的channel只有当缓冲区满或者空，写入和读取的时候才会发生阻塞，所以缓冲的channel可以当做简单的队列来使用</p>
 <p>如果在channel为空时再读取一次，则会发生死锁</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -279,20 +280,20 @@
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-    <span class="nx">c</span> <span class="o">&lt;-</span> <span class="mi">1</span>
-    <span class="nx">c</span> <span class="o">&lt;-</span> <span class="mi">2</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="o">&lt;-</span><span class="nx">c</span><span class="p">,</span> <span class="o">&lt;-</span><span class="nx">c</span><span class="p">,</span> <span class="o">&lt;-</span><span class="nx">c</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">c</span> <span class="o">&lt;-</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">c</span> <span class="o">&lt;-</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="o">&lt;-</span><span class="nx">c</span><span class="p">,</span> <span class="o">&lt;-</span><span class="nx">c</span><span class="p">,</span> <span class="o">&lt;-</span><span class="nx">c</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>运行错误信息: fatal error: all goroutines are asleep - deadlock!
 死锁的原因在于channel的另一端没有goroutine写入了，当缓冲的channel为空时，主goroutine会一直阻塞在读取，同时也没有其他goroutine可以调度。</p>
 <p>读取超时处理</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -300,18 +301,18 @@
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="k">select</span> <span class="p">{</span>
-    <span class="k">case</span> <span class="o">&lt;-</span> <span class="nx">time</span><span class="p">.</span><span class="nf">After</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">):</span>
-        <span class="nb">println</span><span class="p">(</span><span class="s">&#34;read channel timeout&#34;</span><span class="p">)</span>
-    <span class="k">case</span> <span class="nx">i</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">ch</span><span class="p">:</span>
-        <span class="nb">println</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="o">&lt;-</span> <span class="nx">time</span><span class="p">.</span><span class="nf">After</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">println</span><span class="p">(</span><span class="s">&#34;read channel timeout&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="nx">i</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">ch</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">println</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>写入超时处理</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -319,19 +320,19 @@
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="k">select</span> <span class="p">{</span>
-    <span class="k">case</span> <span class="o">&lt;-</span> <span class="nx">time</span><span class="p">.</span><span class="nf">After</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">):</span>
-        <span class="nb">println</span><span class="p">(</span><span class="s">&#34;write channel timeout&#34;</span><span class="p">)</span>
-    <span class="k">case</span> <span class="nx">ch</span> <span class="o">&lt;-</span> <span class="s">&#34;Hello&#34;</span><span class="p">:</span>
-        <span class="nb">println</span><span class="p">(</span><span class="s">&#34;write ok&#34;</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="o">&lt;-</span> <span class="nx">time</span><span class="p">.</span><span class="nf">After</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">println</span><span class="p">(</span><span class="s">&#34;write channel timeout&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="nx">ch</span> <span class="o">&lt;-</span> <span class="s">&#34;Hello&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">println</span><span class="p">(</span><span class="s">&#34;write ok&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="遍历">遍历</h2>
 <p>for range</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -344,25 +345,25 @@
 </span><span class="lnt">11
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>  
-    <span class="nx">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
-    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;=</span> <span class="mi">5</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-        <span class="nx">c</span> <span class="o">&lt;-</span> <span class="nx">i</span>
-    <span class="p">}</span>
-    <span class="nb">close</span><span class="p">(</span><span class="nx">c</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">c</span> <span class="p">{</span>
-        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>  
+</span></span><span class="line"><span class="cl">    <span class="nx">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;=</span> <span class="mi">5</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">c</span> <span class="o">&lt;-</span> <span class="nx">i</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">close</span><span class="p">(</span><span class="nx">c</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">c</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>for range 遍历方式是阻塞型遍历方式;
 在遍历时，如果channel 没有关闭，那么会一直等待下去，出现 deadlock 的错误；如果在遍历时channel已经关闭，那么在遍历完数据后自动退出遍历。</p>
 <p>for select</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -392,35 +393,35 @@
 </span><span class="lnt">28
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">c1</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">)</span>
-    <span class="nx">c2</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">)</span>
-    <span class="nx">c3</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-        <span class="nx">c1</span><span class="o">&lt;-</span><span class="mi">1</span>
-    <span class="p">}()</span>
-    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="mi">2</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-            <span class="nx">c3</span> <span class="o">&lt;-</span> <span class="nx">i</span>
-        <span class="p">}</span>
-        <span class="nb">close</span><span class="p">(</span><span class="nx">c3</span><span class="p">)</span>
-    <span class="p">}()</span>
-    <span class="k">for</span> <span class="p">{</span>
-        <span class="k">select</span> <span class="p">{</span>
-        <span class="k">case</span> <span class="nx">c2</span> <span class="o">&lt;-</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;write to c2&#34;</span><span class="p">)</span>
-        <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">c1</span><span class="p">:</span>
-            <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;read from c1&#34;</span><span class="p">)</span>
-        <span class="k">case</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">c3</span><span class="p">:</span> <span class="c1">// 使用channel返回的第二个可选参数来判断channel是否关闭
-</span><span class="c1"></span>            <span class="k">if</span> <span class="p">!</span><span class="nx">ok</span> <span class="p">{</span>
-                <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;c3 closed&#34;</span><span class="p">)</span>
-                <span class="k">return</span>
-            <span class="p">}</span>
-            <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;read from c3&#34;</span><span class="p">)</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">c1</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">c2</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">c3</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">c1</span><span class="o">&lt;-</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="mi">2</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">c3</span> <span class="o">&lt;-</span> <span class="nx">i</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">close</span><span class="p">(</span><span class="nx">c3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="nx">c2</span> <span class="o">&lt;-</span> <span class="mi">1</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;write to c2&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">c1</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;read from c1&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">c3</span><span class="p">:</span> <span class="c1">// 使用channel返回的第二个可选参数来判断channel是否关闭
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">if</span> <span class="p">!</span><span class="nx">ok</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;c3 closed&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;read from c3&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>select可以处理非阻塞式消息发送、接收及多路选择;
 select关键字的灵感来源与unix中的I/O多路复用函数select;
@@ -558,7 +559,7 @@ select中有case代码块，用于channel发送或接收消息，任意一个cas
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -575,7 +576,7 @@ select中有case代码块，用于channel发送或接收消息，任意一个cas
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

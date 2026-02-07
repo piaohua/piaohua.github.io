@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/clickhouse/20230614-clickhouse-disk/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[ClickHouse] ClickHouse 查询表占用空间大小" />
-<meta property="og:description" content="ClickHouse查看数据库容量、表的指标、表分区、数据大小等。 业务表空间 通过 system.parts 查询数据库容量大小。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 SELECT formatReadableSize(sum(bytes)) AS bytes_size, formatReadableSize(sum(primary_key_bytes_in_memory))" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/clickhouse/20230614-clickhouse-disk/" />
-<meta property="article:published_time" content="2023-06-14T14:37:26+08:00" />
-<meta property="article:modified_time" content="2023-06-14T14:37:26+08:00" />
-<meta itemprop="name" content="[ClickHouse] ClickHouse 查询表占用空间大小">
-<meta itemprop="description" content="ClickHouse查看数据库容量、表的指标、表分区、数据大小等。 业务表空间 通过 system.parts 查询数据库容量大小。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 SELECT formatReadableSize(sum(bytes)) AS bytes_size, formatReadableSize(sum(primary_key_bytes_in_memory))">
-<meta itemprop="datePublished" content="2023-06-14T14:37:26&#43;08:00" />
-<meta itemprop="dateModified" content="2023-06-14T14:37:26&#43;08:00" />
-<meta itemprop="wordCount" content="2131">
+<meta property="og:url" content="https://piaohua.github.io/post/clickhouse/20230614-clickhouse-disk/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[ClickHouse] ClickHouse 查询表占用空间大小">
+  <meta property="og:description" content="ClickHouse查看数据库容量、表的指标、表分区、数据大小等。 业务表空间 通过 system.parts 查询数据库容量大小。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 SELECT formatReadableSize(sum(bytes)) AS bytes_size, formatReadableSize(sum(primary_key_bytes_in_memory))">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2023-06-14T14:37:26+08:00">
+    <meta property="article:modified_time" content="2023-06-14T14:37:26+08:00">
+    <meta property="article:tag" content="Clickhouse">
 
-
-
-<meta itemprop="keywords" content="clickhouse," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[ClickHouse] ClickHouse 查询表占用空间大小"/>
-<meta name="twitter:description" content="ClickHouse查看数据库容量、表的指标、表分区、数据大小等。 业务表空间 通过 system.parts 查询数据库容量大小。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 SELECT formatReadableSize(sum(bytes)) AS bytes_size, formatReadableSize(sum(primary_key_bytes_in_memory))"/>
+  <meta itemprop="name" content="[ClickHouse] ClickHouse 查询表占用空间大小">
+  <meta itemprop="description" content="ClickHouse查看数据库容量、表的指标、表分区、数据大小等。 业务表空间 通过 system.parts 查询数据库容量大小。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 SELECT formatReadableSize(sum(bytes)) AS bytes_size, formatReadableSize(sum(primary_key_bytes_in_memory))">
+  <meta itemprop="datePublished" content="2023-06-14T14:37:26+08:00">
+  <meta itemprop="dateModified" content="2023-06-14T14:37:26+08:00">
+  <meta itemprop="wordCount" content="2127">
+  <meta itemprop="keywords" content="Clickhouse"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[ClickHouse] ClickHouse 查询表占用空间大小">
+<meta name="twitter:description" content="ClickHouse查看数据库容量、表的指标、表分区、数据大小等。 业务表空间 通过 system.parts 查询数据库容量大小。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 SELECT formatReadableSize(sum(bytes)) AS bytes_size, formatReadableSize(sum(primary_key_bytes_in_memory))">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -143,7 +144,7 @@
         <div class="post-category">
             <a href="/categories/clickhouse/"> clickhouse </a>
             </div>
-          <span class="more-meta"> 2131 words </span>
+          <span class="more-meta"> 2127 words </span>
           <span class="more-meta"> 5 mins read </span>
         
       </div>
@@ -174,7 +175,7 @@
 <p>通过 <code>system.parts</code> 查询数据库容量大小。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -190,26 +191,26 @@
 </span><span class="lnt">14
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> 
-<span class="n">formatReadableSize</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">bytes</span><span class="p">))</span> <span class="k">AS</span> <span class="n">bytes_size</span><span class="p">,</span>
-<span class="n">formatReadableSize</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">primary_key_bytes_in_memory</span><span class="p">))</span> <span class="k">AS</span> <span class="n">primary_keys_size</span><span class="p">,</span>
-<span class="n">formatReadableSize</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">data_uncompressed_bytes</span><span class="p">))</span> <span class="k">AS</span> <span class="o">`</span><span class="err">原始大小</span><span class="o">`</span><span class="p">,</span>
-<span class="n">formatReadableSize</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">data_compressed_bytes</span><span class="p">))</span> <span class="k">AS</span> <span class="o">`</span><span class="err">压缩大小</span><span class="o">`</span><span class="p">,</span>
-<span class="n">round</span><span class="p">((</span><span class="k">sum</span><span class="p">(</span><span class="n">data_compressed_bytes</span><span class="p">)</span> <span class="o">/</span> <span class="k">sum</span><span class="p">(</span><span class="n">data_uncompressed_bytes</span><span class="p">))</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">AS</span> <span class="o">`</span><span class="err">压缩率</span><span class="o">`</span>
-<span class="k">FROM</span> <span class="k">system</span><span class="p">.</span><span class="n">parts</span> 
-<span class="k">where</span> <span class="k">database</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
-<span class="k">order</span> <span class="k">by</span> <span class="n">bytes_size</span> <span class="k">desc</span>
-<span class="k">limit</span> <span class="mi">10</span><span class="p">;</span>
-
-<span class="err">┌─</span><span class="n">bytes_size</span><span class="err">─┬─</span><span class="n">primary_keys_size</span><span class="err">─┬─原始大小──┬─压缩大小──┬─压缩率──┐</span>
-<span class="err">│</span> <span class="mi">11</span><span class="p">.</span><span class="mi">49</span> <span class="n">GiB</span>  <span class="err">│</span> <span class="mi">1</span><span class="p">.</span><span class="mi">07</span> <span class="n">MiB</span>          <span class="err">│</span> <span class="mi">24</span><span class="p">.</span><span class="mi">01</span> <span class="n">GiB</span> <span class="err">│</span> <span class="mi">11</span><span class="p">.</span><span class="mi">48</span> <span class="n">GiB</span> <span class="err">│</span>     <span class="mi">48</span> <span class="err">│</span>
-<span class="err">└────────────┴───────────────────┴───────────┴───────────┴────────┘</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">formatReadableSize</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">bytes</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">bytes_size</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">formatReadableSize</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">primary_key_bytes_in_memory</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">primary_keys_size</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">formatReadableSize</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">data_uncompressed_bytes</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="o">`</span><span class="err">原始大小</span><span class="o">`</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">formatReadableSize</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">data_compressed_bytes</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="o">`</span><span class="err">压缩大小</span><span class="o">`</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">round</span><span class="p">((</span><span class="k">sum</span><span class="p">(</span><span class="n">data_compressed_bytes</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">data_uncompressed_bytes</span><span class="p">))</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="o">`</span><span class="err">压缩率</span><span class="o">`</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="k">system</span><span class="p">.</span><span class="n">parts</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">where</span><span class="w"> </span><span class="k">database</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;default&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">bytes_size</span><span class="w"> </span><span class="k">desc</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">limit</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">┌─</span><span class="n">bytes_size</span><span class="err">─┬─</span><span class="n">primary_keys_size</span><span class="err">─┬─原始大小──┬─压缩大小──┬─压缩率──┐</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">│</span><span class="w"> </span><span class="mi">11</span><span class="p">.</span><span class="mi">49</span><span class="w"> </span><span class="n">GiB</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="mi">1</span><span class="p">.</span><span class="mi">07</span><span class="w"> </span><span class="n">MiB</span><span class="w">          </span><span class="err">│</span><span class="w"> </span><span class="mi">24</span><span class="p">.</span><span class="mi">01</span><span class="w"> </span><span class="n">GiB</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="mi">11</span><span class="p">.</span><span class="mi">48</span><span class="w"> </span><span class="n">GiB</span><span class="w"> </span><span class="err">│</span><span class="w">     </span><span class="mi">48</span><span class="w"> </span><span class="err">│</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">└────────────┴───────────────────┴───────────┴───────────┴────────┘</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>查看表分区情况</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -220,22 +221,20 @@
 </span><span class="lnt"> 9
 </span><span class="lnt">10
 </span><span class="lnt">11
-</span><span class="lnt">12
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> 
-<span class="n">partition</span>
-<span class="k">FROM</span> <span class="k">system</span><span class="p">.</span><span class="n">parts</span> 
-<span class="k">WHERE</span> <span class="n">active</span>
-    <span class="k">AND</span> <span class="k">database</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
-    <span class="k">AND</span> <span class="k">table</span> <span class="o">=</span> <span class="s1">&#39;user&#39;</span>
-
-<span class="err">┌─</span><span class="n">partition</span><span class="err">─┐</span>
-<span class="err">│</span> <span class="mi">210602</span>    <span class="err">│</span>
-<span class="err">│</span> <span class="mi">210602</span>    <span class="err">│</span>
-<span class="err">└───────────┘</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">partition</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="k">system</span><span class="p">.</span><span class="n">parts</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHERE</span><span class="w"> </span><span class="n">active</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="k">database</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;default&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;user&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">┌─</span><span class="n">partition</span><span class="err">─┐</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">│</span><span class="w"> </span><span class="mi">210602</span><span class="w">    </span><span class="err">│</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">│</span><span class="w"> </span><span class="mi">210602</span><span class="w">    </span><span class="err">│</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">└───────────┘</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="系统日志表">系统日志表</h2>
 <p>ClickHouse有许多系统表<a href="https://clickhouse.com/docs/en/operations/system-tables">System Table</a>，</p>
@@ -244,7 +243,7 @@
 <p>通过 system.parts 查看日志表大小</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -264,31 +263,31 @@
 </span><span class="lnt">18
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> <span class="k">sum</span><span class="p">(</span><span class="k">rows</span><span class="p">)</span> <span class="k">AS</span> <span class="o">`</span><span class="err">总行数</span><span class="o">`</span><span class="p">,</span>
-<span class="n">formatReadableSize</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">data_uncompressed_bytes</span><span class="p">))</span> <span class="k">AS</span> <span class="o">`</span><span class="err">原始大小</span><span class="o">`</span><span class="p">,</span>
-<span class="n">formatReadableSize</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">data_compressed_bytes</span><span class="p">))</span> <span class="k">AS</span> <span class="o">`</span><span class="err">压缩大小</span><span class="o">`</span><span class="p">,</span>
-<span class="n">round</span><span class="p">((</span><span class="k">sum</span><span class="p">(</span><span class="n">data_compressed_bytes</span><span class="p">)</span> <span class="o">/</span> <span class="k">sum</span><span class="p">(</span><span class="n">data_uncompressed_bytes</span><span class="p">))</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">AS</span> <span class="o">`</span><span class="err">压缩率</span><span class="o">`</span><span class="p">,</span>
-<span class="o">`</span><span class="k">table</span><span class="o">`</span> <span class="k">AS</span> <span class="o">`</span><span class="err">表名</span><span class="o">`</span>
-<span class="k">FROM</span> <span class="k">system</span><span class="p">.</span><span class="n">parts</span> 
-<span class="k">where</span> <span class="k">database</span> <span class="o">=</span> <span class="s1">&#39;system&#39;</span> 
-<span class="k">group</span> <span class="k">by</span> <span class="o">`</span><span class="k">table</span><span class="o">`</span>
-<span class="k">order</span> <span class="k">by</span> <span class="k">table</span> <span class="k">asc</span><span class="p">;</span>
-
-<span class="err">┌─────总行数─┬─原始大小──┬─压缩大小───┬─压缩率─┬─表名──────────────────────┐</span>
-<span class="err">│</span> <span class="mi">2513009176</span> <span class="err">│</span> <span class="mi">35</span><span class="p">.</span><span class="mi">12</span> <span class="n">GiB</span> <span class="err">│</span> <span class="mi">1</span><span class="p">.</span><span class="mi">69</span> <span class="n">GiB</span>   <span class="err">│</span>      <span class="mi">5</span> <span class="err">│</span> <span class="n">asynchronous_metric_log</span> <span class="err">│</span>
-<span class="err">│</span>   <span class="mi">13941652</span> <span class="err">│</span> <span class="mi">49</span><span class="p">.</span><span class="mi">52</span> <span class="n">GiB</span> <span class="err">│</span> <span class="mi">1</span><span class="p">.</span><span class="mi">33</span> <span class="n">GiB</span>   <span class="err">│</span>      <span class="mi">3</span> <span class="err">│</span> <span class="n">metric_log</span>              <span class="err">│</span>
-<span class="err">│</span>   <span class="mi">68050999</span> <span class="err">│</span> <span class="mi">15</span><span class="p">.</span><span class="mi">60</span> <span class="n">GiB</span> <span class="err">│</span> <span class="mi">2</span><span class="p">.</span><span class="mi">75</span> <span class="n">GiB</span>   <span class="err">│</span>     <span class="mi">18</span> <span class="err">│</span> <span class="n">part_log</span>                <span class="err">│</span>
-<span class="err">│</span>         <span class="mi">41</span> <span class="err">│</span> <span class="mi">57</span><span class="p">.</span><span class="mi">71</span> <span class="n">KiB</span> <span class="err">│</span> <span class="mi">15</span><span class="p">.</span><span class="mi">30</span> <span class="n">KiB</span>  <span class="err">│</span>     <span class="mi">27</span> <span class="err">│</span> <span class="n">query_log</span>               <span class="err">│</span>
-<span class="err">│</span>    <span class="mi">4457997</span> <span class="err">│</span> <span class="mi">6</span><span class="p">.</span><span class="mi">08</span> <span class="n">GiB</span>  <span class="err">│</span> <span class="mi">178</span><span class="p">.</span><span class="mi">01</span> <span class="n">MiB</span> <span class="err">│</span>      <span class="mi">3</span> <span class="err">│</span> <span class="n">query_views_log</span>         <span class="err">│</span>
-<span class="err">│</span>  <span class="mi">230288475</span> <span class="err">│</span> <span class="mi">68</span><span class="p">.</span><span class="mi">45</span> <span class="n">GiB</span> <span class="err">│</span> <span class="mi">4</span><span class="p">.</span><span class="mi">40</span> <span class="n">GiB</span>   <span class="err">│</span>      <span class="mi">6</span> <span class="err">│</span> <span class="n">trace_log</span>               <span class="err">│</span>
-<span class="err">└────────────┴───────────┴────────────┴────────┴─────────────────────────┘</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="k">rows</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="o">`</span><span class="err">总行数</span><span class="o">`</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">formatReadableSize</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">data_uncompressed_bytes</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="o">`</span><span class="err">原始大小</span><span class="o">`</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">formatReadableSize</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">data_compressed_bytes</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="o">`</span><span class="err">压缩大小</span><span class="o">`</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">round</span><span class="p">((</span><span class="k">sum</span><span class="p">(</span><span class="n">data_compressed_bytes</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">data_uncompressed_bytes</span><span class="p">))</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="o">`</span><span class="err">压缩率</span><span class="o">`</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">`</span><span class="k">table</span><span class="o">`</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="o">`</span><span class="err">表名</span><span class="o">`</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="k">system</span><span class="p">.</span><span class="n">parts</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">where</span><span class="w"> </span><span class="k">database</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;system&#39;</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">group</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="o">`</span><span class="k">table</span><span class="o">`</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="k">asc</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">┌─────总行数─┬─原始大小──┬─压缩大小───┬─压缩率─┬─表名──────────────────────┐</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">│</span><span class="w"> </span><span class="mi">2513009176</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="mi">35</span><span class="p">.</span><span class="mi">12</span><span class="w"> </span><span class="n">GiB</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="mi">1</span><span class="p">.</span><span class="mi">69</span><span class="w"> </span><span class="n">GiB</span><span class="w">   </span><span class="err">│</span><span class="w">      </span><span class="mi">5</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">asynchronous_metric_log</span><span class="w"> </span><span class="err">│</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">│</span><span class="w">   </span><span class="mi">13941652</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="mi">49</span><span class="p">.</span><span class="mi">52</span><span class="w"> </span><span class="n">GiB</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="mi">1</span><span class="p">.</span><span class="mi">33</span><span class="w"> </span><span class="n">GiB</span><span class="w">   </span><span class="err">│</span><span class="w">      </span><span class="mi">3</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">metric_log</span><span class="w">              </span><span class="err">│</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">│</span><span class="w">   </span><span class="mi">68050999</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="mi">15</span><span class="p">.</span><span class="mi">60</span><span class="w"> </span><span class="n">GiB</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="mi">2</span><span class="p">.</span><span class="mi">75</span><span class="w"> </span><span class="n">GiB</span><span class="w">   </span><span class="err">│</span><span class="w">     </span><span class="mi">18</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">part_log</span><span class="w">                </span><span class="err">│</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">│</span><span class="w">         </span><span class="mi">41</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="mi">57</span><span class="p">.</span><span class="mi">71</span><span class="w"> </span><span class="n">KiB</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="mi">15</span><span class="p">.</span><span class="mi">30</span><span class="w"> </span><span class="n">KiB</span><span class="w">  </span><span class="err">│</span><span class="w">     </span><span class="mi">27</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">query_log</span><span class="w">               </span><span class="err">│</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">│</span><span class="w">    </span><span class="mi">4457997</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="mi">6</span><span class="p">.</span><span class="mi">08</span><span class="w"> </span><span class="n">GiB</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="mi">178</span><span class="p">.</span><span class="mi">01</span><span class="w"> </span><span class="n">MiB</span><span class="w"> </span><span class="err">│</span><span class="w">      </span><span class="mi">3</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">query_views_log</span><span class="w">         </span><span class="err">│</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">│</span><span class="w">  </span><span class="mi">230288475</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="mi">68</span><span class="p">.</span><span class="mi">45</span><span class="w"> </span><span class="n">GiB</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="mi">4</span><span class="p">.</span><span class="mi">40</span><span class="w"> </span><span class="n">GiB</span><span class="w">   </span><span class="err">│</span><span class="w">      </span><span class="mi">6</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">trace_log</span><span class="w">               </span><span class="err">│</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">└────────────┴───────────┴────────────┴────────┴─────────────────────────┘</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="清理日志表">清理日志表</h3>
 <p>系统日志表默认配置按月分区，query_log为例，其配置信息如下：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -323,45 +322,45 @@
 </span><span class="lnt">33
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-xml" data-lang="xml"> <span class="nt">&lt;query_log&gt;</span>
-        <span class="c">&lt;!-- What table to insert data. If table is not exist, it will be created.
-</span><span class="c">             When query log structure is changed after system update,
-</span><span class="c">              then old table will be renamed and new table will be created automatically.
-</span><span class="c">        --&gt;</span>
-        <span class="nt">&lt;database&gt;</span>system<span class="nt">&lt;/database&gt;</span>
-        <span class="nt">&lt;table&gt;</span>query_log<span class="nt">&lt;/table&gt;</span>
-        <span class="c">&lt;!--
-</span><span class="c">            PARTITION BY expr: https://clickhouse.com/docs/en/table_engines/mergetree-family/custom_partitioning_key/
-</span><span class="c">            Example:
-</span><span class="c">                event_date
-</span><span class="c">                toMonday(event_date)
-</span><span class="c">                toYYYYMM(event_date)
-</span><span class="c">                toStartOfHour(event_time)
-</span><span class="c">        --&gt;</span>
-        <span class="nt">&lt;partition_by&gt;</span>toYYYYMM(event_date)<span class="nt">&lt;/partition_by&gt;</span>
-        <span class="c">&lt;!--
-</span><span class="c">            Table TTL specification: https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree/#mergetree-table-ttl
-</span><span class="c">            Example:
-</span><span class="c">                event_date + INTERVAL 1 WEEK
-</span><span class="c">                event_date + INTERVAL 7 DAY DELETE
-</span><span class="c">                event_date + INTERVAL 2 WEEK TO DISK &#39;bbb&#39;
-</span><span class="c">
-</span><span class="c">        &lt;ttl&gt;event_date + INTERVAL 30 DAY DELETE&lt;/ttl&gt;
-</span><span class="c">        --&gt;</span>
-
-        <span class="c">&lt;!-- Instead of partition_by, you can provide full engine expression (starting with ENGINE = ) with parameters,
-</span><span class="c">             Example: &lt;engine&gt;ENGINE = MergeTree PARTITION BY toYYYYMM(event_date) ORDER BY (event_date, event_time) SETTINGS index_granularity = 1024&lt;/engine&gt;
-</span><span class="c">          --&gt;</span>
-
-        <span class="c">&lt;!-- Interval of flushing data. --&gt;</span>
-        <span class="nt">&lt;flush_interval_milliseconds&gt;</span>7500<span class="nt">&lt;/flush_interval_milliseconds&gt;</span>
-    <span class="nt">&lt;/query_log&gt;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"> <span class="nt">&lt;query_log&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- What table to insert data. If table is not exist, it will be created.
+</span></span></span><span class="line"><span class="cl"><span class="c">             When query log structure is changed after system update,
+</span></span></span><span class="line"><span class="cl"><span class="c">              then old table will be renamed and new table will be created automatically.
+</span></span></span><span class="line"><span class="cl"><span class="c">        --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;database&gt;</span>system<span class="nt">&lt;/database&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;table&gt;</span>query_log<span class="nt">&lt;/table&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!--
+</span></span></span><span class="line"><span class="cl"><span class="c">            PARTITION BY expr: https://clickhouse.com/docs/en/table_engines/mergetree-family/custom_partitioning_key/
+</span></span></span><span class="line"><span class="cl"><span class="c">            Example:
+</span></span></span><span class="line"><span class="cl"><span class="c">                event_date
+</span></span></span><span class="line"><span class="cl"><span class="c">                toMonday(event_date)
+</span></span></span><span class="line"><span class="cl"><span class="c">                toYYYYMM(event_date)
+</span></span></span><span class="line"><span class="cl"><span class="c">                toStartOfHour(event_time)
+</span></span></span><span class="line"><span class="cl"><span class="c">        --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;partition_by&gt;</span>toYYYYMM(event_date)<span class="nt">&lt;/partition_by&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!--
+</span></span></span><span class="line"><span class="cl"><span class="c">            Table TTL specification: https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree/#mergetree-table-ttl
+</span></span></span><span class="line"><span class="cl"><span class="c">            Example:
+</span></span></span><span class="line"><span class="cl"><span class="c">                event_date + INTERVAL 1 WEEK
+</span></span></span><span class="line"><span class="cl"><span class="c">                event_date + INTERVAL 7 DAY DELETE
+</span></span></span><span class="line"><span class="cl"><span class="c">                event_date + INTERVAL 2 WEEK TO DISK &#39;bbb&#39;
+</span></span></span><span class="line"><span class="cl"><span class="c">
+</span></span></span><span class="line"><span class="cl"><span class="c">        &lt;ttl&gt;event_date + INTERVAL 30 DAY DELETE&lt;/ttl&gt;
+</span></span></span><span class="line"><span class="cl"><span class="c">        --&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- Instead of partition_by, you can provide full engine expression (starting with ENGINE = ) with parameters,
+</span></span></span><span class="line"><span class="cl"><span class="c">             Example: &lt;engine&gt;ENGINE = MergeTree PARTITION BY toYYYYMM(event_date) ORDER BY (event_date, event_time) SETTINGS index_granularity = 1024&lt;/engine&gt;
+</span></span></span><span class="line"><span class="cl"><span class="c">          --&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- Interval of flushing data. --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;flush_interval_milliseconds&gt;</span>7500<span class="nt">&lt;/flush_interval_milliseconds&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/query_log&gt;</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>查询<code>query_log</code>表的分区信息</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -372,22 +371,20 @@
 </span><span class="lnt"> 9
 </span><span class="lnt">10
 </span><span class="lnt">11
-</span><span class="lnt">12
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">&gt; select partition,name from system.parts where database=&#39;system&#39; and table=&#39;query_log&#39;;
-
-┌─partition─┬─name───────────┐
-│ 202306    │ 202306_1_14_3  │
-│ 202306    │ 202306_1_19_4  │
-│ 202306    │ 202306_15_15_0 │
-│ 202306    │ 202306_16_16_0 │
-│ 202306    │ 202306_17_17_0 │
-│ 202306    │ 202306_18_18_0 │
-│ 202306    │ 202306_19_19_0 │
-└───────────┴────────────────┘
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">&gt; select partition,name from system.parts where database=&#39;system&#39; and table=&#39;query_log&#39;;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">┌─partition─┬─name───────────┐
+</span></span><span class="line"><span class="cl">│ 202306    │ 202306_1_14_3  │
+</span></span><span class="line"><span class="cl">│ 202306    │ 202306_1_19_4  │
+</span></span><span class="line"><span class="cl">│ 202306    │ 202306_15_15_0 │
+</span></span><span class="line"><span class="cl">│ 202306    │ 202306_16_16_0 │
+</span></span><span class="line"><span class="cl">│ 202306    │ 202306_17_17_0 │
+</span></span><span class="line"><span class="cl">│ 202306    │ 202306_18_18_0 │
+</span></span><span class="line"><span class="cl">│ 202306    │ 202306_19_19_0 │
+</span></span><span class="line"><span class="cl">└───────────┴────────────────┘
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>有两种方法可以删除<code>query_log</code>表中数据。</p>
 <ul>
@@ -395,11 +392,11 @@
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">alter table system.query_log delete where event_date &lt; &#39;2023-06-01&#39;;
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">alter table system.query_log delete where event_date &lt; &#39;2023-06-01&#39;;
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>当表数据量大时，执行效率低。</p>
 <ul>
@@ -407,11 +404,11 @@
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">alter table system.query_log drop partition &#39;202306&#39;;
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">alter table system.query_log drop partition &#39;202306&#39;;
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>当删除分区过大时（默认为50GB），会删除失败。</p>
 <p>解决办法参考<a href="https://clickhouse.com/docs/en/operations/server-configuration-parameters/settings#max-table-size-to-drop">max_partition_size_to_drop</a></p>
@@ -422,11 +419,11 @@
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">alter</span> <span class="k">table</span> <span class="k">system</span><span class="p">.</span><span class="n">query_log</span> <span class="k">modify</span> <span class="n">ttl</span> <span class="n">event_date</span> <span class="o">+</span> <span class="n">toIntervalDay</span><span class="p">(</span><span class="mi">15</span><span class="p">);</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="k">system</span><span class="p">.</span><span class="n">query_log</span><span class="w"> </span><span class="k">modify</span><span class="w"> </span><span class="n">ttl</span><span class="w"> </span><span class="n">event_date</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">toIntervalDay</span><span class="p">(</span><span class="mi">15</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>设置<code>query_log</code>表日志过期时间为15天。</p>
 <ul>
@@ -434,7 +431,7 @@
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -467,50 +464,48 @@
 </span><span class="lnt">31
 </span><span class="lnt">32
 </span><span class="lnt">33
-</span><span class="lnt">34
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;query_log&gt;</span>
-        <span class="c">&lt;!-- What table to insert data. If table is not exist, it will be created.
-</span><span class="c">             When query log structure is changed after system update,
-</span><span class="c">              then old table will be renamed and new table will be created automatically.
-</span><span class="c">        --&gt;</span>
-        <span class="nt">&lt;database&gt;</span>system<span class="nt">&lt;/database&gt;</span>
-        <span class="nt">&lt;table&gt;</span>query_log<span class="nt">&lt;/table&gt;</span>
-        <span class="c">&lt;!--
-</span><span class="c">            PARTITION BY expr: https://clickhouse.com/docs/en/table_engines/mergetree-family/custom_partitioning_key/
-</span><span class="c">            Example:
-</span><span class="c">                event_date
-</span><span class="c">                toMonday(event_date)
-</span><span class="c">                toYYYYMM(event_date)
-</span><span class="c">                toStartOfHour(event_time)
-</span><span class="c">        --&gt;</span>
-        <span class="nt">&lt;partition_by&gt;</span>toYYYYMM(event_date)<span class="nt">&lt;/partition_by&gt;</span>
-        <span class="c">&lt;!--
-</span><span class="c">            Table TTL specification: https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree/#mergetree-table-ttl
-</span><span class="c">            Example:
-</span><span class="c">                event_date + INTERVAL 1 WEEK
-</span><span class="c">                event_date + INTERVAL 7 DAY DELETE
-</span><span class="c">                event_date + INTERVAL 2 WEEK TO DISK &#39;bbb&#39;
-</span><span class="c">
-</span><span class="c">        --&gt;</span>
-        <span class="nt">&lt;ttl&gt;</span>event_date + INTERVAL 15 DAY DELETE<span class="nt">&lt;/ttl&gt;</span>
-
-        <span class="c">&lt;!-- Instead of partition_by, you can provide full engine expression (starting with ENGINE = ) with parameters,
-</span><span class="c">             Example: &lt;engine&gt;ENGINE = MergeTree PARTITION BY toYYYYMM(event_date) ORDER BY (event_date, event_time) SETTINGS index_granularity = 1024&lt;/engine&gt;
-</span><span class="c">          --&gt;</span>
-
-        <span class="c">&lt;!-- Interval of flushing data. --&gt;</span>
-        <span class="nt">&lt;flush_interval_milliseconds&gt;</span>7500<span class="nt">&lt;/flush_interval_milliseconds&gt;</span>
-    <span class="nt">&lt;/query_log&gt;</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;query_log&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- What table to insert data. If table is not exist, it will be created.
+</span></span></span><span class="line"><span class="cl"><span class="c">             When query log structure is changed after system update,
+</span></span></span><span class="line"><span class="cl"><span class="c">              then old table will be renamed and new table will be created automatically.
+</span></span></span><span class="line"><span class="cl"><span class="c">        --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;database&gt;</span>system<span class="nt">&lt;/database&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;table&gt;</span>query_log<span class="nt">&lt;/table&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!--
+</span></span></span><span class="line"><span class="cl"><span class="c">            PARTITION BY expr: https://clickhouse.com/docs/en/table_engines/mergetree-family/custom_partitioning_key/
+</span></span></span><span class="line"><span class="cl"><span class="c">            Example:
+</span></span></span><span class="line"><span class="cl"><span class="c">                event_date
+</span></span></span><span class="line"><span class="cl"><span class="c">                toMonday(event_date)
+</span></span></span><span class="line"><span class="cl"><span class="c">                toYYYYMM(event_date)
+</span></span></span><span class="line"><span class="cl"><span class="c">                toStartOfHour(event_time)
+</span></span></span><span class="line"><span class="cl"><span class="c">        --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;partition_by&gt;</span>toYYYYMM(event_date)<span class="nt">&lt;/partition_by&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!--
+</span></span></span><span class="line"><span class="cl"><span class="c">            Table TTL specification: https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree/#mergetree-table-ttl
+</span></span></span><span class="line"><span class="cl"><span class="c">            Example:
+</span></span></span><span class="line"><span class="cl"><span class="c">                event_date + INTERVAL 1 WEEK
+</span></span></span><span class="line"><span class="cl"><span class="c">                event_date + INTERVAL 7 DAY DELETE
+</span></span></span><span class="line"><span class="cl"><span class="c">                event_date + INTERVAL 2 WEEK TO DISK &#39;bbb&#39;
+</span></span></span><span class="line"><span class="cl"><span class="c">
+</span></span></span><span class="line"><span class="cl"><span class="c">        --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;ttl&gt;</span>event_date + INTERVAL 15 DAY DELETE<span class="nt">&lt;/ttl&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- Instead of partition_by, you can provide full engine expression (starting with ENGINE = ) with parameters,
+</span></span></span><span class="line"><span class="cl"><span class="c">             Example: &lt;engine&gt;ENGINE = MergeTree PARTITION BY toYYYYMM(event_date) ORDER BY (event_date, event_time) SETTINGS index_granularity = 1024&lt;/engine&gt;
+</span></span></span><span class="line"><span class="cl"><span class="c">          --&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- Interval of flushing data. --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;flush_interval_milliseconds&gt;</span>7500<span class="nt">&lt;/flush_interval_milliseconds&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/query_log&gt;</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>设置ttl为15天过期。</p>
 <p>或者在engine参数中设置</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -546,55 +541,55 @@
 </span><span class="lnt">34
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;query_log&gt;</span>
-        <span class="c">&lt;!-- What table to insert data. If table is not exist, it will be created.
-</span><span class="c">             When query log structure is changed after system update,
-</span><span class="c">              then old table will be renamed and new table will be created automatically.
-</span><span class="c">        --&gt;</span>
-        <span class="nt">&lt;database&gt;</span>system<span class="nt">&lt;/database&gt;</span>
-        <span class="nt">&lt;table&gt;</span>query_log<span class="nt">&lt;/table&gt;</span>
-        <span class="c">&lt;!--
-</span><span class="c">            PARTITION BY expr: https://clickhouse.com/docs/en/table_engines/mergetree-family/custom_partitioning_key/
-</span><span class="c">            Example:
-</span><span class="c">                event_date
-</span><span class="c">                toMonday(event_date)
-</span><span class="c">                toYYYYMM(event_date)
-</span><span class="c">                toStartOfHour(event_time)
-</span><span class="c">        --&gt;</span>
-        <span class="nt">&lt;partition_by&gt;</span>toYYYYMM(event_date)<span class="nt">&lt;/partition_by&gt;</span>
-        <span class="c">&lt;!--
-</span><span class="c">            Table TTL specification: https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree/#mergetree-table-ttl
-</span><span class="c">            Example:
-</span><span class="c">                event_date + INTERVAL 1 WEEK
-</span><span class="c">                event_date + INTERVAL 7 DAY DELETE
-</span><span class="c">                event_date + INTERVAL 2 WEEK TO DISK &#39;bbb&#39;
-</span><span class="c">
-</span><span class="c">        --&gt;</span>
-        <span class="nt">&lt;ttl&gt;</span>event_date + INTERVAL 15 DAY DELETE<span class="nt">&lt;/ttl&gt;</span>
-
-        <span class="c">&lt;!-- Instead of partition_by, you can provide full engine expression (starting with ENGINE = ) with parameters,
-</span><span class="c">             Example: &lt;engine&gt;ENGINE = MergeTree PARTITION BY toYYYYMM(event_date) ORDER BY (event_date, event_time) SETTINGS index_granularity = 1024&lt;/engine&gt;
-</span><span class="c">          --&gt;</span>
-        <span class="nt">&lt;engine&gt;</span>Engine = MergeTree PARTITION BY event_date ORDER BY event_time TTL event_date + INTERVAL 15 day<span class="nt">&lt;/engine&gt;</span>
-
-        <span class="c">&lt;!-- Interval of flushing data. --&gt;</span>
-        <span class="nt">&lt;flush_interval_milliseconds&gt;</span>7500<span class="nt">&lt;/flush_interval_milliseconds&gt;</span>
-    <span class="nt">&lt;/query_log&gt;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;query_log&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- What table to insert data. If table is not exist, it will be created.
+</span></span></span><span class="line"><span class="cl"><span class="c">             When query log structure is changed after system update,
+</span></span></span><span class="line"><span class="cl"><span class="c">              then old table will be renamed and new table will be created automatically.
+</span></span></span><span class="line"><span class="cl"><span class="c">        --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;database&gt;</span>system<span class="nt">&lt;/database&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;table&gt;</span>query_log<span class="nt">&lt;/table&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!--
+</span></span></span><span class="line"><span class="cl"><span class="c">            PARTITION BY expr: https://clickhouse.com/docs/en/table_engines/mergetree-family/custom_partitioning_key/
+</span></span></span><span class="line"><span class="cl"><span class="c">            Example:
+</span></span></span><span class="line"><span class="cl"><span class="c">                event_date
+</span></span></span><span class="line"><span class="cl"><span class="c">                toMonday(event_date)
+</span></span></span><span class="line"><span class="cl"><span class="c">                toYYYYMM(event_date)
+</span></span></span><span class="line"><span class="cl"><span class="c">                toStartOfHour(event_time)
+</span></span></span><span class="line"><span class="cl"><span class="c">        --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;partition_by&gt;</span>toYYYYMM(event_date)<span class="nt">&lt;/partition_by&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!--
+</span></span></span><span class="line"><span class="cl"><span class="c">            Table TTL specification: https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree/#mergetree-table-ttl
+</span></span></span><span class="line"><span class="cl"><span class="c">            Example:
+</span></span></span><span class="line"><span class="cl"><span class="c">                event_date + INTERVAL 1 WEEK
+</span></span></span><span class="line"><span class="cl"><span class="c">                event_date + INTERVAL 7 DAY DELETE
+</span></span></span><span class="line"><span class="cl"><span class="c">                event_date + INTERVAL 2 WEEK TO DISK &#39;bbb&#39;
+</span></span></span><span class="line"><span class="cl"><span class="c">
+</span></span></span><span class="line"><span class="cl"><span class="c">        --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;ttl&gt;</span>event_date + INTERVAL 15 DAY DELETE<span class="nt">&lt;/ttl&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- Instead of partition_by, you can provide full engine expression (starting with ENGINE = ) with parameters,
+</span></span></span><span class="line"><span class="cl"><span class="c">             Example: &lt;engine&gt;ENGINE = MergeTree PARTITION BY toYYYYMM(event_date) ORDER BY (event_date, event_time) SETTINGS index_granularity = 1024&lt;/engine&gt;
+</span></span></span><span class="line"><span class="cl"><span class="c">          --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;engine&gt;</span>Engine = MergeTree PARTITION BY event_date ORDER BY event_time TTL event_date + INTERVAL 15 day<span class="nt">&lt;/engine&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- Interval of flushing data. --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;flush_interval_milliseconds&gt;</span>7500<span class="nt">&lt;/flush_interval_milliseconds&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/query_log&gt;</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>修改配置后重启<code>clickhouse-server</code></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">sudo /etc/init.d/clickhouse-server restart
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">sudo /etc/init.d/clickhouse-server restart
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>重启成功后，系统日志表可能会分表，如下：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -607,41 +602,39 @@
 </span><span class="lnt">11
 </span><span class="lnt">12
 </span><span class="lnt">13
-</span><span class="lnt">14
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">┌─────总行数─┬─原始大小───┬─压缩大小──┬─压缩率─┬─表名────────────────────────┐
-│   36447928 │ 522.15 MiB │ 28.36 MiB │      5 │ asynchronous_metric_log   │
-│ 2055180396 │ 28.72 GiB  │ 1.31 GiB  │      5 │ asynchronous_metric_log_0 │
-│      39861 │ 153.50 MiB │ 11.49 MiB │      7 │ metric_log                │
-│   10888256 │ 40.95 GiB  │ 1.61 GiB  │      4 │ metric_log_0              │
-│     150279 │ 36.24 MiB  │ 6.82 MiB  │     19 │ part_log                  │
-│  399724812 │ 94.02 GiB  │ 15.58 GiB │     17 │ part_log_0                │
-│     238332 │ 292.44 MiB │ 29.52 MiB │     10 │ query_log                 │
-│  387395848 │ 448.59 GiB │ 43.70 GiB │     10 │ query_log_0               │
-│   46233632 │ 59.73 GiB  │ 1.87 GiB  │      3 │ query_views_log           │
-│     255595 │ 76.37 MiB  │ 7.44 MiB  │     10 │ trace_log                 │
-│  539787879 │ 161.39 GiB │ 13.79 GiB │      9 │ trace_log_0               │
-└────────────┴────────────┴───────────┴────────┴───────────────────────────┘
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">┌─────总行数─┬─原始大小───┬─压缩大小──┬─压缩率─┬─表名────────────────────────┐
+</span></span><span class="line"><span class="cl">│   36447928 │ 522.15 MiB │ 28.36 MiB │      5 │ asynchronous_metric_log   │
+</span></span><span class="line"><span class="cl">│ 2055180396 │ 28.72 GiB  │ 1.31 GiB  │      5 │ asynchronous_metric_log_0 │
+</span></span><span class="line"><span class="cl">│      39861 │ 153.50 MiB │ 11.49 MiB │      7 │ metric_log                │
+</span></span><span class="line"><span class="cl">│   10888256 │ 40.95 GiB  │ 1.61 GiB  │      4 │ metric_log_0              │
+</span></span><span class="line"><span class="cl">│     150279 │ 36.24 MiB  │ 6.82 MiB  │     19 │ part_log                  │
+</span></span><span class="line"><span class="cl">│  399724812 │ 94.02 GiB  │ 15.58 GiB │     17 │ part_log_0                │
+</span></span><span class="line"><span class="cl">│     238332 │ 292.44 MiB │ 29.52 MiB │     10 │ query_log                 │
+</span></span><span class="line"><span class="cl">│  387395848 │ 448.59 GiB │ 43.70 GiB │     10 │ query_log_0               │
+</span></span><span class="line"><span class="cl">│   46233632 │ 59.73 GiB  │ 1.87 GiB  │      3 │ query_views_log           │
+</span></span><span class="line"><span class="cl">│     255595 │ 76.37 MiB  │ 7.44 MiB  │     10 │ trace_log                 │
+</span></span><span class="line"><span class="cl">│  539787879 │ 161.39 GiB │ 13.79 GiB │      9 │ trace_log_0               │
+</span></span><span class="line"><span class="cl">└────────────┴────────────┴───────────┴────────┴───────────────────────────┘
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>可以选择删除或清理旧的日志表来释放空间，比如：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">alter</span> <span class="k">table</span> <span class="k">system</span><span class="p">.</span><span class="n">trace_log_0</span> <span class="k">modify</span> <span class="n">ttl</span> <span class="n">event_date</span> <span class="o">+</span> <span class="n">toIntervalDay</span><span class="p">(</span><span class="mi">30</span><span class="p">);</span>
-<span class="k">alter</span> <span class="k">table</span> <span class="k">system</span><span class="p">.</span><span class="n">query_log_0</span> <span class="k">modify</span> <span class="n">ttl</span> <span class="n">event_date</span> <span class="o">+</span> <span class="n">toIntervalDay</span><span class="p">(</span><span class="mi">30</span><span class="p">);</span>
-<span class="k">alter</span> <span class="k">table</span> <span class="k">system</span><span class="p">.</span><span class="n">part_log_0</span> <span class="k">modify</span> <span class="n">ttl</span> <span class="n">event_date</span> <span class="o">+</span> <span class="n">toIntervalDay</span><span class="p">(</span><span class="mi">30</span><span class="p">);</span>
-<span class="k">alter</span> <span class="k">table</span> <span class="k">system</span><span class="p">.</span><span class="n">metric_log_0</span> <span class="k">modify</span> <span class="n">ttl</span> <span class="n">event_date</span> <span class="o">+</span> <span class="n">toIntervalDay</span><span class="p">(</span><span class="mi">30</span><span class="p">);</span>
-<span class="k">alter</span> <span class="k">table</span> <span class="k">system</span><span class="p">.</span><span class="n">asynchronous_metric_log_0</span> <span class="k">modify</span> <span class="n">ttl</span> <span class="n">event_date</span> <span class="o">+</span> <span class="n">toIntervalDay</span><span class="p">(</span><span class="mi">30</span><span class="p">);</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="k">system</span><span class="p">.</span><span class="n">trace_log_0</span><span class="w"> </span><span class="k">modify</span><span class="w"> </span><span class="n">ttl</span><span class="w"> </span><span class="n">event_date</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">toIntervalDay</span><span class="p">(</span><span class="mi">30</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="k">system</span><span class="p">.</span><span class="n">query_log_0</span><span class="w"> </span><span class="k">modify</span><span class="w"> </span><span class="n">ttl</span><span class="w"> </span><span class="n">event_date</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">toIntervalDay</span><span class="p">(</span><span class="mi">30</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="k">system</span><span class="p">.</span><span class="n">part_log_0</span><span class="w"> </span><span class="k">modify</span><span class="w"> </span><span class="n">ttl</span><span class="w"> </span><span class="n">event_date</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">toIntervalDay</span><span class="p">(</span><span class="mi">30</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="k">system</span><span class="p">.</span><span class="n">metric_log_0</span><span class="w"> </span><span class="k">modify</span><span class="w"> </span><span class="n">ttl</span><span class="w"> </span><span class="n">event_date</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">toIntervalDay</span><span class="p">(</span><span class="mi">30</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="k">system</span><span class="p">.</span><span class="n">asynchronous_metric_log_0</span><span class="w"> </span><span class="k">modify</span><span class="w"> </span><span class="n">ttl</span><span class="w"> </span><span class="n">event_date</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">toIntervalDay</span><span class="p">(</span><span class="mi">30</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -752,7 +745,7 @@
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -769,7 +762,7 @@
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

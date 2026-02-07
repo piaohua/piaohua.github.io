@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20250921-nats-websocket/" />
@@ -35,27 +35,30 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="使用 NATS 处理 WebSocket 连接" />
-<meta property="og:description" content="使用 NATS 处理 WebSocket 连接 在 Golang 中使用 NATS 来处理 WebSocket 连接并实现消息的发布和订阅，是一种构建分布式实时应用的常见模式。 下面示例将先展示如何使用 github.com/gorilla/websocket 处理 WebSocket 连接，并" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20250921-nats-websocket/" />
-<meta property="article:published_time" content="2025-09-21T14:20:23+08:00" />
-<meta property="article:modified_time" content="2025-09-21T14:20:23+08:00" />
-<meta itemprop="name" content="使用 NATS 处理 WebSocket 连接">
-<meta itemprop="description" content="使用 NATS 处理 WebSocket 连接 在 Golang 中使用 NATS 来处理 WebSocket 连接并实现消息的发布和订阅，是一种构建分布式实时应用的常见模式。 下面示例将先展示如何使用 github.com/gorilla/websocket 处理 WebSocket 连接，并">
-<meta itemprop="datePublished" content="2025-09-21T14:20:23&#43;08:00" />
-<meta itemprop="dateModified" content="2025-09-21T14:20:23&#43;08:00" />
-<meta itemprop="wordCount" content="3416">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20250921-nats-websocket/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="使用 NATS 处理 WebSocket 连接">
+  <meta property="og:description" content="使用 NATS 处理 WebSocket 连接 在 Golang 中使用 NATS 来处理 WebSocket 连接并实现消息的发布和订阅，是一种构建分布式实时应用的常见模式。 下面示例将先展示如何使用 github.com/gorilla/websocket 处理 WebSocket 连接，并">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2025-09-21T14:20:23+08:00">
+    <meta property="article:modified_time" content="2025-09-21T14:20:23+08:00">
+    <meta property="article:tag" content="Golang">
+    <meta property="article:tag" content="Nats">
+    <meta property="article:tag" content="Websocket">
 
-
-
-<meta itemprop="keywords" content="golang,nats,websocket," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="使用 NATS 处理 WebSocket 连接"/>
-<meta name="twitter:description" content="使用 NATS 处理 WebSocket 连接 在 Golang 中使用 NATS 来处理 WebSocket 连接并实现消息的发布和订阅，是一种构建分布式实时应用的常见模式。 下面示例将先展示如何使用 github.com/gorilla/websocket 处理 WebSocket 连接，并"/>
+  <meta itemprop="name" content="使用 NATS 处理 WebSocket 连接">
+  <meta itemprop="description" content="使用 NATS 处理 WebSocket 连接 在 Golang 中使用 NATS 来处理 WebSocket 连接并实现消息的发布和订阅，是一种构建分布式实时应用的常见模式。 下面示例将先展示如何使用 github.com/gorilla/websocket 处理 WebSocket 连接，并">
+  <meta itemprop="datePublished" content="2025-09-21T14:20:23+08:00">
+  <meta itemprop="dateModified" content="2025-09-21T14:20:23+08:00">
+  <meta itemprop="wordCount" content="3415">
+  <meta itemprop="keywords" content="Golang,Nats,Websocket"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="使用 NATS 处理 WebSocket 连接">
+<meta name="twitter:description" content="使用 NATS 处理 WebSocket 连接 在 Golang 中使用 NATS 来处理 WebSocket 连接并实现消息的发布和订阅，是一种构建分布式实时应用的常见模式。 下面示例将先展示如何使用 github.com/gorilla/websocket 处理 WebSocket 连接，并">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -144,7 +147,7 @@
             <a href="/categories/golang/"> golang </a>
             <a href="/categories/websocket/"> websocket </a>
             </div>
-          <span class="more-meta"> 3416 words </span>
+          <span class="more-meta"> 3415 words </span>
           <span class="more-meta"> 7 mins read </span>
         
       </div>
@@ -188,7 +191,7 @@
 <p>服务端将处理 WebSocket 升级，接收客户端消息并通过 NATS 发布，同时订阅 NATS 主题并将消息写回 WebSocket 客户端。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">  1
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
 </span><span class="lnt">  2
 </span><span class="lnt">  3
 </span><span class="lnt">  4
@@ -315,138 +318,138 @@
 </span><span class="lnt">125
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-golang" data-lang="golang"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-	<span class="s">&#34;log&#34;</span>
-	<span class="s">&#34;net/http&#34;</span>
-	<span class="s">&#34;sync&#34;</span>
-	<span class="s">&#34;time&#34;</span>
-
-	<span class="s">&#34;github.com/gorilla/websocket&#34;</span>
-	<span class="s">&#34;github.com/nats-io/nats.go&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">var</span> <span class="nx">upgrader</span> <span class="p">=</span> <span class="nx">websocket</span><span class="p">.</span><span class="nx">Upgrader</span><span class="p">{</span>
-	<span class="nx">CheckOrigin</span><span class="p">:</span> <span class="kd">func</span><span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
-		<span class="k">return</span> <span class="kc">true</span> <span class="c1">// 在生产环境中应检查来源
-</span><span class="c1"></span>	<span class="p">},</span>
-	<span class="nx">ReadBufferSize</span><span class="p">:</span>  <span class="mi">1024</span><span class="p">,</span>
-	<span class="nx">WriteBufferSize</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span>
-<span class="p">}</span>
-
-<span class="c1">// Client 代表一个 WebSocket 连接
-</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Client</span> <span class="kd">struct</span> <span class="p">{</span>
-	<span class="nx">conn</span> <span class="o">*</span><span class="nx">websocket</span><span class="p">.</span><span class="nx">Conn</span>
-	<span class="nx">mu</span>   <span class="nx">sync</span><span class="p">.</span><span class="nx">Mutex</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">Client</span><span class="p">)</span> <span class="nf">writeMessage</span><span class="p">(</span><span class="nx">message</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
-	<span class="nx">c</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nf">Lock</span><span class="p">()</span>
-	<span class="k">defer</span> <span class="nx">c</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nf">Unlock</span><span class="p">()</span>
-	<span class="k">return</span> <span class="nx">c</span><span class="p">.</span><span class="nx">conn</span><span class="p">.</span><span class="nf">WriteMessage</span><span class="p">(</span><span class="nx">websocket</span><span class="p">.</span><span class="nx">TextMessage</span><span class="p">,</span> <span class="nx">message</span><span class="p">)</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-	<span class="c1">// 连接到 NATS 服务器
-</span><span class="c1"></span>    <span class="c1">// 使用 nats.DefaultURL 连接到本地 NATS 服务器（nats://localhost:4222）
-</span><span class="c1"></span>    <span class="c1">// 你可以根据你的 NATS 服务器地址进行修改，例如：nats.Connect(&#34;nats://your-nats-server:4222&#34;)
-</span><span class="c1"></span>	<span class="nx">nc</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">nats</span><span class="p">.</span><span class="nf">Connect</span><span class="p">(</span><span class="nx">nats</span><span class="p">.</span><span class="nx">DefaultURL</span><span class="p">)</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="s">&#34;NATS 连接失败: &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-	<span class="p">}</span>
-	<span class="k">defer</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
-	<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;已连接到 NATS 服务器&#34;</span><span class="p">)</span>
-
-	<span class="c1">// 用于保存所有连接的客户端
-</span><span class="c1"></span>	<span class="nx">clients</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="o">*</span><span class="nx">Client</span><span class="p">]</span><span class="kt">bool</span><span class="p">)</span>
-	<span class="kd">var</span> <span class="nx">mu</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">Mutex</span>
-
-	<span class="c1">// 订阅 NATS 主题，接收来自其他服务的消息并广播给所有 WebSocket 客户端
-</span><span class="c1"></span>	<span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Subscribe</span><span class="p">(</span><span class="s">&#34;chat.broadcast&#34;</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">m</span> <span class="o">*</span><span class="nx">nats</span><span class="p">.</span><span class="nx">Msg</span><span class="p">)</span> <span class="p">{</span>
-		<span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;从 NATS 收到广播消息: %s\n&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">Data</span><span class="p">))</span>
-		<span class="nx">mu</span><span class="p">.</span><span class="nf">Lock</span><span class="p">()</span>
-		<span class="k">defer</span> <span class="nx">mu</span><span class="p">.</span><span class="nf">Unlock</span><span class="p">()</span>
-		<span class="k">for</span> <span class="nx">client</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">clients</span> <span class="p">{</span>
-			<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">writeMessage</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">Data</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-				<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;写消息错误: &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-				<span class="c1">// 处理错误连接，这里简化处理
-</span><span class="c1"></span>			<span class="p">}</span>
-		<span class="p">}</span>
-	<span class="p">})</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="s">&#34;NATS 订阅失败: &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-	<span class="p">}</span>
-
-	<span class="nx">http</span><span class="p">.</span><span class="nf">HandleFunc</span><span class="p">(</span><span class="s">&#34;/ws&#34;</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
-		<span class="nx">conn</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">upgrader</span><span class="p">.</span><span class="nf">Upgrade</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">r</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
-		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-			<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;WebSocket 升级失败: &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-			<span class="k">return</span>
-		<span class="p">}</span>
-		<span class="k">defer</span> <span class="nx">conn</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
-
-		<span class="nx">client</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">Client</span><span class="p">{</span><span class="nx">conn</span><span class="p">:</span> <span class="nx">conn</span><span class="p">}</span>
-		<span class="nx">mu</span><span class="p">.</span><span class="nf">Lock</span><span class="p">()</span>
-		<span class="nx">clients</span><span class="p">[</span><span class="nx">client</span><span class="p">]</span> <span class="p">=</span> <span class="kc">true</span>
-		<span class="nx">mu</span><span class="p">.</span><span class="nf">Unlock</span><span class="p">()</span>
-		<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;新的 WebSocket 客户端连接&#34;</span><span class="p">)</span>
-
-		<span class="c1">// 确保在连接关闭时清理客户端
-</span><span class="c1"></span>		<span class="k">defer</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-			<span class="nx">mu</span><span class="p">.</span><span class="nf">Lock</span><span class="p">()</span>
-			<span class="nb">delete</span><span class="p">(</span><span class="nx">clients</span><span class="p">,</span> <span class="nx">client</span><span class="p">)</span>
-			<span class="nx">mu</span><span class="p">.</span><span class="nf">Unlock</span><span class="p">()</span>
-			<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;WebSocket 客户端断开连接&#34;</span><span class="p">)</span>
-		<span class="p">}()</span>
-
-		<span class="c1">// 处理来自 WebSocket 客户端的消息
-</span><span class="c1"></span>		<span class="k">for</span> <span class="p">{</span>
-			<span class="nx">_</span><span class="p">,</span> <span class="nx">message</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">conn</span><span class="p">.</span><span class="nf">ReadMessage</span><span class="p">()</span>
-			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-				<span class="k">if</span> <span class="nx">websocket</span><span class="p">.</span><span class="nf">IsUnexpectedCloseError</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">websocket</span><span class="p">.</span><span class="nx">CloseGoingAway</span><span class="p">,</span> <span class="nx">websocket</span><span class="p">.</span><span class="nx">CloseAbnormalClosure</span><span class="p">)</span> <span class="p">{</span>
-					<span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;读取错误: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-				<span class="p">}</span>
-				<span class="k">break</span>
-			<span class="p">}</span>
-			<span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;从 WebSocket 收到: %s\n&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">message</span><span class="p">))</span>
-
-			<span class="c1">// 将收到的消息发布到 NATS 主题
-</span><span class="c1"></span>			<span class="nx">err</span> <span class="p">=</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Publish</span><span class="p">(</span><span class="s">&#34;chat.message&#34;</span><span class="p">,</span> <span class="nx">message</span><span class="p">)</span>
-			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-				<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;发布到 NATS 错误: &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-			<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-				<span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;消息已发布到 NATS 主题 &#39;chat.message&#39;&#34;</span><span class="p">)</span>
-			<span class="p">}</span>
-
-			<span class="c1">// 可选：立即回复客户端一个确认消息
-</span><span class="c1"></span>			<span class="nx">replyMsg</span> <span class="o">:=</span> <span class="s">&#34;服务器已收到消息: &#34;</span> <span class="o">+</span> <span class="nb">string</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span>
-			<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">writeMessage</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">replyMsg</span><span class="p">));</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-				<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;写回复错误: &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-				<span class="k">break</span>
-			<span class="p">}</span>
-		<span class="p">}</span>
-	<span class="p">})</span>
-
-	<span class="c1">// 启动一个 goroutine 来定期广播服务器时间（可选，演示用）
-</span><span class="c1"></span>	<span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-		<span class="k">for</span> <span class="p">{</span>
-			<span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
-			<span class="nx">message</span> <span class="o">:=</span> <span class="s">&#34;服务器时间: &#34;</span> <span class="o">+</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Format</span><span class="p">(</span><span class="s">&#34;2006-01-02 15:04:05&#34;</span><span class="p">)</span>
-			<span class="nx">nc</span><span class="p">.</span><span class="nf">Publish</span><span class="p">(</span><span class="s">&#34;chat.broadcast&#34;</span><span class="p">,</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">message</span><span class="p">))</span>
-		<span class="p">}</span>
-	<span class="p">}()</span>
-
-	<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;WebSocket 服务器在 :8080 端口启动&#34;</span><span class="p">)</span>
-	<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nf">ListenAndServe</span><span class="p">(</span><span class="s">&#34;:8080&#34;</span><span class="p">,</span> <span class="kc">nil</span><span class="p">))</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-golang" data-lang="golang"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;log&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;net/http&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;sync&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/gorilla/websocket&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/nats-io/nats.go&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">upgrader</span> <span class="p">=</span> <span class="nx">websocket</span><span class="p">.</span><span class="nx">Upgrader</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">CheckOrigin</span><span class="p">:</span> <span class="kd">func</span><span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">true</span> <span class="c1">// 在生产环境中应检查来源
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="p">},</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">ReadBufferSize</span><span class="p">:</span>  <span class="mi">1024</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">WriteBufferSize</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Client 代表一个 WebSocket 连接
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">type</span> <span class="nx">Client</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">conn</span> <span class="o">*</span><span class="nx">websocket</span><span class="p">.</span><span class="nx">Conn</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">mu</span>   <span class="nx">sync</span><span class="p">.</span><span class="nx">Mutex</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">Client</span><span class="p">)</span> <span class="nf">writeMessage</span><span class="p">(</span><span class="nx">message</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">c</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nf">Lock</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nx">c</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nf">Unlock</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">c</span><span class="p">.</span><span class="nx">conn</span><span class="p">.</span><span class="nf">WriteMessage</span><span class="p">(</span><span class="nx">websocket</span><span class="p">.</span><span class="nx">TextMessage</span><span class="p">,</span> <span class="nx">message</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 连接到 NATS 服务器
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// 使用 nats.DefaultURL 连接到本地 NATS 服务器（nats://localhost:4222）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// 你可以根据你的 NATS 服务器地址进行修改，例如：nats.Connect(&#34;nats://your-nats-server:4222&#34;)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">nc</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">nats</span><span class="p">.</span><span class="nf">Connect</span><span class="p">(</span><span class="nx">nats</span><span class="p">.</span><span class="nx">DefaultURL</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="s">&#34;NATS 连接失败: &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;已连接到 NATS 服务器&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 用于保存所有连接的客户端
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">clients</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="o">*</span><span class="nx">Client</span><span class="p">]</span><span class="kt">bool</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">var</span> <span class="nx">mu</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">Mutex</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 订阅 NATS 主题，接收来自其他服务的消息并广播给所有 WebSocket 客户端
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Subscribe</span><span class="p">(</span><span class="s">&#34;chat.broadcast&#34;</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">m</span> <span class="o">*</span><span class="nx">nats</span><span class="p">.</span><span class="nx">Msg</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;从 NATS 收到广播消息: %s\n&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">Data</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">mu</span><span class="p">.</span><span class="nf">Lock</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">		<span class="k">defer</span> <span class="nx">mu</span><span class="p">.</span><span class="nf">Unlock</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">		<span class="k">for</span> <span class="nx">client</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">clients</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">writeMessage</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">Data</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;写消息错误: &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">				<span class="c1">// 处理错误连接，这里简化处理
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">})</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="s">&#34;NATS 订阅失败: &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">http</span><span class="p">.</span><span class="nf">HandleFunc</span><span class="p">(</span><span class="s">&#34;/ws&#34;</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">conn</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">upgrader</span><span class="p">.</span><span class="nf">Upgrade</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">r</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;WebSocket 升级失败: &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">return</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="k">defer</span> <span class="nx">conn</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="nx">client</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">Client</span><span class="p">{</span><span class="nx">conn</span><span class="p">:</span> <span class="nx">conn</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">mu</span><span class="p">.</span><span class="nf">Lock</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">clients</span><span class="p">[</span><span class="nx">client</span><span class="p">]</span> <span class="p">=</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">mu</span><span class="p">.</span><span class="nf">Unlock</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;新的 WebSocket 客户端连接&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="c1">// 确保在连接关闭时清理客户端
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="k">defer</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">mu</span><span class="p">.</span><span class="nf">Lock</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">			<span class="nb">delete</span><span class="p">(</span><span class="nx">clients</span><span class="p">,</span> <span class="nx">client</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">mu</span><span class="p">.</span><span class="nf">Unlock</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;WebSocket 客户端断开连接&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="c1">// 处理来自 WebSocket 客户端的消息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">_</span><span class="p">,</span> <span class="nx">message</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">conn</span><span class="p">.</span><span class="nf">ReadMessage</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="k">if</span> <span class="nx">websocket</span><span class="p">.</span><span class="nf">IsUnexpectedCloseError</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">websocket</span><span class="p">.</span><span class="nx">CloseGoingAway</span><span class="p">,</span> <span class="nx">websocket</span><span class="p">.</span><span class="nx">CloseAbnormalClosure</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">					<span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;读取错误: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">				<span class="p">}</span>
+</span></span><span class="line"><span class="cl">				<span class="k">break</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;从 WebSocket 收到: %s\n&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">message</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">			<span class="c1">// 将收到的消息发布到 NATS 主题
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="nx">err</span> <span class="p">=</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Publish</span><span class="p">(</span><span class="s">&#34;chat.message&#34;</span><span class="p">,</span> <span class="nx">message</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;发布到 NATS 错误: &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;消息已发布到 NATS 主题 &#39;chat.message&#39;&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">			<span class="c1">// 可选：立即回复客户端一个确认消息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="nx">replyMsg</span> <span class="o">:=</span> <span class="s">&#34;服务器已收到消息: &#34;</span> <span class="o">+</span> <span class="nb">string</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">writeMessage</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">replyMsg</span><span class="p">));</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;写回复错误: &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">				<span class="k">break</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">})</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 启动一个 goroutine 来定期广播服务器时间（可选，演示用）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">message</span> <span class="o">:=</span> <span class="s">&#34;服务器时间: &#34;</span> <span class="o">+</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Format</span><span class="p">(</span><span class="s">&#34;2006-01-02 15:04:05&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">nc</span><span class="p">.</span><span class="nf">Publish</span><span class="p">(</span><span class="s">&#34;chat.broadcast&#34;</span><span class="p">,</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">message</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;WebSocket 服务器在 :8080 端口启动&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nf">ListenAndServe</span><span class="p">(</span><span class="s">&#34;:8080&#34;</span><span class="p">,</span> <span class="kc">nil</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="客户端测试代码-golang">客户端测试代码 (Golang)</h3>
 <p>这个 Golang 客户端测试程序将连接到 WebSocket 服务器，发送一条消息，并接收来自服务器的消息。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -514,73 +517,73 @@
 </span><span class="lnt">66
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-golang" data-lang="golang"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-	<span class="s">&#34;log&#34;</span>
-	<span class="s">&#34;os&#34;</span>
-	<span class="s">&#34;os/signal&#34;</span>
-	<span class="s">&#34;time&#34;</span>
-
-	<span class="s">&#34;github.com/gorilla/websocket&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-	<span class="nx">interrupt</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Signal</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-	<span class="nx">signal</span><span class="p">.</span><span class="nf">Notify</span><span class="p">(</span><span class="nx">interrupt</span><span class="p">,</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Interrupt</span><span class="p">)</span>
-
-	<span class="c1">// 连接到 WebSocket 服务器
-</span><span class="c1"></span>	<span class="nx">url</span> <span class="o">:=</span> <span class="s">&#34;ws://localhost:8080/ws&#34;</span>
-	<span class="nx">c</span><span class="p">,</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">websocket</span><span class="p">.</span><span class="nx">DefaultDialer</span><span class="p">.</span><span class="nf">Dial</span><span class="p">(</span><span class="nx">url</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="s">&#34;连接失败:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-	<span class="p">}</span>
-	<span class="k">defer</span> <span class="nx">c</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
-	<span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;已连接到服务器 %s&#34;</span><span class="p">,</span> <span class="nx">url</span><span class="p">)</span>
-
-	<span class="nx">done</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{})</span>
-
-	<span class="c1">// 接收消息的 goroutine
-</span><span class="c1"></span>	<span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-		<span class="k">defer</span> <span class="nb">close</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span>
-		<span class="k">for</span> <span class="p">{</span>
-			<span class="nx">_</span><span class="p">,</span> <span class="nx">message</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nf">ReadMessage</span><span class="p">()</span>
-			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-				<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;读取错误:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-				<span class="k">return</span>
-			<span class="p">}</span>
-			<span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;收到: %s&#34;</span><span class="p">,</span> <span class="nx">message</span><span class="p">)</span>
-		<span class="p">}</span>
-	<span class="p">}()</span>
-
-	<span class="c1">// 发送一条测试消息
-</span><span class="c1"></span>	<span class="nx">testMsg</span> <span class="o">:=</span> <span class="s">&#34;Hello, NATS over WebSocket!&#34;</span>
-	<span class="nx">err</span> <span class="p">=</span> <span class="nx">c</span><span class="p">.</span><span class="nf">WriteMessage</span><span class="p">(</span><span class="nx">websocket</span><span class="p">.</span><span class="nx">TextMessage</span><span class="p">,</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">testMsg</span><span class="p">))</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;写入错误:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-		<span class="k">return</span>
-	<span class="p">}</span>
-	<span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;已发送: %s&#34;</span><span class="p">,</span> <span class="nx">testMsg</span><span class="p">)</span>
-
-	<span class="c1">// 等待中断信号或接收完成
-</span><span class="c1"></span>	<span class="k">select</span> <span class="p">{</span>
-	<span class="k">case</span> <span class="o">&lt;-</span><span class="nx">done</span><span class="p">:</span>
-	<span class="k">case</span> <span class="o">&lt;-</span><span class="nx">interrupt</span><span class="p">:</span>
-		<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;收到中断信号&#34;</span><span class="p">)</span>
-	<span class="p">}</span>
-
-	<span class="c1">// 清理关闭
-</span><span class="c1"></span>	<span class="nx">err</span> <span class="p">=</span> <span class="nx">c</span><span class="p">.</span><span class="nf">WriteMessage</span><span class="p">(</span><span class="nx">websocket</span><span class="p">.</span><span class="nx">CloseMessage</span><span class="p">,</span> <span class="nx">websocket</span><span class="p">.</span><span class="nf">FormatCloseMessage</span><span class="p">(</span><span class="nx">websocket</span><span class="p">.</span><span class="nx">CloseNormalClosure</span><span class="p">,</span> <span class="s">&#34;&#34;</span><span class="p">))</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;发送关闭消息错误:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-		<span class="k">return</span>
-	<span class="p">}</span>
-	<span class="k">select</span> <span class="p">{</span>
-	<span class="k">case</span> <span class="o">&lt;-</span><span class="nx">done</span><span class="p">:</span>
-	<span class="k">case</span> <span class="o">&lt;-</span><span class="nx">time</span><span class="p">.</span><span class="nf">After</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">):</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-golang" data-lang="golang"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;log&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;os&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;os/signal&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/gorilla/websocket&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">interrupt</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Signal</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">signal</span><span class="p">.</span><span class="nf">Notify</span><span class="p">(</span><span class="nx">interrupt</span><span class="p">,</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Interrupt</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 连接到 WebSocket 服务器
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">url</span> <span class="o">:=</span> <span class="s">&#34;ws://localhost:8080/ws&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">c</span><span class="p">,</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">websocket</span><span class="p">.</span><span class="nx">DefaultDialer</span><span class="p">.</span><span class="nf">Dial</span><span class="p">(</span><span class="nx">url</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="s">&#34;连接失败:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nx">c</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;已连接到服务器 %s&#34;</span><span class="p">,</span> <span class="nx">url</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">done</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{})</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 接收消息的 goroutine
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">defer</span> <span class="nb">close</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">_</span><span class="p">,</span> <span class="nx">message</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nf">ReadMessage</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;读取错误:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">				<span class="k">return</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;收到: %s&#34;</span><span class="p">,</span> <span class="nx">message</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 发送一条测试消息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">testMsg</span> <span class="o">:=</span> <span class="s">&#34;Hello, NATS over WebSocket!&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">err</span> <span class="p">=</span> <span class="nx">c</span><span class="p">.</span><span class="nf">WriteMessage</span><span class="p">(</span><span class="nx">websocket</span><span class="p">.</span><span class="nx">TextMessage</span><span class="p">,</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">testMsg</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;写入错误:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;已发送: %s&#34;</span><span class="p">,</span> <span class="nx">testMsg</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 等待中断信号或接收完成
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">case</span> <span class="o">&lt;-</span><span class="nx">done</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">	<span class="k">case</span> <span class="o">&lt;-</span><span class="nx">interrupt</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;收到中断信号&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 清理关闭
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">err</span> <span class="p">=</span> <span class="nx">c</span><span class="p">.</span><span class="nf">WriteMessage</span><span class="p">(</span><span class="nx">websocket</span><span class="p">.</span><span class="nx">CloseMessage</span><span class="p">,</span> <span class="nx">websocket</span><span class="p">.</span><span class="nf">FormatCloseMessage</span><span class="p">(</span><span class="nx">websocket</span><span class="p">.</span><span class="nx">CloseNormalClosure</span><span class="p">,</span> <span class="s">&#34;&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;发送关闭消息错误:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">case</span> <span class="o">&lt;-</span><span class="nx">done</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">	<span class="k">case</span> <span class="o">&lt;-</span><span class="nx">time</span><span class="p">.</span><span class="nf">After</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="运行步骤">运行步骤</h3>
 <ol>
@@ -588,22 +591,22 @@
 </ol>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">go mod init your-module-name
-go get github.com/gorilla/websocket
-go get github.com/nats-io/nats.go
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">go mod init your-module-name
+</span></span><span class="line"><span class="cl">go get github.com/gorilla/websocket
+</span></span><span class="line"><span class="cl">go get github.com/nats-io/nats.go
+</span></span></code></pre></td></tr></table>
 </div>
 </div><ol start="2">
 <li>启动 NATS 服务器：确保有一个 NATS 服务器运行。你可以从 NATS.io 下载并运行，或者使用 Docker：</li>
 </ol>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -611,13 +614,13 @@ go get github.com/nats-io/nats.go
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-bash" data-lang="bash">docker run -d <span class="se">\
-</span><span class="se"></span>  --name nats-server <span class="se">\
-</span><span class="se"></span>  -p 4222:4222 <span class="se">\ </span>         <span class="c1"># 映射客户端端口</span>
-  -p 8222:8222 <span class="se">\ </span>         <span class="c1"># 映射监控端口（如果配置中启用了）</span>
-  -p 6222:6222 <span class="se">\ </span>         <span class="c1"># 映射集群端口（如果配置了集群）</span>
-  nats:latest
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker run -d <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  --name nats-server <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -p 4222:4222 <span class="se">\ </span>         <span class="c1"># 映射客户端端口</span>
+</span></span><span class="line"><span class="cl">  -p 8222:8222 <span class="se">\ </span>         <span class="c1"># 映射监控端口（如果配置中启用了）</span>
+</span></span><span class="line"><span class="cl">  -p 6222:6222 <span class="se">\ </span>         <span class="c1"># 映射集群端口（如果配置了集群）</span>
+</span></span><span class="line"><span class="cl">  nats:latest
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>默认情况下，NATS 服务器会在 <code>nats://localhost:4222</code> 监听。</p>
 <ol start="3">
@@ -625,22 +628,22 @@ go get github.com/nats-io/nats.go
 </ol>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-bash" data-lang="bash">go run server.go
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">go run server.go
+</span></span></code></pre></td></tr></table>
 </div>
 </div><ol start="4">
 <li>运行客户端测试程序：保存客户端代码（例如 client.go）并运行：</li>
 </ol>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-bash" data-lang="bash">go run client.go
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">go run client.go
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="关键点说明">关键点说明</h3>
 <ul>
@@ -666,7 +669,7 @@ go get github.com/nats-io/nats.go
 <p>确保你的NATS服务器配置中启用了WebSocket支持。在NATS的配置文件（例如 <a href="https://docs.nats.io/running-a-nats-service/configuration">nats-server.conf</a>）中，需要添加类似以下的 websocket 配置块</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -698,50 +701,48 @@ go get github.com/nats-io/nats.go
 </span><span class="lnt">30
 </span><span class="lnt">31
 </span><span class="lnt">32
-</span><span class="lnt">33
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback"># Client port of 4222 on all interfaces
-port: 4222
-
-# HTTP monitoring port
-monitor_port: 8222
-
-# This is for clustering multiple servers together.
-cluster {
-  # Route connections to be received on any interface on port 6222
-  port: 6222
-
-  # Authorization for route connections
-  authorization {
-    user: ruser
-    password: T0pS3cr3t
-    timeout: 2
-  }
-
-  # Routes are actively solicited and connected to from this server.
-  routes = []
-}
-
-# Maximum payload size, default is 1MB
-max_payload: 20MB
-# Write deadline, after which NATS will automatically stop this publication
-write_deadline: 60s
-
-websocket {
-  port: 4223  # WebSocket监听的端口，可根据需要修改
-  no_tls: true  # 如果不在NATS层面直接使用TLS，设置为true（通常由Nginx或前置负载均衡器处理TLS）
-  # allowed_origins: [&#34;*&#34;]  # 允许的源，生产环境应设置为具体的域名以提高安全性
-}
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="c1"># Client port of 4222 on all interfaces</span>
+</span></span><span class="line"><span class="cl"><span class="n">port</span><span class="p">:</span> <span class="mi">4222</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># HTTP monitoring port</span>
+</span></span><span class="line"><span class="cl"><span class="n">monitor_port</span><span class="p">:</span> <span class="mi">8222</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># This is for clustering multiple servers together.</span>
+</span></span><span class="line"><span class="cl"><span class="n">cluster</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># Route connections to be received on any interface on port 6222</span>
+</span></span><span class="line"><span class="cl">  <span class="n">port</span><span class="p">:</span> <span class="mi">6222</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># Authorization for route connections</span>
+</span></span><span class="line"><span class="cl">  <span class="n">authorization</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">user</span><span class="p">:</span> <span class="n">ruser</span>
+</span></span><span class="line"><span class="cl">    <span class="n">password</span><span class="p">:</span> <span class="n">T0pS3cr3t</span>
+</span></span><span class="line"><span class="cl">    <span class="n">timeout</span><span class="p">:</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># Routes are actively solicited and connected to from this server.</span>
+</span></span><span class="line"><span class="cl">  <span class="n">routes</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Maximum payload size, default is 1MB</span>
+</span></span><span class="line"><span class="cl"><span class="n">max_payload</span><span class="p">:</span> <span class="mi">20</span><span class="n">MB</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Write deadline, after which NATS will automatically stop this publication</span>
+</span></span><span class="line"><span class="cl"><span class="n">write_deadline</span><span class="p">:</span> <span class="mi">60</span><span class="n">s</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">websocket</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">port</span><span class="p">:</span> <span class="mi">4223</span>  <span class="c1"># WebSocket监听的端口，可根据需要修改</span>
+</span></span><span class="line"><span class="cl">  <span class="n">no_tls</span><span class="p">:</span> <span class="bp">true</span>  <span class="c1"># 如果不在NATS层面直接使用TLS，设置为true（通常由Nginx或前置负载均衡器处理TLS）</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># allowed_origins: [&#34;*&#34;]  # 允许的源，生产环境应设置为具体的域名以提高安全性</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>websocket 配置项示例，<a href="https://docs.nats.io/running-a-nats-service/configuration/websocket/websocket_conf">WebSocket Configuration Example</a></p>
 <p><strong>使用 Docker 启动 NATS 并挂载配置文件</strong></p>
 <p>启动 NATS 容器时，使用 -v 或 &ndash;mount 参数将宿主机的配置文件挂载到容器内相应的路径。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -751,21 +752,21 @@ websocket {
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-bash" data-lang="bash">docker run -d <span class="se">\
-</span><span class="se"></span>  --name nats-server <span class="se">\
-</span><span class="se"></span>  -p 4222:4222 <span class="se">\ </span>         <span class="c1"># 映射客户端端口</span>
-  -p 8222:8222 <span class="se">\ </span>         <span class="c1"># 映射监控端口（如果配置中启用了）</span>
-  -p 6222:6222 <span class="se">\ </span>         <span class="c1"># 映射集群端口（如果配置了集群）</span>
-  -v /path/on/host/nats-server.conf:/etc/nats/nats-server.conf <span class="se">\ </span> <span class="c1"># 挂载配置文件</span>
-  nats:latest <span class="se">\
-</span><span class="se"></span>  -c /etc/nats/nats-server.conf  <span class="c1"># 指定容器内的配置文件路径</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker run -d <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  --name nats-server <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -p 4222:4222 <span class="se">\ </span>         <span class="c1"># 映射客户端端口</span>
+</span></span><span class="line"><span class="cl">  -p 8222:8222 <span class="se">\ </span>         <span class="c1"># 映射监控端口（如果配置中启用了）</span>
+</span></span><span class="line"><span class="cl">  -p 6222:6222 <span class="se">\ </span>         <span class="c1"># 映射集群端口（如果配置了集群）</span>
+</span></span><span class="line"><span class="cl">  -v /path/on/host/nats-server.conf:/etc/nats/nats-server.conf <span class="se">\ </span> <span class="c1"># 挂载配置文件</span>
+</span></span><span class="line"><span class="cl">  nats:latest <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -c /etc/nats/nats-server.conf  <span class="c1"># 指定容器内的配置文件路径</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="nginx配置">Nginx配置</h3>
 <p>配置Nginx的反向代理，将到达特定路径（例如 /nats）的WebSocket请求转发到NATS服务的WebSocket端口（例如上面配置的 4223 端口）。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -797,37 +798,37 @@ websocket {
 </span><span class="lnt">30
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">server {
-    listen 443 ssl; # 监听HTTPS端口
-    server_name your-domain.com; # 你的域名
-
-    # SSL证书配置
-    ssl_certificate /path/to/your/cert.pem;
-    ssl_certificate_key /path/to/your/private.key;
-
-    # WebSocket 代理配置
-    location /nats { # 代理的路径，客户端连接时使用
-        proxy_pass http://localhost:4223; # 转发到NATS的WebSocket端口，根据实际情况修改IP和端口
-        proxy_http_version 1.1; # 使用HTTP/1.1
-
-        # 以下两行是支持WebSocket协议升级的关键
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection &#34;upgrade&#34;;
-
-        # 可选：传递一些客户端信息
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-
-        # 超时设置（可选，根据需要调整）
-        proxy_read_timeout 86400s; # WebSocket连接是长连接，设置较长的超时时间
-        proxy_send_timeout 86400s;
-    }
-
-    # 其他location配置...
-}
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">server {
+</span></span><span class="line"><span class="cl">    listen 443 ssl; # 监听HTTPS端口
+</span></span><span class="line"><span class="cl">    server_name your-domain.com; # 你的域名
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    # SSL证书配置
+</span></span><span class="line"><span class="cl">    ssl_certificate /path/to/your/cert.pem;
+</span></span><span class="line"><span class="cl">    ssl_certificate_key /path/to/your/private.key;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    # WebSocket 代理配置
+</span></span><span class="line"><span class="cl">    location /nats { # 代理的路径，客户端连接时使用
+</span></span><span class="line"><span class="cl">        proxy_pass http://localhost:4223; # 转发到NATS的WebSocket端口，根据实际情况修改IP和端口
+</span></span><span class="line"><span class="cl">        proxy_http_version 1.1; # 使用HTTP/1.1
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        # 以下两行是支持WebSocket协议升级的关键
+</span></span><span class="line"><span class="cl">        proxy_set_header Upgrade $http_upgrade;
+</span></span><span class="line"><span class="cl">        proxy_set_header Connection &#34;upgrade&#34;;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        # 可选：传递一些客户端信息
+</span></span><span class="line"><span class="cl">        proxy_set_header Host $host;
+</span></span><span class="line"><span class="cl">        proxy_set_header X-Real-IP $remote_addr;
+</span></span><span class="line"><span class="cl">        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+</span></span><span class="line"><span class="cl">        proxy_set_header X-Forwarded-Proto $scheme;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        # 超时设置（可选，根据需要调整）
+</span></span><span class="line"><span class="cl">        proxy_read_timeout 86400s; # WebSocket连接是长连接，设置较长的超时时间
+</span></span><span class="line"><span class="cl">        proxy_send_timeout 86400s;
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    # 其他location配置...
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>修改配置后，使用 sudo nginx -s reload 重新加载Nginx配置使其生效。</p>
 <p>在Nginx层面还可以实施额外的安全措施，如身份验证（例如使用JWT Token）、限制访问IP等。</p>
@@ -835,19 +836,19 @@ websocket {
 <p>配置好Nginx和NATS后，客户端（例如使用JavaScript）就可以通过Nginx代理的地址来连接NATS服务了。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-js" data-lang="js"><span class="c1">// 假设Nginx域名为 your-domain.com，配置的location是 /nats
-</span><span class="c1"></span><span class="kr">const</span> <span class="nx">nc</span> <span class="o">=</span> <span class="nx">await</span> <span class="nx">connect</span><span class="p">({</span>
-  <span class="nx">servers</span><span class="o">:</span> <span class="s2">&#34;wss://your-domain.com/nats&#34;</span><span class="p">,</span> <span class="c1">// 使用wss协议（WebSocket Secure）
-</span><span class="c1"></span>  <span class="c1">// 其他NATS连接选项，如token、user、pass等（如果需要认证）
-</span><span class="c1"></span><span class="p">});</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="c1">// 假设Nginx域名为 your-domain.com，配置的location是 /nats
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kr">const</span> <span class="nx">nc</span> <span class="o">=</span> <span class="kr">await</span> <span class="nx">connect</span><span class="p">({</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">servers</span><span class="o">:</span> <span class="s2">&#34;wss://your-domain.com/nats&#34;</span><span class="p">,</span> <span class="c1">// 使用wss协议（WebSocket Secure）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// 其他NATS连接选项，如token、user、pass等（如果需要认证）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">});</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>通过<strong>在NATS服务器中启用WebSocket支持</strong>，并在<strong>Nginx中配置反向代理</strong>，</p>
 <p>将特定的WebSocket请求路径（如 /nats）转发到NATS的WebSocket端口，</p>
@@ -963,7 +964,7 @@ websocket {
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -980,7 +981,7 @@ websocket {
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

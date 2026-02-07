@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/mysql/20251101-partition/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="MySQL 表分区实践及操作" />
-<meta property="og:description" content="MySQL 表分区和事件调度器 MySQL 分区方案实践 在实际项目中，要用到分区的，一般都是数据量较大，且数据量会不断增加的，所以分区数据范围不会太大。 比如按时间" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/mysql/20251101-partition/" />
-<meta property="article:published_time" content="2025-11-01T16:57:38+08:00" />
-<meta property="article:modified_time" content="2025-11-01T16:57:38+08:00" />
-<meta itemprop="name" content="MySQL 表分区实践及操作">
-<meta itemprop="description" content="MySQL 表分区和事件调度器 MySQL 分区方案实践 在实际项目中，要用到分区的，一般都是数据量较大，且数据量会不断增加的，所以分区数据范围不会太大。 比如按时间">
-<meta itemprop="datePublished" content="2025-11-01T16:57:38&#43;08:00" />
-<meta itemprop="dateModified" content="2025-11-01T16:57:38&#43;08:00" />
-<meta itemprop="wordCount" content="1506">
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20251101-partition/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="MySQL 表分区实践及操作">
+  <meta property="og:description" content="MySQL 表分区和事件调度器 MySQL 分区方案实践 在实际项目中，要用到分区的，一般都是数据量较大，且数据量会不断增加的，所以分区数据范围不会太大。 比如按时间">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2025-11-01T16:57:38+08:00">
+    <meta property="article:modified_time" content="2025-11-01T16:57:38+08:00">
+    <meta property="article:tag" content="Mysql">
 
-
-
-<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="MySQL 表分区实践及操作"/>
-<meta name="twitter:description" content="MySQL 表分区和事件调度器 MySQL 分区方案实践 在实际项目中，要用到分区的，一般都是数据量较大，且数据量会不断增加的，所以分区数据范围不会太大。 比如按时间"/>
+  <meta itemprop="name" content="MySQL 表分区实践及操作">
+  <meta itemprop="description" content="MySQL 表分区和事件调度器 MySQL 分区方案实践 在实际项目中，要用到分区的，一般都是数据量较大，且数据量会不断增加的，所以分区数据范围不会太大。 比如按时间">
+  <meta itemprop="datePublished" content="2025-11-01T16:57:38+08:00">
+  <meta itemprop="dateModified" content="2025-11-01T16:57:38+08:00">
+  <meta itemprop="wordCount" content="1506">
+  <meta itemprop="keywords" content="Mysql"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="MySQL 表分区实践及操作">
+<meta name="twitter:description" content="MySQL 表分区和事件调度器 MySQL 分区方案实践 在实际项目中，要用到分区的，一般都是数据量较大，且数据量会不断增加的，所以分区数据范围不会太大。 比如按时间">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -185,15 +186,15 @@
 <p>之前在项目中，按月分区时，本能就想到按下面这样精确到月分创建分区表：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">RANGE</span> <span class="p">(</span><span class="k">YEAR</span><span class="p">(</span><span class="n">created_at</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="o">+</span><span class="k">MONTH</span><span class="p">(</span><span class="n">created_at</span><span class="p">))</span> <span class="p">(</span>
-    <span class="n">PARTITION</span> <span class="n">p202505</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="mi">202506</span><span class="p">),</span>
-    <span class="p">...</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">RANGE</span><span class="w"> </span><span class="p">(</span><span class="k">YEAR</span><span class="p">(</span><span class="n">created_at</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="o">+</span><span class="k">MONTH</span><span class="p">(</span><span class="n">created_at</span><span class="p">))</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202505</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="mi">202506</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">...</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>但是项目运行一段时间后，数据量会不断增加，就会发现 monthly 分区就无法满足需求了。</p>
 <p>这个时候就发现这样分区就有点傻了，其他就算按月分，也完全应该精确到天粒度，</p>
@@ -203,7 +204,7 @@
 <h3 id="方案1使用-range-columns--date-类型">方案1：使用 RANGE COLUMNS + DATE 类型</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -232,39 +233,39 @@
 </span><span class="lnt">27
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">orders</span> <span class="p">(</span>
-    <span class="n">id</span> <span class="nb">BIGINT</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span>
-    <span class="n">order_no</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
-    <span class="n">created_at</span> <span class="nb">DATE</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>  <span class="c1">-- 使用DATE类型，只存储日期
-</span><span class="c1"></span>    <span class="n">customer_id</span> <span class="nb">BIGINT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
-    <span class="n">amount</span> <span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
-    <span class="c1">-- 其他字段...
-</span><span class="c1"></span>    <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">),</span>
-    <span class="k">UNIQUE</span> <span class="k">KEY</span> <span class="n">uk_order_no</span> <span class="p">(</span><span class="n">order_no</span><span class="p">,</span> <span class="n">created_at</span><span class="p">),</span>
-    <span class="k">KEY</span> <span class="n">idx_customer_created</span> <span class="p">(</span><span class="n">customer_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">),</span>
-    <span class="k">KEY</span> <span class="n">idx_created</span> <span class="p">(</span><span class="n">created_at</span><span class="p">)</span>
-<span class="p">)</span>
-<span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">RANGE</span> <span class="n">COLUMNS</span><span class="p">(</span><span class="n">created_at</span><span class="p">)</span> <span class="p">(</span>
-    <span class="n">PARTITION</span> <span class="n">p202301</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2023-02-01&#39;</span><span class="p">),</span>
-    <span class="n">PARTITION</span> <span class="n">p202302</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2023-03-01&#39;</span><span class="p">),</span>
-    <span class="n">PARTITION</span> <span class="n">p202303</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2023-04-01&#39;</span><span class="p">),</span>
-    <span class="n">PARTITION</span> <span class="n">p202304</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2023-05-01&#39;</span><span class="p">),</span>
-    <span class="n">PARTITION</span> <span class="n">p202305</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2023-06-01&#39;</span><span class="p">),</span>
-    <span class="n">PARTITION</span> <span class="n">p202306</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2023-07-01&#39;</span><span class="p">),</span>
-    <span class="n">PARTITION</span> <span class="n">p202307</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2023-08-01&#39;</span><span class="p">),</span>
-    <span class="n">PARTITION</span> <span class="n">p202308</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2023-09-01&#39;</span><span class="p">),</span>
-    <span class="n">PARTITION</span> <span class="n">p202309</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2023-10-01&#39;</span><span class="p">),</span>
-    <span class="n">PARTITION</span> <span class="n">p202310</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2023-11-01&#39;</span><span class="p">),</span>
-    <span class="n">PARTITION</span> <span class="n">p202311</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2023-12-01&#39;</span><span class="p">),</span>
-    <span class="n">PARTITION</span> <span class="n">p202312</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2024-01-01&#39;</span><span class="p">),</span>
-    <span class="n">PARTITION</span> <span class="n">pmax</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="k">MAXVALUE</span>
-<span class="p">);</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">BIGINT</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">order_no</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">created_at</span><span class="w"> </span><span class="nb">DATE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">  </span><span class="c1">-- 使用DATE类型，只存储日期
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="n">customer_id</span><span class="w"> </span><span class="nb">BIGINT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">amount</span><span class="w"> </span><span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">-- 其他字段...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">UNIQUE</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="n">uk_order_no</span><span class="w"> </span><span class="p">(</span><span class="n">order_no</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">KEY</span><span class="w"> </span><span class="n">idx_customer_created</span><span class="w"> </span><span class="p">(</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">KEY</span><span class="w"> </span><span class="n">idx_created</span><span class="w"> </span><span class="p">(</span><span class="n">created_at</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">RANGE</span><span class="w"> </span><span class="n">COLUMNS</span><span class="p">(</span><span class="n">created_at</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202301</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;2023-02-01&#39;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202302</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;2023-03-01&#39;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202303</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;2023-04-01&#39;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202304</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;2023-05-01&#39;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202305</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;2023-06-01&#39;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202306</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;2023-07-01&#39;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202307</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;2023-08-01&#39;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202308</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;2023-09-01&#39;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202309</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;2023-10-01&#39;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202310</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;2023-11-01&#39;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202311</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;2023-12-01&#39;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202312</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;2024-01-01&#39;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">pmax</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="k">MAXVALUE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="方案2使用-range--to_days-函数">方案2：使用 RANGE + TO_DAYS() 函数</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -293,39 +294,39 @@
 </span><span class="lnt">27
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">orders</span> <span class="p">(</span>
-    <span class="n">id</span> <span class="nb">BIGINT</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span>
-    <span class="n">order_no</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
-    <span class="n">created_at</span> <span class="n">DATETIME</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>  <span class="c1">-- 使用DATETIME类型
-</span><span class="c1"></span>    <span class="n">customer_id</span> <span class="nb">BIGINT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
-    <span class="n">amount</span> <span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
-    <span class="c1">-- 其他字段...
-</span><span class="c1"></span>    <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">),</span>
-    <span class="k">UNIQUE</span> <span class="k">KEY</span> <span class="n">uk_order_no</span> <span class="p">(</span><span class="n">order_no</span><span class="p">,</span> <span class="n">created_at</span><span class="p">),</span>
-    <span class="k">KEY</span> <span class="n">idx_customer_created</span> <span class="p">(</span><span class="n">customer_id</span><span class="p">,</span> <span class="n">created_at</span><span class="p">),</span>
-    <span class="k">KEY</span> <span class="n">idx_created</span> <span class="p">(</span><span class="n">created_at</span><span class="p">)</span>
-<span class="p">)</span>
-<span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">RANGE</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="n">created_at</span><span class="p">))</span> <span class="p">(</span>
-    <span class="n">PARTITION</span> <span class="n">p202301</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-02-01&#39;</span><span class="p">)),</span>
-    <span class="n">PARTITION</span> <span class="n">p202302</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-03-01&#39;</span><span class="p">)),</span>
-    <span class="n">PARTITION</span> <span class="n">p202303</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-04-01&#39;</span><span class="p">)),</span>
-    <span class="n">PARTITION</span> <span class="n">p202304</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-05-01&#39;</span><span class="p">)),</span>
-    <span class="n">PARTITION</span> <span class="n">p202305</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-06-01&#39;</span><span class="p">)),</span>
-    <span class="n">PARTITION</span> <span class="n">p202306</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-07-01&#39;</span><span class="p">)),</span>
-    <span class="n">PARTITION</span> <span class="n">p202307</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-08-01&#39;</span><span class="p">)),</span>
-    <span class="n">PARTITION</span> <span class="n">p202308</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-09-01&#39;</span><span class="p">)),</span>
-    <span class="n">PARTITION</span> <span class="n">p202309</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-10-01&#39;</span><span class="p">)),</span>
-    <span class="n">PARTITION</span> <span class="n">p202310</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-11-01&#39;</span><span class="p">)),</span>
-    <span class="n">PARTITION</span> <span class="n">p202311</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-12-01&#39;</span><span class="p">)),</span>
-    <span class="n">PARTITION</span> <span class="n">p202312</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2024-01-01&#39;</span><span class="p">)),</span>
-    <span class="n">PARTITION</span> <span class="n">pmax</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="k">MAXVALUE</span>
-<span class="p">);</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">BIGINT</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">order_no</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">created_at</span><span class="w"> </span><span class="n">DATETIME</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">  </span><span class="c1">-- 使用DATETIME类型
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="n">customer_id</span><span class="w"> </span><span class="nb">BIGINT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">amount</span><span class="w"> </span><span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">-- 其他字段...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">UNIQUE</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="n">uk_order_no</span><span class="w"> </span><span class="p">(</span><span class="n">order_no</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">KEY</span><span class="w"> </span><span class="n">idx_customer_created</span><span class="w"> </span><span class="p">(</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">KEY</span><span class="w"> </span><span class="n">idx_created</span><span class="w"> </span><span class="p">(</span><span class="n">created_at</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">RANGE</span><span class="w"> </span><span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="n">created_at</span><span class="p">))</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202301</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-02-01&#39;</span><span class="p">)),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202302</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-03-01&#39;</span><span class="p">)),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202303</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-04-01&#39;</span><span class="p">)),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202304</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-05-01&#39;</span><span class="p">)),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202305</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-06-01&#39;</span><span class="p">)),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202306</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-07-01&#39;</span><span class="p">)),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202307</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-08-01&#39;</span><span class="p">)),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202308</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-09-01&#39;</span><span class="p">)),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202309</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-10-01&#39;</span><span class="p">)),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202310</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-11-01&#39;</span><span class="p">)),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202311</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2023-12-01&#39;</span><span class="p">)),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202312</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="n">TO_DAYS</span><span class="p">(</span><span class="s1">&#39;2024-01-01&#39;</span><span class="p">)),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">pmax</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="k">MAXVALUE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="方案3动态生成分区语句推荐用于生产环境">方案3：动态生成分区语句（推荐用于生产环境）</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -353,67 +354,67 @@
 </span><span class="lnt">26
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- 生成分区语句的函数或脚本
-</span><span class="c1"></span><span class="k">SET</span> <span class="o">@</span><span class="n">start_date</span> <span class="o">=</span> <span class="s1">&#39;2023-01-01&#39;</span><span class="p">;</span>
-<span class="k">SET</span> <span class="o">@</span><span class="n">end_date</span> <span class="o">=</span> <span class="s1">&#39;2024-01-01&#39;</span><span class="p">;</span>
-<span class="k">SET</span> <span class="o">@</span><span class="k">sql</span> <span class="o">=</span> <span class="s1">&#39;CREATE TABLE orders (
-</span><span class="s1">    id BIGINT AUTO_INCREMENT,
-</span><span class="s1">    order_no VARCHAR(32) NOT NULL,
-</span><span class="s1">    created_at DATE NOT NULL,
-</span><span class="s1">    customer_id BIGINT NOT NULL,
-</span><span class="s1">    amount DECIMAL(12,2) NOT NULL,
-</span><span class="s1">    PRIMARY KEY (id, created_at),
-</span><span class="s1">    UNIQUE KEY uk_order_no (order_no, created_at),
-</span><span class="s1">    KEY idx_created (created_at)
-</span><span class="s1">)
-</span><span class="s1">PARTITION BY RANGE COLUMNS(created_at) (&#39;</span><span class="p">;</span>
-
-<span class="n">WHILE</span> <span class="o">@</span><span class="n">start_date</span> <span class="o">&lt;</span> <span class="o">@</span><span class="n">end_date</span> <span class="k">DO</span>
-    <span class="k">SET</span> <span class="o">@</span><span class="n">next_month</span> <span class="o">=</span> <span class="n">DATE_ADD</span><span class="p">(</span><span class="o">@</span><span class="n">start_date</span><span class="p">,</span> <span class="nb">INTERVAL</span> <span class="mi">1</span> <span class="k">MONTH</span><span class="p">);</span>
-    <span class="k">SET</span> <span class="o">@</span><span class="n">partition_name</span> <span class="o">=</span> <span class="n">CONCAT</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">DATE_FORMAT</span><span class="p">(</span><span class="o">@</span><span class="n">start_date</span><span class="p">,</span> <span class="s1">&#39;%Y%m&#39;</span><span class="p">));</span>
-    <span class="k">SET</span> <span class="o">@</span><span class="k">sql</span> <span class="o">=</span> <span class="n">CONCAT</span><span class="p">(</span><span class="o">@</span><span class="k">sql</span><span class="p">,</span> <span class="s1">&#39;PARTITION &#39;</span><span class="p">,</span> <span class="o">@</span><span class="n">partition_name</span><span class="p">,</span> 
-                     <span class="s1">&#39; VALUES LESS THAN (&#39;&#39;&#39;</span><span class="p">,</span> <span class="o">@</span><span class="n">next_month</span><span class="p">,</span> <span class="s1">&#39;&#39;&#39;),&#39;</span><span class="p">);</span>
-    <span class="k">SET</span> <span class="o">@</span><span class="n">start_date</span> <span class="o">=</span> <span class="o">@</span><span class="n">next_month</span><span class="p">;</span>
-<span class="k">END</span> <span class="n">WHILE</span><span class="p">;</span>
-
-<span class="k">SET</span> <span class="o">@</span><span class="k">sql</span> <span class="o">=</span> <span class="n">CONCAT</span><span class="p">(</span><span class="o">@</span><span class="k">sql</span><span class="p">,</span> <span class="s1">&#39;PARTITION pmax VALUES LESS THAN MAXVALUE)&#39;</span><span class="p">);</span>
-<span class="k">PREPARE</span> <span class="n">stmt</span> <span class="k">FROM</span> <span class="o">@</span><span class="k">sql</span><span class="p">;</span>
-<span class="k">EXECUTE</span> <span class="n">stmt</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 生成分区语句的函数或脚本
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">SET</span><span class="w"> </span><span class="o">@</span><span class="n">start_date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;2023-01-01&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SET</span><span class="w"> </span><span class="o">@</span><span class="n">end_date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;2024-01-01&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SET</span><span class="w"> </span><span class="o">@</span><span class="k">sql</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;CREATE TABLE orders (
+</span></span></span><span class="line"><span class="cl"><span class="s1">    id BIGINT AUTO_INCREMENT,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    order_no VARCHAR(32) NOT NULL,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    created_at DATE NOT NULL,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    customer_id BIGINT NOT NULL,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    amount DECIMAL(12,2) NOT NULL,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    PRIMARY KEY (id, created_at),
+</span></span></span><span class="line"><span class="cl"><span class="s1">    UNIQUE KEY uk_order_no (order_no, created_at),
+</span></span></span><span class="line"><span class="cl"><span class="s1">    KEY idx_created (created_at)
+</span></span></span><span class="line"><span class="cl"><span class="s1">)
+</span></span></span><span class="line"><span class="cl"><span class="s1">PARTITION BY RANGE COLUMNS(created_at) (&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">WHILE</span><span class="w"> </span><span class="o">@</span><span class="n">start_date</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="o">@</span><span class="n">end_date</span><span class="w"> </span><span class="k">DO</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">SET</span><span class="w"> </span><span class="o">@</span><span class="n">next_month</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DATE_ADD</span><span class="p">(</span><span class="o">@</span><span class="n">start_date</span><span class="p">,</span><span class="w"> </span><span class="nb">INTERVAL</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">MONTH</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">SET</span><span class="w"> </span><span class="o">@</span><span class="n">partition_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CONCAT</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">DATE_FORMAT</span><span class="p">(</span><span class="o">@</span><span class="n">start_date</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;%Y%m&#39;</span><span class="p">));</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">SET</span><span class="w"> </span><span class="o">@</span><span class="k">sql</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CONCAT</span><span class="p">(</span><span class="o">@</span><span class="k">sql</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;PARTITION &#39;</span><span class="p">,</span><span class="w"> </span><span class="o">@</span><span class="n">partition_name</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">                     </span><span class="s1">&#39; VALUES LESS THAN (&#39;&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="o">@</span><span class="n">next_month</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;&#39;),&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">SET</span><span class="w"> </span><span class="o">@</span><span class="n">start_date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">@</span><span class="n">next_month</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">END</span><span class="w"> </span><span class="n">WHILE</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SET</span><span class="w"> </span><span class="o">@</span><span class="k">sql</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CONCAT</span><span class="p">(</span><span class="o">@</span><span class="k">sql</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;PARTITION pmax VALUES LESS THAN MAXVALUE)&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">PREPARE</span><span class="w"> </span><span class="n">stmt</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="o">@</span><span class="k">sql</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">EXECUTE</span><span class="w"> </span><span class="n">stmt</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="分区维护管理">分区维护管理</h2>
 <h3 id="1-添加新分区">1. 添加新分区</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- 每月初执行，添加下个月的分区
-</span><span class="c1"></span><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">orders</span> <span class="n">REORGANIZE</span> <span class="n">PARTITION</span> <span class="n">pmax</span> <span class="k">INTO</span> <span class="p">(</span>
-    <span class="n">PARTITION</span> <span class="n">p202401</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="p">(</span><span class="s1">&#39;2024-02-01&#39;</span><span class="p">),</span>
-    <span class="n">PARTITION</span> <span class="n">pmax</span> <span class="k">VALUES</span> <span class="k">LESS</span> <span class="k">THAN</span> <span class="k">MAXVALUE</span>
-<span class="p">);</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 每月初执行，添加下个月的分区
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">REORGANIZE</span><span class="w"> </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">pmax</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202401</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;2024-02-01&#39;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">pmax</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">LESS</span><span class="w"> </span><span class="k">THAN</span><span class="w"> </span><span class="k">MAXVALUE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="2-删除旧分区数据归档">2. 删除旧分区（数据归档）</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- 删除一年前的数据分区
-</span><span class="c1"></span><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">orders</span> <span class="k">DROP</span> <span class="n">PARTITION</span> <span class="n">p202301</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 删除一年前的数据分区
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">DROP</span><span class="w"> </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202301</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="3-查询分区信息">3. 查询分区信息</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -423,20 +424,20 @@
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- 查看分区信息
-</span><span class="c1"></span><span class="k">SELECT</span> <span class="n">PARTITION_NAME</span><span class="p">,</span> <span class="n">TABLE_ROWS</span><span class="p">,</span> <span class="n">PARTITION_EXPRESSION</span>
-<span class="k">FROM</span> <span class="n">INFORMATION_SCHEMA</span><span class="p">.</span><span class="n">PARTITIONS</span> 
-<span class="k">WHERE</span> <span class="k">TABLE_NAME</span> <span class="o">=</span> <span class="s1">&#39;orders&#39;</span><span class="p">;</span>
-
-<span class="c1">-- 查看分区使用情况
-</span><span class="c1"></span><span class="k">EXPLAIN</span> <span class="n">PARTITIONS</span> <span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">orders</span> 
-<span class="k">WHERE</span> <span class="n">created_at</span> <span class="k">BETWEEN</span> <span class="s1">&#39;2023-05-01&#39;</span> <span class="k">AND</span> <span class="s1">&#39;2023-05-31&#39;</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 查看分区信息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">SELECT</span><span class="w"> </span><span class="n">PARTITION_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">TABLE_ROWS</span><span class="p">,</span><span class="w"> </span><span class="n">PARTITION_EXPRESSION</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="n">INFORMATION_SCHEMA</span><span class="p">.</span><span class="n">PARTITIONS</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHERE</span><span class="w"> </span><span class="k">TABLE_NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;orders&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 查看分区使用情况
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">EXPLAIN</span><span class="w"> </span><span class="n">PARTITIONS</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHERE</span><span class="w"> </span><span class="n">created_at</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="s1">&#39;2023-05-01&#39;</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="s1">&#39;2023-05-31&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="查询优化示例">查询优化示例</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -456,25 +457,25 @@
 </span><span class="lnt">18
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- 利用分区裁剪的查询
-</span><span class="c1"></span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">orders</span> 
-<span class="k">WHERE</span> <span class="n">created_at</span> <span class="o">&gt;=</span> <span class="s1">&#39;2023-05-01&#39;</span> 
-  <span class="k">AND</span> <span class="n">created_at</span> <span class="o">&lt;</span> <span class="s1">&#39;2023-06-01&#39;</span>
-  <span class="k">AND</span> <span class="n">customer_id</span> <span class="o">=</span> <span class="mi">12345</span><span class="p">;</span>
-
-<span class="c1">-- 跨分区查询（仍能利用分区）
-</span><span class="c1"></span><span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">orders</span> 
-<span class="k">WHERE</span> <span class="n">created_at</span> <span class="k">BETWEEN</span> <span class="s1">&#39;2023-05-01&#39;</span> <span class="k">AND</span> <span class="s1">&#39;2023-07-31&#39;</span><span class="p">;</span>
-
-<span class="c1">-- 按月份聚合统计
-</span><span class="c1"></span><span class="k">SELECT</span> 
-    <span class="n">DATE_FORMAT</span><span class="p">(</span><span class="n">created_at</span><span class="p">,</span> <span class="s1">&#39;%Y-%m&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="k">month</span><span class="p">,</span>
-    <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">as</span> <span class="n">order_count</span><span class="p">,</span>
-    <span class="k">SUM</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span> <span class="k">as</span> <span class="n">total_amount</span>
-<span class="k">FROM</span> <span class="n">orders</span> 
-<span class="k">WHERE</span> <span class="n">created_at</span> <span class="o">&gt;=</span> <span class="s1">&#39;2023-01-01&#39;</span>
-<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">DATE_FORMAT</span><span class="p">(</span><span class="n">created_at</span><span class="p">,</span> <span class="s1">&#39;%Y-%m&#39;</span><span class="p">);</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 利用分区裁剪的查询
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHERE</span><span class="w"> </span><span class="n">created_at</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">&#39;2023-05-01&#39;</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">created_at</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="s1">&#39;2023-06-01&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12345</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 跨分区查询（仍能利用分区）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">SELECT</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHERE</span><span class="w"> </span><span class="n">created_at</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="s1">&#39;2023-05-01&#39;</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="s1">&#39;2023-07-31&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 按月份聚合统计
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">SELECT</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">DATE_FORMAT</span><span class="p">(</span><span class="n">created_at</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;%Y-%m&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">month</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">order_count</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">SUM</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">total_amount</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHERE</span><span class="w"> </span><span class="n">created_at</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">&#39;2023-01-01&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">DATE_FORMAT</span><span class="p">(</span><span class="n">created_at</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;%Y-%m&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="自动分区维护脚本">自动分区维护脚本</h2>
 <ol>
@@ -482,7 +483,7 @@
 </ol>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -513,43 +514,43 @@
 </span><span class="lnt">29
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- 每月自动添加分区的存储过程
-</span><span class="c1"></span><span class="k">DELIMITER</span> <span class="o">//</span>
-<span class="k">CREATE</span> <span class="k">PROCEDURE</span> <span class="n">auto_add_order_partition</span><span class="p">()</span>
-<span class="k">BEGIN</span>
-    <span class="k">DECLARE</span> <span class="n">next_month</span> <span class="nb">DATE</span><span class="p">;</span>
-    <span class="k">DECLARE</span> <span class="n">partition_name</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">20</span><span class="p">);</span>
-    
-    <span class="k">SET</span> <span class="n">next_month</span> <span class="o">=</span> <span class="n">DATE_FORMAT</span><span class="p">(</span><span class="n">DATE_ADD</span><span class="p">(</span><span class="n">NOW</span><span class="p">(),</span> <span class="nb">INTERVAL</span> <span class="mi">1</span> <span class="k">MONTH</span><span class="p">),</span> <span class="s1">&#39;%Y-%m-01&#39;</span><span class="p">);</span>
-    <span class="k">SET</span> <span class="n">partition_name</span> <span class="o">=</span> <span class="n">CONCAT</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">DATE_FORMAT</span><span class="p">(</span><span class="n">next_month</span><span class="p">,</span> <span class="s1">&#39;%Y%m&#39;</span><span class="p">));</span>
-    
-    <span class="k">SET</span> <span class="o">@</span><span class="k">sql</span> <span class="o">=</span> <span class="n">CONCAT</span><span class="p">(</span>
-        <span class="s1">&#39;ALTER TABLE orders REORGANIZE PARTITION pmax INTO (&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;PARTITION &#39;</span><span class="p">,</span> <span class="n">partition_name</span><span class="p">,</span> <span class="s1">&#39; VALUES LESS THAN (&#39;&#39;&#39;</span><span class="p">,</span> 
-        <span class="n">DATE_FORMAT</span><span class="p">(</span><span class="n">DATE_ADD</span><span class="p">(</span><span class="n">next_month</span><span class="p">,</span> <span class="nb">INTERVAL</span> <span class="mi">1</span> <span class="k">MONTH</span><span class="p">),</span> <span class="s1">&#39;%Y-%m-01&#39;</span><span class="p">),</span> <span class="s1">&#39;&#39;&#39;),&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;PARTITION pmax VALUES LESS THAN MAXVALUE)&#39;</span>
-    <span class="p">);</span>
-    
-    <span class="k">PREPARE</span> <span class="n">stmt</span> <span class="k">FROM</span> <span class="o">@</span><span class="k">sql</span><span class="p">;</span>
-    <span class="k">EXECUTE</span> <span class="n">stmt</span><span class="p">;</span>
-    <span class="k">DEALLOCATE</span> <span class="k">PREPARE</span> <span class="n">stmt</span><span class="p">;</span>
-<span class="k">END</span><span class="o">//</span>
-<span class="k">DELIMITER</span> <span class="p">;</span>
-
-<span class="c1">-- 创建事件每月执行
-</span><span class="c1"></span><span class="k">CREATE</span> <span class="n">EVENT</span> <span class="n">auto_add_partition_event</span>
-<span class="k">ON</span> <span class="n">SCHEDULE</span> <span class="k">EVERY</span> <span class="mi">1</span> <span class="k">MONTH</span>
-<span class="n">STARTS</span> <span class="s1">&#39;2023-12-01 00:00:00&#39;</span>
-<span class="k">DO</span>
-<span class="k">CALL</span> <span class="n">auto_add_order_partition</span><span class="p">();</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 每月自动添加分区的存储过程
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">DELIMITER</span><span class="w"> </span><span class="o">//</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">CREATE</span><span class="w"> </span><span class="k">PROCEDURE</span><span class="w"> </span><span class="n">auto_add_order_partition</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">BEGIN</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">DECLARE</span><span class="w"> </span><span class="n">next_month</span><span class="w"> </span><span class="nb">DATE</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">DECLARE</span><span class="w"> </span><span class="n">partition_name</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">20</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">SET</span><span class="w"> </span><span class="n">next_month</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DATE_FORMAT</span><span class="p">(</span><span class="n">DATE_ADD</span><span class="p">(</span><span class="n">NOW</span><span class="p">(),</span><span class="w"> </span><span class="nb">INTERVAL</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">MONTH</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;%Y-%m-01&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">SET</span><span class="w"> </span><span class="n">partition_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CONCAT</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">DATE_FORMAT</span><span class="p">(</span><span class="n">next_month</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;%Y%m&#39;</span><span class="p">));</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">SET</span><span class="w"> </span><span class="o">@</span><span class="k">sql</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CONCAT</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="s1">&#39;ALTER TABLE orders REORGANIZE PARTITION pmax INTO (&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="s1">&#39;PARTITION &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">partition_name</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39; VALUES LESS THAN (&#39;&#39;&#39;</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">DATE_FORMAT</span><span class="p">(</span><span class="n">DATE_ADD</span><span class="p">(</span><span class="n">next_month</span><span class="p">,</span><span class="w"> </span><span class="nb">INTERVAL</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">MONTH</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;%Y-%m-01&#39;</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;&#39;&#39;),&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="s1">&#39;PARTITION pmax VALUES LESS THAN MAXVALUE)&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">PREPARE</span><span class="w"> </span><span class="n">stmt</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="o">@</span><span class="k">sql</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">EXECUTE</span><span class="w"> </span><span class="n">stmt</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">DEALLOCATE</span><span class="w"> </span><span class="k">PREPARE</span><span class="w"> </span><span class="n">stmt</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">END</span><span class="o">//</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">DELIMITER</span><span class="w"> </span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 创建事件每月执行
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">CREATE</span><span class="w"> </span><span class="n">EVENT</span><span class="w"> </span><span class="n">auto_add_partition_event</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ON</span><span class="w"> </span><span class="n">SCHEDULE</span><span class="w"> </span><span class="k">EVERY</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">MONTH</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">STARTS</span><span class="w"> </span><span class="s1">&#39;2023-12-01 00:00:00&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">DO</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">CALL</span><span class="w"> </span><span class="n">auto_add_order_partition</span><span class="p">();</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><ol start="2">
 <li>自动生成10天分区脚本示例</li>
 </ol>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -581,37 +582,37 @@
 </span><span class="lnt">30
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">DELIMITER</span> <span class="o">//</span>
-<span class="k">CREATE</span> <span class="k">PROCEDURE</span> <span class="n">create_10day_partitions</span><span class="p">()</span>
-<span class="k">BEGIN</span>
-    <span class="k">DECLARE</span> <span class="n">start_date</span> <span class="nb">DATE</span> <span class="k">DEFAULT</span> <span class="s1">&#39;2024-05-01&#39;</span><span class="p">;</span>
-    <span class="k">DECLARE</span> <span class="n">end_date</span> <span class="nb">DATE</span> <span class="k">DEFAULT</span> <span class="s1">&#39;2024-12-31&#39;</span><span class="p">;</span>
-    <span class="k">DECLARE</span> <span class="k">current_date</span> <span class="nb">DATE</span><span class="p">;</span>
-    <span class="k">DECLARE</span> <span class="n">partition_sql</span> <span class="n">LONGTEXT</span> <span class="k">DEFAULT</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
-    
-    <span class="k">SET</span> <span class="k">current_date</span> <span class="o">=</span> <span class="n">start_date</span><span class="p">;</span>
-    
-    <span class="n">WHILE</span> <span class="k">current_date</span> <span class="o">&lt;=</span> <span class="n">end_date</span> <span class="k">DO</span>
-        <span class="k">SET</span> <span class="o">@</span><span class="n">partition_name</span> <span class="o">=</span> <span class="n">CONCAT</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">DATE_FORMAT</span><span class="p">(</span><span class="k">current_date</span><span class="p">,</span> <span class="s1">&#39;%Y%m%d&#39;</span><span class="p">));</span>
-        <span class="k">SET</span> <span class="o">@</span><span class="n">next_date</span> <span class="o">=</span> <span class="n">DATE_ADD</span><span class="p">(</span><span class="k">current_date</span><span class="p">,</span> <span class="nb">INTERVAL</span> <span class="mi">10</span> <span class="k">DAY</span><span class="p">);</span>
-        <span class="k">SET</span> <span class="o">@</span><span class="n">less_than_value</span> <span class="o">=</span> <span class="n">TO_DAYS</span><span class="p">(</span><span class="o">@</span><span class="n">next_date</span><span class="p">);</span>
-        
-        <span class="k">SET</span> <span class="n">partition_sql</span> <span class="o">=</span> <span class="n">CONCAT</span><span class="p">(</span><span class="n">partition_sql</span><span class="p">,</span> 
-            <span class="s1">&#39;PARTITION &#39;</span><span class="p">,</span> <span class="o">@</span><span class="n">partition_name</span><span class="p">,</span> 
-            <span class="s1">&#39; VALUES LESS THAN (&#39;</span><span class="p">,</span> <span class="o">@</span><span class="n">less_than_value</span><span class="p">,</span> <span class="s1">&#39;),&#39;</span><span class="p">);</span>
-        
-        <span class="k">SET</span> <span class="k">current_date</span> <span class="o">=</span> <span class="o">@</span><span class="n">next_date</span><span class="p">;</span>
-    <span class="k">END</span> <span class="n">WHILE</span><span class="p">;</span>
-    
-    <span class="k">SET</span> <span class="n">partition_sql</span> <span class="o">=</span> <span class="n">CONCAT</span><span class="p">(</span><span class="n">partition_sql</span><span class="p">,</span> <span class="s1">&#39;PARTITION pmax VALUES LESS THAN MAXVALUE)&#39;</span><span class="p">);</span>
-    
-    <span class="c1">-- 输出或执行SQL
-</span><span class="c1"></span>    <span class="k">SELECT</span> <span class="n">partition_sql</span><span class="p">;</span>
-<span class="k">END</span><span class="o">//</span>
-<span class="k">DELIMITER</span> <span class="p">;</span>
-
-<span class="k">CALL</span> <span class="n">create_10day_partitions</span><span class="p">();</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">DELIMITER</span><span class="w"> </span><span class="o">//</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">CREATE</span><span class="w"> </span><span class="k">PROCEDURE</span><span class="w"> </span><span class="n">create_10day_partitions</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">BEGIN</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">DECLARE</span><span class="w"> </span><span class="n">start_date</span><span class="w"> </span><span class="nb">DATE</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="s1">&#39;2024-05-01&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">DECLARE</span><span class="w"> </span><span class="n">end_date</span><span class="w"> </span><span class="nb">DATE</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="s1">&#39;2024-12-31&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">DECLARE</span><span class="w"> </span><span class="k">current_date</span><span class="w"> </span><span class="nb">DATE</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">DECLARE</span><span class="w"> </span><span class="n">partition_sql</span><span class="w"> </span><span class="n">LONGTEXT</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">SET</span><span class="w"> </span><span class="k">current_date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">start_date</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">WHILE</span><span class="w"> </span><span class="k">current_date</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">end_date</span><span class="w"> </span><span class="k">DO</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">SET</span><span class="w"> </span><span class="o">@</span><span class="n">partition_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CONCAT</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">DATE_FORMAT</span><span class="p">(</span><span class="k">current_date</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;%Y%m%d&#39;</span><span class="p">));</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">SET</span><span class="w"> </span><span class="o">@</span><span class="n">next_date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DATE_ADD</span><span class="p">(</span><span class="k">current_date</span><span class="p">,</span><span class="w"> </span><span class="nb">INTERVAL</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="k">DAY</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">SET</span><span class="w"> </span><span class="o">@</span><span class="n">less_than_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TO_DAYS</span><span class="p">(</span><span class="o">@</span><span class="n">next_date</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">SET</span><span class="w"> </span><span class="n">partition_sql</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CONCAT</span><span class="p">(</span><span class="n">partition_sql</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="s1">&#39;PARTITION &#39;</span><span class="p">,</span><span class="w"> </span><span class="o">@</span><span class="n">partition_name</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="s1">&#39; VALUES LESS THAN (&#39;</span><span class="p">,</span><span class="w"> </span><span class="o">@</span><span class="n">less_than_value</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;),&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">SET</span><span class="w"> </span><span class="k">current_date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">@</span><span class="n">next_date</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">END</span><span class="w"> </span><span class="n">WHILE</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">SET</span><span class="w"> </span><span class="n">partition_sql</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CONCAT</span><span class="p">(</span><span class="n">partition_sql</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;PARTITION pmax VALUES LESS THAN MAXVALUE)&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">-- 输出或执行SQL
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">partition_sql</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">END</span><span class="o">//</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">DELIMITER</span><span class="w"> </span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">CALL</span><span class="w"> </span><span class="n">create_10day_partitions</span><span class="p">();</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="优势总结">优势总结</h2>
 <ol>
@@ -722,7 +723,7 @@
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -739,7 +740,7 @@
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

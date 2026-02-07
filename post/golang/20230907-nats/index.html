@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20230907-nats/" />
@@ -35,27 +35,29 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Nats] nats 简介及使用" />
-<meta property="og:description" content="NATS是一个开源、轻量级、高性能的分布式消息中间件，实现了高可伸缩性和优雅的Publish/Subscribe模型，使用Golang语言开" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20230907-nats/" />
-<meta property="article:published_time" content="2023-09-07T15:24:38+08:00" />
-<meta property="article:modified_time" content="2023-09-07T15:24:38+08:00" />
-<meta itemprop="name" content="[Nats] nats 简介及使用">
-<meta itemprop="description" content="NATS是一个开源、轻量级、高性能的分布式消息中间件，实现了高可伸缩性和优雅的Publish/Subscribe模型，使用Golang语言开">
-<meta itemprop="datePublished" content="2023-09-07T15:24:38&#43;08:00" />
-<meta itemprop="dateModified" content="2023-09-07T15:24:38&#43;08:00" />
-<meta itemprop="wordCount" content="2482">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20230907-nats/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Nats] nats 简介及使用">
+  <meta property="og:description" content="NATS是一个开源、轻量级、高性能的分布式消息中间件，实现了高可伸缩性和优雅的Publish/Subscribe模型，使用Golang语言开">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2023-09-07T15:24:38+08:00">
+    <meta property="article:modified_time" content="2023-09-07T15:24:38+08:00">
+    <meta property="article:tag" content="Golang">
+    <meta property="article:tag" content="Nats">
 
-
-
-<meta itemprop="keywords" content="golang,nats," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Nats] nats 简介及使用"/>
-<meta name="twitter:description" content="NATS是一个开源、轻量级、高性能的分布式消息中间件，实现了高可伸缩性和优雅的Publish/Subscribe模型，使用Golang语言开"/>
+  <meta itemprop="name" content="[Nats] nats 简介及使用">
+  <meta itemprop="description" content="NATS是一个开源、轻量级、高性能的分布式消息中间件，实现了高可伸缩性和优雅的Publish/Subscribe模型，使用Golang语言开">
+  <meta itemprop="datePublished" content="2023-09-07T15:24:38+08:00">
+  <meta itemprop="dateModified" content="2023-09-07T15:24:38+08:00">
+  <meta itemprop="wordCount" content="2485">
+  <meta itemprop="keywords" content="Golang,Nats"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Nats] nats 简介及使用">
+<meta name="twitter:description" content="NATS是一个开源、轻量级、高性能的分布式消息中间件，实现了高可伸缩性和优雅的Publish/Subscribe模型，使用Golang语言开">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -143,7 +145,7 @@
         <div class="post-category">
             <a href="/categories/golang/"> golang </a>
             </div>
-          <span class="more-meta"> 2482 words </span>
+          <span class="more-meta"> 2485 words </span>
           <span class="more-meta"> 5 mins read </span>
         
       </div>
@@ -240,7 +242,7 @@ environments, languages, cloud providers and on-premises systems.</p>
 <h3 id="默认启动">默认启动</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -250,20 +252,20 @@ environments, languages, cloud providers and on-premises systems.</p>
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">.\nats-server.exe
-[11716] 2023/09/07 11:46:54.035391 [INF] Starting nats-server
-[11716] 2023/09/07 11:46:54.048015 [INF]   Version:  2.9.22
-[11716] 2023/09/07 11:46:54.048015 [INF]   Git:      [528ee14]
-[11716] 2023/09/07 11:46:54.048015 [INF]   Name:     NBZIZO2JTPMZ6EW43LNAG62HUO27XATM7RHX7DHUAEB3XBMTONZGMKWJ
-[11716] 2023/09/07 11:46:54.048015 [INF]   ID:       NBZIZO2JTPMZ6EW43LNAG62HUO27XATM7RHX7DHUAEB3XBMTONZGMKWJ
-[11716] 2023/09/07 11:46:54.049079 [INF] Listening for client connections on 0.0.0.0:4222
-[11716] 2023/09/07 11:46:54.075664 [INF] Server is ready
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">.\nats-server.exe
+</span></span><span class="line"><span class="cl">[11716] 2023/09/07 11:46:54.035391 [INF] Starting nats-server
+</span></span><span class="line"><span class="cl">[11716] 2023/09/07 11:46:54.048015 [INF]   Version:  2.9.22
+</span></span><span class="line"><span class="cl">[11716] 2023/09/07 11:46:54.048015 [INF]   Git:      [528ee14]
+</span></span><span class="line"><span class="cl">[11716] 2023/09/07 11:46:54.048015 [INF]   Name:     NBZIZO2JTPMZ6EW43LNAG62HUO27XATM7RHX7DHUAEB3XBMTONZGMKWJ
+</span></span><span class="line"><span class="cl">[11716] 2023/09/07 11:46:54.048015 [INF]   ID:       NBZIZO2JTPMZ6EW43LNAG62HUO27XATM7RHX7DHUAEB3XBMTONZGMKWJ
+</span></span><span class="line"><span class="cl">[11716] 2023/09/07 11:46:54.049079 [INF] Listening for client connections on 0.0.0.0:4222
+</span></span><span class="line"><span class="cl">[11716] 2023/09/07 11:46:54.075664 [INF] Server is ready
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="jetstream">JetStream</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -299,46 +301,46 @@ environments, languages, cloud providers and on-premises systems.</p>
 </span><span class="lnt">34
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">cat js.conf
-// 启用jetstream，空模块将启用并使用默认值 的jetstream
-jetstream {
-    // jetstream数据存放位置：/data/nats-server/jetstream
-    store_dir: &#34;./data/nats-server&#34;
-    // 1GB
-    max_memory_store: 1073741824
-    // 10GB
-    max_file_store: 10737418240
-}
-
-.\nats-server.exe -c .\js.conf
-[22500] 2023/09/07 14:52:39.716147 [INF] Starting nats-server
-[22500] 2023/09/07 14:52:39.729121 [INF]   Version:  2.9.22
-[22500] 2023/09/07 14:52:39.729121 [INF]   Git:      [528ee14]
-[22500] 2023/09/07 14:52:39.729121 [INF]   Name:     NCLVWQUCCL3W736H36FWPW46YWZZGLWDCNSNZOU5B4H6THQ3PKGZY6G6
-[22500] 2023/09/07 14:52:39.729121 [INF]   Node:     YWK2TKml
-[22500] 2023/09/07 14:52:39.729121 [INF]   ID:       NCLVWQUCCL3W736H36FWPW46YWZZGLWDCNSNZOU5B4H6THQ3PKGZY6G6
-[22500] 2023/09/07 14:52:39.729121 [INF] Using configuration file: .\js.conf
-[22500] 2023/09/07 14:52:39.729656 [INF] Starting JetStream
-[22500] 2023/09/07 14:52:39.731221 [INF]     _ ___ _____ ___ _____ ___ ___   _   __  __
-[22500] 2023/09/07 14:52:39.731221 [INF]  _ | | __|_   _/ __|_   _| _ \ __| /_\ |  \/  |
-[22500] 2023/09/07 14:52:39.731221 [INF] | || | _|  | | \__ \ | | |   / _| / _ \| |\/| |
-[22500] 2023/09/07 14:52:39.731221 [INF]  \__/|___| |_| |___/ |_| |_|_\___/_/ \_\_|  |_|
-[22500] 2023/09/07 14:52:39.731221 [INF]
-[22500] 2023/09/07 14:52:39.731221 [INF]          https://docs.nats.io/jetstream
-[22500] 2023/09/07 14:52:39.731221 [INF]
-[22500] 2023/09/07 14:52:39.731221 [INF] ---------------- JETSTREAM ----------------
-[22500] 2023/09/07 14:52:39.731221 [INF]   Max Memory:      1.00 GB
-[22500] 2023/09/07 14:52:39.731221 [INF]   Max Storage:     10.00 GB
-[22500] 2023/09/07 14:52:39.731221 [INF]   Store Directory: &#34;data\nats-server\jetstream&#34;
-[22500] 2023/09/07 14:52:39.731221 [INF] -------------------------------------------
-[22500] 2023/09/07 14:52:39.734361 [INF] Listening for client connections on 0.0.0.0:4222
-[22500] 2023/09/07 14:52:39.765224 [INF] Server is ready
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">cat js.conf
+</span></span><span class="line"><span class="cl">// 启用jetstream，空模块将启用并使用默认值 的jetstream
+</span></span><span class="line"><span class="cl">jetstream {
+</span></span><span class="line"><span class="cl">    // jetstream数据存放位置：/data/nats-server/jetstream
+</span></span><span class="line"><span class="cl">    store_dir: &#34;./data/nats-server&#34;
+</span></span><span class="line"><span class="cl">    // 1GB
+</span></span><span class="line"><span class="cl">    max_memory_store: 1073741824
+</span></span><span class="line"><span class="cl">    // 10GB
+</span></span><span class="line"><span class="cl">    max_file_store: 10737418240
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">.\nats-server.exe -c .\js.conf
+</span></span><span class="line"><span class="cl">[22500] 2023/09/07 14:52:39.716147 [INF] Starting nats-server
+</span></span><span class="line"><span class="cl">[22500] 2023/09/07 14:52:39.729121 [INF]   Version:  2.9.22
+</span></span><span class="line"><span class="cl">[22500] 2023/09/07 14:52:39.729121 [INF]   Git:      [528ee14]
+</span></span><span class="line"><span class="cl">[22500] 2023/09/07 14:52:39.729121 [INF]   Name:     NCLVWQUCCL3W736H36FWPW46YWZZGLWDCNSNZOU5B4H6THQ3PKGZY6G6
+</span></span><span class="line"><span class="cl">[22500] 2023/09/07 14:52:39.729121 [INF]   Node:     YWK2TKml
+</span></span><span class="line"><span class="cl">[22500] 2023/09/07 14:52:39.729121 [INF]   ID:       NCLVWQUCCL3W736H36FWPW46YWZZGLWDCNSNZOU5B4H6THQ3PKGZY6G6
+</span></span><span class="line"><span class="cl">[22500] 2023/09/07 14:52:39.729121 [INF] Using configuration file: .\js.conf
+</span></span><span class="line"><span class="cl">[22500] 2023/09/07 14:52:39.729656 [INF] Starting JetStream
+</span></span><span class="line"><span class="cl">[22500] 2023/09/07 14:52:39.731221 [INF]     _ ___ _____ ___ _____ ___ ___   _   __  __
+</span></span><span class="line"><span class="cl">[22500] 2023/09/07 14:52:39.731221 [INF]  _ | | __|_   _/ __|_   _| _ \ __| /_\ |  \/  |
+</span></span><span class="line"><span class="cl">[22500] 2023/09/07 14:52:39.731221 [INF] | || | _|  | | \__ \ | | |   / _| / _ \| |\/| |
+</span></span><span class="line"><span class="cl">[22500] 2023/09/07 14:52:39.731221 [INF]  \__/|___| |_| |___/ |_| |_|_\___/_/ \_\_|  |_|
+</span></span><span class="line"><span class="cl">[22500] 2023/09/07 14:52:39.731221 [INF]
+</span></span><span class="line"><span class="cl">[22500] 2023/09/07 14:52:39.731221 [INF]          https://docs.nats.io/jetstream
+</span></span><span class="line"><span class="cl">[22500] 2023/09/07 14:52:39.731221 [INF]
+</span></span><span class="line"><span class="cl">[22500] 2023/09/07 14:52:39.731221 [INF] ---------------- JETSTREAM ----------------
+</span></span><span class="line"><span class="cl">[22500] 2023/09/07 14:52:39.731221 [INF]   Max Memory:      1.00 GB
+</span></span><span class="line"><span class="cl">[22500] 2023/09/07 14:52:39.731221 [INF]   Max Storage:     10.00 GB
+</span></span><span class="line"><span class="cl">[22500] 2023/09/07 14:52:39.731221 [INF]   Store Directory: &#34;data\nats-server\jetstream&#34;
+</span></span><span class="line"><span class="cl">[22500] 2023/09/07 14:52:39.731221 [INF] -------------------------------------------
+</span></span><span class="line"><span class="cl">[22500] 2023/09/07 14:52:39.734361 [INF] Listening for client connections on 0.0.0.0:4222
+</span></span><span class="line"><span class="cl">[22500] 2023/09/07 14:52:39.765224 [INF] Server is ready
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="usernamepasswordhttpsdocsnatsiorunning-a-nats-serviceconfigurationsecuring_natsauth_introusername_password"><a href="https://docs.nats.io/running-a-nats-service/configuration/securing_nats/auth_intro/username_password">Username/Password</a></h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -349,23 +351,23 @@ jetstream {
 </span><span class="lnt">9
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">cat server.conf
-authorization: {
-    users: [
-        {user: a, password: b},
-        {user: b, password: a}
-    ]
-}
-
-nats-server -c server.conf
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">cat server.conf
+</span></span><span class="line"><span class="cl">authorization: {
+</span></span><span class="line"><span class="cl">    users: [
+</span></span><span class="line"><span class="cl">        {user: a, password: b},
+</span></span><span class="line"><span class="cl">        {user: b, password: a}
+</span></span><span class="line"><span class="cl">    ]
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">nats-server -c server.conf
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="golang客户端多种连接">Golang客户端多种连接</h2>
 <p>NATS客户端连接断开，客户端SDK会尝试重新连接服务器。</p>
 <p><a href="https://github.com/nats-io/nats.go">Golang客户端库</a>，连接函数提供多个控制连接的<code>nats.Option</code></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -385,31 +387,31 @@ nats-server -c server.conf
 </span><span class="lnt">18
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Connect will attempt to connect to the NATS system.
-</span><span class="c1">// The url can contain username/password semantics. e.g. nats://derek:pass@localhost:4222
-</span><span class="c1">// Comma separated arrays are also supported, e.g. urlA, urlB.
-</span><span class="c1">// Options start with the defaults but can be overridden.
-</span><span class="c1">// To connect to a NATS Server&#39;s websocket port, use the `ws` or `wss` scheme, such as
-</span><span class="c1">// `ws://localhost:8080`. Note that websocket schemes cannot be mixed with others (nats/tls).
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">Connect</span><span class="p">(</span><span class="nx">url</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">options</span> <span class="o">...</span><span class="nx">Option</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">Conn</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-	<span class="nx">opts</span> <span class="o">:=</span> <span class="nf">GetDefaultOptions</span><span class="p">()</span>
-	<span class="nx">opts</span><span class="p">.</span><span class="nx">Servers</span> <span class="p">=</span> <span class="nf">processUrlString</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span>
-	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">opt</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">options</span> <span class="p">{</span>
-		<span class="k">if</span> <span class="nx">opt</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-			<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">opt</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">opts</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-				<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
-			<span class="p">}</span>
-		<span class="p">}</span>
-	<span class="p">}</span>
-	<span class="k">return</span> <span class="nx">opts</span><span class="p">.</span><span class="nf">Connect</span><span class="p">()</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// Connect will attempt to connect to the NATS system.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// The url can contain username/password semantics. e.g. nats://derek:pass@localhost:4222
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Comma separated arrays are also supported, e.g. urlA, urlB.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Options start with the defaults but can be overridden.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// To connect to a NATS Server&#39;s websocket port, use the `ws` or `wss` scheme, such as
+</span></span></span><span class="line"><span class="cl"><span class="c1">// `ws://localhost:8080`. Note that websocket schemes cannot be mixed with others (nats/tls).
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">Connect</span><span class="p">(</span><span class="nx">url</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">options</span> <span class="o">...</span><span class="nx">Option</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">Conn</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">opts</span> <span class="o">:=</span> <span class="nf">GetDefaultOptions</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">opts</span><span class="p">.</span><span class="nx">Servers</span> <span class="p">=</span> <span class="nf">processUrlString</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">opt</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">options</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">opt</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">opt</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">opts</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">opts</span><span class="p">.</span><span class="nf">Connect</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="最大重新连接次数">最大重新连接次数</h3>
 <p>限制重新连接总次数，默认为60，如果设置的次数小于nats服务节点数，那么重新连接将不会尝试到全部节点。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -419,21 +421,21 @@ nats-server -c server.conf
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// MaxReconnects is an Option to set the maximum number of reconnect attempts.
-</span><span class="c1">// Defaults to 60.
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">MaxReconnects</span><span class="p">(</span><span class="nx">max</span> <span class="kt">int</span><span class="p">)</span> <span class="nx">Option</span> <span class="p">{</span>
-	<span class="k">return</span> <span class="kd">func</span><span class="p">(</span><span class="nx">o</span> <span class="o">*</span><span class="nx">Options</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
-		<span class="nx">o</span><span class="p">.</span><span class="nx">MaxReconnect</span> <span class="p">=</span> <span class="nx">max</span>
-		<span class="k">return</span> <span class="kc">nil</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// MaxReconnects is an Option to set the maximum number of reconnect attempts.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Defaults to 60.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">MaxReconnects</span><span class="p">(</span><span class="nx">max</span> <span class="kt">int</span><span class="p">)</span> <span class="nx">Option</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="kd">func</span><span class="p">(</span><span class="nx">o</span> <span class="o">*</span><span class="nx">Options</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">o</span><span class="p">.</span><span class="nx">MaxReconnect</span> <span class="p">=</span> <span class="nx">max</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="重新连接间隔等待时间">重新连接间隔等待时间</h3>
 <p>多次重新连接到同一nats服务节点的间隔等待时间。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -443,21 +445,21 @@ nats-server -c server.conf
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// ReconnectWait is an Option to set the wait time between reconnect attempts.
-</span><span class="c1">// Defaults to 2s.
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">ReconnectWait</span><span class="p">(</span><span class="nx">t</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span><span class="p">)</span> <span class="nx">Option</span> <span class="p">{</span>
-	<span class="k">return</span> <span class="kd">func</span><span class="p">(</span><span class="nx">o</span> <span class="o">*</span><span class="nx">Options</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
-		<span class="nx">o</span><span class="p">.</span><span class="nx">ReconnectWait</span> <span class="p">=</span> <span class="nx">t</span>
-		<span class="k">return</span> <span class="kc">nil</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// ReconnectWait is an Option to set the wait time between reconnect attempts.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Defaults to 2s.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">ReconnectWait</span><span class="p">(</span><span class="nx">t</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span><span class="p">)</span> <span class="nx">Option</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="kd">func</span><span class="p">(</span><span class="nx">o</span> <span class="o">*</span><span class="nx">Options</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">o</span><span class="p">.</span><span class="nx">ReconnectWait</span> <span class="p">=</span> <span class="nx">t</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="避免-thundering-herd">避免 Thundering Herd</h3>
 <p>禁用重新连接时的随机化过程，让重新连接始终按相同的顺序检查所有nats节点，避免单个节点同时承受过多连接创建，出现惊群效应(Thundering Herd)。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -466,20 +468,20 @@ nats-server -c server.conf
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// DontRandomize is an Option to turn off randomizing the server pool.
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">DontRandomize</span><span class="p">()</span> <span class="nx">Option</span> <span class="p">{</span>
-	<span class="k">return</span> <span class="kd">func</span><span class="p">(</span><span class="nx">o</span> <span class="o">*</span><span class="nx">Options</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
-		<span class="nx">o</span><span class="p">.</span><span class="nx">NoRandomize</span> <span class="p">=</span> <span class="kc">true</span>
-		<span class="k">return</span> <span class="kc">nil</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// DontRandomize is an Option to turn off randomizing the server pool.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">DontRandomize</span><span class="p">()</span> <span class="nx">Option</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="kd">func</span><span class="p">(</span><span class="nx">o</span> <span class="o">*</span><span class="nx">Options</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">o</span><span class="p">.</span><span class="nx">NoRandomize</span> <span class="p">=</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="事件监听">事件监听</h3>
 <p>可以监听连接创建事件，在连接创建和重新连接，或连接失败时回调处理。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -488,14 +490,14 @@ nats-server -c server.conf
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// ReconnectHandler is an Option to set the reconnected handler.
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">ReconnectHandler</span><span class="p">(</span><span class="nx">cb</span> <span class="nx">ConnHandler</span><span class="p">)</span> <span class="nx">Option</span> <span class="p">{</span>
-	<span class="k">return</span> <span class="kd">func</span><span class="p">(</span><span class="nx">o</span> <span class="o">*</span><span class="nx">Options</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
-		<span class="nx">o</span><span class="p">.</span><span class="nx">ReconnectedCB</span> <span class="p">=</span> <span class="nx">cb</span>
-		<span class="k">return</span> <span class="kc">nil</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// ReconnectHandler is an Option to set the reconnected handler.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">ReconnectHandler</span><span class="p">(</span><span class="nx">cb</span> <span class="nx">ConnHandler</span><span class="p">)</span> <span class="nx">Option</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="kd">func</span><span class="p">(</span><span class="nx">o</span> <span class="o">*</span><span class="nx">Options</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">o</span><span class="p">.</span><span class="nx">ReconnectedCB</span> <span class="p">=</span> <span class="nx">cb</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>更多事件处理选项见官方文档<a href="https://pkg.go.dev/github.com/nats-io/nats.go@v1.28.0#Option">Option</a></p>
 <h2 id="使用示例">使用示例</h2>
@@ -503,7 +505,7 @@ nats-server -c server.conf
 <h3 id="core-publish-subscribehttpsnatsbyexamplecomexamplesmessagingpub-subcli"><a href="https://natsbyexample.com/examples/messaging/pub-sub/cli">Core Publish-Subscribe</a></h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -546,59 +548,57 @@ nats-server -c server.conf
 </span><span class="lnt">41
 </span><span class="lnt">42
 </span><span class="lnt">43
-</span><span class="lnt">44
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-	<span class="s">&#34;fmt&#34;</span>
-	<span class="s">&#34;os&#34;</span>
-	<span class="s">&#34;time&#34;</span>
-
-	<span class="s">&#34;github.com/nats-io/nats.go&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-
-	<span class="nx">url</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Getenv</span><span class="p">(</span><span class="s">&#34;NATS_URL&#34;</span><span class="p">)</span>
-	<span class="k">if</span> <span class="nx">url</span> <span class="o">==</span> <span class="s">&#34;&#34;</span> <span class="p">{</span>
-		<span class="nx">url</span> <span class="p">=</span> <span class="nx">nats</span><span class="p">.</span><span class="nx">DefaultURL</span>
-	<span class="p">}</span>
-
-	<span class="nx">nc</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">nats</span><span class="p">.</span><span class="nf">Connect</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span>
-
-	<span class="k">defer</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Drain</span><span class="p">()</span>
-
-	<span class="nx">nc</span><span class="p">.</span><span class="nf">Publish</span><span class="p">(</span><span class="s">&#34;greet.joe&#34;</span><span class="p">,</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;hello&#34;</span><span class="p">))</span>
-
-	<span class="nx">sub</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">SubscribeSync</span><span class="p">(</span><span class="s">&#34;greet.*&#34;</span><span class="p">)</span>
-
-	<span class="nx">msg</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">sub</span><span class="p">.</span><span class="nf">NextMsg</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;subscribed after a publish...&#34;</span><span class="p">)</span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;msg is nil? %v\n&#34;</span><span class="p">,</span> <span class="nx">msg</span> <span class="o">==</span> <span class="kc">nil</span><span class="p">)</span>
-
-	<span class="nx">nc</span><span class="p">.</span><span class="nf">Publish</span><span class="p">(</span><span class="s">&#34;greet.joe&#34;</span><span class="p">,</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;hello&#34;</span><span class="p">))</span>
-	<span class="nx">nc</span><span class="p">.</span><span class="nf">Publish</span><span class="p">(</span><span class="s">&#34;greet.pam&#34;</span><span class="p">,</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;hello&#34;</span><span class="p">))</span>
-
-	<span class="nx">msg</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">sub</span><span class="p">.</span><span class="nf">NextMsg</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;msg data: %q on subject %q\n&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Data</span><span class="p">),</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">Subject</span><span class="p">)</span>
-
-	<span class="nx">msg</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">sub</span><span class="p">.</span><span class="nf">NextMsg</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;msg data: %q on subject %q\n&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Data</span><span class="p">),</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">Subject</span><span class="p">)</span>
-
-	<span class="nx">nc</span><span class="p">.</span><span class="nf">Publish</span><span class="p">(</span><span class="s">&#34;greet.bob&#34;</span><span class="p">,</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;hello&#34;</span><span class="p">))</span>
-
-	<span class="nx">msg</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">sub</span><span class="p">.</span><span class="nf">NextMsg</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;msg data: %q on subject %q\n&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Data</span><span class="p">),</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">Subject</span><span class="p">)</span>
-<span class="p">}</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;os&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/nats-io/nats.go&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">url</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Getenv</span><span class="p">(</span><span class="s">&#34;NATS_URL&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">url</span> <span class="o">==</span> <span class="s">&#34;&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">url</span> <span class="p">=</span> <span class="nx">nats</span><span class="p">.</span><span class="nx">DefaultURL</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">nc</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">nats</span><span class="p">.</span><span class="nf">Connect</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Drain</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">nc</span><span class="p">.</span><span class="nf">Publish</span><span class="p">(</span><span class="s">&#34;greet.joe&#34;</span><span class="p">,</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;hello&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">sub</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">SubscribeSync</span><span class="p">(</span><span class="s">&#34;greet.*&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">msg</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">sub</span><span class="p">.</span><span class="nf">NextMsg</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;subscribed after a publish...&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;msg is nil? %v\n&#34;</span><span class="p">,</span> <span class="nx">msg</span> <span class="o">==</span> <span class="kc">nil</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">nc</span><span class="p">.</span><span class="nf">Publish</span><span class="p">(</span><span class="s">&#34;greet.joe&#34;</span><span class="p">,</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;hello&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">nc</span><span class="p">.</span><span class="nf">Publish</span><span class="p">(</span><span class="s">&#34;greet.pam&#34;</span><span class="p">,</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;hello&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">msg</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">sub</span><span class="p">.</span><span class="nf">NextMsg</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;msg data: %q on subject %q\n&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Data</span><span class="p">),</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">Subject</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">msg</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">sub</span><span class="p">.</span><span class="nf">NextMsg</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;msg data: %q on subject %q\n&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Data</span><span class="p">),</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">Subject</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">nc</span><span class="p">.</span><span class="nf">Publish</span><span class="p">(</span><span class="s">&#34;greet.bob&#34;</span><span class="p">,</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;hello&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">msg</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">sub</span><span class="p">.</span><span class="nf">NextMsg</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;msg data: %q on subject %q\n&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Data</span><span class="p">),</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">Subject</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>运行示例：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -606,18 +606,18 @@ nats-server -c server.conf
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback"> NATS_URL=&#34;${NATS_URL:-nats://localhost:4222}&#34; go run pub-sub.go
-subscribed after a publish...
-msg is nil? true
-msg data: &#34;hello&#34; on subject &#34;greet.joe&#34;
-msg data: &#34;hello&#34; on subject &#34;greet.pam&#34;
-msg data: &#34;hello&#34; on subject &#34;greet.bob&#34;
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"> NATS_URL=&#34;${NATS_URL:-nats://localhost:4222}&#34; go run pub-sub.go
+</span></span><span class="line"><span class="cl">subscribed after a publish...
+</span></span><span class="line"><span class="cl">msg is nil? true
+</span></span><span class="line"><span class="cl">msg data: &#34;hello&#34; on subject &#34;greet.joe&#34;
+</span></span><span class="line"><span class="cl">msg data: &#34;hello&#34; on subject &#34;greet.pam&#34;
+</span></span><span class="line"><span class="cl">msg data: &#34;hello&#34; on subject &#34;greet.bob&#34;
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="request-replyhttpsnatsbyexamplecomexamplesmessagingrequest-replygo"><a href="https://natsbyexample.com/examples/messaging/request-reply/go">Request-Reply</a></h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -657,74 +657,72 @@ msg data: &#34;hello&#34; on subject &#34;greet.bob&#34;
 </span><span class="lnt">38
 </span><span class="lnt">39
 </span><span class="lnt">40
-</span><span class="lnt">41
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-	<span class="s">&#34;fmt&#34;</span>
-	<span class="s">&#34;os&#34;</span>
-	<span class="s">&#34;time&#34;</span>
-
-	<span class="s">&#34;github.com/nats-io/nats.go&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-
-	<span class="nx">url</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Getenv</span><span class="p">(</span><span class="s">&#34;NATS_URL&#34;</span><span class="p">)</span>
-	<span class="k">if</span> <span class="nx">url</span> <span class="o">==</span> <span class="s">&#34;&#34;</span> <span class="p">{</span>
-		<span class="nx">url</span> <span class="p">=</span> <span class="nx">nats</span><span class="p">.</span><span class="nx">DefaultURL</span>
-	<span class="p">}</span>
-
-	<span class="nx">nc</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">nats</span><span class="p">.</span><span class="nf">Connect</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span>
-	<span class="k">defer</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Drain</span><span class="p">()</span>
-
-	<span class="nx">sub</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Subscribe</span><span class="p">(</span><span class="s">&#34;greet.*&#34;</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">msg</span> <span class="o">*</span><span class="nx">nats</span><span class="p">.</span><span class="nx">Msg</span><span class="p">)</span> <span class="p">{</span>
-
-		<span class="nx">name</span> <span class="o">:=</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">Subject</span><span class="p">[</span><span class="mi">6</span><span class="p">:]</span>
-		<span class="nx">msg</span><span class="p">.</span><span class="nf">Respond</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;hello, &#34;</span> <span class="o">+</span> <span class="nx">name</span><span class="p">))</span>
-	<span class="p">})</span>
-
-	<span class="nx">rep</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Request</span><span class="p">(</span><span class="s">&#34;greet.joe&#34;</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">rep</span><span class="p">.</span><span class="nx">Data</span><span class="p">))</span>
-
-	<span class="nx">rep</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Request</span><span class="p">(</span><span class="s">&#34;greet.sue&#34;</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">rep</span><span class="p">.</span><span class="nx">Data</span><span class="p">))</span>
-
-	<span class="nx">rep</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Request</span><span class="p">(</span><span class="s">&#34;greet.bob&#34;</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">rep</span><span class="p">.</span><span class="nx">Data</span><span class="p">))</span>
-
-	<span class="nx">sub</span><span class="p">.</span><span class="nf">Unsubscribe</span><span class="p">()</span>
-
-	<span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Request</span><span class="p">(</span><span class="s">&#34;greet.joe&#34;</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-<span class="p">}</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;os&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/nats-io/nats.go&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">url</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Getenv</span><span class="p">(</span><span class="s">&#34;NATS_URL&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">url</span> <span class="o">==</span> <span class="s">&#34;&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">url</span> <span class="p">=</span> <span class="nx">nats</span><span class="p">.</span><span class="nx">DefaultURL</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">nc</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">nats</span><span class="p">.</span><span class="nf">Connect</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Drain</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">sub</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Subscribe</span><span class="p">(</span><span class="s">&#34;greet.*&#34;</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">msg</span> <span class="o">*</span><span class="nx">nats</span><span class="p">.</span><span class="nx">Msg</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="nx">name</span> <span class="o">:=</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">Subject</span><span class="p">[</span><span class="mi">6</span><span class="p">:]</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">msg</span><span class="p">.</span><span class="nf">Respond</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;hello, &#34;</span> <span class="o">+</span> <span class="nx">name</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="p">})</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">rep</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Request</span><span class="p">(</span><span class="s">&#34;greet.joe&#34;</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">rep</span><span class="p">.</span><span class="nx">Data</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">rep</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Request</span><span class="p">(</span><span class="s">&#34;greet.sue&#34;</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">rep</span><span class="p">.</span><span class="nx">Data</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">rep</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Request</span><span class="p">(</span><span class="s">&#34;greet.bob&#34;</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">rep</span><span class="p">.</span><span class="nx">Data</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">sub</span><span class="p">.</span><span class="nf">Unsubscribe</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Request</span><span class="p">(</span><span class="s">&#34;greet.joe&#34;</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>运行示例：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">$ NATS_URL=&#34;${NATS_URL:-nats://localhost:4222}&#34; go run request-reply.go
-hello, joe
-hello, sue
-hello, bob
-nats: no responders available for request
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">$ NATS_URL=&#34;${NATS_URL:-nats://localhost:4222}&#34; go run request-reply.go
+</span></span><span class="line"><span class="cl">hello, joe
+</span></span><span class="line"><span class="cl">hello, sue
+</span></span><span class="line"><span class="cl">hello, bob
+</span></span><span class="line"><span class="cl">nats: no responders available for request
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="protobuf-for-message-payloadshttpsnatsbyexamplecomexamplesmessagingprotobufgo"><a href="https://natsbyexample.com/examples/messaging/protobuf/go">Protobuf for Message Payloads</a></h3>
 <p>protobuf协议定义：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -739,33 +737,33 @@ nats: no responders available for request
 </span><span class="lnt">13
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-proto" data-lang="proto"><span class="n">syntax</span> <span class="o">=</span> <span class="s">&#34;proto3&#34;</span><span class="p">;</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">option</span> <span class="n">go_package</span> <span class="o">=</span> <span class="s">&#34;.;main&#34;</span><span class="p">;</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="kn">package</span> <span class="nn">main</span><span class="p">;</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="kd">message</span> <span class="nc">GreetRequest</span> <span class="p">{</span><span class="err">
-</span><span class="err"></span>    <span class="kt">string</span> <span class="n">name</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span><span class="err">
-</span><span class="err"></span><span class="p">}</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="kd">message</span> <span class="nc">GreetReply</span> <span class="p">{</span><span class="err">
-</span><span class="err"></span>    <span class="kt">string</span> <span class="n">text</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span><span class="err">
-</span><span class="err"></span><span class="p">}</span><span class="err">
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-proto" data-lang="proto"><span class="line"><span class="cl"><span class="n">syntax</span> <span class="o">=</span> <span class="s">&#34;proto3&#34;</span><span class="p">;</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">option</span> <span class="n">go_package</span> <span class="o">=</span> <span class="s">&#34;.;main&#34;</span><span class="p">;</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="kn">package</span> <span class="nn">main</span><span class="p">;</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="kd">message</span> <span class="nc">GreetRequest</span> <span class="p">{</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span>    <span class="kt">string</span> <span class="n">name</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="p">}</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="kd">message</span> <span class="nc">GreetReply</span> <span class="p">{</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span>    <span class="kt">string</span> <span class="n">text</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="p">}</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>生成go协议文件：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">protoc.exe --go_out<span class="o">=</span><span class="nv">paths</span><span class="o">=</span>source_relative:. greet.proto
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">protoc.exe --go_out<span class="o">=</span><span class="nv">paths</span><span class="o">=</span>source_relative:. greet.proto
+</span></span></code></pre></td></tr></table>
 </div>
 </div><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -808,70 +806,68 @@ nats: no responders available for request
 </span><span class="lnt">41
 </span><span class="lnt">42
 </span><span class="lnt">43
-</span><span class="lnt">44
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-	<span class="s">&#34;fmt&#34;</span>
-	<span class="s">&#34;os&#34;</span>
-	<span class="s">&#34;time&#34;</span>
-
-	<span class="s">&#34;github.com/nats-io/nats.go&#34;</span>
-	<span class="s">&#34;google.golang.org/protobuf/proto&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-	<span class="nx">url</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Getenv</span><span class="p">(</span><span class="s">&#34;NATS_URL&#34;</span><span class="p">)</span>
-	<span class="k">if</span> <span class="nx">url</span> <span class="o">==</span> <span class="s">&#34;&#34;</span> <span class="p">{</span>
-		<span class="nx">url</span> <span class="p">=</span> <span class="nx">nats</span><span class="p">.</span><span class="nx">DefaultURL</span>
-	<span class="p">}</span>
-
-	<span class="nx">nc</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">nats</span><span class="p">.</span><span class="nf">Connect</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span>
-	<span class="k">defer</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Drain</span><span class="p">()</span>
-
-	<span class="nx">nc</span><span class="p">.</span><span class="nf">Subscribe</span><span class="p">(</span><span class="s">&#34;greet&#34;</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">msg</span> <span class="o">*</span><span class="nx">nats</span><span class="p">.</span><span class="nx">Msg</span><span class="p">)</span> <span class="p">{</span>
-		<span class="kd">var</span> <span class="nx">req</span> <span class="nx">GreetRequest</span>
-		<span class="nx">proto</span><span class="p">.</span><span class="nf">Unmarshal</span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Data</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">req</span><span class="p">)</span>
-
-		<span class="nx">rep</span> <span class="o">:=</span> <span class="nx">GreetReply</span><span class="p">{</span>
-			<span class="nx">Text</span><span class="p">:</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;hello %q!&#34;</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Name</span><span class="p">),</span>
-		<span class="p">}</span>
-		<span class="nx">data</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">proto</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">rep</span><span class="p">)</span>
-		<span class="nx">msg</span><span class="p">.</span><span class="nf">Respond</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
-	<span class="p">})</span>
-
-	<span class="nx">req</span> <span class="o">:=</span> <span class="nx">GreetRequest</span><span class="p">{</span>
-		<span class="nx">Name</span><span class="p">:</span> <span class="s">&#34;joe&#34;</span><span class="p">,</span>
-	<span class="p">}</span>
-	<span class="nx">data</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">proto</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">req</span><span class="p">)</span>
-
-	<span class="nx">msg</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Request</span><span class="p">(</span><span class="s">&#34;greet&#34;</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
-
-	<span class="kd">var</span> <span class="nx">rep</span> <span class="nx">GreetReply</span>
-	<span class="nx">proto</span><span class="p">.</span><span class="nf">Unmarshal</span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Data</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">rep</span><span class="p">)</span>
-
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;reply: %s\n&#34;</span><span class="p">,</span> <span class="nx">rep</span><span class="p">.</span><span class="nx">Text</span><span class="p">)</span>
-<span class="p">}</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;os&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/nats-io/nats.go&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;google.golang.org/protobuf/proto&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">url</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Getenv</span><span class="p">(</span><span class="s">&#34;NATS_URL&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">url</span> <span class="o">==</span> <span class="s">&#34;&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">url</span> <span class="p">=</span> <span class="nx">nats</span><span class="p">.</span><span class="nx">DefaultURL</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">nc</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">nats</span><span class="p">.</span><span class="nf">Connect</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Drain</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">nc</span><span class="p">.</span><span class="nf">Subscribe</span><span class="p">(</span><span class="s">&#34;greet&#34;</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">msg</span> <span class="o">*</span><span class="nx">nats</span><span class="p">.</span><span class="nx">Msg</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="kd">var</span> <span class="nx">req</span> <span class="nx">GreetRequest</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">proto</span><span class="p">.</span><span class="nf">Unmarshal</span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Data</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">req</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="nx">rep</span> <span class="o">:=</span> <span class="nx">GreetReply</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Text</span><span class="p">:</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;hello %q!&#34;</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Name</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">data</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">proto</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">rep</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">msg</span><span class="p">.</span><span class="nf">Respond</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">})</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">req</span> <span class="o">:=</span> <span class="nx">GreetRequest</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Name</span><span class="p">:</span> <span class="s">&#34;joe&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">data</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">proto</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">req</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">msg</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">nc</span><span class="p">.</span><span class="nf">Request</span><span class="p">(</span><span class="s">&#34;greet&#34;</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">var</span> <span class="nx">rep</span> <span class="nx">GreetReply</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">proto</span><span class="p">.</span><span class="nf">Unmarshal</span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Data</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">rep</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;reply: %s\n&#34;</span><span class="p">,</span> <span class="nx">rep</span><span class="p">.</span><span class="nx">Text</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>运行示例：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">$ NATS_URL=&#34;${NATS_URL:-nats://localhost:4222}&#34; go run nats_proto.go greet.pb.go
-reply: hello &#34;joe&#34;!
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">$ NATS_URL=&#34;${NATS_URL:-nats://localhost:4222}&#34; go run nats_proto.go greet.pb.go
+</span></span><span class="line"><span class="cl">reply: hello &#34;joe&#34;!
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="concurrent-message-processinghttpsnatsbyexamplecomexamplesmessagingconcurrentpython"><a href="https://natsbyexample.com/examples/messaging/concurrent/python">Concurrent Message Processing</a></h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -902,41 +898,41 @@ reply: hello &#34;joe&#34;!
 </span><span class="lnt">29
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">random</span>
-
-<span class="kn">import</span> <span class="nn">nats</span>
-
-
-<span class="n">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="n">nats_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&#34;NATS_URL&#34;</span><span class="p">,</span> <span class="s2">&#34;nats://localhost:4222&#34;</span><span class="p">)</span>
-
-    <span class="n">client</span> <span class="o">=</span> <span class="n">await</span> <span class="n">nats</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">nats_url</span><span class="p">)</span>
-
-    <span class="n">messages</span> <span class="o">=</span> <span class="p">(</span><span class="n">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&#34;greet.*&#34;</span><span class="p">,</span> <span class="n">max_msgs</span><span class="o">=</span><span class="mi">50</span><span class="p">))</span><span class="o">.</span><span class="n">messages</span>
-
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">50</span><span class="p">):</span>
-        <span class="n">await</span> <span class="n">client</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&#34;greet.joe&#34;</span><span class="p">,</span> <span class="n">f</span><span class="s2">&#34;hello {i}&#34;</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
-
-    <span class="n">semaphore</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Semaphore</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span>
-
-    <span class="n">async</span> <span class="k">def</span> <span class="nf">process_message</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
-        <span class="n">async</span> <span class="k">with</span> <span class="n">semaphore</span><span class="p">:</span>
-            <span class="n">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span>
-            <span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&#34;received message: {message.data.decode()!r}&#34;</span><span class="p">)</span>
-
-    <span class="n">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">process_message</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="n">async</span> <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">])</span>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&#34;__main__&#34;</span><span class="p">:</span>
-    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">asyncio</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">os</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">random</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">nats</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">nats_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&#34;NATS_URL&#34;</span><span class="p">,</span> <span class="s2">&#34;nats://localhost:4222&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">client</span> <span class="o">=</span> <span class="k">await</span> <span class="n">nats</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">nats_url</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">messages</span> <span class="o">=</span> <span class="p">(</span><span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&#34;greet.*&#34;</span><span class="p">,</span> <span class="n">max_msgs</span><span class="o">=</span><span class="mi">50</span><span class="p">))</span><span class="o">.</span><span class="n">messages</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">50</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&#34;greet.joe&#34;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&#34;hello </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&#34;</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">semaphore</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Semaphore</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">async</span> <span class="k">def</span> <span class="nf">process_message</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="k">async</span> <span class="k">with</span> <span class="n">semaphore</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;received message: </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="si">!r}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">process_message</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="k">async</span> <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&#34;__main__&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>运行示例：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -989,58 +985,58 @@ reply: hello &#34;joe&#34;!
 </span><span class="lnt">51
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">NATS_URL=&#34;${NATS_URL:-nats://localhost:4222}&#34; python concurrent_example.py
-received message: &#39;hello 12&#39;
-received message: &#39;hello 7&#39;
-received message: &#39;hello 16&#39;
-received message: &#39;hello 24&#39;
-received message: &#39;hello 21&#39;
-received message: &#39;hello 11&#39;
-received message: &#39;hello 27&#39;
-received message: &#39;hello 14&#39;
-received message: &#39;hello 10&#39;
-received message: &#39;hello 18&#39;
-received message: &#39;hello 2&#39;
-received message: &#39;hello 19&#39;
-received message: &#39;hello 22&#39;
-received message: &#39;hello 31&#39;
-received message: &#39;hello 1&#39;
-received message: &#39;hello 23&#39;
-received message: &#39;hello 9&#39;
-received message: &#39;hello 20&#39;
-received message: &#39;hello 33&#39;
-received message: &#39;hello 35&#39;
-received message: &#39;hello 32&#39;
-received message: &#39;hello 25&#39;
-received message: &#39;hello 36&#39;
-received message: &#39;hello 4&#39;
-received message: &#39;hello 5&#39;
-received message: &#39;hello 28&#39;
-received message: &#39;hello 15&#39;
-received message: &#39;hello 41&#39;
-received message: &#39;hello 8&#39;
-received message: &#39;hello 0&#39;
-received message: &#39;hello 38&#39;
-received message: &#39;hello 17&#39;
-received message: &#39;hello 6&#39;
-received message: &#39;hello 3&#39;
-received message: &#39;hello 40&#39;
-received message: &#39;hello 43&#39;
-received message: &#39;hello 45&#39;
-received message: &#39;hello 13&#39;
-received message: &#39;hello 26&#39;
-received message: &#39;hello 34&#39;
-received message: &#39;hello 37&#39;
-received message: &#39;hello 47&#39;
-received message: &#39;hello 42&#39;
-received message: &#39;hello 44&#39;
-received message: &#39;hello 30&#39;
-received message: &#39;hello 29&#39;
-received message: &#39;hello 39&#39;
-received message: &#39;hello 48&#39;
-received message: &#39;hello 46&#39;
-received message: &#39;hello 49&#39;
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">NATS_URL=&#34;${NATS_URL:-nats://localhost:4222}&#34; python concurrent_example.py
+</span></span><span class="line"><span class="cl">received message: &#39;hello 12&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 7&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 16&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 24&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 21&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 11&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 27&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 14&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 10&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 18&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 2&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 19&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 22&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 31&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 1&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 23&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 9&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 20&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 33&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 35&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 32&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 25&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 36&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 4&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 5&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 28&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 15&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 41&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 8&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 0&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 38&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 17&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 6&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 3&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 40&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 43&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 45&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 13&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 26&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 34&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 37&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 47&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 42&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 44&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 30&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 29&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 39&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 48&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 46&#39;
+</span></span><span class="line"><span class="cl">received message: &#39;hello 49&#39;
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="heading"></h2>
 <h2 id="参考">参考</h2>
@@ -1153,7 +1149,7 @@ received message: &#39;hello 49&#39;
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -1170,7 +1166,7 @@ received message: &#39;hello 49&#39;
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

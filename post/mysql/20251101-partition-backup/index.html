@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/mysql/20251101-partition-backup/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="MySQL 表分区备份和恢复" />
-<meta property="og:description" content="MySQL 表分区和事件调度器 MySQL 表分区实践及操作 MySQL 分区表的备份与恢复策略 针对分区表的备份和恢复，有多种策略可供选择。以下是详细的操作示例方法： 1. 分区级" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/mysql/20251101-partition-backup/" />
-<meta property="article:published_time" content="2025-11-01T18:01:28+08:00" />
-<meta property="article:modified_time" content="2025-11-01T18:01:28+08:00" />
-<meta itemprop="name" content="MySQL 表分区备份和恢复">
-<meta itemprop="description" content="MySQL 表分区和事件调度器 MySQL 表分区实践及操作 MySQL 分区表的备份与恢复策略 针对分区表的备份和恢复，有多种策略可供选择。以下是详细的操作示例方法： 1. 分区级">
-<meta itemprop="datePublished" content="2025-11-01T18:01:28&#43;08:00" />
-<meta itemprop="dateModified" content="2025-11-01T18:01:28&#43;08:00" />
-<meta itemprop="wordCount" content="1361">
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20251101-partition-backup/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="MySQL 表分区备份和恢复">
+  <meta property="og:description" content="MySQL 表分区和事件调度器 MySQL 表分区实践及操作 MySQL 分区表的备份与恢复策略 针对分区表的备份和恢复，有多种策略可供选择。以下是详细的操作示例方法： 1. 分区级">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2025-11-01T18:01:28+08:00">
+    <meta property="article:modified_time" content="2025-11-01T18:01:28+08:00">
+    <meta property="article:tag" content="Mysql">
 
-
-
-<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="MySQL 表分区备份和恢复"/>
-<meta name="twitter:description" content="MySQL 表分区和事件调度器 MySQL 表分区实践及操作 MySQL 分区表的备份与恢复策略 针对分区表的备份和恢复，有多种策略可供选择。以下是详细的操作示例方法： 1. 分区级"/>
+  <meta itemprop="name" content="MySQL 表分区备份和恢复">
+  <meta itemprop="description" content="MySQL 表分区和事件调度器 MySQL 表分区实践及操作 MySQL 分区表的备份与恢复策略 针对分区表的备份和恢复，有多种策略可供选择。以下是详细的操作示例方法： 1. 分区级">
+  <meta itemprop="datePublished" content="2025-11-01T18:01:28+08:00">
+  <meta itemprop="dateModified" content="2025-11-01T18:01:28+08:00">
+  <meta itemprop="wordCount" content="1366">
+  <meta itemprop="keywords" content="Mysql"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="MySQL 表分区备份和恢复">
+<meta name="twitter:description" content="MySQL 表分区和事件调度器 MySQL 表分区实践及操作 MySQL 分区表的备份与恢复策略 针对分区表的备份和恢复，有多种策略可供选择。以下是详细的操作示例方法： 1. 分区级">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -143,7 +144,7 @@
         <div class="post-category">
             <a href="/categories/mysql/"> mysql </a>
             </div>
-          <span class="more-meta"> 1361 words </span>
+          <span class="more-meta"> 1366 words </span>
           <span class="more-meta"> 3 mins read </span>
         
       </div>
@@ -202,7 +203,7 @@
 <h3 id="备份单个分区">备份单个分区</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -215,23 +216,23 @@
 </span><span class="lnt">11
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- 创建分区备份表（结构相同但不分区）
-</span><span class="c1"></span><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">orders_backup_p202312</span> <span class="k">LIKE</span> <span class="n">orders</span><span class="p">;</span>
-<span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">orders_backup_p202312</span> <span class="n">REMOVE</span> <span class="n">PARTITIONING</span><span class="p">;</span>
-
-<span class="c1">-- 拷贝分区数据到备份表
-</span><span class="c1"></span><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">orders</span> <span class="n">EXCHANGE</span> <span class="n">PARTITION</span> <span class="n">p202312</span> 
-<span class="k">WITH</span> <span class="k">TABLE</span> <span class="n">orders_backup_p202312</span><span class="p">;</span>
-
-<span class="c1">-- 此时数据在备份表中，原分区为空
-</span><span class="c1">-- 将数据插回原分区（可选）
-</span><span class="c1"></span><span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">orders</span> <span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">orders_backup_p202312</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 创建分区备份表（结构相同但不分区）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">orders_backup_p202312</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">orders_backup_p202312</span><span class="w"> </span><span class="n">REMOVE</span><span class="w"> </span><span class="n">PARTITIONING</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 拷贝分区数据到备份表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">EXCHANGE</span><span class="w"> </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202312</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WITH</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">orders_backup_p202312</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 此时数据在备份表中，原分区为空
+</span></span></span><span class="line"><span class="cl"><span class="c1">-- 将数据插回原分区（可选）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders_backup_p202312</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="批量备份多个分区">批量备份多个分区</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -259,39 +260,39 @@
 </span><span class="lnt">26
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
-</span><span class="cp"></span><span class="c1"># 分区备份脚本</span>
-
-<span class="nv">BACKUP_DIR</span><span class="o">=</span><span class="s2">&#34;/backup/mysql_partitions&#34;</span>
-<span class="nv">DATE</span><span class="o">=</span><span class="k">$(</span>date +%Y%m%d<span class="k">)</span>
-
-<span class="c1"># 备份指定月份的分区</span>
-<span class="nv">PARTITIONS</span><span class="o">=</span><span class="s2">&#34;p202312 p202311 p202310&#34;</span>
-
-<span class="k">for</span> PARTITION in <span class="nv">$PARTITIONS</span><span class="p">;</span> <span class="k">do</span>
-    <span class="c1"># 创建备份表</span>
-    mysql -e <span class="s2">&#34;CREATE TABLE orders_backup_</span><span class="si">${</span><span class="nv">PARTITION</span><span class="si">}</span><span class="s2"> LIKE orders;&#34;</span>
-    mysql -e <span class="s2">&#34;ALTER TABLE orders_backup_</span><span class="si">${</span><span class="nv">PARTITION</span><span class="si">}</span><span class="s2"> REMOVE PARTITIONING;&#34;</span>
-    
-    <span class="c1"># 交换分区数据到备份表</span>
-    mysql -e <span class="s2">&#34;ALTER TABLE orders EXCHANGE PARTITION </span><span class="si">${</span><span class="nv">PARTITION</span><span class="si">}</span><span class="s2"> WITH TABLE orders_backup_</span><span class="si">${</span><span class="nv">PARTITION</span><span class="si">}</span><span class="s2">;&#34;</span>
-    
-    <span class="c1"># 导出备份表数据</span>
-    mysqldump -u username -p database orders_backup_<span class="si">${</span><span class="nv">PARTITION</span><span class="si">}</span> &gt; <span class="si">${</span><span class="nv">BACKUP_DIR</span><span class="si">}</span>/orders_<span class="si">${</span><span class="nv">PARTITION</span><span class="si">}</span>_<span class="si">${</span><span class="nv">DATE</span><span class="si">}</span>.sql
-    
-    <span class="c1"># 将数据插回原分区</span>
-    mysql -e <span class="s2">&#34;INSERT INTO orders SELECT * FROM orders_backup_</span><span class="si">${</span><span class="nv">PARTITION</span><span class="si">}</span><span class="s2">;&#34;</span>
-    
-    <span class="c1"># 清理备份表</span>
-    mysql -e <span class="s2">&#34;DROP TABLE orders_backup_</span><span class="si">${</span><span class="nv">PARTITION</span><span class="si">}</span><span class="s2">;&#34;</span>
-<span class="k">done</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="c1"># 分区备份脚本</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">BACKUP_DIR</span><span class="o">=</span><span class="s2">&#34;/backup/mysql_partitions&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">DATE</span><span class="o">=</span><span class="k">$(</span>date +%Y%m%d<span class="k">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 备份指定月份的分区</span>
+</span></span><span class="line"><span class="cl"><span class="nv">PARTITIONS</span><span class="o">=</span><span class="s2">&#34;p202312 p202311 p202310&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> PARTITION in <span class="nv">$PARTITIONS</span><span class="p">;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 创建备份表</span>
+</span></span><span class="line"><span class="cl">    mysql -e <span class="s2">&#34;CREATE TABLE orders_backup_</span><span class="si">${</span><span class="nv">PARTITION</span><span class="si">}</span><span class="s2"> LIKE orders;&#34;</span>
+</span></span><span class="line"><span class="cl">    mysql -e <span class="s2">&#34;ALTER TABLE orders_backup_</span><span class="si">${</span><span class="nv">PARTITION</span><span class="si">}</span><span class="s2"> REMOVE PARTITIONING;&#34;</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># 交换分区数据到备份表</span>
+</span></span><span class="line"><span class="cl">    mysql -e <span class="s2">&#34;ALTER TABLE orders EXCHANGE PARTITION </span><span class="si">${</span><span class="nv">PARTITION</span><span class="si">}</span><span class="s2"> WITH TABLE orders_backup_</span><span class="si">${</span><span class="nv">PARTITION</span><span class="si">}</span><span class="s2">;&#34;</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># 导出备份表数据</span>
+</span></span><span class="line"><span class="cl">    mysqldump -u username -p database orders_backup_<span class="si">${</span><span class="nv">PARTITION</span><span class="si">}</span> &gt; <span class="si">${</span><span class="nv">BACKUP_DIR</span><span class="si">}</span>/orders_<span class="si">${</span><span class="nv">PARTITION</span><span class="si">}</span>_<span class="si">${</span><span class="nv">DATE</span><span class="si">}</span>.sql
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># 将数据插回原分区</span>
+</span></span><span class="line"><span class="cl">    mysql -e <span class="s2">&#34;INSERT INTO orders SELECT * FROM orders_backup_</span><span class="si">${</span><span class="nv">PARTITION</span><span class="si">}</span><span class="s2">;&#34;</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># 清理备份表</span>
+</span></span><span class="line"><span class="cl">    mysql -e <span class="s2">&#34;DROP TABLE orders_backup_</span><span class="si">${</span><span class="nv">PARTITION</span><span class="si">}</span><span class="s2">;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="k">done</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="2-物理文件备份">2. 物理文件备份</h2>
 <h3 id="备份分区物理文件">备份分区物理文件</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -317,37 +318,37 @@
 </span><span class="lnt">24
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
-</span><span class="cp"></span><span class="c1"># 物理文件备份</span>
-
-<span class="nv">MYSQL_DATA_DIR</span><span class="o">=</span><span class="s2">&#34;/var/lib/mysql&#34;</span>
-<span class="nv">BACKUP_DIR</span><span class="o">=</span><span class="s2">&#34;/backup/mysql_physical&#34;</span>
-<span class="nv">DATABASE</span><span class="o">=</span><span class="s2">&#34;your_database&#34;</span>
-<span class="nv">TABLE</span><span class="o">=</span><span class="s2">&#34;orders&#34;</span>
-
-<span class="c1"># 停止MySQL或锁定表</span>
-mysql -e <span class="s2">&#34;FLUSH TABLES </span><span class="nv">$DATABASE</span><span class="s2">.</span><span class="nv">$TABLE</span><span class="s2"> WITH READ LOCK;&#34;</span>
-
-<span class="c1"># 备份分区文件</span>
-<span class="k">for</span> PARTITION_FILE in <span class="si">${</span><span class="nv">MYSQL_DATA_DIR</span><span class="si">}</span>/<span class="si">${</span><span class="nv">DATABASE</span><span class="si">}</span>/orders#P#p*.ibd<span class="p">;</span> <span class="k">do</span>
-    <span class="k">if</span> <span class="o">[</span> -f <span class="s2">&#34;</span><span class="nv">$PARTITION_FILE</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-        <span class="nv">FILENAME</span><span class="o">=</span><span class="k">$(</span>basename <span class="s2">&#34;</span><span class="nv">$PARTITION_FILE</span><span class="s2">&#34;</span><span class="k">)</span>
-        cp <span class="s2">&#34;</span><span class="nv">$PARTITION_FILE</span><span class="s2">&#34;</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">BACKUP_DIR</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">FILENAME</span><span class="si">}</span><span class="s2">_</span><span class="k">$(</span>date +%Y%m%d<span class="k">)</span><span class="s2">&#34;</span>
-    <span class="k">fi</span>
-<span class="k">done</span>
-
-<span class="c1"># 解锁表</span>
-mysql -e <span class="s2">&#34;UNLOCK TABLES;&#34;</span>
-
-<span class="c1"># 备份表结构</span>
-mysqldump -d <span class="nv">$DATABASE</span> <span class="nv">$TABLE</span> &gt; <span class="si">${</span><span class="nv">BACKUP_DIR</span><span class="si">}</span>/orders_structure.sql
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="c1"># 物理文件备份</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">MYSQL_DATA_DIR</span><span class="o">=</span><span class="s2">&#34;/var/lib/mysql&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">BACKUP_DIR</span><span class="o">=</span><span class="s2">&#34;/backup/mysql_physical&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">DATABASE</span><span class="o">=</span><span class="s2">&#34;your_database&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">TABLE</span><span class="o">=</span><span class="s2">&#34;orders&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 停止MySQL或锁定表</span>
+</span></span><span class="line"><span class="cl">mysql -e <span class="s2">&#34;FLUSH TABLES </span><span class="nv">$DATABASE</span><span class="s2">.</span><span class="nv">$TABLE</span><span class="s2"> WITH READ LOCK;&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 备份分区文件</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> PARTITION_FILE in <span class="si">${</span><span class="nv">MYSQL_DATA_DIR</span><span class="si">}</span>/<span class="si">${</span><span class="nv">DATABASE</span><span class="si">}</span>/orders#P#p*.ibd<span class="p">;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">[</span> -f <span class="s2">&#34;</span><span class="nv">$PARTITION_FILE</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">        <span class="nv">FILENAME</span><span class="o">=</span><span class="k">$(</span>basename <span class="s2">&#34;</span><span class="nv">$PARTITION_FILE</span><span class="s2">&#34;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">        cp <span class="s2">&#34;</span><span class="nv">$PARTITION_FILE</span><span class="s2">&#34;</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">BACKUP_DIR</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">FILENAME</span><span class="si">}</span><span class="s2">_</span><span class="k">$(</span>date +%Y%m%d<span class="k">)</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">fi</span>
+</span></span><span class="line"><span class="cl"><span class="k">done</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 解锁表</span>
+</span></span><span class="line"><span class="cl">mysql -e <span class="s2">&#34;UNLOCK TABLES;&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 备份表结构</span>
+</span></span><span class="line"><span class="cl">mysqldump -d <span class="nv">$DATABASE</span> <span class="nv">$TABLE</span> &gt; <span class="si">${</span><span class="nv">BACKUP_DIR</span><span class="si">}</span>/orders_structure.sql
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="3-逻辑备份工具">3. 逻辑备份工具</h2>
 <h3 id="使用-mysqldump-备份特定分区">使用 mysqldump 备份特定分区</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -357,32 +358,32 @@ mysqldump -d <span class="nv">$DATABASE</span> <span class="nv">$TABLE</span> &g
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 备份单个分区</span>
-mysqldump -u username -p database orders --where<span class="o">=</span><span class="s2">&#34;created_at &gt;= &#39;2023-12-01&#39; AND created_at &lt; &#39;2024-01-01&#39;&#34;</span> &gt; orders_p202312.sql
-
-<span class="c1"># 备份表结构+所有分区数据</span>
-mysqldump -u username -p database orders &gt; orders_full_backup.sql
-
-<span class="c1"># 仅备份表结构</span>
-mysqldump -d -u username -p database orders &gt; orders_structure.sql
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 备份单个分区</span>
+</span></span><span class="line"><span class="cl">mysqldump -u username -p database orders --where<span class="o">=</span><span class="s2">&#34;created_at &gt;= &#39;2023-12-01&#39; AND created_at &lt; &#39;2024-01-01&#39;&#34;</span> &gt; orders_p202312.sql
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 备份表结构+所有分区数据</span>
+</span></span><span class="line"><span class="cl">mysqldump -u username -p database orders &gt; orders_full_backup.sql
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 仅备份表结构</span>
+</span></span><span class="line"><span class="cl">mysqldump -d -u username -p database orders &gt; orders_structure.sql
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="使用-mysqlpumpmysql-57">使用 mysqlpump（MySQL 5.7+）</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 并行备份，支持进度显示</span>
-mysqlpump -u username -p --parallel-schemas<span class="o">=</span><span class="m">4</span> database --include-tables<span class="o">=</span>orders &gt; orders_backup.sql
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 并行备份，支持进度显示</span>
+</span></span><span class="line"><span class="cl">mysqlpump -u username -p --parallel-schemas<span class="o">=</span><span class="m">4</span> database --include-tables<span class="o">=</span>orders &gt; orders_backup.sql
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="4-分区数据恢复">4. 分区数据恢复</h2>
 <h3 id="从逻辑备份恢复分区">从逻辑备份恢复分区</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -392,20 +393,20 @@ mysqlpump -u username -p --parallel-schemas<span class="o">=</span><span class="
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- 方法1：直接插入备份数据
-</span><span class="c1"></span><span class="k">LOAD</span> <span class="k">DATA</span> <span class="n">INFILE</span> <span class="s1">&#39;/backup/orders_p202312.csv&#39;</span> 
-<span class="k">INTO</span> <span class="k">TABLE</span> <span class="n">orders</span> 
-<span class="n">FIELDS</span> <span class="n">TERMINATED</span> <span class="k">BY</span> <span class="s1">&#39;,&#39;</span> 
-<span class="n">LINES</span> <span class="n">TERMINATED</span> <span class="k">BY</span> <span class="s1">&#39;\n&#39;</span><span class="p">;</span>
-
-<span class="c1">-- 方法2：使用SOURCE命令
-</span><span class="c1"></span><span class="k">SOURCE</span> <span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">orders_p202312</span><span class="p">.</span><span class="k">sql</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 方法1：直接插入备份数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">LOAD</span><span class="w"> </span><span class="k">DATA</span><span class="w"> </span><span class="n">INFILE</span><span class="w"> </span><span class="s1">&#39;/backup/orders_p202312.csv&#39;</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">INTO</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">orders</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">FIELDS</span><span class="w"> </span><span class="n">TERMINATED</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="s1">&#39;,&#39;</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">LINES</span><span class="w"> </span><span class="n">TERMINATED</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="s1">&#39;\n&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 方法2：使用SOURCE命令
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">SOURCE</span><span class="w"> </span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">orders_p202312</span><span class="p">.</span><span class="k">sql</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="恢复单个分区数据">恢复单个分区数据</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -423,29 +424,29 @@ mysqlpump -u username -p --parallel-schemas<span class="o">=</span><span class="
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- 创建临时恢复表
-</span><span class="c1"></span><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">orders_restore_p202312</span> <span class="k">LIKE</span> <span class="n">orders</span><span class="p">;</span>
-<span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">orders_restore_p202312</span> <span class="n">REMOVE</span> <span class="n">PARTITIONING</span><span class="p">;</span>
-
-<span class="c1">-- 导入备份数据到临时表
-</span><span class="c1"></span><span class="k">SOURCE</span> <span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">orders_p202312</span><span class="p">.</span><span class="k">sql</span><span class="p">;</span>
-
-<span class="c1">-- 清空目标分区（如果需要）
-</span><span class="c1"></span><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">orders</span> <span class="k">TRUNCATE</span> <span class="n">PARTITION</span> <span class="n">p202312</span><span class="p">;</span>
-
-<span class="c1">-- 交换数据回分区
-</span><span class="c1"></span><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">orders</span> <span class="n">EXCHANGE</span> <span class="n">PARTITION</span> <span class="n">p202312</span> 
-<span class="k">WITH</span> <span class="k">TABLE</span> <span class="n">orders_restore_p202312</span><span class="p">;</span>
-
-<span class="c1">-- 清理临时表
-</span><span class="c1"></span><span class="k">DROP</span> <span class="k">TABLE</span> <span class="n">orders_restore_p202312</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 创建临时恢复表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">orders_restore_p202312</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">orders_restore_p202312</span><span class="w"> </span><span class="n">REMOVE</span><span class="w"> </span><span class="n">PARTITIONING</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 导入备份数据到临时表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">SOURCE</span><span class="w"> </span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">orders_p202312</span><span class="p">.</span><span class="k">sql</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 清空目标分区（如果需要）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">TRUNCATE</span><span class="w"> </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202312</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 交换数据回分区
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">EXCHANGE</span><span class="w"> </span><span class="n">PARTITION</span><span class="w"> </span><span class="n">p202312</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WITH</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">orders_restore_p202312</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 清理临时表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">DROP</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">orders_restore_p202312</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="5-完整的分区备份恢复方案">5. 完整的分区备份恢复方案</h2>
 <h3 id="备份脚本">备份脚本</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -475,40 +476,40 @@ mysqlpump -u username -p --parallel-schemas<span class="o">=</span><span class="
 </span><span class="lnt">28
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
-</span><span class="cp"></span><span class="c1"># 完整分区备份脚本</span>
-
-<span class="nv">BACKUP_BASE</span><span class="o">=</span><span class="s2">&#34;/backup/mysql&#34;</span>
-<span class="nv">DATE</span><span class="o">=</span><span class="k">$(</span>date +%Y%m%d_%H%M%S<span class="k">)</span>
-<span class="nv">BACKUP_DIR</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">BACKUP_BASE</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">DATE</span><span class="si">}</span><span class="s2">&#34;</span>
-<span class="nv">LOG_FILE</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">BACKUP_BASE</span><span class="si">}</span><span class="s2">/backup.log&#34;</span>
-
-mkdir -p <span class="nv">$BACKUP_DIR</span>
-
-<span class="c1"># 备份表结构</span>
-<span class="nb">echo</span> <span class="s2">&#34;</span><span class="k">$(</span>date<span class="k">)</span><span class="s2">: Backing up table structure...&#34;</span> &gt;&gt; <span class="nv">$LOG_FILE</span>
-mysqldump -d -u backup_user -p<span class="s1">&#39;password&#39;</span> your_database orders &gt; <span class="si">${</span><span class="nv">BACKUP_DIR</span><span class="si">}</span>/orders_structure.sql
-
-<span class="c1"># 备份每个分区数据</span>
-<span class="nb">echo</span> <span class="s2">&#34;</span><span class="k">$(</span>date<span class="k">)</span><span class="s2">: Backing up partition data...&#34;</span> &gt;&gt; <span class="nv">$LOG_FILE</span>
-mysql -u backup_user -p<span class="s1">&#39;password&#39;</span> -N -e <span class="s2">&#34;SELECT PARTITION_NAME FROM INFORMATION_SCHEMA.PARTITIONS WHERE TABLE_NAME=&#39;orders&#39; AND TABLE_SCHEMA=&#39;your_database&#39;&#34;</span> <span class="p">|</span> <span class="k">while</span> <span class="nb">read</span> partition<span class="p">;</span> <span class="k">do</span>
-    <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$partition</span><span class="s2">&#34;</span> !<span class="o">=</span> <span class="s2">&#34;pmax&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-        <span class="nb">echo</span> <span class="s2">&#34;Backing up partition: </span><span class="nv">$partition</span><span class="s2">&#34;</span>
-        mysqldump -u backup_user -p<span class="s1">&#39;password&#39;</span> your_database orders --where<span class="o">=</span><span class="s2">&#34;created_at &gt;= DATE_SUB(DATE_ADD(STR_TO_DATE(REPLACE(&#39;</span><span class="nv">$partition</span><span class="s2">&#39;, &#39;p&#39;, &#39;&#39;), &#39;%Y%m&#39;), INTERVAL 1 MONTH), INTERVAL 1 MONTH) AND created_at &lt; DATE_ADD(STR_TO_DATE(REPLACE(&#39;</span><span class="nv">$partition</span><span class="s2">&#39;, &#39;p&#39;, &#39;&#39;), &#39;%Y%m&#39;), INTERVAL 1 MONTH)&#34;</span> &gt; <span class="si">${</span><span class="nv">BACKUP_DIR</span><span class="si">}</span>/orders_<span class="si">${</span><span class="nv">partition</span><span class="si">}</span>.sql
-    <span class="k">fi</span>
-<span class="k">done</span>
-
-<span class="c1"># 备份分区定义</span>
-<span class="nb">echo</span> <span class="s2">&#34;</span><span class="k">$(</span>date<span class="k">)</span><span class="s2">: Backing up partition definition...&#34;</span> &gt;&gt; <span class="nv">$LOG_FILE</span>
-mysql -u backup_user -p<span class="s1">&#39;password&#39;</span> -e <span class="s2">&#34;SHOW CREATE TABLE orders&#34;</span> your_database &gt; <span class="si">${</span><span class="nv">BACKUP_DIR</span><span class="si">}</span>/orders_partition_def.sql
-
-<span class="nb">echo</span> <span class="s2">&#34;</span><span class="k">$(</span>date<span class="k">)</span><span class="s2">: Backup completed to </span><span class="nv">$BACKUP_DIR</span><span class="s2">&#34;</span> &gt;&gt; <span class="nv">$LOG_FILE</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="c1"># 完整分区备份脚本</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">BACKUP_BASE</span><span class="o">=</span><span class="s2">&#34;/backup/mysql&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">DATE</span><span class="o">=</span><span class="k">$(</span>date +%Y%m%d_%H%M%S<span class="k">)</span>
+</span></span><span class="line"><span class="cl"><span class="nv">BACKUP_DIR</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">BACKUP_BASE</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">DATE</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">LOG_FILE</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">BACKUP_BASE</span><span class="si">}</span><span class="s2">/backup.log&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">mkdir -p <span class="nv">$BACKUP_DIR</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 备份表结构</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;</span><span class="k">$(</span>date<span class="k">)</span><span class="s2">: Backing up table structure...&#34;</span> &gt;&gt; <span class="nv">$LOG_FILE</span>
+</span></span><span class="line"><span class="cl">mysqldump -d -u backup_user -p<span class="s1">&#39;password&#39;</span> your_database orders &gt; <span class="si">${</span><span class="nv">BACKUP_DIR</span><span class="si">}</span>/orders_structure.sql
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 备份每个分区数据</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;</span><span class="k">$(</span>date<span class="k">)</span><span class="s2">: Backing up partition data...&#34;</span> &gt;&gt; <span class="nv">$LOG_FILE</span>
+</span></span><span class="line"><span class="cl">mysql -u backup_user -p<span class="s1">&#39;password&#39;</span> -N -e <span class="s2">&#34;SELECT PARTITION_NAME FROM INFORMATION_SCHEMA.PARTITIONS WHERE TABLE_NAME=&#39;orders&#39; AND TABLE_SCHEMA=&#39;your_database&#39;&#34;</span> <span class="p">|</span> <span class="k">while</span> <span class="nb">read</span> partition<span class="p">;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$partition</span><span class="s2">&#34;</span> !<span class="o">=</span> <span class="s2">&#34;pmax&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">echo</span> <span class="s2">&#34;Backing up partition: </span><span class="nv">$partition</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">        mysqldump -u backup_user -p<span class="s1">&#39;password&#39;</span> your_database orders --where<span class="o">=</span><span class="s2">&#34;created_at &gt;= DATE_SUB(DATE_ADD(STR_TO_DATE(REPLACE(&#39;</span><span class="nv">$partition</span><span class="s2">&#39;, &#39;p&#39;, &#39;&#39;), &#39;%Y%m&#39;), INTERVAL 1 MONTH), INTERVAL 1 MONTH) AND created_at &lt; DATE_ADD(STR_TO_DATE(REPLACE(&#39;</span><span class="nv">$partition</span><span class="s2">&#39;, &#39;p&#39;, &#39;&#39;), &#39;%Y%m&#39;), INTERVAL 1 MONTH)&#34;</span> &gt; <span class="si">${</span><span class="nv">BACKUP_DIR</span><span class="si">}</span>/orders_<span class="si">${</span><span class="nv">partition</span><span class="si">}</span>.sql
+</span></span><span class="line"><span class="cl">    <span class="k">fi</span>
+</span></span><span class="line"><span class="cl"><span class="k">done</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 备份分区定义</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;</span><span class="k">$(</span>date<span class="k">)</span><span class="s2">: Backing up partition definition...&#34;</span> &gt;&gt; <span class="nv">$LOG_FILE</span>
+</span></span><span class="line"><span class="cl">mysql -u backup_user -p<span class="s1">&#39;password&#39;</span> -e <span class="s2">&#34;SHOW CREATE TABLE orders&#34;</span> your_database &gt; <span class="si">${</span><span class="nv">BACKUP_DIR</span><span class="si">}</span>/orders_partition_def.sql
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;</span><span class="k">$(</span>date<span class="k">)</span><span class="s2">: Backup completed to </span><span class="nv">$BACKUP_DIR</span><span class="s2">&#34;</span> &gt;&gt; <span class="nv">$LOG_FILE</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="恢复脚本">恢复脚本</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -540,42 +541,42 @@ mysql -u backup_user -p<span class="s1">&#39;password&#39;</span> -e <span class
 </span><span class="lnt">30
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
-</span><span class="cp"></span><span class="c1"># 分区恢复脚本</span>
-
-<span class="nv">BACKUP_DIR</span><span class="o">=</span><span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span>
-<span class="nv">DATABASE</span><span class="o">=</span><span class="s2">&#34;your_database&#34;</span>
-
-<span class="k">if</span> <span class="o">[</span> -z <span class="s2">&#34;</span><span class="nv">$BACKUP_DIR</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-    <span class="nb">echo</span> <span class="s2">&#34;Usage: </span><span class="nv">$0</span><span class="s2"> &lt;backup_directory&gt;&#34;</span>
-    <span class="nb">exit</span> <span class="m">1</span>
-<span class="k">fi</span>
-
-<span class="c1"># 恢复表结构</span>
-<span class="nb">echo</span> <span class="s2">&#34;Restoring table structure...&#34;</span>
-mysql -u root -p <span class="nv">$DATABASE</span> &lt; <span class="si">${</span><span class="nv">BACKUP_DIR</span><span class="si">}</span>/orders_structure.sql
-
-<span class="c1"># 重新创建分区（如果需要）</span>
-<span class="nb">echo</span> <span class="s2">&#34;Recreating partitions...&#34;</span>
-mysql -u root -p <span class="nv">$DATABASE</span> &lt; <span class="si">${</span><span class="nv">BACKUP_DIR</span><span class="si">}</span>/orders_partition_def.sql
-
-<span class="c1"># 恢复分区数据</span>
-<span class="nb">echo</span> <span class="s2">&#34;Restoring partition data...&#34;</span>
-<span class="k">for</span> partition_file in <span class="si">${</span><span class="nv">BACKUP_DIR</span><span class="si">}</span>/orders_p*.sql<span class="p">;</span> <span class="k">do</span>
-    <span class="k">if</span> <span class="o">[</span> -f <span class="s2">&#34;</span><span class="nv">$partition_file</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-        <span class="nv">partition_name</span><span class="o">=</span><span class="k">$(</span>basename <span class="nv">$partition_file</span> .sql <span class="p">|</span> sed <span class="s1">&#39;s/orders_//&#39;</span><span class="k">)</span>
-        <span class="nb">echo</span> <span class="s2">&#34;Restoring partition: </span><span class="nv">$partition_name</span><span class="s2">&#34;</span>
-        mysql -u root -p <span class="nv">$DATABASE</span> &lt; <span class="nv">$partition_file</span>
-    <span class="k">fi</span>
-<span class="k">done</span>
-
-<span class="nb">echo</span> <span class="s2">&#34;Restore completed!&#34;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="c1"># 分区恢复脚本</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">BACKUP_DIR</span><span class="o">=</span><span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">DATABASE</span><span class="o">=</span><span class="s2">&#34;your_database&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">[</span> -z <span class="s2">&#34;</span><span class="nv">$BACKUP_DIR</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;Usage: </span><span class="nv">$0</span><span class="s2"> &lt;backup_directory&gt;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">exit</span> <span class="m">1</span>
+</span></span><span class="line"><span class="cl"><span class="k">fi</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 恢复表结构</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;Restoring table structure...&#34;</span>
+</span></span><span class="line"><span class="cl">mysql -u root -p <span class="nv">$DATABASE</span> &lt; <span class="si">${</span><span class="nv">BACKUP_DIR</span><span class="si">}</span>/orders_structure.sql
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 重新创建分区（如果需要）</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;Recreating partitions...&#34;</span>
+</span></span><span class="line"><span class="cl">mysql -u root -p <span class="nv">$DATABASE</span> &lt; <span class="si">${</span><span class="nv">BACKUP_DIR</span><span class="si">}</span>/orders_partition_def.sql
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 恢复分区数据</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;Restoring partition data...&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> partition_file in <span class="si">${</span><span class="nv">BACKUP_DIR</span><span class="si">}</span>/orders_p*.sql<span class="p">;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">[</span> -f <span class="s2">&#34;</span><span class="nv">$partition_file</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">        <span class="nv">partition_name</span><span class="o">=</span><span class="k">$(</span>basename <span class="nv">$partition_file</span> .sql <span class="p">|</span> sed <span class="s1">&#39;s/orders_//&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">echo</span> <span class="s2">&#34;Restoring partition: </span><span class="nv">$partition_name</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">        mysql -u root -p <span class="nv">$DATABASE</span> &lt; <span class="nv">$partition_file</span>
+</span></span><span class="line"><span class="cl">    <span class="k">fi</span>
+</span></span><span class="line"><span class="cl"><span class="k">done</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;Restore completed!&#34;</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="6-基于时间点的备份策略">6. 基于时间点的备份策略</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -593,23 +594,23 @@ mysql -u root -p <span class="nv">$DATABASE</span> &lt; <span class="si">${</spa
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
-</span><span class="cp"></span><span class="c1"># 自动化备份策略</span>
-
-<span class="c1"># 每日增量备份（最近7天）</span>
-mysqldump -u backup_user -p<span class="s1">&#39;password&#39;</span> your_database orders --where<span class="o">=</span><span class="s2">&#34;created_at &gt;= DATE_SUB(CURDATE(), INTERVAL 1 DAY)&#34;</span> &gt; /backup/daily/orders_<span class="k">$(</span>date +%Y%m%d<span class="k">)</span>.sql
-
-<span class="c1"># 每周全量备份</span>
-<span class="k">if</span> <span class="o">[</span> <span class="k">$(</span>date +%u<span class="k">)</span> -eq <span class="m">1</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>  <span class="c1"># 每周一</span>
-    mysqldump -u backup_user -p<span class="s1">&#39;password&#39;</span> your_database orders &gt; /backup/weekly/orders_<span class="k">$(</span>date +%Y%m%d<span class="k">)</span>.sql
-<span class="k">fi</span>
-
-<span class="c1"># 每月分区归档</span>
-<span class="k">if</span> <span class="o">[</span> <span class="k">$(</span>date +%d<span class="k">)</span> -eq <span class="m">1</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>  <span class="c1"># 每月1号</span>
-    <span class="nv">LAST_MONTH</span><span class="o">=</span><span class="k">$(</span>date -d <span class="s2">&#34;last month&#34;</span> +%Y%m<span class="k">)</span>
-    mysqldump -u backup_user -p<span class="s1">&#39;password&#39;</span> your_database orders --where<span class="o">=</span><span class="s2">&#34;created_at &gt;= DATE_SUB(DATE_FORMAT(NOW(), &#39;%Y-%m-01&#39;), INTERVAL 1 MONTH) AND created_at &lt; DATE_FORMAT(NOW(), &#39;%Y-%m-01&#39;)&#34;</span> &gt; /backup/monthly/orders_<span class="si">${</span><span class="nv">LAST_MONTH</span><span class="si">}</span>.sql
-<span class="k">fi</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="c1"># 自动化备份策略</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 每日增量备份（最近7天）</span>
+</span></span><span class="line"><span class="cl">mysqldump -u backup_user -p<span class="s1">&#39;password&#39;</span> your_database orders --where<span class="o">=</span><span class="s2">&#34;created_at &gt;= DATE_SUB(CURDATE(), INTERVAL 1 DAY)&#34;</span> &gt; /backup/daily/orders_<span class="k">$(</span>date +%Y%m%d<span class="k">)</span>.sql
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 每周全量备份</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">[</span> <span class="k">$(</span>date +%u<span class="k">)</span> -eq <span class="m">1</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>  <span class="c1"># 每周一</span>
+</span></span><span class="line"><span class="cl">    mysqldump -u backup_user -p<span class="s1">&#39;password&#39;</span> your_database orders &gt; /backup/weekly/orders_<span class="k">$(</span>date +%Y%m%d<span class="k">)</span>.sql
+</span></span><span class="line"><span class="cl"><span class="k">fi</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 每月分区归档</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">[</span> <span class="k">$(</span>date +%d<span class="k">)</span> -eq <span class="m">1</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>  <span class="c1"># 每月1号</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">LAST_MONTH</span><span class="o">=</span><span class="k">$(</span>date -d <span class="s2">&#34;last month&#34;</span> +%Y%m<span class="k">)</span>
+</span></span><span class="line"><span class="cl">    mysqldump -u backup_user -p<span class="s1">&#39;password&#39;</span> your_database orders --where<span class="o">=</span><span class="s2">&#34;created_at &gt;= DATE_SUB(DATE_FORMAT(NOW(), &#39;%Y-%m-01&#39;), INTERVAL 1 MONTH) AND created_at &lt; DATE_FORMAT(NOW(), &#39;%Y-%m-01&#39;)&#34;</span> &gt; /backup/monthly/orders_<span class="si">${</span><span class="nv">LAST_MONTH</span><span class="si">}</span>.sql
+</span></span><span class="line"><span class="cl"><span class="k">fi</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="重要注意事项">重要注意事项</h2>
 <ol>
@@ -721,7 +722,7 @@ mysqldump -u backup_user -p<span class="s1">&#39;password&#39;</span> your_datab
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -738,7 +739,7 @@ mysqldump -u backup_user -p<span class="s1">&#39;password&#39;</span> your_datab
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/docker/20200816-golang-docker/" />
@@ -35,27 +35,29 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Go] Golang应用构建Docker镜像" />
-<meta property="og:description" content="Golang应用通过Dockerfile构建Docker镜像 构建镜像 构建一个go应用镜像，当前目录加载项目，编译生成二进制文件 1 2 3 4 5 6 7" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/docker/20200816-golang-docker/" />
-<meta property="article:published_time" content="2020-08-16T23:15:15+08:00" />
-<meta property="article:modified_time" content="2020-08-16T23:15:15+08:00" />
-<meta itemprop="name" content="[Go] Golang应用构建Docker镜像">
-<meta itemprop="description" content="Golang应用通过Dockerfile构建Docker镜像 构建镜像 构建一个go应用镜像，当前目录加载项目，编译生成二进制文件 1 2 3 4 5 6 7">
-<meta itemprop="datePublished" content="2020-08-16T23:15:15&#43;08:00" />
-<meta itemprop="dateModified" content="2020-08-16T23:15:15&#43;08:00" />
-<meta itemprop="wordCount" content="623">
+<meta property="og:url" content="https://piaohua.github.io/post/docker/20200816-golang-docker/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Go] Golang应用构建Docker镜像">
+  <meta property="og:description" content="Golang应用通过Dockerfile构建Docker镜像 构建镜像 构建一个go应用镜像，当前目录加载项目，编译生成二进制文件 1 2 3 4 5 6 7">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2020-08-16T23:15:15+08:00">
+    <meta property="article:modified_time" content="2020-08-16T23:15:15+08:00">
+    <meta property="article:tag" content="Golang">
+    <meta property="article:tag" content="Docker">
 
-
-
-<meta itemprop="keywords" content="golang,docker," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Go] Golang应用构建Docker镜像"/>
-<meta name="twitter:description" content="Golang应用通过Dockerfile构建Docker镜像 构建镜像 构建一个go应用镜像，当前目录加载项目，编译生成二进制文件 1 2 3 4 5 6 7"/>
+  <meta itemprop="name" content="[Go] Golang应用构建Docker镜像">
+  <meta itemprop="description" content="Golang应用通过Dockerfile构建Docker镜像 构建镜像 构建一个go应用镜像，当前目录加载项目，编译生成二进制文件 1 2 3 4 5 6 7">
+  <meta itemprop="datePublished" content="2020-08-16T23:15:15+08:00">
+  <meta itemprop="dateModified" content="2020-08-16T23:15:15+08:00">
+  <meta itemprop="wordCount" content="675">
+  <meta itemprop="keywords" content="Golang,Docker"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Go] Golang应用构建Docker镜像">
+<meta name="twitter:description" content="Golang应用通过Dockerfile构建Docker镜像 构建镜像 构建一个go应用镜像，当前目录加载项目，编译生成二进制文件 1 2 3 4 5 6 7">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -144,7 +146,7 @@
             <a href="/categories/golang/"> golang </a>
             <a href="/categories/docker/"> docker </a>
             </div>
-          <span class="more-meta"> 623 words </span>
+          <span class="more-meta"> 675 words </span>
           <span class="more-meta"> 2 mins read </span>
         
       </div>
@@ -171,7 +173,7 @@
 <p>构建一个go应用镜像，当前目录加载项目，编译生成二进制文件</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -181,15 +183,15 @@
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="k">FROM</span><span class="s"> golang:1.14-alpine</span><span class="err">
-</span><span class="err"></span><span class="k">RUN</span> mkdir /app<span class="err">
-</span><span class="err"></span><span class="k">COPY</span> . /app<span class="err">
-</span><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /app</span><span class="err">
-</span><span class="err"></span><span class="k">RUN</span> go build -o main . <span class="err">
-</span><span class="err"></span><span class="k">RUN</span> adduser -S -D -H -h /app appuser<span class="err">
-</span><span class="err"></span><span class="k">USER</span><span class="s"> appuser</span><span class="err">
-</span><span class="err"></span><span class="k">CMD</span> <span class="p">[</span><span class="s2">&#34;/app/main&#34;</span><span class="p">]</span><span class="err">
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="line"><span class="cl"><span class="k">FROM</span><span class="s"> golang:1.14-alpine</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> mkdir /app<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">COPY</span> . /app<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /app</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> go build -o main . <span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> adduser -S -D -H -h /app appuser<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">USER</span><span class="s"> appuser</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">CMD</span> <span class="p">[</span><span class="s2">&#34;/app/main&#34;</span><span class="p">]</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="多阶段构建镜像">多阶段构建镜像</h2>
 <p>第一阶段使用<code>golang:alpine</code>镜像编译项目生成二进制文件</p>
@@ -198,7 +200,7 @@
 <p><code>scratch</code>镜像是Docker项目预定义的最小的镜像,使用<code>scratch</code>镜像可以节省大量空间,减小镜像大小</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -213,27 +215,27 @@
 </span><span class="lnt">13
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="k">FROM</span><span class="s"> golang:alpine AS build</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">RUN</span> mkdir /app<span class="err">
-</span><span class="err"></span><span class="k">COPY</span> . /app<span class="err">
-</span><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /app</span><span class="err">
-</span><span class="err"></span><span class="k">RUN</span> <span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">0</span> <span class="nv">GOOS</span><span class="o">=</span>linux go build -o myapp<span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="c">### </span><span class="err">
-</span><span class="err"></span><span class="k">FROM</span><span class="s"> scratch as final</span><span class="err">
-</span><span class="err"></span><span class="k">RUN</span> adduser -S -D -H -h /app appuser<span class="err">
-</span><span class="err"></span><span class="k">USER</span><span class="s"> appuser</span><span class="err">
-</span><span class="err"></span><span class="k">COPY</span> --from<span class="o">=</span>build /app/myapp .<span class="err">
-</span><span class="err"></span><span class="k">ENTRYPOINT</span> <span class="p">[</span><span class="s2">&#34;/myapp&#34;</span><span class="p">]</span><span class="err">
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="line"><span class="cl"><span class="k">FROM</span><span class="s"> golang:alpine AS build</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> mkdir /app<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">COPY</span> . /app<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /app</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> <span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">0</span> <span class="nv">GOOS</span><span class="o">=</span>linux go build -o myapp<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c">### </span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">FROM</span><span class="s"> scratch as final</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> adduser -S -D -H -h /app appuser<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">USER</span><span class="s"> appuser</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">COPY</span> --from<span class="o">=</span>build /app/myapp .<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ENTRYPOINT</span> <span class="p">[</span><span class="s2">&#34;/myapp&#34;</span><span class="p">]</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>使用编译时参数来指示 go 编译器将运行时库静态链接到二进制文件本身</p>
 <p>最终的 Docker 映像只会包含这一个可执行文件，而无需使用容器操作系统</p>
 <p><code>centurylink/ca-certs</code> 是基于 <code>scratch</code> 镜像构建，并为所有标准证书颁发机构添加了根证书。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -245,22 +247,22 @@
 </span><span class="lnt">10
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="k">FROM</span><span class="s"> golang:alpine as builder</span><span class="err">
-</span><span class="err"></span><span class="k">RUN</span> mkdir /app<span class="err">
-</span><span class="err"></span><span class="k">ADD</span> . /app/<span class="err">
-</span><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /app</span><span class="err">
-</span><span class="err"></span><span class="k">RUN</span> <span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">0</span> <span class="nv">GOOS</span><span class="o">=</span>linux go build -a -installsuffix cgo -ldflags <span class="s1">&#39;-extldflags &#34;-static&#34;&#39;</span> -o myapp .<span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">FROM</span><span class="s"> centurylink/ca-certs</span><span class="err">
-</span><span class="err"></span><span class="k">COPY</span> --from<span class="o">=</span>builder /app/myapp /app/<span class="err">
-</span><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /app</span><span class="err">
-</span><span class="err"></span><span class="k">CMD</span> <span class="p">[</span><span class="s2">&#34;./myapp&#34;</span><span class="p">]</span><span class="err">
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="line"><span class="cl"><span class="k">FROM</span><span class="s"> golang:alpine as builder</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> mkdir /app<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ADD</span> . /app/<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /app</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> <span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">0</span> <span class="nv">GOOS</span><span class="o">=</span>linux go build -a -installsuffix cgo -ldflags <span class="s1">&#39;-extldflags &#34;-static&#34;&#39;</span> -o myapp .<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">FROM</span><span class="s"> centurylink/ca-certs</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">COPY</span> --from<span class="o">=</span>builder /app/myapp /app/<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /app</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">CMD</span> <span class="p">[</span><span class="s2">&#34;./myapp&#34;</span><span class="p">]</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="一个golang工作环境镜像">一个golang工作环境镜像</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -283,44 +285,44 @@
 </span><span class="lnt">21
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="c"># base image</span><span class="err">
-</span><span class="err"></span><span class="k">FROM</span><span class="s"> golang:1.12.1</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="c"># maintainer</span><span class="err">
-</span><span class="err"></span><span class="k">MAINTAINER</span><span class="s"> Phil Wang &lt;814004090@qq.com&gt;</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">RUN</span> mkdir /develop<span class="err">
-</span><span class="err"></span><span class="k">RUN</span> mkdir /develop/bin<span class="err">
-</span><span class="err"></span><span class="k">RUN</span> mkdir /develop/src<span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">EXPOSE</span><span class="s"> 8080</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">ENV</span> GOPATH /develop<span class="err">
-</span><span class="err"></span><span class="k">ENV</span> PATH /develop/bin:/usr/local/bin:<span class="nv">$PATH</span><span class="err">
-</span><span class="err"></span><span class="k">ENV</span> GO111MODULE on<span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">VOLUME</span><span class="s"> /develop/src</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /develop</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">CMD</span> <span class="p">[</span><span class="s2">&#34;sleep&#34;</span><span class="p">,</span><span class="s2">&#34;8640000&#34;</span><span class="p">]</span><span class="err">
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="line"><span class="cl"><span class="c"># base image</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">FROM</span><span class="s"> golang:1.12.1</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c"># maintainer</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">MAINTAINER</span><span class="s"> Phil Wang &lt;814004090@qq.com&gt;</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> mkdir /develop<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> mkdir /develop/bin<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> mkdir /develop/src<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">EXPOSE</span><span class="s"> 8080</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ENV</span> GOPATH /develop<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ENV</span> PATH /develop/bin:/usr/local/bin:<span class="nv">$PATH</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ENV</span> GO111MODULE on<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">VOLUME</span><span class="s"> /develop/src</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /develop</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">CMD</span> <span class="p">[</span><span class="s2">&#34;sleep&#34;</span><span class="p">,</span><span class="s2">&#34;8640000&#34;</span><span class="p">]</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 运行一个golang12镜像的容器，并指定工作目录$HOME/data/golang/testmod</span>
-docker run --name golang12 -p 8080:8080 -v <span class="nv">$HOME</span>/data/golang/testmod:/develop/src -d golang:1.12.1
-
-<span class="c1"># 进入golang12环境终端，进入后可以操作(build等)</span>
-docker <span class="nb">exec</span> -it golang12 /bin/bash
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 运行一个golang12镜像的容器，并指定工作目录$HOME/data/golang/testmod</span>
+</span></span><span class="line"><span class="cl">docker run --name golang12 -p 8080:8080 -v <span class="nv">$HOME</span>/data/golang/testmod:/develop/src -d golang:1.12.1
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 进入golang12环境终端，进入后可以操作(build等)</span>
+</span></span><span class="line"><span class="cl">docker <span class="nb">exec</span> -it golang12 /bin/bash
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -432,7 +434,7 @@ docker <span class="nb">exec</span> -it golang12 /bin/bash
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -449,7 +451,7 @@ docker <span class="nb">exec</span> -it golang12 /bin/bash
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

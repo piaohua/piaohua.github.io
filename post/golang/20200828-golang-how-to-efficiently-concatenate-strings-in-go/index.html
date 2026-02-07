@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20200828-golang-how-to-efficiently-concatenate-strings-in-go/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Go] How to Efficiently Concatenate Strings in Go" />
-<meta property="og:description" content="How to Efficiently Concatenate Strings in Go 7种拼接方式 String Concat 1 str &#43;= &#34;hello-world&#34; String Sprintf 1 str = fmt.Sprintf(&#34;%s%s&#34;, str, &#34;hello-world&#34;) String Join 1 str = strings.Join([]string{str, &#34;hello-world&#34;}, &#34;&#34;) Buffer Write 1 2 3 buf := new(bytes.Buffer) buf.WriteString(&#34;hello-world&#34;) str := buf.String() Bytes Append 1 2 3 4 var b []byte s := &#34;hello-world&#34; b = append(b, s...) str := string(b) String Copy 1 2" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20200828-golang-how-to-efficiently-concatenate-strings-in-go/" />
-<meta property="article:published_time" content="2020-08-28T22:27:49+08:00" />
-<meta property="article:modified_time" content="2020-08-28T22:27:49+08:00" />
-<meta itemprop="name" content="[Go] How to Efficiently Concatenate Strings in Go">
-<meta itemprop="description" content="How to Efficiently Concatenate Strings in Go 7种拼接方式 String Concat 1 str &#43;= &#34;hello-world&#34; String Sprintf 1 str = fmt.Sprintf(&#34;%s%s&#34;, str, &#34;hello-world&#34;) String Join 1 str = strings.Join([]string{str, &#34;hello-world&#34;}, &#34;&#34;) Buffer Write 1 2 3 buf := new(bytes.Buffer) buf.WriteString(&#34;hello-world&#34;) str := buf.String() Bytes Append 1 2 3 4 var b []byte s := &#34;hello-world&#34; b = append(b, s...) str := string(b) String Copy 1 2">
-<meta itemprop="datePublished" content="2020-08-28T22:27:49&#43;08:00" />
-<meta itemprop="dateModified" content="2020-08-28T22:27:49&#43;08:00" />
-<meta itemprop="wordCount" content="1555">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20200828-golang-how-to-efficiently-concatenate-strings-in-go/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Go] How to Efficiently Concatenate Strings in Go">
+  <meta property="og:description" content="How to Efficiently Concatenate Strings in Go 7种拼接方式 String Concat 1 str &#43;= &#34;hello-world&#34; String Sprintf 1 str = fmt.Sprintf(&#34;%s%s&#34;, str, &#34;hello-world&#34;) String Join 1 str = strings.Join([]string{str, &#34;hello-world&#34;}, &#34;&#34;) Buffer Write 1 2 3 buf := new(bytes.Buffer) buf.WriteString(&#34;hello-world&#34;) str := buf.String() Bytes Append 1 2 3 4 var b []byte s := &#34;hello-world&#34; b = append(b, s...) str := string(b) String Copy 1 2">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2020-08-28T22:27:49+08:00">
+    <meta property="article:modified_time" content="2020-08-28T22:27:49+08:00">
+    <meta property="article:tag" content="Golang">
 
-
-
-<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Go] How to Efficiently Concatenate Strings in Go"/>
-<meta name="twitter:description" content="How to Efficiently Concatenate Strings in Go 7种拼接方式 String Concat 1 str &#43;= &#34;hello-world&#34; String Sprintf 1 str = fmt.Sprintf(&#34;%s%s&#34;, str, &#34;hello-world&#34;) String Join 1 str = strings.Join([]string{str, &#34;hello-world&#34;}, &#34;&#34;) Buffer Write 1 2 3 buf := new(bytes.Buffer) buf.WriteString(&#34;hello-world&#34;) str := buf.String() Bytes Append 1 2 3 4 var b []byte s := &#34;hello-world&#34; b = append(b, s...) str := string(b) String Copy 1 2"/>
+  <meta itemprop="name" content="[Go] How to Efficiently Concatenate Strings in Go">
+  <meta itemprop="description" content="How to Efficiently Concatenate Strings in Go 7种拼接方式 String Concat 1 str &#43;= &#34;hello-world&#34; String Sprintf 1 str = fmt.Sprintf(&#34;%s%s&#34;, str, &#34;hello-world&#34;) String Join 1 str = strings.Join([]string{str, &#34;hello-world&#34;}, &#34;&#34;) Buffer Write 1 2 3 buf := new(bytes.Buffer) buf.WriteString(&#34;hello-world&#34;) str := buf.String() Bytes Append 1 2 3 4 var b []byte s := &#34;hello-world&#34; b = append(b, s...) str := string(b) String Copy 1 2">
+  <meta itemprop="datePublished" content="2020-08-28T22:27:49+08:00">
+  <meta itemprop="dateModified" content="2020-08-28T22:27:49+08:00">
+  <meta itemprop="wordCount" content="1554">
+  <meta itemprop="keywords" content="Golang"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Go] How to Efficiently Concatenate Strings in Go">
+<meta name="twitter:description" content="How to Efficiently Concatenate Strings in Go 7种拼接方式 String Concat 1 str &#43;= &#34;hello-world&#34; String Sprintf 1 str = fmt.Sprintf(&#34;%s%s&#34;, str, &#34;hello-world&#34;) String Join 1 str = strings.Join([]string{str, &#34;hello-world&#34;}, &#34;&#34;) Buffer Write 1 2 3 buf := new(bytes.Buffer) buf.WriteString(&#34;hello-world&#34;) str := buf.String() Bytes Append 1 2 3 4 var b []byte s := &#34;hello-world&#34; b = append(b, s...) str := string(b) String Copy 1 2">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -143,7 +144,7 @@
         <div class="post-category">
             <a href="/categories/golang/"> golang </a>
             </div>
-          <span class="more-meta"> 1555 words </span>
+          <span class="more-meta"> 1554 words </span>
           <span class="more-meta"> 4 mins read </span>
         
       </div>
@@ -179,62 +180,62 @@
 <h3 id="string-concat">String Concat</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">str</span> <span class="o">+=</span> <span class="s">&#34;hello-world&#34;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="nx">str</span> <span class="o">+=</span> <span class="s">&#34;hello-world&#34;</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="string-sprintf">String Sprintf</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">str</span> <span class="p">=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;%s%s&#34;</span><span class="p">,</span> <span class="nx">str</span><span class="p">,</span> <span class="s">&#34;hello-world&#34;</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="nx">str</span> <span class="p">=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;%s%s&#34;</span><span class="p">,</span> <span class="nx">str</span><span class="p">,</span> <span class="s">&#34;hello-world&#34;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="string-join">String Join</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">str</span> <span class="p">=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Join</span><span class="p">([]</span><span class="kt">string</span><span class="p">{</span><span class="nx">str</span><span class="p">,</span> <span class="s">&#34;hello-world&#34;</span><span class="p">},</span> <span class="s">&#34;&#34;</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="nx">str</span> <span class="p">=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Join</span><span class="p">([]</span><span class="kt">string</span><span class="p">{</span><span class="nx">str</span><span class="p">,</span> <span class="s">&#34;hello-world&#34;</span><span class="p">},</span> <span class="s">&#34;&#34;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="buffer-write">Buffer Write</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">buf</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">bytes</span><span class="p">.</span><span class="nx">Buffer</span><span class="p">)</span>
-<span class="nx">buf</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="s">&#34;hello-world&#34;</span><span class="p">)</span>
-<span class="nx">str</span> <span class="o">:=</span> <span class="nx">buf</span><span class="p">.</span><span class="nf">String</span><span class="p">()</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="nx">buf</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">bytes</span><span class="p">.</span><span class="nx">Buffer</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nx">buf</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="s">&#34;hello-world&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nx">str</span> <span class="o">:=</span> <span class="nx">buf</span><span class="p">.</span><span class="nf">String</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="bytes-append">Bytes Append</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">var</span> <span class="nx">b</span> <span class="p">[]</span><span class="kt">byte</span>
-<span class="nx">s</span> <span class="o">:=</span> <span class="s">&#34;hello-world&#34;</span>
-<span class="nx">b</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">b</span><span class="p">,</span> <span class="nx">s</span><span class="o">...</span><span class="p">)</span>
-<span class="nx">str</span> <span class="o">:=</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">b</span> <span class="p">[]</span><span class="kt">byte</span>
+</span></span><span class="line"><span class="cl"><span class="nx">s</span> <span class="o">:=</span> <span class="s">&#34;hello-world&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">b</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">b</span><span class="p">,</span> <span class="nx">s</span><span class="o">...</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nx">str</span> <span class="o">:=</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="string-copy">String Copy</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -247,37 +248,37 @@
 </span><span class="lnt">11
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">ts</span> <span class="o">:=</span> <span class="s">&#34;hello-world&#34;</span>
-<span class="nx">n</span> <span class="o">:=</span> <span class="mi">5</span>
-<span class="nx">tsl</span> <span class="o">:=</span> <span class="nb">len</span><span class="p">(</span><span class="nx">ts</span><span class="p">)</span> <span class="o">*</span> <span class="nx">n</span>
-<span class="nx">bs</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">tsl</span><span class="p">)</span>
-<span class="nx">bl</span> <span class="o">:=</span> <span class="mi">0</span>
-
-<span class="k">for</span> <span class="nx">bl</span> <span class="p">&lt;</span> <span class="nx">tsl</span> <span class="p">{</span>
-    <span class="nx">bl</span> <span class="o">+=</span> <span class="nb">copy</span><span class="p">(</span><span class="nx">bs</span><span class="p">[</span><span class="nx">bl</span><span class="p">:],</span> <span class="nx">ts</span><span class="p">)</span>
-<span class="p">}</span>
-
-<span class="nx">str</span> <span class="o">:=</span> <span class="nb">string</span><span class="p">(</span><span class="nx">bs</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="nx">ts</span> <span class="o">:=</span> <span class="s">&#34;hello-world&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">n</span> <span class="o">:=</span> <span class="mi">5</span>
+</span></span><span class="line"><span class="cl"><span class="nx">tsl</span> <span class="o">:=</span> <span class="nb">len</span><span class="p">(</span><span class="nx">ts</span><span class="p">)</span> <span class="o">*</span> <span class="nx">n</span>
+</span></span><span class="line"><span class="cl"><span class="nx">bs</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">tsl</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nx">bl</span> <span class="o">:=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="nx">bl</span> <span class="p">&lt;</span> <span class="nx">tsl</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">bl</span> <span class="o">+=</span> <span class="nb">copy</span><span class="p">(</span><span class="nx">bs</span><span class="p">[</span><span class="nx">bl</span><span class="p">:],</span> <span class="nx">ts</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nx">str</span> <span class="o">:=</span> <span class="nb">string</span><span class="p">(</span><span class="nx">bs</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="string-builder">String Builder</h3>
 <p><em><strong>From Go 1.10 there is a strings.Builder type</strong></em></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">var</span> <span class="nx">builder</span> <span class="nx">strings</span><span class="p">.</span><span class="nx">Builder</span>
-<span class="nx">builder</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="s">&#34;hello-world&#34;</span><span class="p">)</span>
-<span class="nx">str</span> <span class="o">:=</span> <span class="nx">builder</span><span class="p">.</span><span class="nf">String</span><span class="p">()</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">builder</span> <span class="nx">strings</span><span class="p">.</span><span class="nx">Builder</span>
+</span></span><span class="line"><span class="cl"><span class="nx">builder</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="s">&#34;hello-world&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nx">str</span> <span class="o">:=</span> <span class="nx">builder</span><span class="p">.</span><span class="nf">String</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="benchmark">benchmark</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">  1
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
 </span><span class="lnt">  2
 </span><span class="lnt">  3
 </span><span class="lnt">  4
@@ -574,313 +575,311 @@
 </span><span class="lnt">295
 </span><span class="lnt">296
 </span><span class="lnt">297
-</span><span class="lnt">298
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-    <span class="s">&#34;bytes&#34;</span>
-    <span class="s">&#34;fmt&#34;</span>
-    <span class="s">&#34;strings&#34;</span>
-    <span class="s">&#34;testing&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">const</span> <span class="p">(</span>
-    <span class="nx">sss</span> <span class="p">=</span> <span class="s">&#34;xfoasneobfasieongasbg&#34;</span>
-    <span class="nx">cnt</span> <span class="p">=</span> <span class="mi">10000</span>
-<span class="p">)</span>
-
-<span class="kd">var</span> <span class="p">(</span>
-    <span class="nx">bbb</span>      <span class="p">=</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">sss</span><span class="p">)</span>
-    <span class="nx">expected</span> <span class="p">=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Repeat</span><span class="p">(</span><span class="nx">sss</span><span class="p">,</span> <span class="nx">cnt</span><span class="p">)</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">BenchmarkCopyPreAllocate</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
-    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
-        <span class="nx">bs</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">cnt</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="nx">sss</span><span class="p">))</span>
-        <span class="nx">bl</span> <span class="o">:=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-            <span class="nx">bl</span> <span class="o">+=</span> <span class="nb">copy</span><span class="p">(</span><span class="nx">bs</span><span class="p">[</span><span class="nx">bl</span><span class="p">:],</span> <span class="nx">sss</span><span class="p">)</span>
-        <span class="p">}</span>
-        <span class="nx">result</span> <span class="p">=</span> <span class="nb">string</span><span class="p">(</span><span class="nx">bs</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">BenchmarkAppendPreAllocate</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
-    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
-        <span class="nx">data</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">cnt</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="nx">sss</span><span class="p">))</span>
-        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-            <span class="nx">data</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">sss</span><span class="o">...</span><span class="p">)</span>
-        <span class="p">}</span>
-        <span class="nx">result</span> <span class="p">=</span> <span class="nb">string</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">BenchmarkBufferPreAllocate</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
-    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
-        <span class="nx">buf</span> <span class="o">:=</span> <span class="nx">bytes</span><span class="p">.</span><span class="nf">NewBuffer</span><span class="p">(</span><span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">cnt</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="nx">sss</span><span class="p">)))</span>
-        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-            <span class="nx">buf</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="nx">sss</span><span class="p">)</span>
-        <span class="p">}</span>
-        <span class="nx">result</span> <span class="p">=</span> <span class="nx">buf</span><span class="p">.</span><span class="nf">String</span><span class="p">()</span>
-    <span class="p">}</span>
-    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">BenchmarkCopy</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
-    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
-        <span class="nx">data</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span> <span class="c1">// same size as bootstrap array of bytes.Buffer
-</span><span class="c1"></span>        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-            <span class="nx">off</span> <span class="o">:=</span> <span class="nb">len</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nx">off</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="nx">sss</span><span class="p">)</span> <span class="p">&gt;</span> <span class="nb">cap</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
-                <span class="nx">temp</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="nb">cap</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="nx">sss</span><span class="p">))</span>
-                <span class="nb">copy</span><span class="p">(</span><span class="nx">temp</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span>
-                <span class="nx">data</span> <span class="p">=</span> <span class="nx">temp</span>
-            <span class="p">}</span>
-            <span class="nx">data</span> <span class="p">=</span> <span class="nx">data</span><span class="p">[</span><span class="mi">0</span> <span class="p">:</span> <span class="nx">off</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="nx">sss</span><span class="p">)]</span>
-            <span class="nb">copy</span><span class="p">(</span><span class="nx">data</span><span class="p">[</span><span class="nx">off</span><span class="p">:],</span> <span class="nx">sss</span><span class="p">)</span>
-        <span class="p">}</span>
-        <span class="nx">result</span> <span class="p">=</span> <span class="nb">string</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">BenchmarkCopyX</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">bs</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">)</span>
-    <span class="nx">bl</span> <span class="o">:=</span> <span class="mi">0</span>
-
-    <span class="nx">b</span><span class="p">.</span><span class="nf">ResetTimer</span><span class="p">()</span>
-    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
-        <span class="nx">bl</span> <span class="o">+=</span> <span class="nb">copy</span><span class="p">(</span><span class="nx">bs</span><span class="p">[</span><span class="nx">bl</span><span class="p">:],</span> <span class="s">&#34;x&#34;</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
-
-    <span class="k">if</span> <span class="nx">s</span> <span class="o">:=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Repeat</span><span class="p">(</span><span class="s">&#34;x&#34;</span><span class="p">,</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">);</span> <span class="nb">string</span><span class="p">(</span><span class="nx">bs</span><span class="p">)</span> <span class="o">!=</span> <span class="nx">s</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">bs</span><span class="p">),</span> <span class="nx">s</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">BenchmarkAppend</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
-    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
-        <span class="nx">data</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>
-        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-            <span class="nx">data</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">sss</span><span class="o">...</span><span class="p">)</span>
-        <span class="p">}</span>
-        <span class="nx">result</span> <span class="p">=</span> <span class="nb">string</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">BenchmarkBufferWrite</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
-    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
-        <span class="kd">var</span> <span class="nx">buf</span> <span class="nx">bytes</span><span class="p">.</span><span class="nx">Buffer</span>
-        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-            <span class="nx">buf</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">bbb</span><span class="p">)</span>
-        <span class="p">}</span>
-        <span class="nx">result</span> <span class="p">=</span> <span class="nx">buf</span><span class="p">.</span><span class="nf">String</span><span class="p">()</span>
-    <span class="p">}</span>
-    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">BenchmarkBufferWriteString</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
-    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
-        <span class="kd">var</span> <span class="nx">buf</span> <span class="nx">bytes</span><span class="p">.</span><span class="nx">Buffer</span>
-        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-            <span class="nx">buf</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="nx">sss</span><span class="p">)</span>
-        <span class="p">}</span>
-        <span class="nx">result</span> <span class="p">=</span> <span class="nx">buf</span><span class="p">.</span><span class="nf">String</span><span class="p">()</span>
-    <span class="p">}</span>
-    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">BenchmarkConcatString</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
-    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
-        <span class="kd">var</span> <span class="nx">str</span> <span class="kt">string</span>
-        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-            <span class="nx">str</span> <span class="o">+=</span> <span class="nx">sss</span>
-        <span class="p">}</span>
-        <span class="nx">result</span> <span class="p">=</span> <span class="nx">str</span>
-    <span class="p">}</span>
-    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">BenchmarkConcat</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">str</span> <span class="kt">string</span>
-    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
-        <span class="nx">str</span> <span class="o">+=</span> <span class="s">&#34;x&#34;</span>
-    <span class="p">}</span>
-    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
-
-    <span class="k">if</span> <span class="nx">s</span> <span class="o">:=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Repeat</span><span class="p">(</span><span class="s">&#34;x&#34;</span><span class="p">,</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">);</span> <span class="nx">str</span> <span class="o">!=</span> <span class="nx">s</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nx">str</span><span class="p">,</span> <span class="nx">s</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">BenchmarkBuffer</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">buffer</span> <span class="nx">bytes</span><span class="p">.</span><span class="nx">Buffer</span>
-    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
-        <span class="nx">buffer</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="s">&#34;x&#34;</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
-
-    <span class="k">if</span> <span class="nx">s</span> <span class="o">:=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Repeat</span><span class="p">(</span><span class="s">&#34;x&#34;</span><span class="p">,</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">);</span> <span class="nx">buffer</span><span class="p">.</span><span class="nf">String</span><span class="p">()</span> <span class="o">!=</span> <span class="nx">s</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nx">buffer</span><span class="p">.</span><span class="nf">String</span><span class="p">(),</span> <span class="nx">s</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="c1">// Go 1.10
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">BenchmarkStringBuilderX</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">strBuilder</span> <span class="nx">strings</span><span class="p">.</span><span class="nx">Builder</span>
-
-    <span class="nx">b</span><span class="p">.</span><span class="nf">ResetTimer</span><span class="p">()</span>
-    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
-        <span class="nx">strBuilder</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="s">&#34;x&#34;</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
-
-    <span class="k">if</span> <span class="nx">s</span> <span class="o">:=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Repeat</span><span class="p">(</span><span class="s">&#34;x&#34;</span><span class="p">,</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">);</span> <span class="nx">strBuilder</span><span class="p">.</span><span class="nf">String</span><span class="p">()</span> <span class="o">!=</span> <span class="nx">s</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nx">strBuilder</span><span class="p">.</span><span class="nf">String</span><span class="p">(),</span> <span class="nx">s</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">BenchmarkStringBuilder</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
-    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
-        <span class="kd">var</span> <span class="nx">builder</span> <span class="nx">strings</span><span class="p">.</span><span class="nx">Builder</span>
-
-        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-            <span class="nx">builder</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="nx">sss</span><span class="p">)</span>
-        <span class="p">}</span>
-
-        <span class="nx">result</span> <span class="p">=</span> <span class="nx">builder</span><span class="p">.</span><span class="nf">String</span><span class="p">()</span>
-    <span class="p">}</span>
-    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">BenchmarkStringConcat</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
-    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
-        <span class="kd">var</span> <span class="nx">str</span> <span class="kt">string</span>
-        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-            <span class="nx">str</span> <span class="o">+=</span> <span class="nx">sss</span>
-        <span class="p">}</span>
-        <span class="nx">result</span> <span class="p">=</span> <span class="nx">str</span>
-    <span class="p">}</span>
-    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">BenchmarkStringSprintf</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
-    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
-        <span class="kd">var</span> <span class="nx">str</span> <span class="kt">string</span>
-        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-            <span class="nx">str</span> <span class="p">=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;%s%s&#34;</span><span class="p">,</span> <span class="nx">str</span><span class="p">,</span> <span class="nx">sss</span><span class="p">)</span>
-        <span class="p">}</span>
-        <span class="nx">result</span> <span class="p">=</span> <span class="nx">str</span>
-    <span class="p">}</span>
-    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">BenchmarkStringJoin</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
-    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
-        <span class="kd">var</span> <span class="nx">str</span> <span class="kt">string</span>
-        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-            <span class="nx">str</span> <span class="p">=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Join</span><span class="p">([]</span><span class="kt">string</span><span class="p">{</span><span class="nx">str</span><span class="p">,</span> <span class="nx">sss</span><span class="p">},</span> <span class="s">&#34;&#34;</span><span class="p">)</span>
-        <span class="p">}</span>
-        <span class="nx">result</span> <span class="p">=</span> <span class="nx">str</span>
-    <span class="p">}</span>
-    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">BenchmarkBytesAppend</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
-    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
-        <span class="kd">var</span> <span class="nx">bbb</span> <span class="p">[]</span><span class="kt">byte</span>
-
-        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-            <span class="nx">bbb</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">bbb</span><span class="p">,</span> <span class="nx">sss</span><span class="o">...</span><span class="p">)</span>
-        <span class="p">}</span>
-        <span class="nx">result</span> <span class="p">=</span> <span class="nb">string</span><span class="p">(</span><span class="nx">bbb</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">BenchmarkStringCopy</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
-    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
-        <span class="nx">tsl</span> <span class="o">:=</span> <span class="nb">len</span><span class="p">(</span><span class="nx">sss</span><span class="p">)</span> <span class="o">*</span> <span class="nx">cnt</span>
-        <span class="nx">bs</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">tsl</span><span class="p">)</span>
-        <span class="nx">bl</span> <span class="o">:=</span> <span class="mi">0</span>
-
-        <span class="k">for</span> <span class="nx">bl</span> <span class="p">&lt;</span> <span class="nx">tsl</span> <span class="p">{</span>
-            <span class="nx">bl</span> <span class="o">+=</span> <span class="nb">copy</span><span class="p">(</span><span class="nx">bs</span><span class="p">[</span><span class="nx">bl</span><span class="p">:],</span> <span class="nx">sss</span><span class="p">)</span>
-        <span class="p">}</span>
-
-        <span class="nx">result</span> <span class="p">=</span> <span class="nb">string</span><span class="p">(</span><span class="nx">bs</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;bytes&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;strings&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;testing&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">const</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">sss</span> <span class="p">=</span> <span class="s">&#34;xfoasneobfasieongasbg&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">cnt</span> <span class="p">=</span> <span class="mi">10000</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">bbb</span>      <span class="p">=</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">sss</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">expected</span> <span class="p">=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Repeat</span><span class="p">(</span><span class="nx">sss</span><span class="p">,</span> <span class="nx">cnt</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkCopyPreAllocate</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">bs</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">cnt</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="nx">sss</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">bl</span> <span class="o">:=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">bl</span> <span class="o">+=</span> <span class="nb">copy</span><span class="p">(</span><span class="nx">bs</span><span class="p">[</span><span class="nx">bl</span><span class="p">:],</span> <span class="nx">sss</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">result</span> <span class="p">=</span> <span class="nb">string</span><span class="p">(</span><span class="nx">bs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkAppendPreAllocate</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">data</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">cnt</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="nx">sss</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">data</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">sss</span><span class="o">...</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">result</span> <span class="p">=</span> <span class="nb">string</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkBufferPreAllocate</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">buf</span> <span class="o">:=</span> <span class="nx">bytes</span><span class="p">.</span><span class="nf">NewBuffer</span><span class="p">(</span><span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">cnt</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="nx">sss</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">buf</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="nx">sss</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">result</span> <span class="p">=</span> <span class="nx">buf</span><span class="p">.</span><span class="nf">String</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkCopy</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">data</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span> <span class="c1">// same size as bootstrap array of bytes.Buffer
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">off</span> <span class="o">:=</span> <span class="nb">len</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="nx">off</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="nx">sss</span><span class="p">)</span> <span class="p">&gt;</span> <span class="nb">cap</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">temp</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="nb">cap</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="nx">sss</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">                <span class="nb">copy</span><span class="p">(</span><span class="nx">temp</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">data</span> <span class="p">=</span> <span class="nx">temp</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">data</span> <span class="p">=</span> <span class="nx">data</span><span class="p">[</span><span class="mi">0</span> <span class="p">:</span> <span class="nx">off</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="nx">sss</span><span class="p">)]</span>
+</span></span><span class="line"><span class="cl">            <span class="nb">copy</span><span class="p">(</span><span class="nx">data</span><span class="p">[</span><span class="nx">off</span><span class="p">:],</span> <span class="nx">sss</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">result</span> <span class="p">=</span> <span class="nb">string</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkCopyX</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">bs</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">bl</span> <span class="o">:=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span><span class="p">.</span><span class="nf">ResetTimer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">bl</span> <span class="o">+=</span> <span class="nb">copy</span><span class="p">(</span><span class="nx">bs</span><span class="p">[</span><span class="nx">bl</span><span class="p">:],</span> <span class="s">&#34;x&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">s</span> <span class="o">:=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Repeat</span><span class="p">(</span><span class="s">&#34;x&#34;</span><span class="p">,</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">);</span> <span class="nb">string</span><span class="p">(</span><span class="nx">bs</span><span class="p">)</span> <span class="o">!=</span> <span class="nx">s</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">bs</span><span class="p">),</span> <span class="nx">s</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkAppend</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">data</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">data</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">sss</span><span class="o">...</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">result</span> <span class="p">=</span> <span class="nb">string</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkBufferWrite</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">var</span> <span class="nx">buf</span> <span class="nx">bytes</span><span class="p">.</span><span class="nx">Buffer</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">buf</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">bbb</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">result</span> <span class="p">=</span> <span class="nx">buf</span><span class="p">.</span><span class="nf">String</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkBufferWriteString</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">var</span> <span class="nx">buf</span> <span class="nx">bytes</span><span class="p">.</span><span class="nx">Buffer</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">buf</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="nx">sss</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">result</span> <span class="p">=</span> <span class="nx">buf</span><span class="p">.</span><span class="nf">String</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkConcatString</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">var</span> <span class="nx">str</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">str</span> <span class="o">+=</span> <span class="nx">sss</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">result</span> <span class="p">=</span> <span class="nx">str</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkConcat</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">str</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">str</span> <span class="o">+=</span> <span class="s">&#34;x&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">s</span> <span class="o">:=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Repeat</span><span class="p">(</span><span class="s">&#34;x&#34;</span><span class="p">,</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">);</span> <span class="nx">str</span> <span class="o">!=</span> <span class="nx">s</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nx">str</span><span class="p">,</span> <span class="nx">s</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkBuffer</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">buffer</span> <span class="nx">bytes</span><span class="p">.</span><span class="nx">Buffer</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">buffer</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="s">&#34;x&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">s</span> <span class="o">:=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Repeat</span><span class="p">(</span><span class="s">&#34;x&#34;</span><span class="p">,</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">);</span> <span class="nx">buffer</span><span class="p">.</span><span class="nf">String</span><span class="p">()</span> <span class="o">!=</span> <span class="nx">s</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nx">buffer</span><span class="p">.</span><span class="nf">String</span><span class="p">(),</span> <span class="nx">s</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Go 1.10
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">BenchmarkStringBuilderX</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">strBuilder</span> <span class="nx">strings</span><span class="p">.</span><span class="nx">Builder</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span><span class="p">.</span><span class="nf">ResetTimer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">strBuilder</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="s">&#34;x&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">s</span> <span class="o">:=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Repeat</span><span class="p">(</span><span class="s">&#34;x&#34;</span><span class="p">,</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">);</span> <span class="nx">strBuilder</span><span class="p">.</span><span class="nf">String</span><span class="p">()</span> <span class="o">!=</span> <span class="nx">s</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nx">strBuilder</span><span class="p">.</span><span class="nf">String</span><span class="p">(),</span> <span class="nx">s</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkStringBuilder</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">var</span> <span class="nx">builder</span> <span class="nx">strings</span><span class="p">.</span><span class="nx">Builder</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">builder</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="nx">sss</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nx">result</span> <span class="p">=</span> <span class="nx">builder</span><span class="p">.</span><span class="nf">String</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkStringConcat</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">var</span> <span class="nx">str</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">str</span> <span class="o">+=</span> <span class="nx">sss</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">result</span> <span class="p">=</span> <span class="nx">str</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkStringSprintf</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">var</span> <span class="nx">str</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">str</span> <span class="p">=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;%s%s&#34;</span><span class="p">,</span> <span class="nx">str</span><span class="p">,</span> <span class="nx">sss</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">result</span> <span class="p">=</span> <span class="nx">str</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkStringJoin</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">var</span> <span class="nx">str</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">str</span> <span class="p">=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Join</span><span class="p">([]</span><span class="kt">string</span><span class="p">{</span><span class="nx">str</span><span class="p">,</span> <span class="nx">sss</span><span class="p">},</span> <span class="s">&#34;&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">result</span> <span class="p">=</span> <span class="nx">str</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkBytesAppend</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">var</span> <span class="nx">bbb</span> <span class="p">[]</span><span class="kt">byte</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">cnt</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">bbb</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">bbb</span><span class="p">,</span> <span class="nx">sss</span><span class="o">...</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">result</span> <span class="p">=</span> <span class="nb">string</span><span class="p">(</span><span class="nx">bbb</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkStringCopy</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">result</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">n</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">n</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">n</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">tsl</span> <span class="o">:=</span> <span class="nb">len</span><span class="p">(</span><span class="nx">sss</span><span class="p">)</span> <span class="o">*</span> <span class="nx">cnt</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">bs</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">tsl</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">bl</span> <span class="o">:=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="nx">bl</span> <span class="p">&lt;</span> <span class="nx">tsl</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">bl</span> <span class="o">+=</span> <span class="nb">copy</span><span class="p">(</span><span class="nx">bs</span><span class="p">[</span><span class="nx">bl</span><span class="p">:],</span> <span class="nx">sss</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nx">result</span> <span class="p">=</span> <span class="nb">string</span><span class="p">(</span><span class="nx">bs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span><span class="p">.</span><span class="nf">StopTimer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">result</span> <span class="o">!=</span> <span class="nx">expected</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;unexpected result; got=%s, want=%s&#34;</span><span class="p">,</span> <span class="nb">string</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="nx">expected</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Test Results:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -905,30 +904,30 @@
 </span><span class="lnt">23
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">go test -v strings_concat_benchmark_test.go -bench=. -benchmem
-goos: darwin
-goarch: amd64
-BenchmarkCopyPreAllocate-4          8043            125464 ns/op          425984 B/op          2 allocs/op
-BenchmarkAppendPreAllocate-4        9818            126881 ns/op          425985 B/op          2 allocs/op
-BenchmarkBufferPreAllocate-4        7656            161158 ns/op          425984 B/op          2 allocs/op
-BenchmarkCopy-4                     4903            250800 ns/op          929185 B/op         13 allocs/op
-BenchmarkCopyX-4                263460769                5.19 ns/op            0 B/op          0 allocs/op
-BenchmarkAppend-4                   3820            384086 ns/op         1333122 B/op         24 allocs/op
-BenchmarkBufferWrite-4              3626            299617 ns/op          929250 B/op         14 allocs/op
-BenchmarkBufferWriteString-4        4428            286061 ns/op          929249 B/op         14 allocs/op
-BenchmarkConcatString-4                5         210904237 ns/op        1086401044 B/op    10037 allocs/op
-BenchmarkConcat-4                1000000            118204 ns/op          503996 B/op          1 allocs/op
-BenchmarkBuffer-4               132420037                8.74 ns/op            2 B/op          0 allocs/op
-BenchmarkStringBuilderX-4       418325671                5.97 ns/op            6 B/op          0 allocs/op
-BenchmarkStringBuilder-4            3890            310115 ns/op         1120224 B/op         25 allocs/op
-BenchmarkStringConcat-4                5         229555747 ns/op        1086401641 B/op    10050 allocs/op
-BenchmarkStringSprintf-4               3         451219496 ns/op        2068371440 B/op    35040 allocs/op
-BenchmarkStringJoin-4                  4         281371101 ns/op        1086401946 B/op    10058 allocs/op
-BenchmarkBytesAppend-4              3406            406706 ns/op         1333218 B/op         26 allocs/op
-BenchmarkStringCopy-4               9100            133990 ns/op          425984 B/op          2 allocs/op
-PASS
-ok      command-line-arguments  148.510s
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">go test -v strings_concat_benchmark_test.go -bench=. -benchmem
+</span></span><span class="line"><span class="cl">goos: darwin
+</span></span><span class="line"><span class="cl">goarch: amd64
+</span></span><span class="line"><span class="cl">BenchmarkCopyPreAllocate-4          8043            125464 ns/op          425984 B/op          2 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkAppendPreAllocate-4        9818            126881 ns/op          425985 B/op          2 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkBufferPreAllocate-4        7656            161158 ns/op          425984 B/op          2 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkCopy-4                     4903            250800 ns/op          929185 B/op         13 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkCopyX-4                263460769                5.19 ns/op            0 B/op          0 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkAppend-4                   3820            384086 ns/op         1333122 B/op         24 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkBufferWrite-4              3626            299617 ns/op          929250 B/op         14 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkBufferWriteString-4        4428            286061 ns/op          929249 B/op         14 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkConcatString-4                5         210904237 ns/op        1086401044 B/op    10037 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkConcat-4                1000000            118204 ns/op          503996 B/op          1 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkBuffer-4               132420037                8.74 ns/op            2 B/op          0 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkStringBuilderX-4       418325671                5.97 ns/op            6 B/op          0 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkStringBuilder-4            3890            310115 ns/op         1120224 B/op         25 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkStringConcat-4                5         229555747 ns/op        1086401641 B/op    10050 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkStringSprintf-4               3         451219496 ns/op        2068371440 B/op    35040 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkStringJoin-4                  4         281371101 ns/op        1086401946 B/op    10058 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkBytesAppend-4              3406            406706 ns/op         1333218 B/op         26 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkStringCopy-4               9100            133990 ns/op          425984 B/op          2 allocs/op
+</span></span><span class="line"><span class="cl">PASS
+</span></span><span class="line"><span class="cl">ok      command-line-arguments  148.510s
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -1035,7 +1034,7 @@ ok      command-line-arguments  148.510s
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -1052,7 +1051,7 @@ ok      command-line-arguments  148.510s
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

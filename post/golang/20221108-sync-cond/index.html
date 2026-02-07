@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20221108-sync-cond/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Go] sync.Cond 使用详解" />
-<meta property="og:description" content="Cond 通常应用于等待某个条件的一组 goroutine，等条件变为 true 的时候，其中一个 goroutine 或者所有的 goroutine 都会被唤醒执行。 sync.Cond 提供的方法 1 2 3 4 func NewCond(l Locker) *Cond {} //" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20221108-sync-cond/" />
-<meta property="article:published_time" content="2022-11-08T20:23:01+08:00" />
-<meta property="article:modified_time" content="2022-11-08T20:23:01+08:00" />
-<meta itemprop="name" content="[Go] sync.Cond 使用详解">
-<meta itemprop="description" content="Cond 通常应用于等待某个条件的一组 goroutine，等条件变为 true 的时候，其中一个 goroutine 或者所有的 goroutine 都会被唤醒执行。 sync.Cond 提供的方法 1 2 3 4 func NewCond(l Locker) *Cond {} //">
-<meta itemprop="datePublished" content="2022-11-08T20:23:01&#43;08:00" />
-<meta itemprop="dateModified" content="2022-11-08T20:23:01&#43;08:00" />
-<meta itemprop="wordCount" content="369">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20221108-sync-cond/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Go] sync.Cond 使用详解">
+  <meta property="og:description" content="Cond 通常应用于等待某个条件的一组 goroutine，等条件变为 true 的时候，其中一个 goroutine 或者所有的 goroutine 都会被唤醒执行。 sync.Cond 提供的方法 1 2 3 4 func NewCond(l Locker) *Cond {} //">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2022-11-08T20:23:01+08:00">
+    <meta property="article:modified_time" content="2022-11-08T20:23:01+08:00">
+    <meta property="article:tag" content="Golang">
 
-
-
-<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Go] sync.Cond 使用详解"/>
-<meta name="twitter:description" content="Cond 通常应用于等待某个条件的一组 goroutine，等条件变为 true 的时候，其中一个 goroutine 或者所有的 goroutine 都会被唤醒执行。 sync.Cond 提供的方法 1 2 3 4 func NewCond(l Locker) *Cond {} //"/>
+  <meta itemprop="name" content="[Go] sync.Cond 使用详解">
+  <meta itemprop="description" content="Cond 通常应用于等待某个条件的一组 goroutine，等条件变为 true 的时候，其中一个 goroutine 或者所有的 goroutine 都会被唤醒执行。 sync.Cond 提供的方法 1 2 3 4 func NewCond(l Locker) *Cond {} //">
+  <meta itemprop="datePublished" content="2022-11-08T20:23:01+08:00">
+  <meta itemprop="dateModified" content="2022-11-08T20:23:01+08:00">
+  <meta itemprop="wordCount" content="369">
+  <meta itemprop="keywords" content="Golang"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Go] sync.Cond 使用详解">
+<meta name="twitter:description" content="Cond 通常应用于等待某个条件的一组 goroutine，等条件变为 true 的时候，其中一个 goroutine 或者所有的 goroutine 都会被唤醒执行。 sync.Cond 提供的方法 1 2 3 4 func NewCond(l Locker) *Cond {} //">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -167,45 +168,45 @@
 <h2 id="synccond-提供的方法">sync.Cond 提供的方法</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">NewCond</span><span class="p">(</span><span class="nx">l</span> <span class="nx">Locker</span><span class="p">)</span> <span class="o">*</span><span class="nx">Cond</span> <span class="p">{}</span> <span class="c1">// 创建一个 cond
-</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">Cond</span><span class="p">)</span> <span class="nf">Wait</span><span class="p">()</span> <span class="p">{}</span>        <span class="c1">// 阻塞，等待唤醒
-</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">Cond</span><span class="p">)</span> <span class="nf">Signal</span><span class="p">()</span> <span class="p">{}</span>      <span class="c1">// 唤醒一个等待者
-</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">Cond</span><span class="p">)</span> <span class="nf">Broadcast</span><span class="p">()</span> <span class="p">{}</span>   <span class="c1">// 唤醒所有等待者
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">NewCond</span><span class="p">(</span><span class="nx">l</span> <span class="nx">Locker</span><span class="p">)</span> <span class="o">*</span><span class="nx">Cond</span> <span class="p">{}</span> <span class="c1">// 创建一个 cond
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">Cond</span><span class="p">)</span> <span class="nf">Wait</span><span class="p">()</span> <span class="p">{}</span>        <span class="c1">// 阻塞，等待唤醒
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">Cond</span><span class="p">)</span> <span class="nf">Signal</span><span class="p">()</span> <span class="p">{}</span>      <span class="c1">// 唤醒一个等待者
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">Cond</span><span class="p">)</span> <span class="nf">Broadcast</span><span class="p">()</span> <span class="p">{}</span>   <span class="c1">// 唤醒所有等待者
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>NewCond需要传入一个锁</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">NewCond</span><span class="p">(</span><span class="nx">l</span> <span class="nx">Locker</span><span class="p">)</span> <span class="o">*</span><span class="nx">Cond</span> <span class="p">{</span>
-	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">Cond</span><span class="p">{</span><span class="nx">L</span><span class="p">:</span> <span class="nx">l</span><span class="p">}</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">NewCond</span><span class="p">(</span><span class="nx">l</span> <span class="nx">Locker</span><span class="p">)</span> <span class="o">*</span><span class="nx">Cond</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">Cond</span><span class="p">{</span><span class="nx">L</span><span class="p">:</span> <span class="nx">l</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>示例如下：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">c</span> <span class="o">:=</span> <span class="nx">sync</span><span class="p">.</span><span class="nf">NewCond</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">sync</span><span class="p">.</span><span class="nx">Mutex</span><span class="p">{})</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="nx">c</span> <span class="o">:=</span> <span class="nx">sync</span><span class="p">.</span><span class="nf">NewCond</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">sync</span><span class="p">.</span><span class="nx">Mutex</span><span class="p">{})</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>调用Wait方法可以阻塞goroutine，但是在调用Wait方法时，需要先获取锁，</p>
 <p>Wait方法实现如下：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -230,30 +231,30 @@
 </span><span class="lnt">23
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="o">/</span> <span class="nx">Wait</span> <span class="nx">atomically</span> <span class="nx">unlocks</span> <span class="nx">c</span><span class="p">.</span><span class="nx">L</span> <span class="nx">and</span> <span class="nx">suspends</span> <span class="nx">execution</span>
-<span class="c1">// of the calling goroutine. After later resuming execution,
-</span><span class="c1">// Wait locks c.L before returning. Unlike in other systems,
-</span><span class="c1">// Wait cannot return unless awoken by Broadcast or Signal.
-</span><span class="c1">//
-</span><span class="c1">// Because c.L is not locked when Wait first resumes, the caller
-</span><span class="c1">// typically cannot assume that the condition is true when
-</span><span class="c1">// Wait returns. Instead, the caller should Wait in a loop:
-</span><span class="c1">//
-</span><span class="c1">//    c.L.Lock()
-</span><span class="c1">//    for !condition() {
-</span><span class="c1">//        c.Wait()
-</span><span class="c1">//    }
-</span><span class="c1">//    ... make use of condition ...
-</span><span class="c1">//    c.L.Unlock()
-</span><span class="c1">//
-</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">Cond</span><span class="p">)</span> <span class="nf">Wait</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">c</span><span class="p">.</span><span class="nx">checker</span><span class="p">.</span><span class="nf">check</span><span class="p">()</span>
-    <span class="nx">t</span> <span class="o">:=</span> <span class="nf">runtime_notifyListAdd</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">c</span><span class="p">.</span><span class="nx">notify</span><span class="p">)</span>   <span class="c1">// 加入到等待队列
-</span><span class="c1"></span>    <span class="nx">c</span><span class="p">.</span><span class="nx">L</span><span class="p">.</span><span class="nf">Unlock</span><span class="p">()</span>                            <span class="c1">// 解锁
-</span><span class="c1"></span>    <span class="nf">runtime_notifyListWait</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">c</span><span class="p">.</span><span class="nx">notify</span><span class="p">,</span> <span class="nx">t</span><span class="p">)</span>    <span class="c1">// 阻塞等待直到被唤醒
-</span><span class="c1"></span>    <span class="nx">c</span><span class="p">.</span><span class="nx">L</span><span class="p">.</span><span class="nf">Lock</span><span class="p">()</span>                              <span class="c1">// 加锁
-</span><span class="c1"></span><span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="o">/</span> <span class="nx">Wait</span> <span class="nx">atomically</span> <span class="nx">unlocks</span> <span class="nx">c</span><span class="p">.</span><span class="nx">L</span> <span class="nx">and</span> <span class="nx">suspends</span> <span class="nx">execution</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// of the calling goroutine. After later resuming execution,
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Wait locks c.L before returning. Unlike in other systems,
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Wait cannot return unless awoken by Broadcast or Signal.
+</span></span></span><span class="line"><span class="cl"><span class="c1">//
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Because c.L is not locked when Wait first resumes, the caller
+</span></span></span><span class="line"><span class="cl"><span class="c1">// typically cannot assume that the condition is true when
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Wait returns. Instead, the caller should Wait in a loop:
+</span></span></span><span class="line"><span class="cl"><span class="c1">//
+</span></span></span><span class="line"><span class="cl"><span class="c1">//    c.L.Lock()
+</span></span></span><span class="line"><span class="cl"><span class="c1">//    for !condition() {
+</span></span></span><span class="line"><span class="cl"><span class="c1">//        c.Wait()
+</span></span></span><span class="line"><span class="cl"><span class="c1">//    }
+</span></span></span><span class="line"><span class="cl"><span class="c1">//    ... make use of condition ...
+</span></span></span><span class="line"><span class="cl"><span class="c1">//    c.L.Unlock()
+</span></span></span><span class="line"><span class="cl"><span class="c1">//
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">Cond</span><span class="p">)</span> <span class="nf">Wait</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">c</span><span class="p">.</span><span class="nx">checker</span><span class="p">.</span><span class="nf">check</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">t</span> <span class="o">:=</span> <span class="nf">runtime_notifyListAdd</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">c</span><span class="p">.</span><span class="nx">notify</span><span class="p">)</span>   <span class="c1">// 加入到等待队列
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">c</span><span class="p">.</span><span class="nx">L</span><span class="p">.</span><span class="nf">Unlock</span><span class="p">()</span>                            <span class="c1">// 解锁
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">runtime_notifyListWait</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">c</span><span class="p">.</span><span class="nx">notify</span><span class="p">,</span> <span class="nx">t</span><span class="p">)</span>    <span class="c1">// 阻塞等待直到被唤醒
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">c</span><span class="p">.</span><span class="nx">L</span><span class="p">.</span><span class="nf">Lock</span><span class="p">()</span>                              <span class="c1">// 加锁
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -361,7 +362,7 @@
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -378,7 +379,7 @@
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

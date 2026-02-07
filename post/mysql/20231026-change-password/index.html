@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/mysql/20231026-change-password/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="更改 MySQL 用户密码的三种方法" />
-<meta property="og:description" content="在MySQL中，可以使用 UPDATE , SET PASSWORD 和 ALTER USER 语句更改 MySQL 用户密码。 UPDATE 使用 UPDATE 语句更新 mysql 数据库中的 user 表。 执行完 UPDATE 语句后，还需要执行 FLUSH PRIVILEGES 语句从 mysql 数据库中的" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/mysql/20231026-change-password/" />
-<meta property="article:published_time" content="2023-10-26T23:04:05+08:00" />
-<meta property="article:modified_time" content="2023-10-26T23:04:05+08:00" />
-<meta itemprop="name" content="更改 MySQL 用户密码的三种方法">
-<meta itemprop="description" content="在MySQL中，可以使用 UPDATE , SET PASSWORD 和 ALTER USER 语句更改 MySQL 用户密码。 UPDATE 使用 UPDATE 语句更新 mysql 数据库中的 user 表。 执行完 UPDATE 语句后，还需要执行 FLUSH PRIVILEGES 语句从 mysql 数据库中的">
-<meta itemprop="datePublished" content="2023-10-26T23:04:05&#43;08:00" />
-<meta itemprop="dateModified" content="2023-10-26T23:04:05&#43;08:00" />
-<meta itemprop="wordCount" content="403">
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20231026-change-password/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="更改 MySQL 用户密码的三种方法">
+  <meta property="og:description" content="在MySQL中，可以使用 UPDATE , SET PASSWORD 和 ALTER USER 语句更改 MySQL 用户密码。 UPDATE 使用 UPDATE 语句更新 mysql 数据库中的 user 表。 执行完 UPDATE 语句后，还需要执行 FLUSH PRIVILEGES 语句从 mysql 数据库中的">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2023-10-26T23:04:05+08:00">
+    <meta property="article:modified_time" content="2023-10-26T23:04:05+08:00">
+    <meta property="article:tag" content="Mysql">
 
-
-
-<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="更改 MySQL 用户密码的三种方法"/>
-<meta name="twitter:description" content="在MySQL中，可以使用 UPDATE , SET PASSWORD 和 ALTER USER 语句更改 MySQL 用户密码。 UPDATE 使用 UPDATE 语句更新 mysql 数据库中的 user 表。 执行完 UPDATE 语句后，还需要执行 FLUSH PRIVILEGES 语句从 mysql 数据库中的"/>
+  <meta itemprop="name" content="更改 MySQL 用户密码的三种方法">
+  <meta itemprop="description" content="在MySQL中，可以使用 UPDATE , SET PASSWORD 和 ALTER USER 语句更改 MySQL 用户密码。 UPDATE 使用 UPDATE 语句更新 mysql 数据库中的 user 表。 执行完 UPDATE 语句后，还需要执行 FLUSH PRIVILEGES 语句从 mysql 数据库中的">
+  <meta itemprop="datePublished" content="2023-10-26T23:04:05+08:00">
+  <meta itemprop="dateModified" content="2023-10-26T23:04:05+08:00">
+  <meta itemprop="wordCount" content="403">
+  <meta itemprop="keywords" content="Mysql"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="更改 MySQL 用户密码的三种方法">
+<meta name="twitter:description" content="在MySQL中，可以使用 UPDATE , SET PASSWORD 和 ALTER USER 语句更改 MySQL 用户密码。 UPDATE 使用 UPDATE 语句更新 mysql 数据库中的 user 表。 执行完 UPDATE 语句后，还需要执行 FLUSH PRIVILEGES 语句从 mysql 数据库中的">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -172,98 +173,98 @@
 <p>选择mysql数据库</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">use</span> <span class="n">mysql</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">use</span><span class="w"> </span><span class="n">mysql</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>执行 UPDATE 更新 连接host为localhost的用户<code>your-username</code>的密码。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">UPDATE</span> <span class="k">user</span>
-<span class="k">SET</span> <span class="n">password</span> <span class="o">=</span> <span class="n">PASSWORD</span><span class="p">(</span><span class="s1">&#39;your-password&#39;</span><span class="p">)</span>
-<span class="k">WHERE</span> <span class="k">user</span> <span class="o">=</span> <span class="s1">&#39;your-username&#39;</span> <span class="k">AND</span>
-      <span class="k">host</span> <span class="o">=</span> <span class="s1">&#39;localhost&#39;</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">UPDATE</span><span class="w"> </span><span class="k">user</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SET</span><span class="w"> </span><span class="n">password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PASSWORD</span><span class="p">(</span><span class="s1">&#39;your-password&#39;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHERE</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;your-username&#39;</span><span class="w"> </span><span class="k">AND</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="k">host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;localhost&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>刷新权限</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">FLUSH</span> <span class="k">PRIVILEGES</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">FLUSH</span><span class="w"> </span><span class="k">PRIVILEGES</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>从 MySQL 5.7.6 开始，用户表(user) 使用列 authentication_string 来存储密码。并且，它删除了 password 列。
 因此，在 MySQL 5.7.6+，须修改 UPDATE 语句中的 authentication_string 列：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">UPDATE</span> <span class="k">user</span>
-<span class="k">SET</span> <span class="n">authentication_string</span> <span class="o">=</span> <span class="n">PASSWORD</span><span class="p">(</span><span class="s1">&#39;your-password&#39;</span><span class="p">)</span>
-<span class="k">WHERE</span> <span class="k">user</span> <span class="o">=</span> <span class="s1">&#39;your-username&#39;</span> <span class="k">AND</span>
-      <span class="k">host</span> <span class="o">=</span> <span class="s1">&#39;localhost&#39;</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">UPDATE</span><span class="w"> </span><span class="k">user</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SET</span><span class="w"> </span><span class="n">authentication_string</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PASSWORD</span><span class="p">(</span><span class="s1">&#39;your-password&#39;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHERE</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;your-username&#39;</span><span class="w"> </span><span class="k">AND</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="k">host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;localhost&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="set-password">SET PASSWORD</h2>
 <p>可以使用 user@host 格式的用户帐户来更新密码。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span> <span class="n">PASSWORD</span> <span class="k">FOR</span> <span class="s1">&#39;your-username&#39;</span><span class="o">@</span><span class="s1">&#39;localhost&#39;</span> <span class="o">=</span> <span class="n">PASSWORD</span><span class="p">(</span><span class="s1">&#39;your-password&#39;</span><span class="p">);</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SET</span><span class="w"> </span><span class="n">PASSWORD</span><span class="w"> </span><span class="k">FOR</span><span class="w"> </span><span class="s1">&#39;your-username&#39;</span><span class="o">@</span><span class="s1">&#39;localhost&#39;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PASSWORD</span><span class="p">(</span><span class="s1">&#39;your-password&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>从 5.7.6 版开始，不需要在 SET PASSWORD 语句中使用 PASSWORD()，而是直接使用明文密码。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span> <span class="n">PASSWORD</span> <span class="k">FOR</span> <span class="s1">&#39;your-username&#39;</span><span class="o">@</span><span class="s1">&#39;localhost&#39;</span> <span class="o">=</span> <span class="s1">&#39;your-password&#39;</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SET</span><span class="w"> </span><span class="n">PASSWORD</span><span class="w"> </span><span class="k">FOR</span><span class="w"> </span><span class="s1">&#39;your-username&#39;</span><span class="o">@</span><span class="s1">&#39;localhost&#39;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;your-password&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>刷新权限</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">FLUSH</span> <span class="k">PRIVILEGES</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">FLUSH</span><span class="w"> </span><span class="k">PRIVILEGES</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="alter-user">ALTER USER</h2>
 <p>使用 ALTER USER 带有 IDENTIFIED BY 子句的语句。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">ALTER</span> <span class="k">USER</span> <span class="n">your</span><span class="o">-</span><span class="n">username</span><span class="o">@</span><span class="n">localhost</span> <span class="n">IDENTIFIED</span> <span class="k">BY</span> <span class="s1">&#39;your-password&#39;</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">ALTER</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="n">your</span><span class="o">-</span><span class="n">username</span><span class="o">@</span><span class="n">localhost</span><span class="w"> </span><span class="n">IDENTIFIED</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="s1">&#39;your-password&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>刷新权限</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">FLUSH</span> <span class="k">PRIVILEGES</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">FLUSH</span><span class="w"> </span><span class="k">PRIVILEGES</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>想重置 MySQL root 帐户的密码，则需要在不使用授权表验证的情况下强制 MySQL 数据库服务器停止并重新启动。</p>
 <h2 id="参考">参考</h2>
@@ -371,7 +372,7 @@
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -388,7 +389,7 @@
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

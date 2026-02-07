@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/clickhouse/20230218-kline/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Clickhouse] clickhouse中使用AggregatingMergeTree表引擎聚合k线数据" />
-<meta property="og:description" content="使用 AggregatingMergeTree 表来做增量数据的聚合统计，包括物化视图的数据聚合。 股市及期货市场中的K线图的画法包含四个数据，即开盘价、最高价、最低价、收盘价。 以及单" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/clickhouse/20230218-kline/" />
-<meta property="article:published_time" content="2023-02-18T21:06:18+08:00" />
-<meta property="article:modified_time" content="2023-02-18T21:06:18+08:00" />
-<meta itemprop="name" content="[Clickhouse] clickhouse中使用AggregatingMergeTree表引擎聚合k线数据">
-<meta itemprop="description" content="使用 AggregatingMergeTree 表来做增量数据的聚合统计，包括物化视图的数据聚合。 股市及期货市场中的K线图的画法包含四个数据，即开盘价、最高价、最低价、收盘价。 以及单">
-<meta itemprop="datePublished" content="2023-02-18T21:06:18&#43;08:00" />
-<meta itemprop="dateModified" content="2023-02-18T21:06:18&#43;08:00" />
-<meta itemprop="wordCount" content="1122">
+<meta property="og:url" content="https://piaohua.github.io/post/clickhouse/20230218-kline/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Clickhouse] clickhouse中使用AggregatingMergeTree表引擎聚合k线数据">
+  <meta property="og:description" content="使用 AggregatingMergeTree 表来做增量数据的聚合统计，包括物化视图的数据聚合。 股市及期货市场中的K线图的画法包含四个数据，即开盘价、最高价、最低价、收盘价。 以及单">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2023-02-18T21:06:18+08:00">
+    <meta property="article:modified_time" content="2023-02-18T21:06:18+08:00">
+    <meta property="article:tag" content="Clickhouse">
 
-
-
-<meta itemprop="keywords" content="clickhouse," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Clickhouse] clickhouse中使用AggregatingMergeTree表引擎聚合k线数据"/>
-<meta name="twitter:description" content="使用 AggregatingMergeTree 表来做增量数据的聚合统计，包括物化视图的数据聚合。 股市及期货市场中的K线图的画法包含四个数据，即开盘价、最高价、最低价、收盘价。 以及单"/>
+  <meta itemprop="name" content="[Clickhouse] clickhouse中使用AggregatingMergeTree表引擎聚合k线数据">
+  <meta itemprop="description" content="使用 AggregatingMergeTree 表来做增量数据的聚合统计，包括物化视图的数据聚合。 股市及期货市场中的K线图的画法包含四个数据，即开盘价、最高价、最低价、收盘价。 以及单">
+  <meta itemprop="datePublished" content="2023-02-18T21:06:18+08:00">
+  <meta itemprop="dateModified" content="2023-02-18T21:06:18+08:00">
+  <meta itemprop="wordCount" content="1122">
+  <meta itemprop="keywords" content="Clickhouse"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Clickhouse] clickhouse中使用AggregatingMergeTree表引擎聚合k线数据">
+<meta name="twitter:description" content="使用 AggregatingMergeTree 表来做增量数据的聚合统计，包括物化视图的数据聚合。 股市及期货市场中的K线图的画法包含四个数据，即开盘价、最高价、最低价、收盘价。 以及单">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -175,7 +176,7 @@
 <p>创建一张基础表，这里以1分钟k线做基础表，通过1分钟聚合3分钟5分钟，及更多周期的k线数据。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -194,24 +195,24 @@
 </span><span class="lnt">17
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="n">table_1m</span> <span class="p">(</span>
-    <span class="n">start_time</span> <span class="n">Int64</span><span class="p">,</span>
-    <span class="n">end_time</span> <span class="n">Int64</span><span class="p">,</span>
-    <span class="k">open</span> <span class="n">Float64</span><span class="p">,</span>
-    <span class="k">close</span> <span class="n">Float64</span><span class="p">,</span>
-    <span class="n">high</span> <span class="n">Float64</span><span class="p">,</span>
-    <span class="n">low</span> <span class="n">Float64</span><span class="p">,</span>
-    <span class="n">volume</span> <span class="n">Float64</span><span class="p">,</span>
-    <span class="n">trade_num</span> <span class="n">Int64</span><span class="p">,</span>
-    <span class="n">quote_volume</span> <span class="n">Float64</span><span class="p">,</span>
-    <span class="k">version</span> <span class="n">DateTime</span>
-<span class="p">)</span> <span class="n">ENGINE</span> <span class="o">=</span> <span class="n">ReplacingMergeTree</span><span class="p">(</span><span class="k">version</span><span class="p">)</span>
-<span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">toYYYYMM</span><span class="p">(</span><span class="n">toDateTime</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="s1">&#39;UTC&#39;</span><span class="p">))</span>
-<span class="k">ORDER</span> <span class="k">BY</span> <span class="p">(</span><span class="n">start_time</span><span class="p">)</span>
-<span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">start_time</span><span class="p">)</span>
-<span class="k">COMMENT</span> <span class="s1">&#39;1m kline data&#39;</span>
-<span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">table_1m</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">start_time</span><span class="w"> </span><span class="n">Int64</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">end_time</span><span class="w"> </span><span class="n">Int64</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">open</span><span class="w"> </span><span class="n">Float64</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">close</span><span class="w"> </span><span class="n">Float64</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">high</span><span class="w"> </span><span class="n">Float64</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">low</span><span class="w"> </span><span class="n">Float64</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">volume</span><span class="w"> </span><span class="n">Float64</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">trade_num</span><span class="w"> </span><span class="n">Int64</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">quote_volume</span><span class="w"> </span><span class="n">Float64</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">version</span><span class="w"> </span><span class="n">DateTime</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w"> </span><span class="n">ENGINE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ReplacingMergeTree</span><span class="p">(</span><span class="k">version</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">toYYYYMM</span><span class="p">(</span><span class="n">toDateTime</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;UTC&#39;</span><span class="p">))</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;1m kline data&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>字段定义：start_time: 开盘时间，end_time: 收盘时间，open: 开盘价，close: 收盘价</p>
 <p>high: 最高价，low: 最低价，volume: 成交量，trade_num: 成交笔数，quote_volume: 成交额</p>
@@ -221,7 +222,7 @@
 <p>其能够以二进制的形式存储聚合数据的中间状态，聚合结果查询时需要调用 <code>Merge</code> 后缀函数。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -242,26 +243,26 @@
 </span><span class="lnt">19
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="n">MATERIALIZED</span> <span class="k">VIEW</span> <span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="n">table_3m_a</span>
-<span class="n">ENGINE</span> <span class="o">=</span> <span class="n">AggregatingMergeTree</span><span class="p">()</span>
-<span class="k">ORDER</span> <span class="k">BY</span><span class="p">(</span><span class="n">start_interval</span><span class="p">)</span>
-<span class="n">POPULATE</span>
-<span class="k">AS</span>
-<span class="k">SELECT</span> 
- <span class="n">toStartOfInterval</span><span class="p">(</span><span class="n">toDateTime</span><span class="p">(</span><span class="n">start_time</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">,</span> <span class="s1">&#39;UTC&#39;</span><span class="p">),</span> <span class="nb">INTERVAL</span> <span class="mi">3</span> <span class="k">minute</span><span class="p">)</span> <span class="k">AS</span> <span class="n">start_interval</span><span class="p">,</span>
- <span class="n">argMinState</span><span class="p">(</span><span class="k">open</span><span class="p">,</span> <span class="n">start_time</span><span class="p">)</span> <span class="k">AS</span> <span class="k">open</span><span class="p">,</span>
- <span class="n">argMaxState</span><span class="p">(</span><span class="k">close</span><span class="p">,</span> <span class="n">end_time</span><span class="p">)</span> <span class="k">AS</span> <span class="k">close</span><span class="p">,</span>
- <span class="n">minState</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span> <span class="k">AS</span> <span class="n">open_time</span><span class="p">,</span>
- <span class="n">maxState</span><span class="p">(</span><span class="n">end_time</span><span class="p">)</span> <span class="k">AS</span> <span class="n">close_time</span><span class="p">,</span>
- <span class="n">maxState</span><span class="p">(</span><span class="n">high</span><span class="p">)</span> <span class="k">AS</span> <span class="n">high</span><span class="p">,</span>
- <span class="n">minState</span><span class="p">(</span><span class="n">low</span><span class="p">)</span> <span class="k">AS</span> <span class="n">low</span><span class="p">,</span> 
- <span class="n">sumState</span><span class="p">(</span><span class="n">volume</span><span class="p">)</span> <span class="k">AS</span> <span class="n">volume</span><span class="p">,</span>
- <span class="n">sumState</span><span class="p">(</span><span class="n">trade_num</span><span class="p">)</span> <span class="k">AS</span> <span class="n">trade_num</span><span class="p">,</span>
- <span class="n">sumState</span><span class="p">(</span><span class="n">quote_volume</span><span class="p">)</span> <span class="k">AS</span> <span class="n">quote_volume</span>
-<span class="k">FROM</span> <span class="n">table_1m</span>
-<span class="k">GROUP</span> <span class="k">BY</span> <span class="p">(</span><span class="n">start_interval</span><span class="p">)</span>
-<span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="n">MATERIALIZED</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">table_3m_a</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">ENGINE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AggregatingMergeTree</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="p">(</span><span class="n">start_interval</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">POPULATE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">AS</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SELECT</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">toStartOfInterval</span><span class="p">(</span><span class="n">toDateTime</span><span class="p">(</span><span class="n">start_time</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;UTC&#39;</span><span class="p">),</span><span class="w"> </span><span class="nb">INTERVAL</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="k">minute</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">start_interval</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">argMinState</span><span class="p">(</span><span class="k">open</span><span class="p">,</span><span class="w"> </span><span class="n">start_time</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">open</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">argMaxState</span><span class="p">(</span><span class="k">close</span><span class="p">,</span><span class="w"> </span><span class="n">end_time</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">close</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">minState</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">open_time</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">maxState</span><span class="p">(</span><span class="n">end_time</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">close_time</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">maxState</span><span class="p">(</span><span class="n">high</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">high</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">minState</span><span class="p">(</span><span class="n">low</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">low</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">sumState</span><span class="p">(</span><span class="n">volume</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">volume</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">sumState</span><span class="p">(</span><span class="n">trade_num</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">trade_num</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">sumState</span><span class="p">(</span><span class="n">quote_volume</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">quote_volume</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="n">table_1m</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="p">(</span><span class="n">start_interval</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>当物化视图创建之后，如果源表被写入了新数据，那么物化视图也会同步更新。</p>
 <p>POPULATE修饰符决定了物化视图的初始化策略:</p>
@@ -279,7 +280,7 @@
 <p>创建调用了Merge函数的普通视图，基于物化视图。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -297,29 +298,29 @@
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">VIEW</span> <span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="n">table_3m_v</span>
-<span class="k">AS</span> 
-<span class="k">SELECT</span> 
- <span class="n">start_interval</span><span class="p">,</span>
- <span class="n">argMinMerge</span><span class="p">(</span><span class="k">open</span><span class="p">)</span> <span class="k">AS</span> <span class="k">open</span><span class="p">,</span>
- <span class="n">argMaxMerge</span><span class="p">(</span><span class="k">close</span><span class="p">)</span> <span class="k">AS</span> <span class="k">close</span><span class="p">,</span>
- <span class="n">minMerge</span><span class="p">(</span><span class="n">open_time</span><span class="p">)</span> <span class="k">AS</span> <span class="n">start_time</span><span class="p">,</span>
- <span class="n">maxMerge</span><span class="p">(</span><span class="n">close_time</span><span class="p">)</span> <span class="k">AS</span> <span class="n">end_time</span><span class="p">,</span>
- <span class="n">maxMerge</span><span class="p">(</span><span class="n">high</span><span class="p">)</span> <span class="k">AS</span> <span class="n">high</span><span class="p">,</span>
- <span class="n">minMerge</span><span class="p">(</span><span class="n">low</span><span class="p">)</span> <span class="k">AS</span> <span class="n">low</span><span class="p">,</span> 
- <span class="n">sumMerge</span><span class="p">(</span><span class="n">volume</span><span class="p">)</span> <span class="k">AS</span> <span class="n">volume</span><span class="p">,</span>
- <span class="n">sumMerge</span><span class="p">(</span><span class="n">trade_num</span><span class="p">)</span> <span class="k">AS</span> <span class="n">trade_num</span><span class="p">,</span>
- <span class="n">sumMerge</span><span class="p">(</span><span class="n">quote_volume</span><span class="p">)</span> <span class="k">AS</span> <span class="n">quote_volume</span>
-<span class="k">FROM</span> <span class="n">table_3m_a</span>
-<span class="k">GROUP</span> <span class="k">BY</span> <span class="p">(</span><span class="n">start_interval</span><span class="p">)</span>
-<span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">table_3m_v</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">AS</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SELECT</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">start_interval</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">argMinMerge</span><span class="p">(</span><span class="k">open</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">open</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">argMaxMerge</span><span class="p">(</span><span class="k">close</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">close</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">minMerge</span><span class="p">(</span><span class="n">open_time</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">start_time</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">maxMerge</span><span class="p">(</span><span class="n">close_time</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">end_time</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">maxMerge</span><span class="p">(</span><span class="n">high</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">high</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">minMerge</span><span class="p">(</span><span class="n">low</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">low</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">sumMerge</span><span class="p">(</span><span class="n">volume</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">volume</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">sumMerge</span><span class="p">(</span><span class="n">trade_num</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">trade_num</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">sumMerge</span><span class="p">(</span><span class="n">quote_volume</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">quote_volume</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="n">table_3m_a</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="p">(</span><span class="n">start_interval</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>创建普通视图方便简化后续的查询SQL。</p>
 <h2 id="插入数据">插入数据</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -328,23 +329,23 @@
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">insert</span> <span class="k">into</span> <span class="n">table_1m</span> <span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="k">open</span><span class="p">,</span> <span class="k">close</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="n">trade_num</span><span class="p">,</span> <span class="n">quote_volume</span><span class="p">)</span> <span class="k">values</span> 
-<span class="p">(</span><span class="mi">1672243200000</span><span class="p">,</span> <span class="mi">1672243259999</span><span class="p">,</span> <span class="s1">&#39;16578.29&#39;</span><span class="p">,</span> <span class="s1">&#39;16576.39&#39;</span><span class="p">,</span> <span class="s1">&#39;16578.29&#39;</span><span class="p">,</span> <span class="s1">&#39;16569.08&#39;</span><span class="p">,</span> <span class="s1">&#39;8.472423&#39;</span><span class="p">,</span> <span class="mi">160</span><span class="p">,</span> <span class="s1">&#39;140413.39080774&#39;</span><span class="p">),</span>
-<span class="p">(</span><span class="mi">1672243260000</span><span class="p">,</span> <span class="mi">1672243319999</span><span class="p">,</span> <span class="s1">&#39;16571.3&#39;</span><span class="p">,</span> <span class="s1">&#39;16577.93&#39;</span><span class="p">,</span> <span class="s1">&#39;16579.06&#39;</span><span class="p">,</span> <span class="s1">&#39;16569.78&#39;</span><span class="p">,</span> <span class="s1">&#39;7.709314&#39;</span><span class="p">,</span> <span class="mi">221</span><span class="p">,</span> <span class="s1">&#39;127788.02226838&#39;</span><span class="p">),</span>
-<span class="p">(</span><span class="mi">1672243320000</span><span class="p">,</span> <span class="mi">1672243379999</span><span class="p">,</span> <span class="s1">&#39;16578.17&#39;</span><span class="p">,</span> <span class="s1">&#39;16573.26&#39;</span><span class="p">,</span> <span class="s1">&#39;16578.24&#39;</span><span class="p">,</span> <span class="s1">&#39;16567.36&#39;</span><span class="p">,</span> <span class="s1">&#39;9.097228&#39;</span><span class="p">,</span> <span class="mi">210</span><span class="p">,</span> <span class="s1">&#39;150771.9145546&#39;</span><span class="p">),</span>
-<span class="p">(</span><span class="mi">1672243380000</span><span class="p">,</span> <span class="mi">1672243439999</span><span class="p">,</span> <span class="s1">&#39;16575.31&#39;</span><span class="p">,</span> <span class="s1">&#39;16592.81&#39;</span><span class="p">,</span> <span class="s1">&#39;16592.81&#39;</span><span class="p">,</span> <span class="s1">&#39;16574.59&#39;</span><span class="p">,</span> <span class="s1">&#39;9.788205&#39;</span><span class="p">,</span> <span class="mi">337</span><span class="p">,</span> <span class="s1">&#39;162330.90030962&#39;</span><span class="p">),</span>
-<span class="p">(</span><span class="mi">1672243440000</span><span class="p">,</span> <span class="mi">1672243499999</span><span class="p">,</span> <span class="s1">&#39;16593.27&#39;</span><span class="p">,</span> <span class="s1">&#39;16599.96&#39;</span><span class="p">,</span> <span class="s1">&#39;16602.6&#39;</span><span class="p">,</span> <span class="s1">&#39;16592.58&#39;</span><span class="p">,</span> <span class="s1">&#39;8.916786&#39;</span><span class="p">,</span> <span class="mi">244</span><span class="p">,</span> <span class="s1">&#39;148008.06068256&#39;</span><span class="p">),</span>
-<span class="p">(</span><span class="mi">1672243500000</span><span class="p">,</span> <span class="mi">1672243559999</span><span class="p">,</span> <span class="s1">&#39;16597.62&#39;</span><span class="p">,</span> <span class="s1">&#39;16595.7&#39;</span><span class="p">,</span> <span class="s1">&#39;16600.27&#39;</span><span class="p">,</span> <span class="s1">&#39;16594.73&#39;</span><span class="p">,</span> <span class="s1">&#39;7.25037&#39;</span><span class="p">,</span> <span class="mi">155</span><span class="p">,</span> <span class="s1">&#39;120334.92142551&#39;</span><span class="p">);</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">table_1m</span><span class="w"> </span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span><span class="w"> </span><span class="n">end_time</span><span class="p">,</span><span class="w"> </span><span class="k">open</span><span class="p">,</span><span class="w"> </span><span class="k">close</span><span class="p">,</span><span class="w"> </span><span class="n">high</span><span class="p">,</span><span class="w"> </span><span class="n">low</span><span class="p">,</span><span class="w"> </span><span class="n">volume</span><span class="p">,</span><span class="w"> </span><span class="n">trade_num</span><span class="p">,</span><span class="w"> </span><span class="n">quote_volume</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">(</span><span class="mi">1672243200000</span><span class="p">,</span><span class="w"> </span><span class="mi">1672243259999</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16578.29&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16576.39&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16578.29&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16569.08&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;8.472423&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">160</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;140413.39080774&#39;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">(</span><span class="mi">1672243260000</span><span class="p">,</span><span class="w"> </span><span class="mi">1672243319999</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16571.3&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16577.93&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16579.06&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16569.78&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;7.709314&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">221</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;127788.02226838&#39;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">(</span><span class="mi">1672243320000</span><span class="p">,</span><span class="w"> </span><span class="mi">1672243379999</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16578.17&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16573.26&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16578.24&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16567.36&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;9.097228&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">210</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;150771.9145546&#39;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">(</span><span class="mi">1672243380000</span><span class="p">,</span><span class="w"> </span><span class="mi">1672243439999</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16575.31&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16592.81&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16592.81&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16574.59&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;9.788205&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">337</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;162330.90030962&#39;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">(</span><span class="mi">1672243440000</span><span class="p">,</span><span class="w"> </span><span class="mi">1672243499999</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16593.27&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16599.96&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16602.6&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16592.58&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;8.916786&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">244</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;148008.06068256&#39;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">(</span><span class="mi">1672243500000</span><span class="p">,</span><span class="w"> </span><span class="mi">1672243559999</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16597.62&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16595.7&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16600.27&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;16594.73&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;7.25037&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">155</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;120334.92142551&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="查询普通视图表">查询普通视图表</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">selct</span> <span class="o">*</span> <span class="k">from</span> <span class="n">table_3m_v</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">selct</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">table_3m_v</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>预期查询结果为2条聚合后的3分钟k线数据。</p>
 <h2 id="参考">参考</h2>
@@ -458,7 +459,7 @@
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -475,7 +476,7 @@
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

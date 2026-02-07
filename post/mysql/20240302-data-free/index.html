@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/mysql/20240302-data-free/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="MySQL 性能优化：碎片整理" />
-<meta property="og:description" content="MySQL 性能优化：碎片整理 MySQL 碎片是什么 MySQL 碎片就是 MySQL 数据文件中一些不连续的空白空间，这些空间无法再被全部利用，久而久之越来多，越来越零碎，从而造成物" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/mysql/20240302-data-free/" />
-<meta property="article:published_time" content="2024-03-02T16:00:33+08:00" />
-<meta property="article:modified_time" content="2024-03-02T16:00:33+08:00" />
-<meta itemprop="name" content="MySQL 性能优化：碎片整理">
-<meta itemprop="description" content="MySQL 性能优化：碎片整理 MySQL 碎片是什么 MySQL 碎片就是 MySQL 数据文件中一些不连续的空白空间，这些空间无法再被全部利用，久而久之越来多，越来越零碎，从而造成物">
-<meta itemprop="datePublished" content="2024-03-02T16:00:33&#43;08:00" />
-<meta itemprop="dateModified" content="2024-03-02T16:00:33&#43;08:00" />
-<meta itemprop="wordCount" content="1654">
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20240302-data-free/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="MySQL 性能优化：碎片整理">
+  <meta property="og:description" content="MySQL 性能优化：碎片整理 MySQL 碎片是什么 MySQL 碎片就是 MySQL 数据文件中一些不连续的空白空间，这些空间无法再被全部利用，久而久之越来多，越来越零碎，从而造成物">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2024-03-02T16:00:33+08:00">
+    <meta property="article:modified_time" content="2024-03-02T16:00:33+08:00">
+    <meta property="article:tag" content="Mysql">
 
-
-
-<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="MySQL 性能优化：碎片整理"/>
-<meta name="twitter:description" content="MySQL 性能优化：碎片整理 MySQL 碎片是什么 MySQL 碎片就是 MySQL 数据文件中一些不连续的空白空间，这些空间无法再被全部利用，久而久之越来多，越来越零碎，从而造成物"/>
+  <meta itemprop="name" content="MySQL 性能优化：碎片整理">
+  <meta itemprop="description" content="MySQL 性能优化：碎片整理 MySQL 碎片是什么 MySQL 碎片就是 MySQL 数据文件中一些不连续的空白空间，这些空间无法再被全部利用，久而久之越来多，越来越零碎，从而造成物">
+  <meta itemprop="datePublished" content="2024-03-02T16:00:33+08:00">
+  <meta itemprop="dateModified" content="2024-03-02T16:00:33+08:00">
+  <meta itemprop="wordCount" content="1654">
+  <meta itemprop="keywords" content="Mysql"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="MySQL 性能优化：碎片整理">
+<meta name="twitter:description" content="MySQL 性能优化：碎片整理 MySQL 碎片是什么 MySQL 碎片就是 MySQL 数据文件中一些不连续的空白空间，这些空间无法再被全部利用，久而久之越来多，越来越零碎，从而造成物">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -194,7 +195,7 @@
 <p>现在有一个测试库 employees，在找碎片清理碎片前我们先查询一下表的数据，记录一下时间，以便后边做对比。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -259,70 +260,70 @@
 </span><span class="lnt">63
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">from</span> <span class="n">current_dept_emp</span><span class="p">;</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="o">|</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="o">|</span>   <span class="mi">300024</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">1</span><span class="p">.</span><span class="mi">17</span> <span class="n">sec</span><span class="p">)</span>
-
-<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">from</span> <span class="n">departments</span><span class="p">;</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="o">|</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="o">|</span>        <span class="mi">9</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
-
-<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">from</span> <span class="n">dept_emp</span><span class="p">;</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="o">|</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="o">|</span>   <span class="mi">331603</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">08</span> <span class="n">sec</span><span class="p">)</span>
-
-<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">from</span> <span class="n">dept_emp_latest_date</span><span class="p">;</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="o">|</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="o">|</span>   <span class="mi">300024</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">49</span> <span class="n">sec</span><span class="p">)</span>
-
-<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">from</span> <span class="n">dept_manager</span><span class="p">;</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="o">|</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="o">|</span>       <span class="mi">24</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
-
-<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">from</span> <span class="n">employees</span><span class="p">;</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="o">|</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="o">|</span>   <span class="mi">300024</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">09</span> <span class="n">sec</span><span class="p">)</span>
-
-<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">from</span> <span class="n">salaries</span><span class="p">;</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="o">|</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="o">|</span>  <span class="mi">2844047</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">60</span> <span class="n">sec</span><span class="p">)</span>
-
-<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">from</span> <span class="n">titles</span><span class="p">;</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="o">|</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="o">|</span>   <span class="mi">443308</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">11</span> <span class="n">sec</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">current_dept_emp</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w">   </span><span class="mi">300024</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">1</span><span class="w"> </span><span class="k">row</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">.</span><span class="mi">17</span><span class="w"> </span><span class="n">sec</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">departments</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w">        </span><span class="mi">9</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">1</span><span class="w"> </span><span class="k">row</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span><span class="w"> </span><span class="n">sec</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">dept_emp</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w">   </span><span class="mi">331603</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">1</span><span class="w"> </span><span class="k">row</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">08</span><span class="w"> </span><span class="n">sec</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">dept_emp_latest_date</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w">   </span><span class="mi">300024</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">1</span><span class="w"> </span><span class="k">row</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">49</span><span class="w"> </span><span class="n">sec</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">dept_manager</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w">       </span><span class="mi">24</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">1</span><span class="w"> </span><span class="k">row</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span><span class="w"> </span><span class="n">sec</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">employees</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w">   </span><span class="mi">300024</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">1</span><span class="w"> </span><span class="k">row</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">09</span><span class="w"> </span><span class="n">sec</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">salaries</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w">  </span><span class="mi">2844047</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">1</span><span class="w"> </span><span class="k">row</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">60</span><span class="w"> </span><span class="n">sec</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">titles</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w">   </span><span class="mi">443308</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">1</span><span class="w"> </span><span class="k">row</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">11</span><span class="w"> </span><span class="n">sec</span><span class="p">)</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>接下来开始看看都有哪些碎片吧。这里介绍两种方式查看表碎片。</p>
 <ol>
@@ -331,16 +332,16 @@
 <p>查询表状态信息SQL</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">show</span> <span class="k">table</span> <span class="n">status</span> <span class="k">like</span> <span class="s1">&#39;%table_name%&#39;</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">show</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="k">like</span><span class="w"> </span><span class="s1">&#39;%table_name%&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>查看salaries表状态信息</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -363,28 +364,28 @@
 </span><span class="lnt">21
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="k">table</span> <span class="n">status</span> <span class="k">like</span> <span class="s1">&#39;salaries&#39;</span><span class="err">\</span><span class="k">G</span><span class="p">;</span> 
-<span class="o">***************************</span> <span class="mi">1</span><span class="p">.</span> <span class="k">row</span> <span class="o">***************************</span>
-           <span class="n">Name</span><span class="p">:</span> <span class="n">salaries</span>
-         <span class="n">Engine</span><span class="p">:</span> <span class="n">InnoDB</span>
-        <span class="k">Version</span><span class="p">:</span> <span class="mi">10</span>
-     <span class="n">Row_format</span><span class="p">:</span> <span class="k">Dynamic</span>
-           <span class="k">Rows</span><span class="p">:</span> <span class="mi">2838918</span>
- <span class="n">Avg_row_length</span><span class="p">:</span> <span class="mi">31</span>
-    <span class="n">Data_length</span><span class="p">:</span> <span class="mi">90832896</span>
-<span class="n">Max_data_length</span><span class="p">:</span> <span class="mi">0</span>
-   <span class="n">Index_length</span><span class="p">:</span> <span class="mi">0</span>
-      <span class="n">Data_free</span><span class="p">:</span> <span class="mi">4194304</span>
- <span class="n">Auto_increment</span><span class="p">:</span> <span class="k">NULL</span>
-    <span class="n">Create_time</span><span class="p">:</span> <span class="mi">2021</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">14</span> <span class="mi">14</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span><span class="mi">47</span>
-    <span class="n">Update_time</span><span class="p">:</span> <span class="mi">2021</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">14</span> <span class="mi">14</span><span class="p">:</span><span class="mi">34</span><span class="p">:</span><span class="mi">42</span>
-     <span class="n">Check_time</span><span class="p">:</span> <span class="k">NULL</span>
-      <span class="k">Collation</span><span class="p">:</span> <span class="n">utf8_bin</span>
-       <span class="n">Checksum</span><span class="p">:</span> <span class="k">NULL</span>
- <span class="n">Create_options</span><span class="p">:</span> 
-        <span class="k">Comment</span><span class="p">:</span> 
-<span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">show</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="k">like</span><span class="w"> </span><span class="s1">&#39;salaries&#39;</span><span class="err">\</span><span class="k">G</span><span class="p">;</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">***************************</span><span class="w"> </span><span class="mi">1</span><span class="p">.</span><span class="w"> </span><span class="k">row</span><span class="w"> </span><span class="o">***************************</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">           </span><span class="n">Name</span><span class="p">:</span><span class="w"> </span><span class="n">salaries</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">         </span><span class="n">Engine</span><span class="p">:</span><span class="w"> </span><span class="n">InnoDB</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">Version</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">     </span><span class="n">Row_format</span><span class="p">:</span><span class="w"> </span><span class="k">Dynamic</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">           </span><span class="k">Rows</span><span class="p">:</span><span class="w"> </span><span class="mi">2838918</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">Avg_row_length</span><span class="p">:</span><span class="w"> </span><span class="mi">31</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">Data_length</span><span class="p">:</span><span class="w"> </span><span class="mi">90832896</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">Max_data_length</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="n">Index_length</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">Data_free</span><span class="p">:</span><span class="w"> </span><span class="mi">4194304</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">Auto_increment</span><span class="p">:</span><span class="w"> </span><span class="k">NULL</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">Create_time</span><span class="p">:</span><span class="w"> </span><span class="mi">2021</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">14</span><span class="w"> </span><span class="mi">14</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span><span class="mi">47</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">Update_time</span><span class="p">:</span><span class="w"> </span><span class="mi">2021</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">14</span><span class="w"> </span><span class="mi">14</span><span class="p">:</span><span class="mi">34</span><span class="p">:</span><span class="mi">42</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">     </span><span class="n">Check_time</span><span class="p">:</span><span class="w"> </span><span class="k">NULL</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="k">Collation</span><span class="p">:</span><span class="w"> </span><span class="n">utf8_bin</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">       </span><span class="n">Checksum</span><span class="p">:</span><span class="w"> </span><span class="k">NULL</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">Create_options</span><span class="p">:</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">Comment</span><span class="p">:</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">1</span><span class="w"> </span><span class="k">row</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span><span class="w"> </span><span class="n">sec</span><span class="p">)</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>data<em>length 表数据大小 index</em>length 表索引大小 data_free 碎片大小</p>
 <p>根据返回信息，知道碎片大小为 4194304（单位 B）</p>
@@ -394,7 +395,7 @@
 <p>查询 information_schema.tables 的 data_free 列的值：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -419,30 +420,30 @@
 </span><span class="lnt">23
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> 
-<span class="n">t</span><span class="p">.</span><span class="n">table_schema</span><span class="p">,</span>
-<span class="n">t</span><span class="p">.</span><span class="k">table_name</span><span class="p">,</span>
-<span class="n">t</span><span class="p">.</span><span class="n">table_rows</span><span class="p">,</span>
-<span class="n">t</span><span class="p">.</span><span class="n">data_length</span><span class="p">,</span>
-<span class="n">t</span><span class="p">.</span><span class="n">index_length</span><span class="p">,</span>
-<span class="n">concat</span><span class="p">(</span><span class="n">round</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">data_free</span><span class="o">/</span><span class="mi">1024</span><span class="o">/</span><span class="mi">1024</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="s1">&#39;m&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">data_free</span>
-<span class="k">from</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">tables</span> <span class="n">t</span>
-<span class="k">where</span> <span class="n">t</span><span class="p">.</span><span class="n">table_schema</span> <span class="o">=</span> <span class="s1">&#39;employees&#39;</span><span class="p">;</span>
-
-<span class="o">+</span><span class="c1">--------------+----------------------+------------+-------------+--------------+-----------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">TABLE_SCHEMA</span> <span class="o">|</span> <span class="k">TABLE_NAME</span>           <span class="o">|</span> <span class="n">TABLE_ROWS</span> <span class="o">|</span> <span class="n">DATA_LENGTH</span> <span class="o">|</span> <span class="n">INDEX_LENGTH</span> <span class="o">|</span> <span class="n">DATA_FREE</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">--------------+----------------------+------------+-------------+--------------+-----------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">employees</span>    <span class="o">|</span> <span class="n">current_dept_emp</span>     <span class="o">|</span>       <span class="k">NULL</span> <span class="o">|</span>        <span class="k">NULL</span> <span class="o">|</span>         <span class="k">NULL</span> <span class="o">|</span> <span class="k">NULL</span>      <span class="o">|</span>
-<span class="o">|</span> <span class="n">employees</span>    <span class="o">|</span> <span class="n">departments</span>          <span class="o">|</span>          <span class="mi">9</span> <span class="o">|</span>       <span class="mi">16384</span> <span class="o">|</span>        <span class="mi">16384</span> <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">00</span><span class="n">M</span>     <span class="o">|</span>
-<span class="o">|</span> <span class="n">employees</span>    <span class="o">|</span> <span class="n">dept_emp</span>             <span class="o">|</span>     <span class="mi">331143</span> <span class="o">|</span>    <span class="mi">12075008</span> <span class="o">|</span>      <span class="mi">5783552</span> <span class="o">|</span> <span class="mi">4</span><span class="p">.</span><span class="mi">00</span><span class="n">M</span>     <span class="o">|</span>
-<span class="o">|</span> <span class="n">employees</span>    <span class="o">|</span> <span class="n">dept_emp_latest_date</span> <span class="o">|</span>       <span class="k">NULL</span> <span class="o">|</span>        <span class="k">NULL</span> <span class="o">|</span>         <span class="k">NULL</span> <span class="o">|</span> <span class="k">NULL</span>      <span class="o">|</span>
-<span class="o">|</span> <span class="n">employees</span>    <span class="o">|</span> <span class="n">dept_manager</span>         <span class="o">|</span>         <span class="mi">24</span> <span class="o">|</span>       <span class="mi">16384</span> <span class="o">|</span>        <span class="mi">16384</span> <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">00</span><span class="n">M</span>     <span class="o">|</span>
-<span class="o">|</span> <span class="n">employees</span>    <span class="o">|</span> <span class="n">employees</span>            <span class="o">|</span>     <span class="mi">299069</span> <span class="o">|</span>    <span class="mi">15220736</span> <span class="o">|</span>            <span class="mi">0</span> <span class="o">|</span> <span class="mi">4</span><span class="p">.</span><span class="mi">00</span><span class="n">M</span>     <span class="o">|</span>
-<span class="o">|</span> <span class="n">employees</span>    <span class="o">|</span> <span class="n">salaries</span>             <span class="o">|</span>    <span class="mi">2838426</span> <span class="o">|</span>   <span class="mi">100270080</span> <span class="o">|</span>            <span class="mi">0</span> <span class="o">|</span> <span class="mi">4</span><span class="p">.</span><span class="mi">00</span><span class="n">M</span>     <span class="o">|</span>
-<span class="o">|</span> <span class="n">employees</span>    <span class="o">|</span> <span class="n">titles</span>               <span class="o">|</span>     <span class="mi">442902</span> <span class="o">|</span>    <span class="mi">20512768</span> <span class="o">|</span>            <span class="mi">0</span> <span class="o">|</span> <span class="mi">4</span><span class="p">.</span><span class="mi">00</span><span class="n">M</span>     <span class="o">|</span>
-<span class="o">+</span><span class="c1">--------------+----------------------+------------+-------------+--------------+-----------+
-</span><span class="c1"></span><span class="mi">8</span> <span class="k">rows</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">01</span> <span class="n">sec</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">select</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">t</span><span class="p">.</span><span class="n">table_schema</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">t</span><span class="p">.</span><span class="k">table_name</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">t</span><span class="p">.</span><span class="n">table_rows</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">t</span><span class="p">.</span><span class="n">data_length</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">t</span><span class="p">.</span><span class="n">index_length</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">concat</span><span class="p">(</span><span class="n">round</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">data_free</span><span class="o">/</span><span class="mi">1024</span><span class="o">/</span><span class="mi">1024</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="s1">&#39;m&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">data_free</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">tables</span><span class="w"> </span><span class="n">t</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">where</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">table_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;employees&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">--------------+----------------------+------------+-------------+--------------+-----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">TABLE_SCHEMA</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">TABLE_NAME</span><span class="w">           </span><span class="o">|</span><span class="w"> </span><span class="n">TABLE_ROWS</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">DATA_LENGTH</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">INDEX_LENGTH</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">DATA_FREE</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">--------------+----------------------+------------+-------------+--------------+-----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">employees</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">current_dept_emp</span><span class="w">     </span><span class="o">|</span><span class="w">       </span><span class="k">NULL</span><span class="w"> </span><span class="o">|</span><span class="w">        </span><span class="k">NULL</span><span class="w"> </span><span class="o">|</span><span class="w">         </span><span class="k">NULL</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">NULL</span><span class="w">      </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">employees</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">departments</span><span class="w">          </span><span class="o">|</span><span class="w">          </span><span class="mi">9</span><span class="w"> </span><span class="o">|</span><span class="w">       </span><span class="mi">16384</span><span class="w"> </span><span class="o">|</span><span class="w">        </span><span class="mi">16384</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span><span class="n">M</span><span class="w">     </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">employees</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">dept_emp</span><span class="w">             </span><span class="o">|</span><span class="w">     </span><span class="mi">331143</span><span class="w"> </span><span class="o">|</span><span class="w">    </span><span class="mi">12075008</span><span class="w"> </span><span class="o">|</span><span class="w">      </span><span class="mi">5783552</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">4</span><span class="p">.</span><span class="mi">00</span><span class="n">M</span><span class="w">     </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">employees</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">dept_emp_latest_date</span><span class="w"> </span><span class="o">|</span><span class="w">       </span><span class="k">NULL</span><span class="w"> </span><span class="o">|</span><span class="w">        </span><span class="k">NULL</span><span class="w"> </span><span class="o">|</span><span class="w">         </span><span class="k">NULL</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">NULL</span><span class="w">      </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">employees</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">dept_manager</span><span class="w">         </span><span class="o">|</span><span class="w">         </span><span class="mi">24</span><span class="w"> </span><span class="o">|</span><span class="w">       </span><span class="mi">16384</span><span class="w"> </span><span class="o">|</span><span class="w">        </span><span class="mi">16384</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span><span class="n">M</span><span class="w">     </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">employees</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">employees</span><span class="w">            </span><span class="o">|</span><span class="w">     </span><span class="mi">299069</span><span class="w"> </span><span class="o">|</span><span class="w">    </span><span class="mi">15220736</span><span class="w"> </span><span class="o">|</span><span class="w">            </span><span class="mi">0</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">4</span><span class="p">.</span><span class="mi">00</span><span class="n">M</span><span class="w">     </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">employees</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">salaries</span><span class="w">             </span><span class="o">|</span><span class="w">    </span><span class="mi">2838426</span><span class="w"> </span><span class="o">|</span><span class="w">   </span><span class="mi">100270080</span><span class="w"> </span><span class="o">|</span><span class="w">            </span><span class="mi">0</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">4</span><span class="p">.</span><span class="mi">00</span><span class="n">M</span><span class="w">     </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">employees</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">titles</span><span class="w">               </span><span class="o">|</span><span class="w">     </span><span class="mi">442902</span><span class="w"> </span><span class="o">|</span><span class="w">    </span><span class="mi">20512768</span><span class="w"> </span><span class="o">|</span><span class="w">            </span><span class="mi">0</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">4</span><span class="p">.</span><span class="mi">00</span><span class="n">M</span><span class="w">     </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">--------------+----------------------+------------+-------------+--------------+-----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">8</span><span class="w"> </span><span class="k">rows</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">01</span><span class="w"> </span><span class="n">sec</span><span class="p">)</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>根据结果显示，data_free 列数据就是要查询的表的碎片大小内容，是 4M。</p>
 <h2 id="如何清理碎片">如何清理碎片</h2>
@@ -463,16 +464,16 @@
 <p>刚才查到表 salaries 有 4M 的碎片，现在清理一下 salaries 表碎片：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">alter</span> <span class="k">table</span> <span class="n">salaries</span> <span class="n">engine</span> <span class="o">=</span> <span class="n">innodb</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">salaries</span><span class="w"> </span><span class="n">engine</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">innodb</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>查询一下该表的碎片是否被清理：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -490,29 +491,29 @@
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> 
-<span class="n">t</span><span class="p">.</span><span class="n">table_schema</span><span class="p">,</span>
-<span class="n">t</span><span class="p">.</span><span class="k">table_name</span><span class="p">,</span>
-<span class="n">t</span><span class="p">.</span><span class="n">table_rows</span><span class="p">,</span>
-<span class="n">t</span><span class="p">.</span><span class="n">data_length</span><span class="p">,</span>
-<span class="n">t</span><span class="p">.</span><span class="n">index_length</span><span class="p">,</span>
-<span class="n">concat</span><span class="p">(</span><span class="n">round</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">data_free</span><span class="o">/</span><span class="mi">1024</span><span class="o">/</span><span class="mi">1024</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="s1">&#39;m&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">data_free</span>
-<span class="k">from</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">tables</span> <span class="n">t</span>
-<span class="k">where</span> <span class="n">t</span><span class="p">.</span><span class="n">table_schema</span> <span class="o">=</span> <span class="s1">&#39;employees&#39;</span> <span class="k">and</span> <span class="k">table_name</span><span class="o">=</span><span class="s1">&#39;salaries&#39;</span><span class="p">;</span>
-
-<span class="o">+</span><span class="c1">--------------+------------+------------+-------------+--------------+-----------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">table_schema</span> <span class="o">|</span> <span class="k">table_name</span> <span class="o">|</span> <span class="n">table_rows</span> <span class="o">|</span> <span class="n">data_length</span> <span class="o">|</span> <span class="n">index_length</span> <span class="o">|</span> <span class="n">data_free</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">--------------+------------+------------+-------------+--------------+-----------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">employees</span>    <span class="o">|</span> <span class="n">salaries</span>   <span class="o">|</span>    <span class="mi">2838426</span> <span class="o">|</span>   <span class="mi">114950144</span> <span class="o">|</span>            <span class="mi">0</span> <span class="o">|</span> <span class="mi">2</span><span class="p">.</span><span class="mi">00</span><span class="n">m</span>     <span class="o">|</span>
-<span class="o">+</span><span class="c1">--------------+------------+------------+-------------+--------------+-----------+
-</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">select</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">t</span><span class="p">.</span><span class="n">table_schema</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">t</span><span class="p">.</span><span class="k">table_name</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">t</span><span class="p">.</span><span class="n">table_rows</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">t</span><span class="p">.</span><span class="n">data_length</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">t</span><span class="p">.</span><span class="n">index_length</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">concat</span><span class="p">(</span><span class="n">round</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">data_free</span><span class="o">/</span><span class="mi">1024</span><span class="o">/</span><span class="mi">1024</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="s1">&#39;m&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">data_free</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">tables</span><span class="w"> </span><span class="n">t</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">where</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">table_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;employees&#39;</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="k">table_name</span><span class="o">=</span><span class="s1">&#39;salaries&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">--------------+------------+------------+-------------+--------------+-----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">table_schema</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">table_rows</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">data_length</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">index_length</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">data_free</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">--------------+------------+------------+-------------+--------------+-----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">employees</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">salaries</span><span class="w">   </span><span class="o">|</span><span class="w">    </span><span class="mi">2838426</span><span class="w"> </span><span class="o">|</span><span class="w">   </span><span class="mi">114950144</span><span class="w"> </span><span class="o">|</span><span class="w">            </span><span class="mi">0</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">2</span><span class="p">.</span><span class="mi">00</span><span class="n">m</span><span class="w">     </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">--------------+------------+------------+-------------+--------------+-----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">1</span><span class="w"> </span><span class="k">row</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span><span class="w"> </span><span class="n">sec</span><span class="p">)</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>碎片从原来的 4M 清理到现在的 2M。</p>
 <p>看看查询表是否提高了速度：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -521,14 +522,14 @@
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">from</span> <span class="n">salaries</span><span class="p">;</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="o">|</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="o">|</span>  <span class="mi">2844047</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----------+
-</span><span class="c1"></span><span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">16</span> <span class="n">sec</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">salaries</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w">  </span><span class="mi">2844047</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">1</span><span class="w"> </span><span class="k">row</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">16</span><span class="w"> </span><span class="n">sec</span><span class="p">)</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>速度还是提高了不少，清理碎片后提高了查询速度。</p>
 <p><strong>总结一下</strong>：清理表的碎片可以提高 MySQL 性能，在日常工作中我们可以定期执行表碎片整理，从而提高 MySQL 性能。</p>
@@ -633,7 +634,7 @@
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -650,7 +651,7 @@
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

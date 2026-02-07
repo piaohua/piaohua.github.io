@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/redis/20240519-bloom-filter/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="Redis 布隆过滤器(Bloom Filter)" />
-<meta property="og:description" content="Bloom Filter 是一个二进制bit数组，初始为 0 用于快速查找一个集合中是否存在某个元素。尤其是大数据量中快速查找判断是否存在的问题。 布隆过滤器能记录一个" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/redis/20240519-bloom-filter/" />
-<meta property="article:published_time" content="2024-05-19T11:33:43+08:00" />
-<meta property="article:modified_time" content="2024-05-19T11:33:43+08:00" />
-<meta itemprop="name" content="Redis 布隆过滤器(Bloom Filter)">
-<meta itemprop="description" content="Bloom Filter 是一个二进制bit数组，初始为 0 用于快速查找一个集合中是否存在某个元素。尤其是大数据量中快速查找判断是否存在的问题。 布隆过滤器能记录一个">
-<meta itemprop="datePublished" content="2024-05-19T11:33:43&#43;08:00" />
-<meta itemprop="dateModified" content="2024-05-19T11:33:43&#43;08:00" />
-<meta itemprop="wordCount" content="991">
+<meta property="og:url" content="https://piaohua.github.io/post/redis/20240519-bloom-filter/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="Redis 布隆过滤器(Bloom Filter)">
+  <meta property="og:description" content="Bloom Filter 是一个二进制bit数组，初始为 0 用于快速查找一个集合中是否存在某个元素。尤其是大数据量中快速查找判断是否存在的问题。 布隆过滤器能记录一个">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2024-05-19T11:33:43+08:00">
+    <meta property="article:modified_time" content="2024-05-19T11:33:43+08:00">
+    <meta property="article:tag" content="Redis">
 
-
-
-<meta itemprop="keywords" content="redis," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Redis 布隆过滤器(Bloom Filter)"/>
-<meta name="twitter:description" content="Bloom Filter 是一个二进制bit数组，初始为 0 用于快速查找一个集合中是否存在某个元素。尤其是大数据量中快速查找判断是否存在的问题。 布隆过滤器能记录一个"/>
+  <meta itemprop="name" content="Redis 布隆过滤器(Bloom Filter)">
+  <meta itemprop="description" content="Bloom Filter 是一个二进制bit数组，初始为 0 用于快速查找一个集合中是否存在某个元素。尤其是大数据量中快速查找判断是否存在的问题。 布隆过滤器能记录一个">
+  <meta itemprop="datePublished" content="2024-05-19T11:33:43+08:00">
+  <meta itemprop="dateModified" content="2024-05-19T11:33:43+08:00">
+  <meta itemprop="wordCount" content="991">
+  <meta itemprop="keywords" content="Redis"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="Redis 布隆过滤器(Bloom Filter)">
+<meta name="twitter:description" content="Bloom Filter 是一个二进制bit数组，初始为 0 用于快速查找一个集合中是否存在某个元素。尤其是大数据量中快速查找判断是否存在的问题。 布隆过滤器能记录一个">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -174,7 +175,7 @@
 <p>在 pom.xml 文件中添加 Redisson 依赖：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -183,19 +184,19 @@
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;dependencies&gt;</span>
-    <span class="nt">&lt;dependency&gt;</span>
-        <span class="nt">&lt;groupId&gt;</span>org.redisson<span class="nt">&lt;/groupId&gt;</span>
-        <span class="nt">&lt;artifactId&gt;</span>redisson<span class="nt">&lt;/artifactId&gt;</span>
-        <span class="nt">&lt;version&gt;</span>3.16.1<span class="nt">&lt;/version&gt;</span> <span class="c">&lt;!-- 使用最新版本 --&gt;</span>
-    <span class="nt">&lt;/dependency&gt;</span>
-<span class="nt">&lt;/dependencies&gt;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;dependencies&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;groupId&gt;</span>org.redisson<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;artifactId&gt;</span>redisson<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;version&gt;</span>3.16.1<span class="nt">&lt;/version&gt;</span> <span class="c">&lt;!-- 使用最新版本 --&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/dependencies&gt;</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>编写代码来创建布隆过滤器，插入元素，并检查元素：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -231,47 +232,47 @@
 </span><span class="lnt">34
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-java" data-lang="java"><span class="kn">import</span> <span class="nn">org.redisson.Redisson</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">org.redisson.api.RBloomFilter</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">org.redisson.api.RedissonClient</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">org.redisson.config.Config</span><span class="o">;</span>
-
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">RedissonBloomFilterExample</span> <span class="o">{</span>
-
-    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
-        <span class="c1">// 配置 Redisson 客户端
-</span><span class="c1"></span>        <span class="n">Config</span> <span class="n">config</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Config</span><span class="o">();</span>
-        <span class="n">config</span><span class="o">.</span><span class="na">useSingleServer</span><span class="o">()</span>
-              <span class="o">.</span><span class="na">setAddress</span><span class="o">(</span><span class="s">&#34;redis://127.0.0.1:6379&#34;</span><span class="o">);</span>
-
-        <span class="c1">// 创建 Redisson 客户端实例
-</span><span class="c1"></span>        <span class="n">RedissonClient</span> <span class="n">redisson</span> <span class="o">=</span> <span class="n">Redisson</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">config</span><span class="o">);</span>
-
-        <span class="c1">// 创建布隆过滤器
-</span><span class="c1"></span>        <span class="n">RBloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">bloomFilter</span> <span class="o">=</span> <span class="n">redisson</span><span class="o">.</span><span class="na">getBloomFilter</span><span class="o">(</span><span class="s">&#34;myBloomFilter&#34;</span><span class="o">);</span>
-
-        <span class="c1">// 初始化布隆过滤器，设置预期插入的元素数量和误报率
-</span><span class="c1"></span>        <span class="n">bloomFilter</span><span class="o">.</span><span class="na">tryInit</span><span class="o">(</span><span class="n">10000L</span><span class="o">,</span> <span class="n">0</span><span class="o">.</span><span class="na">03</span><span class="o">);</span>
-
-        <span class="c1">// 插入元素
-</span><span class="c1"></span>        <span class="n">bloomFilter</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">&#34;key1&#34;</span><span class="o">);</span>
-        <span class="n">bloomFilter</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">&#34;key2&#34;</span><span class="o">);</span>
-
-        <span class="c1">// 查找元素
-</span><span class="c1"></span>        <span class="kt">boolean</span> <span class="n">mightContainYi</span> <span class="o">=</span> <span class="n">bloomFilter</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">&#34;key1&#34;</span><span class="o">);</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;布隆过滤器中可能包含&#39;key1&#39;：&#34;</span> <span class="o">+</span> <span class="n">mightContainYi</span><span class="o">);</span>
-
-        <span class="c1">// 关闭 Redisson 客户端
-</span><span class="c1"></span>        <span class="n">redisson</span><span class="o">.</span><span class="na">shutdown</span><span class="o">();</span>
-    <span class="o">}</span>
-<span class="o">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">import</span><span class="w"> </span><span class="nn">org.redisson.Redisson</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">org.redisson.api.RBloomFilter</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">org.redisson.api.RedissonClient</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">org.redisson.config.Config</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">RedissonBloomFilterExample</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c1">// 配置 Redisson 客户端</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">Config</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Config</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">config</span><span class="p">.</span><span class="na">useSingleServer</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="p">.</span><span class="na">setAddress</span><span class="p">(</span><span class="s">&#34;redis://127.0.0.1:6379&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c1">// 创建 Redisson 客户端实例</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">RedissonClient</span><span class="w"> </span><span class="n">redisson</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Redisson</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">config</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c1">// 创建布隆过滤器</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">RBloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bloomFilter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">redisson</span><span class="p">.</span><span class="na">getBloomFilter</span><span class="p">(</span><span class="s">&#34;myBloomFilter&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c1">// 初始化布隆过滤器，设置预期插入的元素数量和误报率</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">bloomFilter</span><span class="p">.</span><span class="na">tryInit</span><span class="p">(</span><span class="n">10000L</span><span class="p">,</span><span class="w"> </span><span class="n">0</span><span class="p">.</span><span class="na">03</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c1">// 插入元素</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">bloomFilter</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="s">&#34;key1&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">bloomFilter</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="s">&#34;key2&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c1">// 查找元素</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kt">boolean</span><span class="w"> </span><span class="n">mightContainYi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bloomFilter</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">&#34;key1&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&#34;布隆过滤器中可能包含&#39;key1&#39;：&#34;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">mightContainYi</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c1">// 关闭 Redisson 客户端</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">redisson</span><span class="p">.</span><span class="na">shutdown</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="布隆过滤器的python实现示例">布隆过滤器的Python实现示例</h2>
 <p>参考<a href="https://mp.weixin.qq.com/s/ykrEi8DkHyxk_Uxkraq9Hg">Bloom Filter !</a></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -323,57 +324,57 @@
 </span><span class="lnt">50
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-py" data-lang="py"><span class="kn">import</span> <span class="nn">mmh3</span>  <span class="c1"># MurmurHash 3，常用于布隆过滤器</span>
-<span class="kn">import</span> <span class="nn">math</span>
-
-<span class="k">class</span> <span class="nc">BloomFilter</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">m</span>  <span class="c1"># 布隆过滤器的大小（位数组的长度）</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="n">k</span>  <span class="c1"># 哈希函数的数量</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># 插入的元素数量</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bloomFilter</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span>  <span class="c1"># 初始化位数组为0</span>
-        
-    <span class="k">def</span> <span class="nf">getBitArrayIndices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
-        <span class="s2">&#34;&#34;&#34;
-</span><span class="s2">        计算 item 的哈希值并返回需要设置的位数组索引列表
-</span><span class="s2">        &#34;&#34;&#34;</span>
-        <span class="n">indexList</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">indexList</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">hash</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">mmh3</span><span class="o">.</span><span class="n">hash</span><span class="p">(</span><span class="n">item</span><span class="p">))</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">indexList</span>
-        
-    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
-        <span class="s2">&#34;&#34;&#34;
-</span><span class="s2">        插入一个元素到布隆过滤器
-</span><span class="s2">        &#34;&#34;&#34;</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBitArrayIndices</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bloomFilter</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
-    
-    <span class="k">def</span> <span class="nf">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
-        <span class="s2">&#34;&#34;&#34;
-</span><span class="s2">        检查元素是否在布隆过滤器中
-</span><span class="s2">        &#34;&#34;&#34;</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBitArrayIndices</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bloomFilter</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">False</span>
-        <span class="k">return</span> <span class="bp">True</span>
-        
-    <span class="k">def</span> <span class="nf">generateStats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s2">&#34;&#34;&#34;
-</span><span class="s2">        计算布隆过滤器的统计信息，比如错误率
-</span><span class="s2">        &#34;&#34;&#34;</span>
-        <span class="n">n</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
-        <span class="n">m</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
-        <span class="n">k</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">)</span>
-        <span class="n">probability_fp</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">((</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">n</span><span class="p">)</span><span class="o">/</span><span class="n">m</span><span class="p">)),</span> <span class="n">k</span><span class="p">)</span>
-
-        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;元素数量: &#34;</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;布隆过滤器大小: &#34;</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;哈希函数数量: &#34;</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;假阳性概率: &#34;</span><span class="p">,</span> <span class="n">probability_fp</span><span class="p">)</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;假阳性率: &#34;</span><span class="p">,</span> <span class="n">probability_fp</span> <span class="o">*</span> <span class="mf">100.0</span><span class="p">,</span> <span class="s2">&#34;%&#34;</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-py" data-lang="py"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">mmh3</span>  <span class="c1"># MurmurHash 3，常用于布隆过滤器</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">math</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">BloomFilter</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">m</span>  <span class="c1"># 布隆过滤器的大小（位数组的长度）</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="n">k</span>  <span class="c1"># 哈希函数的数量</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># 插入的元素数量</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">bloomFilter</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span>  <span class="c1"># 初始化位数组为0</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">getBitArrayIndices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">        计算 item 的哈希值并返回需要设置的位数组索引列表
+</span></span></span><span class="line"><span class="cl"><span class="s2">        &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">indexList</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">            <span class="n">indexList</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">hash</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">mmh3</span><span class="o">.</span><span class="n">hash</span><span class="p">(</span><span class="n">item</span><span class="p">))</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">indexList</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">        插入一个元素到布隆过滤器
+</span></span></span><span class="line"><span class="cl"><span class="s2">        &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBitArrayIndices</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">bloomFilter</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">        检查元素是否在布隆过滤器中
+</span></span></span><span class="line"><span class="cl"><span class="s2">        &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBitArrayIndices</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bloomFilter</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">True</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">generateStats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">        计算布隆过滤器的统计信息，比如错误率
+</span></span></span><span class="line"><span class="cl"><span class="s2">        &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">n</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">m</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">k</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">probability_fp</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">((</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">n</span><span class="p">)</span><span class="o">/</span><span class="n">m</span><span class="p">)),</span> <span class="n">k</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;元素数量: &#34;</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;布隆过滤器大小: &#34;</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;哈希函数数量: &#34;</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;假阳性概率: &#34;</span><span class="p">,</span> <span class="n">probability_fp</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;假阳性率: &#34;</span><span class="p">,</span> <span class="n">probability_fp</span> <span class="o">*</span> <span class="mf">100.0</span><span class="p">,</span> <span class="s2">&#34;%&#34;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -482,7 +483,7 @@
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -499,7 +500,7 @@
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

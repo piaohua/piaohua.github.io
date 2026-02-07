@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20240119-cgo/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Go] CGO使用方法和示例" />
-<meta property="og:description" content="Golang中的Cgo是Go语言提供的一种机制，用于在Go程序和C/C&#43;&#43;程序之间进行互操作，为Go程序员提供了一个直接调用C库以及使用C语" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20240119-cgo/" />
-<meta property="article:published_time" content="2024-01-19T23:08:21+08:00" />
-<meta property="article:modified_time" content="2024-01-19T23:08:21+08:00" />
-<meta itemprop="name" content="[Go] CGO使用方法和示例">
-<meta itemprop="description" content="Golang中的Cgo是Go语言提供的一种机制，用于在Go程序和C/C&#43;&#43;程序之间进行互操作，为Go程序员提供了一个直接调用C库以及使用C语">
-<meta itemprop="datePublished" content="2024-01-19T23:08:21&#43;08:00" />
-<meta itemprop="dateModified" content="2024-01-19T23:08:21&#43;08:00" />
-<meta itemprop="wordCount" content="516">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20240119-cgo/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Go] CGO使用方法和示例">
+  <meta property="og:description" content="Golang中的Cgo是Go语言提供的一种机制，用于在Go程序和C/C&#43;&#43;程序之间进行互操作，为Go程序员提供了一个直接调用C库以及使用C语">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2024-01-19T23:08:21+08:00">
+    <meta property="article:modified_time" content="2024-01-19T23:08:21+08:00">
+    <meta property="article:tag" content="Golang">
 
-
-
-<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Go] CGO使用方法和示例"/>
-<meta name="twitter:description" content="Golang中的Cgo是Go语言提供的一种机制，用于在Go程序和C/C&#43;&#43;程序之间进行互操作，为Go程序员提供了一个直接调用C库以及使用C语"/>
+  <meta itemprop="name" content="[Go] CGO使用方法和示例">
+  <meta itemprop="description" content="Golang中的Cgo是Go语言提供的一种机制，用于在Go程序和C/C&#43;&#43;程序之间进行互操作，为Go程序员提供了一个直接调用C库以及使用C语">
+  <meta itemprop="datePublished" content="2024-01-19T23:08:21+08:00">
+  <meta itemprop="dateModified" content="2024-01-19T23:08:21+08:00">
+  <meta itemprop="wordCount" content="516">
+  <meta itemprop="keywords" content="Golang"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Go] CGO使用方法和示例">
+<meta name="twitter:description" content="Golang中的Cgo是Go语言提供的一种机制，用于在Go程序和C/C&#43;&#43;程序之间进行互操作，为Go程序员提供了一个直接调用C库以及使用C语">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -170,37 +171,37 @@
 <p>CGO 就是 C 和 Go，两个编程语言。指的是能够创建调用 C 代码的 Go 包。对照着 Go 代码中的 “C”</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="s">&#34;C&#34;</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="s">&#34;C&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>一旦程序中出现 import &ldquo;C&rdquo;，则意味着开启 CGO 特性。在进行 go build 等阶段时，将会调用 C 编译器（通常是 gcc 或 clang）。
 CGO 对应的环境变量是 CGO_ENABLED，设置为 1 则开启 CGO，为 0 则关闭 CGO。
 编译命令如下：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh"><span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">0</span> go build -o main main.go
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">0</span> go build -o main main.go
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="cgo-快速上手">CGO 快速上手</h2>
 <p>示例demo
 <code>hello.go</code></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -217,27 +218,27 @@ CGO 对应的环境变量是 CGO_ENABLED，设置为 1 则开启 CGO，为 0 则
 </span><span class="lnt">15
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="c1">//void SayHello(const char* s);
-</span><span class="c1"></span><span class="kn">import</span> <span class="s">&#34;C&#34;</span>
-<span class="kn">import</span> <span class="s">&#34;fmt&#34;</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-	<span class="nx">C</span><span class="p">.</span><span class="nf">SayHello</span><span class="p">(</span><span class="nx">C</span><span class="p">.</span><span class="nf">CString</span><span class="p">(</span><span class="s">&#34;Hello, World&#34;</span><span class="p">))</span>
-	<span class="nf">SayBye</span><span class="p">(</span><span class="nx">C</span><span class="p">.</span><span class="nf">CString</span><span class="p">(</span><span class="s">&#34;see you&#34;</span><span class="p">))</span>
-<span class="p">}</span>
-
-<span class="c1">// export SayBye
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">SayBye</span><span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">C</span><span class="p">.</span><span class="nx">char</span><span class="p">)</span> <span class="p">{</span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">C</span><span class="p">.</span><span class="nf">GoString</span><span class="p">(</span><span class="nx">s</span><span class="p">))</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//void SayHello(const char* s);
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kn">import</span> <span class="s">&#34;C&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">C</span><span class="p">.</span><span class="nf">SayHello</span><span class="p">(</span><span class="nx">C</span><span class="p">.</span><span class="nf">CString</span><span class="p">(</span><span class="s">&#34;Hello, World&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">SayBye</span><span class="p">(</span><span class="nx">C</span><span class="p">.</span><span class="nf">CString</span><span class="p">(</span><span class="s">&#34;see you&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// export SayBye
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">SayBye</span><span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">C</span><span class="p">.</span><span class="nx">char</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">C</span><span class="p">.</span><span class="nf">GoString</span><span class="p">(</span><span class="nx">s</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p><code>hello.c</code></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -246,42 +247,42 @@ CGO 对应的环境变量是 CGO_ENABLED，设置为 1 则开启 CGO，为 0 则
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&#34;hello.h&#34;</span><span class="cp">
-</span><span class="cp"></span>
-<span class="kt">void</span> <span class="nf">SayHello</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">puts</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
-    <span class="n">puts</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&#34;hello.h&#34;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">SayHello</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">puts</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">puts</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p><code>hello.h</code></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">SayHello</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">s</span><span class="p">);</span>
-
-<span class="kt">void</span> <span class="nf">SayBye</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span> <span class="n">s</span><span class="p">);</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">SayHello</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">s</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">SayBye</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span> <span class="n">s</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>编辑运行</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">go build -o main hello.go
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">go build -o main hello.go
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="原生c调用go">原生c调用go</h2>
 <p><code>hello.go</code></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -293,32 +294,30 @@ CGO 对应的环境变量是 CGO_ENABLED，设置为 1 则开启 CGO，为 0 则
 </span><span class="lnt">10
 </span><span class="lnt">11
 </span><span class="lnt">12
-</span><span class="lnt">13
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="s">&#34;C&#34;</span>
-
-<span class="c1">// export hello
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">hello</span><span class="p">(</span><span class="nx">value</span> <span class="kt">string</span><span class="p">)</span> <span class="o">*</span><span class="nx">C</span><span class="p">.</span><span class="nx">char</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">C</span><span class="p">.</span><span class="nf">CString</span><span class="p">(</span><span class="s">&#34;go hello&#34;</span> <span class="o">+</span> <span class="nx">value</span><span class="p">)</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="c1">// 必须有main函数，才能编译成C的库
-</span><span class="c1"></span><span class="p">}</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="s">&#34;C&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// export hello
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">hello</span><span class="p">(</span><span class="nx">value</span> <span class="kt">string</span><span class="p">)</span> <span class="o">*</span><span class="nx">C</span><span class="p">.</span><span class="nx">char</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">C</span><span class="p">.</span><span class="nf">CString</span><span class="p">(</span><span class="s">&#34;go hello&#34;</span> <span class="o">+</span> <span class="nx">value</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 必须有main函数，才能编译成C的库
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>生成c-shared文件</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">go build -buildmode<span class="o">=</span>c-shared -o hello.so hello.go
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">go build -buildmode<span class="o">=</span>c-shared -o hello.so hello.go
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>生成.h文件，并链接上对应的.so程序库，即可在c程序中调用go程序</p>
 <h2 id="参考">参考</h2>
@@ -429,7 +428,7 @@ CGO 对应的环境变量是 CGO_ENABLED，设置为 1 则开启 CGO，为 0 则
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -446,7 +445,7 @@ CGO 对应的环境变量是 CGO_ENABLED，设置为 1 则开启 CGO，为 0 则
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

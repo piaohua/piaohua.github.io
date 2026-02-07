@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/mysql/20240301-explain/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="MySQL Explain分析SQL执行计划" />
-<meta property="og:description" content="EXPLAIN生成的查询计划中显示优化器计划如何执行查询 MySQL的EXPALIN是优化查询语句必不可少的工具，用户通过它可以获得查询计划的" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/mysql/20240301-explain/" />
-<meta property="article:published_time" content="2024-03-01T16:27:33+08:00" />
-<meta property="article:modified_time" content="2024-03-01T16:27:33+08:00" />
-<meta itemprop="name" content="MySQL Explain分析SQL执行计划">
-<meta itemprop="description" content="EXPLAIN生成的查询计划中显示优化器计划如何执行查询 MySQL的EXPALIN是优化查询语句必不可少的工具，用户通过它可以获得查询计划的">
-<meta itemprop="datePublished" content="2024-03-01T16:27:33&#43;08:00" />
-<meta itemprop="dateModified" content="2024-03-01T16:27:33&#43;08:00" />
-<meta itemprop="wordCount" content="1493">
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20240301-explain/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="MySQL Explain分析SQL执行计划">
+  <meta property="og:description" content="EXPLAIN生成的查询计划中显示优化器计划如何执行查询 MySQL的EXPALIN是优化查询语句必不可少的工具，用户通过它可以获得查询计划的">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2024-03-01T16:27:33+08:00">
+    <meta property="article:modified_time" content="2024-03-01T16:27:33+08:00">
+    <meta property="article:tag" content="Mysql">
 
-
-
-<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="MySQL Explain分析SQL执行计划"/>
-<meta name="twitter:description" content="EXPLAIN生成的查询计划中显示优化器计划如何执行查询 MySQL的EXPALIN是优化查询语句必不可少的工具，用户通过它可以获得查询计划的"/>
+  <meta itemprop="name" content="MySQL Explain分析SQL执行计划">
+  <meta itemprop="description" content="EXPLAIN生成的查询计划中显示优化器计划如何执行查询 MySQL的EXPALIN是优化查询语句必不可少的工具，用户通过它可以获得查询计划的">
+  <meta itemprop="datePublished" content="2024-03-01T16:27:33+08:00">
+  <meta itemprop="dateModified" content="2024-03-01T16:27:33+08:00">
+  <meta itemprop="wordCount" content="1493">
+  <meta itemprop="keywords" content="Mysql"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="MySQL Explain分析SQL执行计划">
+<meta name="twitter:description" content="EXPLAIN生成的查询计划中显示优化器计划如何执行查询 MySQL的EXPALIN是优化查询语句必不可少的工具，用户通过它可以获得查询计划的">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -173,7 +174,7 @@
 <p>执行计划分析结果示例如下：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -183,71 +184,71 @@
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">explain</span> <span class="k">delete</span> <span class="k">from</span> <span class="n">t_strategy_detail</span> <span class="k">where</span> <span class="n">id</span> <span class="k">in</span> <span class="p">(</span><span class="k">select</span> <span class="n">strategy</span> <span class="k">from</span> <span class="n">robots</span> <span class="k">where</span> <span class="n">stop_time</span><span class="o">&lt;</span><span class="mi">1629782290</span> <span class="k">AND</span> <span class="n">stop_kind</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">AND</span> <span class="n">stop_kind</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">);</span>
-<span class="o">+</span><span class="c1">----+--------------------+------------------+------------+-------+---------------------------------+-----------------+---------+------+--------+----------+------------------------------------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">id</span> <span class="o">|</span> <span class="n">select_type</span>        <span class="o">|</span> <span class="k">table</span>            <span class="o">|</span> <span class="n">partitions</span> <span class="o">|</span> <span class="k">type</span>  <span class="o">|</span> <span class="n">possible_keys</span>                   <span class="o">|</span> <span class="k">key</span>             <span class="o">|</span> <span class="n">key_len</span> <span class="o">|</span> <span class="k">ref</span>  <span class="o">|</span> <span class="k">rows</span>   <span class="o">|</span> <span class="n">filtered</span> <span class="o">|</span> <span class="n">Extra</span>                              <span class="o">|</span>
-<span class="o">+</span><span class="c1">----+--------------------+------------------+------------+-------+---------------------------------+-----------------+---------+------+--------+----------+------------------------------------+
-</span><span class="c1"></span><span class="o">|</span>  <span class="mi">1</span> <span class="o">|</span> <span class="k">DELETE</span>             <span class="o">|</span> <span class="n">t_strategy_detail</span> <span class="o">|</span> <span class="k">NULL</span>       <span class="o">|</span> <span class="k">ALL</span>   <span class="o">|</span> <span class="k">NULL</span>                            <span class="o">|</span> <span class="k">NULL</span>            <span class="o">|</span> <span class="k">NULL</span>    <span class="o">|</span> <span class="k">NULL</span> <span class="o">|</span> <span class="mi">454862</span> <span class="o">|</span>   <span class="mi">100</span><span class="p">.</span><span class="mi">00</span> <span class="o">|</span> <span class="k">Using</span> <span class="k">where</span>                        <span class="o">|</span>
-<span class="o">|</span>  <span class="mi">2</span> <span class="o">|</span> <span class="n">DEPENDENT</span> <span class="n">SUBQUERY</span> <span class="o">|</span> <span class="n">robots</span>           <span class="o">|</span> <span class="k">NULL</span>       <span class="o">|</span> <span class="n">range</span> <span class="o">|</span> <span class="n">index_stop_time</span><span class="p">,</span><span class="n">index_stop_kind</span> <span class="o">|</span> <span class="n">index_stop_time</span> <span class="o">|</span> <span class="mi">5</span>       <span class="o">|</span> <span class="k">NULL</span> <span class="o">|</span>   <span class="mi">2180</span> <span class="o">|</span>     <span class="mi">5</span><span class="p">.</span><span class="mi">00</span> <span class="o">|</span> <span class="k">Using</span> <span class="k">index</span> <span class="n">condition</span><span class="p">;</span> <span class="k">Using</span> <span class="k">where</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">----+--------------------+------------------+------------+-------+---------------------------------+-----------------+---------+------+--------+----------+------------------------------------+
-</span><span class="c1"></span><span class="mi">2</span> <span class="k">rows</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">explain</span><span class="w"> </span><span class="k">delete</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">t_strategy_detail</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="k">select</span><span class="w"> </span><span class="n">strategy</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">robots</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">stop_time</span><span class="o">&lt;</span><span class="mi">1629782290</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">stop_kind</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">stop_kind</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----+--------------------+------------------+------------+-------+---------------------------------+-----------------+---------+------+--------+----------+------------------------------------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">select_type</span><span class="w">        </span><span class="o">|</span><span class="w"> </span><span class="k">table</span><span class="w">            </span><span class="o">|</span><span class="w"> </span><span class="n">partitions</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">type</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="n">possible_keys</span><span class="w">                   </span><span class="o">|</span><span class="w"> </span><span class="k">key</span><span class="w">             </span><span class="o">|</span><span class="w"> </span><span class="n">key_len</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">ref</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="k">rows</span><span class="w">   </span><span class="o">|</span><span class="w"> </span><span class="n">filtered</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Extra</span><span class="w">                              </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----+--------------------+------------------+------------+-------+---------------------------------+-----------------+---------+------+--------+----------+------------------------------------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w">  </span><span class="mi">1</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">DELETE</span><span class="w">             </span><span class="o">|</span><span class="w"> </span><span class="n">t_strategy_detail</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">NULL</span><span class="w">       </span><span class="o">|</span><span class="w"> </span><span class="k">ALL</span><span class="w">   </span><span class="o">|</span><span class="w"> </span><span class="k">NULL</span><span class="w">                            </span><span class="o">|</span><span class="w"> </span><span class="k">NULL</span><span class="w">            </span><span class="o">|</span><span class="w"> </span><span class="k">NULL</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">454862</span><span class="w"> </span><span class="o">|</span><span class="w">   </span><span class="mi">100</span><span class="p">.</span><span class="mi">00</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">Using</span><span class="w"> </span><span class="k">where</span><span class="w">                        </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w">  </span><span class="mi">2</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">DEPENDENT</span><span class="w"> </span><span class="n">SUBQUERY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">robots</span><span class="w">           </span><span class="o">|</span><span class="w"> </span><span class="k">NULL</span><span class="w">       </span><span class="o">|</span><span class="w"> </span><span class="n">range</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">index_stop_time</span><span class="p">,</span><span class="n">index_stop_kind</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">index_stop_time</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">5</span><span class="w">       </span><span class="o">|</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="o">|</span><span class="w">   </span><span class="mi">2180</span><span class="w"> </span><span class="o">|</span><span class="w">     </span><span class="mi">5</span><span class="p">.</span><span class="mi">00</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">Using</span><span class="w"> </span><span class="k">index</span><span class="w"> </span><span class="n">condition</span><span class="p">;</span><span class="w"> </span><span class="k">Using</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">----+--------------------+------------------+------------+-------+---------------------------------+-----------------+---------+------+--------+----------+------------------------------------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">2</span><span class="w"> </span><span class="k">rows</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span><span class="w"> </span><span class="n">sec</span><span class="p">)</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><table>
 <thead>
 <tr>
 <th>explain的列</th>
-<th align="left">解释</th>
+<th style="text-align:left">解释</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>id</code></td>
-<td align="left">执行语句编号</td>
+<td style="text-align:left">执行语句编号</td>
 </tr>
 <tr>
 <td><code>select_type</code></td>
-<td align="left">查询类型：显示本行是简单还是复杂查询</td>
+<td style="text-align:left">查询类型：显示本行是简单还是复杂查询</td>
 </tr>
 <tr>
 <td><code>table</code></td>
-<td align="left">涉及到的表</td>
+<td style="text-align:left">涉及到的表</td>
 </tr>
 <tr>
 <td><code>partitions</code></td>
-<td align="left">匹配的分区：查询将匹配记录所在的分区。仅当使用 partition 关键字时才显示该列。对于非分区表，该值为 NULL。</td>
+<td style="text-align:left">匹配的分区：查询将匹配记录所在的分区。仅当使用 partition 关键字时才显示该列。对于非分区表，该值为 NULL。</td>
 </tr>
 <tr>
 <td><code>type</code></td>
-<td align="left">本次查询的表连接类型</td>
+<td style="text-align:left">本次查询的表连接类型</td>
 </tr>
 <tr>
 <td><code>possible_keys</code></td>
-<td align="left">可能选择的索引</td>
+<td style="text-align:left">可能选择的索引</td>
 </tr>
 <tr>
 <td><code>key</code></td>
-<td align="left">实际选择的索引</td>
+<td style="text-align:left">实际选择的索引</td>
 </tr>
 <tr>
 <td><code>key_len</code></td>
-<td align="left">被选择的索引长度：一般用于判断联合索引有多少列被选择了</td>
+<td style="text-align:left">被选择的索引长度：一般用于判断联合索引有多少列被选择了</td>
 </tr>
 <tr>
 <td><code>ref</code></td>
-<td align="left">与索引比较的列</td>
+<td style="text-align:left">与索引比较的列</td>
 </tr>
 <tr>
 <td><code>rows</code></td>
-<td align="left">预计需要扫描的行数，对 InnoDB 来说，这个值是估值，并不一定准确</td>
+<td style="text-align:left">预计需要扫描的行数，对 InnoDB 来说，这个值是估值，并不一定准确</td>
 </tr>
 <tr>
 <td><code>filtered</code></td>
-<td align="left">按条件筛选的行的百分比</td>
+<td style="text-align:left">按条件筛选的行的百分比</td>
 </tr>
 <tr>
 <td><code>Extra</code></td>
-<td align="left">附加信息</td>
+<td style="text-align:left">附加信息</td>
 </tr>
 </tbody>
 </table>
@@ -256,53 +257,53 @@
 <thead>
 <tr>
 <th>select_type的值</th>
-<th align="left">解释</th>
+<th style="text-align:left">解释</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><strong>SIMPLE</strong></td>
-<td align="left">简单查询(不使用关联查询或子查询)</td>
+<td style="text-align:left">简单查询(不使用关联查询或子查询)</td>
 </tr>
 <tr>
 <td><strong>PRIMARY</strong></td>
-<td align="left">如果包含关联查询或者子查询，则最外层的查询部分标记为primary</td>
+<td style="text-align:left">如果包含关联查询或者子查询，则最外层的查询部分标记为primary</td>
 </tr>
 <tr>
 <td><strong>UNION</strong></td>
-<td align="left">联合查询中第二个及后面的查询</td>
+<td style="text-align:left">联合查询中第二个及后面的查询</td>
 </tr>
 <tr>
 <td><strong>DEPENDENT UNION</strong></td>
-<td align="left">满足依赖外部的关联查询中第二个及以后的查询</td>
+<td style="text-align:left">满足依赖外部的关联查询中第二个及以后的查询</td>
 </tr>
 <tr>
 <td><strong>UNION RESULT</strong></td>
-<td align="left">联合查询的结果</td>
+<td style="text-align:left">联合查询的结果</td>
 </tr>
 <tr>
 <td><strong>SUBQUERY</strong></td>
-<td align="left">子查询中的第一个查询</td>
+<td style="text-align:left">子查询中的第一个查询</td>
 </tr>
 <tr>
 <td><strong>DEPENDENT SUBQUERY</strong></td>
-<td align="left">子查询中的第一个查询，并且依赖外部查询</td>
+<td style="text-align:left">子查询中的第一个查询，并且依赖外部查询</td>
 </tr>
 <tr>
 <td><strong>DERIVED</strong></td>
-<td align="left">用到派生表的查询</td>
+<td style="text-align:left">用到派生表的查询</td>
 </tr>
 <tr>
 <td><strong>MATERIALIZED</strong></td>
-<td align="left">被物化的子查询</td>
+<td style="text-align:left">被物化的子查询</td>
 </tr>
 <tr>
 <td><strong>UNCACHEABLE SUBQUERY</strong></td>
-<td align="left">一个子查询的结果不能被缓存，必须重新评估外层查询的每一行</td>
+<td style="text-align:left">一个子查询的结果不能被缓存，必须重新评估外层查询的每一行</td>
 </tr>
 <tr>
 <td><strong>UNCACHEABLE UNION</strong></td>
-<td align="left">关联查询第二个或后面的语句属于不可缓存的子查询</td>
+<td style="text-align:left">关联查询第二个或后面的语句属于不可缓存的子查询</td>
 </tr>
 </tbody>
 </table>
@@ -311,57 +312,57 @@
 <thead>
 <tr>
 <th>type的值</th>
-<th align="left">解释</th>
+<th style="text-align:left">解释</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>system</td>
-<td align="left">查询对象表只有一行数据,且只能用于 MyISAM 和 Memory 引擎的表，这是最好的情况</td>
+<td style="text-align:left">查询对象表只有一行数据,且只能用于 MyISAM 和 Memory 引擎的表，这是最好的情况</td>
 </tr>
 <tr>
 <td>const</td>
-<td align="left">基于主键或唯一索引查询，最多返回一条结果</td>
+<td style="text-align:left">基于主键或唯一索引查询，最多返回一条结果</td>
 </tr>
 <tr>
 <td>eq_ref</td>
-<td align="left">表连接时基于主键或非 NULL 的唯一索引完成扫描</td>
+<td style="text-align:left">表连接时基于主键或非 NULL 的唯一索引完成扫描</td>
 </tr>
 <tr>
 <td>ref</td>
-<td align="left">基于普通索引的等值查询，或者表间等值连接</td>
+<td style="text-align:left">基于普通索引的等值查询，或者表间等值连接</td>
 </tr>
 <tr>
 <td>fulltext</td>
-<td align="left">全文检索</td>
+<td style="text-align:left">全文检索</td>
 </tr>
 <tr>
 <td>ref_or_null</td>
-<td align="left">表连接类型是 ref，但进行扫描的索引列中可能包含 NULL 值</td>
+<td style="text-align:left">表连接类型是 ref，但进行扫描的索引列中可能包含 NULL 值</td>
 </tr>
 <tr>
 <td>index_merge</td>
-<td align="left">利用多个索引</td>
+<td style="text-align:left">利用多个索引</td>
 </tr>
 <tr>
 <td>unique_subquery</td>
-<td align="left">子查询中使用唯一索引</td>
+<td style="text-align:left">子查询中使用唯一索引</td>
 </tr>
 <tr>
 <td>index_subquery</td>
-<td align="left">子查询中使用普通索引</td>
+<td style="text-align:left">子查询中使用普通索引</td>
 </tr>
 <tr>
 <td>range</td>
-<td align="left">利用索引进行范围查询</td>
+<td style="text-align:left">利用索引进行范围查询</td>
 </tr>
 <tr>
 <td>index</td>
-<td align="left">全索引扫描</td>
+<td style="text-align:left">全索引扫描</td>
 </tr>
 <tr>
 <td>ALL</td>
-<td align="left">全表扫描</td>
+<td style="text-align:left">全表扫描</td>
 </tr>
 </tbody>
 </table>
@@ -371,54 +372,54 @@
 <thead>
 <tr>
 <th>列类型</th>
-<th align="left">KEY_LEN</th>
+<th style="text-align:left">KEY_LEN</th>
 <th>备注</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>int</td>
-<td align="left">key_len = 4+1</td>
+<td style="text-align:left">key_len = 4+1</td>
 <td>int 为 4 bytes，允许为 NULL，加 1 byte</td>
 </tr>
 <tr>
 <td>int not null</td>
-<td align="left">key_len = 4</td>
+<td style="text-align:left">key_len = 4</td>
 <td>不允许为 NULL</td>
 </tr>
 <tr>
 <td>bigint</td>
-<td align="left">key_len=8+1</td>
+<td style="text-align:left">key_len=8+1</td>
 <td>bigint 为 8 bytes，允许为 NULL 加 1 byte</td>
 </tr>
 <tr>
 <td>bigint not null</td>
-<td align="left">key_len=8</td>
+<td style="text-align:left">key_len=8</td>
 <td>bigint 为 8 bytes</td>
 </tr>
 <tr>
 <td>char(30) utf8</td>
-<td align="left">key_len=30*3+1</td>
+<td style="text-align:left">key_len=30*3+1</td>
 <td>char(n)为：n * 3 ，允许为 NULL 加 1 byte</td>
 </tr>
 <tr>
 <td>char(30) not null utf8</td>
-<td align="left">key_len=30*3</td>
+<td style="text-align:left">key_len=30*3</td>
 <td>不允许为 NULL</td>
 </tr>
 <tr>
 <td>varchar(30) not null utf8</td>
-<td align="left">key_len=30*3+2</td>
+<td style="text-align:left">key_len=30*3+2</td>
 <td>utf8 每个字符为 3 bytes，变长数据类型,加 2 bytes</td>
 </tr>
 <tr>
 <td>varchar(30) utf8</td>
-<td align="left">key_len=30*3+2+1</td>
+<td style="text-align:left">key_len=30*3+2+1</td>
 <td>utf8 每个字符为 3 bytes，允许为 NULL,加 1 byte,变长数据类型，加 2 bytes</td>
 </tr>
 <tr>
 <td>datetime</td>
-<td align="left">key_len=8+1 (MySQL 5.6.4之前的版本)；key_len=5+1(MySQL 5.6.4及之后的版本)</td>
+<td style="text-align:left">key_len=8+1 (MySQL 5.6.4之前的版本)；key_len=5+1(MySQL 5.6.4及之后的版本)</td>
 <td>允许为 NULL，加 1 byte</td>
 </tr>
 </tbody>
@@ -428,49 +429,49 @@
 <thead>
 <tr>
 <th>Extra 常见的值</th>
-<th align="left">解释</th>
+<th style="text-align:left">解释</th>
 <th>例子</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Using filesort</td>
-<td align="left">将用外部排序而不是索引排序，数据较小时从内存排序，否则需要在磁盘完成排序</td>
+<td style="text-align:left">将用外部排序而不是索引排序，数据较小时从内存排序，否则需要在磁盘完成排序</td>
 <td>explain select * from t1 order by create_time;</td>
 </tr>
 <tr>
 <td>Using temporary</td>
-<td align="left">需要创建一个临时表来存储结构，通常发生对没有索引的列进行 GROUP BY 时</td>
+<td style="text-align:left">需要创建一个临时表来存储结构，通常发生对没有索引的列进行 GROUP BY 时</td>
 <td>explain select * from t1 group by create_time;</td>
 </tr>
 <tr>
 <td>Using index</td>
-<td align="left">使用覆盖索引</td>
+<td style="text-align:left">使用覆盖索引</td>
 <td>explain select a from t1 where a=111;</td>
 </tr>
 <tr>
 <td>Using where</td>
-<td align="left">使用 where 语句来处理结果</td>
-<td>explain select * from t1 where create_time='2019-06-18 14:38:24&rsquo;;</td>
+<td style="text-align:left">使用 where 语句来处理结果</td>
+<td>explain select * from t1 where create_time=&lsquo;2019-06-18 14:38:24&rsquo;;</td>
 </tr>
 <tr>
 <td>Impossible WHERE</td>
-<td align="left">对 where 子句判断的结果总是 false 而不能选择任何数据</td>
+<td style="text-align:left">对 where 子句判断的结果总是 false 而不能选择任何数据</td>
 <td>explain select * from t1 where 1&lt;0;</td>
 </tr>
 <tr>
 <td>Using join buffer (hash join)</td>
-<td align="left">关联查询中，被驱动表的关联字段没索引</td>
+<td style="text-align:left">关联查询中，被驱动表的关联字段没索引</td>
 <td>explain select * from t1 straight_join t2 on (t1.create_time=t2.create_time);</td>
 </tr>
 <tr>
 <td>Using index condition</td>
-<td align="left">先条件过滤索引，再查数据</td>
+<td style="text-align:left">先条件过滤索引，再查数据</td>
 <td>explain select * from t1 where a &gt;900 and a like &lsquo;%9&rsquo;;</td>
 </tr>
 <tr>
 <td>Select tables optimized away</td>
-<td align="left">使用某些聚合函数（比如 max、min）来访问存在索引的某个字段是</td>
+<td style="text-align:left">使用某些聚合函数（比如 max、min）来访问存在索引的某个字段是</td>
 <td>explain select max(a) from t1;</td>
 </tr>
 </tbody>
@@ -582,7 +583,7 @@
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -599,7 +600,7 @@
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

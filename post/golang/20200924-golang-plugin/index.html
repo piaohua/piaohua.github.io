@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20200924-golang-plugin/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Go] golang plugin插件使用" />
-<meta property="og:description" content="Package plugin implements loading and symbol resolution of Go plugins. Golang是静态编译型语言，在编译时就将所有引用的包（库）全部加载打包到最终的可执行程序（或库文件）中， 因此并不能在运" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20200924-golang-plugin/" />
-<meta property="article:published_time" content="2020-09-24T22:10:40+08:00" />
-<meta property="article:modified_time" content="2020-09-24T22:10:40+08:00" />
-<meta itemprop="name" content="[Go] golang plugin插件使用">
-<meta itemprop="description" content="Package plugin implements loading and symbol resolution of Go plugins. Golang是静态编译型语言，在编译时就将所有引用的包（库）全部加载打包到最终的可执行程序（或库文件）中， 因此并不能在运">
-<meta itemprop="datePublished" content="2020-09-24T22:10:40&#43;08:00" />
-<meta itemprop="dateModified" content="2020-09-24T22:10:40&#43;08:00" />
-<meta itemprop="wordCount" content="1543">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20200924-golang-plugin/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Go] golang plugin插件使用">
+  <meta property="og:description" content="Package plugin implements loading and symbol resolution of Go plugins. Golang是静态编译型语言，在编译时就将所有引用的包（库）全部加载打包到最终的可执行程序（或库文件）中， 因此并不能在运">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2020-09-24T22:10:40+08:00">
+    <meta property="article:modified_time" content="2020-09-24T22:10:40+08:00">
+    <meta property="article:tag" content="Golang">
 
-
-
-<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Go] golang plugin插件使用"/>
-<meta name="twitter:description" content="Package plugin implements loading and symbol resolution of Go plugins. Golang是静态编译型语言，在编译时就将所有引用的包（库）全部加载打包到最终的可执行程序（或库文件）中， 因此并不能在运"/>
+  <meta itemprop="name" content="[Go] golang plugin插件使用">
+  <meta itemprop="description" content="Package plugin implements loading and symbol resolution of Go plugins. Golang是静态编译型语言，在编译时就将所有引用的包（库）全部加载打包到最终的可执行程序（或库文件）中， 因此并不能在运">
+  <meta itemprop="datePublished" content="2020-09-24T22:10:40+08:00">
+  <meta itemprop="dateModified" content="2020-09-24T22:10:40+08:00">
+  <meta itemprop="wordCount" content="1548">
+  <meta itemprop="keywords" content="Golang"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Go] golang plugin插件使用">
+<meta name="twitter:description" content="Package plugin implements loading and symbol resolution of Go plugins. Golang是静态编译型语言，在编译时就将所有引用的包（库）全部加载打包到最终的可执行程序（或库文件）中， 因此并不能在运">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -143,7 +144,7 @@
         <div class="post-category">
             <a href="/categories/golang/"> golang </a>
             </div>
-          <span class="more-meta"> 1543 words </span>
+          <span class="more-meta"> 1548 words </span>
           <span class="more-meta"> 4 mins read </span>
         
       </div>
@@ -192,17 +193,17 @@
 <h2 id="标准库方法">标准库方法</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Plugin</span> <span class="kd">struct</span><span class="p">{</span> <span class="o">...</span> <span class="p">}</span>
-    <span class="kd">func</span> <span class="nf">Open</span><span class="p">(</span><span class="nx">path</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">Plugin</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
-    <span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Plugin</span><span class="p">)</span> <span class="nf">Lookup</span><span class="p">(</span><span class="nx">symName</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="nx">Symbol</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
-<span class="kd">type</span> <span class="nx">Symbol</span> <span class="kd">interface</span><span class="p">{}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">Plugin</span> <span class="kd">struct</span><span class="p">{</span> <span class="o">...</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="nf">Open</span><span class="p">(</span><span class="nx">path</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">Plugin</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Plugin</span><span class="p">)</span> <span class="nf">Lookup</span><span class="p">(</span><span class="nx">symName</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="nx">Symbol</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">Symbol</span> <span class="kd">interface</span><span class="p">{}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><ul>
 <li><code>Open</code>: 通过参数<code>path</code>路径加载插件，返回*Plugin指针</li>
@@ -213,33 +214,33 @@
 <p>插件代码，提供一个简单的Add方法</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kd">func</span> <span class="nf">Add</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">int</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">x</span> <span class="o">+</span> <span class="nx">y</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">Add</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">int</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">x</span> <span class="o">+</span> <span class="nx">y</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>编译插件,生成add.so文件</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; go build -buildmode<span class="o">=</span>plugin -o add.so add.go
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">&gt; go build -buildmode<span class="o">=</span>plugin -o add.so add.go
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>使用plugin库加载插件，使用插件方法</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -267,44 +268,44 @@
 </span><span class="lnt">26
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-    <span class="s">&#34;fmt&#34;</span>
-    <span class="s">&#34;log&#34;</span>
-    <span class="s">&#34;net/http&#34;</span>
-    <span class="s">&#34;plugin&#34;</span>
-    <span class="s">&#34;strconv&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">handler</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">vars</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nx">URL</span><span class="p">.</span><span class="nf">Query</span><span class="p">()</span>
-    <span class="nx">a</span> <span class="o">:=</span> <span class="nx">vars</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="s">&#34;a&#34;</span><span class="p">)</span>
-    <span class="nx">b</span> <span class="o">:=</span> <span class="nx">vars</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="s">&#34;b&#34;</span><span class="p">)</span>
-    <span class="nx">p</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">plugin</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="s">&#34;./add.so&#34;</span><span class="p">)</span>
-    <span class="nx">add</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">p</span><span class="p">.</span><span class="nf">Lookup</span><span class="p">(</span><span class="s">&#34;Add&#34;</span><span class="p">)</span>
-    <span class="nx">i</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">strconv</span><span class="p">.</span><span class="nf">Atoi</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span>
-    <span class="nx">j</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">strconv</span><span class="p">.</span><span class="nf">Atoi</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
-    <span class="nx">sum</span> <span class="o">:=</span> <span class="nx">add</span><span class="p">.(</span><span class="kd">func</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">int</span><span class="p">)(</span><span class="nx">i</span><span class="p">,</span> <span class="nx">j</span><span class="p">)</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Fprintf</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="s">&#34;%s + %s = %d&#34;</span><span class="p">,</span> <span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">,</span> <span class="nx">sum</span><span class="p">)</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">http</span><span class="p">.</span><span class="nf">HandleFunc</span><span class="p">(</span><span class="s">&#34;/&#34;</span><span class="p">,</span> <span class="nx">handler</span><span class="p">)</span>
-    <span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nf">ListenAndServe</span><span class="p">(</span><span class="s">&#34;:8080&#34;</span><span class="p">,</span> <span class="kc">nil</span><span class="p">))</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;log&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;net/http&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;plugin&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;strconv&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">handler</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">vars</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nx">URL</span><span class="p">.</span><span class="nf">Query</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">a</span> <span class="o">:=</span> <span class="nx">vars</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="s">&#34;a&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span> <span class="o">:=</span> <span class="nx">vars</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="s">&#34;b&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">p</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">plugin</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="s">&#34;./add.so&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">add</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">p</span><span class="p">.</span><span class="nf">Lookup</span><span class="p">(</span><span class="s">&#34;Add&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">i</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">strconv</span><span class="p">.</span><span class="nf">Atoi</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">j</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">strconv</span><span class="p">.</span><span class="nf">Atoi</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">sum</span> <span class="o">:=</span> <span class="nx">add</span><span class="p">.(</span><span class="kd">func</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">int</span><span class="p">)(</span><span class="nx">i</span><span class="p">,</span> <span class="nx">j</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Fprintf</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="s">&#34;%s + %s = %d&#34;</span><span class="p">,</span> <span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">,</span> <span class="nx">sum</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">http</span><span class="p">.</span><span class="nf">HandleFunc</span><span class="p">(</span><span class="s">&#34;/&#34;</span><span class="p">,</span> <span class="nx">handler</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nf">ListenAndServe</span><span class="p">(</span><span class="s">&#34;:8080&#34;</span><span class="p">,</span> <span class="kc">nil</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>调用http服务</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; go run main.go
-&gt; curl -i http://127.0.0.1:8080?a<span class="o">=</span>1<span class="p">&amp;</span><span class="nv">b</span><span class="o">=</span><span class="m">1</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">&gt; go run main.go
+</span></span><span class="line"><span class="cl">&gt; curl -i http://127.0.0.1:8080?a<span class="o">=</span>1<span class="p">&amp;</span><span class="nv">b</span><span class="o">=</span><span class="m">1</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="c-shared示例">c-shared示例</h2>
 <p><a href="http://www.361way.com/go-plugin/5925.html">示例原文</a></p>
@@ -313,7 +314,7 @@
 <p>awesome.go代码</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -346,52 +347,52 @@
 </span><span class="lnt">31
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-<span class="kn">import</span> <span class="s">&#34;C&#34;</span>
-<span class="kn">import</span> <span class="p">(</span>
-    <span class="s">&#34;fmt&#34;</span>
-    <span class="s">&#34;math&#34;</span>
-    <span class="s">&#34;sort&#34;</span>
-    <span class="s">&#34;sync&#34;</span>
-<span class="p">)</span>
-<span class="kd">var</span> <span class="nx">count</span> <span class="kt">int</span>
-<span class="kd">var</span> <span class="nx">mtx</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">Mutex</span>
-<span class="c1">//export Add
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">Add</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">int</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">a</span> <span class="o">+</span> <span class="nx">b</span>
-<span class="p">}</span>
-<span class="c1">//export Cosine
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">Cosine</span><span class="p">(</span><span class="nx">x</span> <span class="kt">float64</span><span class="p">)</span> <span class="kt">float64</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">math</span><span class="p">.</span><span class="nf">Cos</span><span class="p">(</span><span class="nx">x</span><span class="p">)</span>
-<span class="p">}</span>
-<span class="c1">//export Sort
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">Sort</span><span class="p">(</span><span class="nx">vals</span> <span class="p">[]</span><span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">sort</span><span class="p">.</span><span class="nf">Ints</span><span class="p">(</span><span class="nx">vals</span><span class="p">)</span>
-<span class="p">}</span>
-<span class="c1">//export Log
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">Log</span><span class="p">(</span><span class="nx">msg</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">int</span> <span class="p">{</span>
-    <span class="nx">mtx</span><span class="p">.</span><span class="nf">Lock</span><span class="p">()</span>
-    <span class="k">defer</span> <span class="nx">mtx</span><span class="p">.</span><span class="nf">Unlock</span><span class="p">()</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span>
-    <span class="nx">count</span><span class="o">++</span>
-    <span class="k">return</span> <span class="nx">count</span>
-<span class="p">}</span>
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="s">&#34;C&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;math&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;sort&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;sync&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">count</span> <span class="kt">int</span>
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">mtx</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">Mutex</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//export Add
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">Add</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">int</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">a</span> <span class="o">+</span> <span class="nx">b</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//export Cosine
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">Cosine</span><span class="p">(</span><span class="nx">x</span> <span class="kt">float64</span><span class="p">)</span> <span class="kt">float64</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">math</span><span class="p">.</span><span class="nf">Cos</span><span class="p">(</span><span class="nx">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//export Sort
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">Sort</span><span class="p">(</span><span class="nx">vals</span> <span class="p">[]</span><span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">sort</span><span class="p">.</span><span class="nf">Ints</span><span class="p">(</span><span class="nx">vals</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//export Log
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">Log</span><span class="p">(</span><span class="nx">msg</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">int</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">mtx</span><span class="p">.</span><span class="nf">Lock</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">defer</span> <span class="nx">mtx</span><span class="p">.</span><span class="nf">Unlock</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">count</span><span class="o">++</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">count</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>编译awesome.go文件，生成<code>awesome.h</code>, <code>awesome.so</code>两个文件</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; go build -o awesome.so -buildmode<span class="o">=</span>c-shared awesome.go
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">&gt; go build -o awesome.so -buildmode<span class="o">=</span>c-shared awesome.go
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>查看so文件，输出为shared object文件，并exported相关对像的symbols</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -400,19 +401,19 @@
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; file awesome.so
-awesome.so: Mach-O 64-bit dynamically linked shared library x86_64
-&gt; nm awesome.so <span class="p">|</span> grep -e <span class="s2">&#34;T _Add&#34;</span> -e <span class="s2">&#34;T _Cosine&#34;</span> -e <span class="s2">&#34;T _Sort&#34;</span> -e <span class="s2">&#34;T _Log&#34;</span>
-00000000000a0470 T _Add
-00000000000a04d0 T _Cosine
-00000000000a0570 T _Log
-00000000000a0520 T _Sort
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">&gt; file awesome.so
+</span></span><span class="line"><span class="cl">awesome.so: Mach-O 64-bit dynamically linked shared library x86_64
+</span></span><span class="line"><span class="cl">&gt; nm awesome.so <span class="p">|</span> grep -e <span class="s2">&#34;T _Add&#34;</span> -e <span class="s2">&#34;T _Cosine&#34;</span> -e <span class="s2">&#34;T _Sort&#34;</span> -e <span class="s2">&#34;T _Log&#34;</span>
+</span></span><span class="line"><span class="cl">00000000000a0470 T _Add
+</span></span><span class="line"><span class="cl">00000000000a04d0 T _Cosine
+</span></span><span class="line"><span class="cl">00000000000a0570 T _Log
+</span></span><span class="line"><span class="cl">00000000000a0520 T _Sort
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>c语言动态链接调用</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -436,34 +437,34 @@ awesome.so: Mach-O 64-bit dynamically linked shared library x86_64
 </span><span class="lnt">22
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&#34;awesome.h&#34;</span><span class="cp">
-</span><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="c1">//Call Add() - passing integer params, interger result
-</span><span class="c1"></span>    <span class="n">GoInt</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
-    <span class="n">GoInt</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">99</span><span class="p">;</span>
-    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;awesome.Add(12,99) = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">Add</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">));</span>
-    <span class="c1">//Call Cosine() - passing float param, float returned
-</span><span class="c1"></span>    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;awesome.Cosine(1) = %f</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="p">(</span><span class="kt">float</span><span class="p">)(</span><span class="n">Cosine</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)));</span>
-    <span class="c1">//Call Sort() - passing an array pointer
-</span><span class="c1"></span>    <span class="n">GoInt</span> <span class="n">data</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">77</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">23</span><span class="p">};</span>
-    <span class="n">GoSlice</span> <span class="n">nums</span> <span class="o">=</span> <span class="p">{</span><span class="n">data</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">};</span>
-    <span class="n">Sort</span><span class="p">(</span><span class="n">nums</span><span class="p">);</span>
-    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;awesome.Sort(77,12,5,99,28,23): &#34;</span><span class="p">);</span>
-    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">6</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
-        <span class="n">printf</span><span class="p">(</span><span class="s">&#34;%d,&#34;</span><span class="p">,</span> <span class="p">((</span><span class="n">GoInt</span> <span class="o">*</span><span class="p">)</span><span class="n">nums</span><span class="p">.</span><span class="n">data</span><span class="p">)[</span><span class="n">i</span><span class="p">]);</span>
-    <span class="p">}</span>
-    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
-    <span class="c1">//Call Log() - passing string value
-</span><span class="c1"></span>    <span class="n">GoString</span> <span class="n">msg</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#34;Hello from C!&#34;</span><span class="p">,</span> <span class="mi">13</span><span class="p">};</span>
-    <span class="n">Log</span><span class="p">(</span><span class="n">msg</span><span class="p">);</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&#34;awesome.h&#34;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//Call Add() - passing integer params, interger result
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">GoInt</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">GoInt</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">99</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;awesome.Add(12,99) = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="nf">Add</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//Call Cosine() - passing float param, float returned
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;awesome.Cosine(1) = %f</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="p">(</span><span class="kt">float</span><span class="p">)(</span><span class="nf">Cosine</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)));</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//Call Sort() - passing an array pointer
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">GoInt</span> <span class="n">data</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">77</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">23</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="n">GoSlice</span> <span class="n">nums</span> <span class="o">=</span> <span class="p">{</span><span class="n">data</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">Sort</span><span class="p">(</span><span class="n">nums</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;awesome.Sort(77,12,5,99,28,23): &#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">6</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;%d,&#34;</span><span class="p">,</span> <span class="p">((</span><span class="n">GoInt</span> <span class="o">*</span><span class="p">)</span><span class="n">nums</span><span class="p">.</span><span class="n">data</span><span class="p">)[</span><span class="n">i</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//Call Log() - passing string value
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">GoString</span> <span class="n">msg</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#34;Hello from C!&#34;</span><span class="p">,</span> <span class="mi">13</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">Log</span><span class="p">(</span><span class="n">msg</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>编译awesome1.c文件并运行</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -471,18 +472,18 @@ awesome.so: Mach-O 64-bit dynamically linked shared library x86_64
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; gcc -o awesome1 awesome1.c ./awesome.so
-&gt; ./awesome1
-awesome.Add<span class="o">(</span>12,99<span class="o">)</span> <span class="o">=</span> <span class="m">111</span>
-awesome.Cosine<span class="o">(</span>1<span class="o">)</span> <span class="o">=</span> 0.540302
-awesome.Sort<span class="o">(</span>77,12,5,99,28,23<span class="o">)</span>: 5,12,23,28,77,99,
-Hello from C!
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">&gt; gcc -o awesome1 awesome1.c ./awesome.so
+</span></span><span class="line"><span class="cl">&gt; ./awesome1
+</span></span><span class="line"><span class="cl">awesome.Add<span class="o">(</span>12,99<span class="o">)</span> <span class="o">=</span> <span class="m">111</span>
+</span></span><span class="line"><span class="cl">awesome.Cosine<span class="o">(</span>1<span class="o">)</span> <span class="o">=</span> 0.540302
+</span></span><span class="line"><span class="cl">awesome.Sort<span class="o">(</span>77,12,5,99,28,23<span class="o">)</span>: 5,12,23,28,77,99,
+</span></span><span class="line"><span class="cl">Hello from C!
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>c语言动态加载</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -546,74 +547,74 @@ Hello from C!
 </span><span class="lnt">62
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&lt;dlfcn.h&gt;</span><span class="cp">
-</span><span class="cp"></span><span class="c1">// define types needed
-</span><span class="c1"></span><span class="k">typedef</span> <span class="kt">long</span> <span class="kt">long</span> <span class="n">go_int</span><span class="p">;</span>
-<span class="k">typedef</span> <span class="kt">double</span> <span class="n">go_float64</span><span class="p">;</span>
-<span class="k">typedef</span> <span class="k">struct</span><span class="p">{</span><span class="kt">void</span> <span class="o">*</span><span class="n">arr</span><span class="p">;</span> <span class="n">go_int</span> <span class="n">len</span><span class="p">;</span> <span class="n">go_int</span> <span class="n">cap</span><span class="p">;}</span> <span class="n">go_slice</span><span class="p">;</span>
-<span class="k">typedef</span> <span class="k">struct</span><span class="p">{</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span> <span class="n">go_int</span> <span class="n">len</span><span class="p">;}</span> <span class="n">go_str</span><span class="p">;</span>
-<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kt">void</span> <span class="o">*</span><span class="n">handle</span><span class="p">;</span>
-    <span class="kt">char</span> <span class="o">*</span><span class="n">error</span><span class="p">;</span>
-    <span class="c1">// use dlopen to load shared object
-</span><span class="c1"></span>    <span class="n">handle</span> <span class="o">=</span> <span class="n">dlopen</span> <span class="p">(</span><span class="s">&#34;./awesome.so&#34;</span><span class="p">,</span> <span class="n">RTLD_LAZY</span><span class="p">);</span>
-    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">handle</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">fputs</span> <span class="p">(</span><span class="n">dlerror</span><span class="p">(),</span> <span class="n">stderr</span><span class="p">);</span>
-        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-    <span class="p">}</span>
-    <span class="c1">// resolve Add symbol and assign to fn ptr
-</span><span class="c1"></span>    <span class="n">go_int</span> <span class="p">(</span><span class="o">*</span><span class="n">add</span><span class="p">)(</span><span class="n">go_int</span><span class="p">,</span> <span class="n">go_int</span><span class="p">)</span>  <span class="o">=</span> <span class="n">dlsym</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="s">&#34;Add&#34;</span><span class="p">);</span>
-    <span class="k">if</span> <span class="p">((</span><span class="n">error</span> <span class="o">=</span> <span class="n">dlerror</span><span class="p">())</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>  <span class="p">{</span>
-        <span class="n">fputs</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">stderr</span><span class="p">);</span>
-        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-    <span class="p">}</span>
-    <span class="c1">// call Add()
-</span><span class="c1"></span>    <span class="n">go_int</span> <span class="n">sum</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">add</span><span class="p">)(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">99</span><span class="p">);</span>
-    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;awesome.Add(12, 99) = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">sum</span><span class="p">);</span>
-    <span class="c1">// resolve Cosine symbol
-</span><span class="c1"></span>    <span class="n">go_float64</span> <span class="p">(</span><span class="o">*</span><span class="n">cosine</span><span class="p">)(</span><span class="n">go_float64</span><span class="p">)</span> <span class="o">=</span> <span class="n">dlsym</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="s">&#34;Cosine&#34;</span><span class="p">);</span>
-    <span class="k">if</span> <span class="p">((</span><span class="n">error</span> <span class="o">=</span> <span class="n">dlerror</span><span class="p">())</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>  <span class="p">{</span>
-        <span class="n">fputs</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">stderr</span><span class="p">);</span>
-        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-    <span class="p">}</span>
-    <span class="c1">// Call Cosine
-</span><span class="c1"></span>    <span class="n">go_float64</span> <span class="n">cos</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">cosine</span><span class="p">)(</span><span class="mf">1.0</span><span class="p">);</span>
-    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;awesome.Cosine(1) = %f</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">cos</span><span class="p">);</span>
-    <span class="c1">// resolve Sort symbol
-</span><span class="c1"></span>    <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">sort</span><span class="p">)(</span><span class="n">go_slice</span><span class="p">)</span> <span class="o">=</span> <span class="n">dlsym</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="s">&#34;Sort&#34;</span><span class="p">);</span>
-    <span class="k">if</span> <span class="p">((</span><span class="n">error</span> <span class="o">=</span> <span class="n">dlerror</span><span class="p">())</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>  <span class="p">{</span>
-        <span class="n">fputs</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">stderr</span><span class="p">);</span>
-        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-    <span class="p">}</span>
-    <span class="c1">// call Sort
-</span><span class="c1"></span>    <span class="n">go_int</span> <span class="n">data</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">44</span><span class="p">,</span><span class="mi">23</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">66</span><span class="p">,</span><span class="mi">2</span><span class="p">};</span>
-    <span class="n">go_slice</span> <span class="n">nums</span> <span class="o">=</span> <span class="p">{</span><span class="n">data</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">};</span>
-    <span class="n">sort</span><span class="p">(</span><span class="n">nums</span><span class="p">);</span>
-    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;awesome.Sort(44,23,7,66,2): &#34;</span><span class="p">);</span>
-    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
-        <span class="n">printf</span><span class="p">(</span><span class="s">&#34;%d,&#34;</span><span class="p">,</span> <span class="p">((</span><span class="n">go_int</span> <span class="o">*</span><span class="p">)</span><span class="n">data</span><span class="p">)[</span><span class="n">i</span><span class="p">]);</span>
-    <span class="p">}</span>
-    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
-    <span class="c1">// resolve Log symbol
-</span><span class="c1"></span>    <span class="n">go_int</span> <span class="p">(</span><span class="o">*</span><span class="n">log</span><span class="p">)(</span><span class="n">go_str</span><span class="p">)</span> <span class="o">=</span> <span class="n">dlsym</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="s">&#34;Log&#34;</span><span class="p">);</span>
-    <span class="k">if</span> <span class="p">((</span><span class="n">error</span> <span class="o">=</span> <span class="n">dlerror</span><span class="p">())</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>  <span class="p">{</span>
-        <span class="n">fputs</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">stderr</span><span class="p">);</span>
-        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-    <span class="p">}</span>
-    <span class="c1">// call Log
-</span><span class="c1"></span>    <span class="n">go_str</span> <span class="n">msg</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#34;Hello from C!&#34;</span><span class="p">,</span> <span class="mi">13</span><span class="p">};</span>
-    <span class="n">log</span><span class="p">(</span><span class="n">msg</span><span class="p">);</span>
-    <span class="c1">// close file handle when done
-</span><span class="c1"></span>    <span class="n">dlclose</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;dlfcn.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="c1">// define types needed
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">typedef</span> <span class="kt">long</span> <span class="kt">long</span> <span class="n">go_int</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="kt">double</span> <span class="n">go_float64</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span><span class="p">{</span><span class="kt">void</span> <span class="o">*</span><span class="n">arr</span><span class="p">;</span> <span class="n">go_int</span> <span class="n">len</span><span class="p">;</span> <span class="n">go_int</span> <span class="n">cap</span><span class="p">;}</span> <span class="n">go_slice</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span><span class="p">{</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span> <span class="n">go_int</span> <span class="n">len</span><span class="p">;}</span> <span class="n">go_str</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="o">*</span><span class="n">handle</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">char</span> <span class="o">*</span><span class="n">error</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// use dlopen to load shared object
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">handle</span> <span class="o">=</span> <span class="nf">dlopen</span> <span class="p">(</span><span class="s">&#34;./awesome.so&#34;</span><span class="p">,</span> <span class="n">RTLD_LAZY</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">handle</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">fputs</span> <span class="p">(</span><span class="nf">dlerror</span><span class="p">(),</span> <span class="n">stderr</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// resolve Add symbol and assign to fn ptr
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">go_int</span> <span class="p">(</span><span class="o">*</span><span class="n">add</span><span class="p">)(</span><span class="n">go_int</span><span class="p">,</span> <span class="n">go_int</span><span class="p">)</span>  <span class="o">=</span> <span class="nf">dlsym</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="s">&#34;Add&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">((</span><span class="n">error</span> <span class="o">=</span> <span class="nf">dlerror</span><span class="p">())</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">fputs</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">stderr</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// call Add()
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">go_int</span> <span class="n">sum</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">add</span><span class="p">)(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">99</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;awesome.Add(12, 99) = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">sum</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// resolve Cosine symbol
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">go_float64</span> <span class="p">(</span><span class="o">*</span><span class="n">cosine</span><span class="p">)(</span><span class="n">go_float64</span><span class="p">)</span> <span class="o">=</span> <span class="nf">dlsym</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="s">&#34;Cosine&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">((</span><span class="n">error</span> <span class="o">=</span> <span class="nf">dlerror</span><span class="p">())</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">fputs</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">stderr</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Call Cosine
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">go_float64</span> <span class="n">cos</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">cosine</span><span class="p">)(</span><span class="mf">1.0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;awesome.Cosine(1) = %f</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">cos</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// resolve Sort symbol
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">sort</span><span class="p">)(</span><span class="n">go_slice</span><span class="p">)</span> <span class="o">=</span> <span class="nf">dlsym</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="s">&#34;Sort&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">((</span><span class="n">error</span> <span class="o">=</span> <span class="nf">dlerror</span><span class="p">())</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">fputs</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">stderr</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// call Sort
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">go_int</span> <span class="n">data</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">44</span><span class="p">,</span><span class="mi">23</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">66</span><span class="p">,</span><span class="mi">2</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="n">go_slice</span> <span class="n">nums</span> <span class="o">=</span> <span class="p">{</span><span class="n">data</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">sort</span><span class="p">(</span><span class="n">nums</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;awesome.Sort(44,23,7,66,2): &#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;%d,&#34;</span><span class="p">,</span> <span class="p">((</span><span class="n">go_int</span> <span class="o">*</span><span class="p">)</span><span class="n">data</span><span class="p">)[</span><span class="n">i</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// resolve Log symbol
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">go_int</span> <span class="p">(</span><span class="o">*</span><span class="n">log</span><span class="p">)(</span><span class="n">go_str</span><span class="p">)</span> <span class="o">=</span> <span class="nf">dlsym</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="s">&#34;Log&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">((</span><span class="n">error</span> <span class="o">=</span> <span class="nf">dlerror</span><span class="p">())</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">fputs</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">stderr</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// call Log
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">go_str</span> <span class="n">msg</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#34;Hello from C!&#34;</span><span class="p">,</span> <span class="mi">13</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">log</span><span class="p">(</span><span class="n">msg</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// close file handle when done
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">dlclose</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>编译awesome2.c文件并运行</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -621,13 +622,13 @@ Hello from C!
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; gcc -o awesome2 awesome2.c -ldl
-&gt; ./awesome2
-awesome.Add<span class="o">(</span>12, 99<span class="o">)</span> <span class="o">=</span> <span class="m">111</span>
-awesome.Cosine<span class="o">(</span>1<span class="o">)</span> <span class="o">=</span> 0.540302
-awesome.Sort<span class="o">(</span>44,23,7,66,2<span class="o">)</span>: 2,7,23,44,66,
-Hello from C!
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">&gt; gcc -o awesome2 awesome2.c -ldl
+</span></span><span class="line"><span class="cl">&gt; ./awesome2
+</span></span><span class="line"><span class="cl">awesome.Add<span class="o">(</span>12, 99<span class="o">)</span> <span class="o">=</span> <span class="m">111</span>
+</span></span><span class="line"><span class="cl">awesome.Cosine<span class="o">(</span>1<span class="o">)</span> <span class="o">=</span> 0.540302
+</span></span><span class="line"><span class="cl">awesome.Sort<span class="o">(</span>44,23,7,66,2<span class="o">)</span>: 2,7,23,44,66,
+</span></span><span class="line"><span class="cl">Hello from C!
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -738,7 +739,7 @@ Hello from C!
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -755,7 +756,7 @@ Hello from C!
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

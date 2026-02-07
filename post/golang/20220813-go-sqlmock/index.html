@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20220813-go-sqlmock/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Go] 使用 go-sqlmock 模拟数据库驱动编写单元测试用例" />
-<meta property="og:description" content="go-sqlmock 是一个实现 sql/driver 的模拟库 在使用gorm等orm框架时，由于需要和数据库进行交互，使得单元测试难于编写， 使用go-sqlmock库可以很好的缓解" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20220813-go-sqlmock/" />
-<meta property="article:published_time" content="2022-08-13T12:35:06+08:00" />
-<meta property="article:modified_time" content="2022-08-13T12:35:06+08:00" />
-<meta itemprop="name" content="[Go] 使用 go-sqlmock 模拟数据库驱动编写单元测试用例">
-<meta itemprop="description" content="go-sqlmock 是一个实现 sql/driver 的模拟库 在使用gorm等orm框架时，由于需要和数据库进行交互，使得单元测试难于编写， 使用go-sqlmock库可以很好的缓解">
-<meta itemprop="datePublished" content="2022-08-13T12:35:06&#43;08:00" />
-<meta itemprop="dateModified" content="2022-08-13T12:35:06&#43;08:00" />
-<meta itemprop="wordCount" content="1070">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20220813-go-sqlmock/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Go] 使用 go-sqlmock 模拟数据库驱动编写单元测试用例">
+  <meta property="og:description" content="go-sqlmock 是一个实现 sql/driver 的模拟库 在使用gorm等orm框架时，由于需要和数据库进行交互，使得单元测试难于编写， 使用go-sqlmock库可以很好的缓解">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2022-08-13T12:35:06+08:00">
+    <meta property="article:modified_time" content="2022-08-13T12:35:06+08:00">
+    <meta property="article:tag" content="Golang">
 
-
-
-<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Go] 使用 go-sqlmock 模拟数据库驱动编写单元测试用例"/>
-<meta name="twitter:description" content="go-sqlmock 是一个实现 sql/driver 的模拟库 在使用gorm等orm框架时，由于需要和数据库进行交互，使得单元测试难于编写， 使用go-sqlmock库可以很好的缓解"/>
+  <meta itemprop="name" content="[Go] 使用 go-sqlmock 模拟数据库驱动编写单元测试用例">
+  <meta itemprop="description" content="go-sqlmock 是一个实现 sql/driver 的模拟库 在使用gorm等orm框架时，由于需要和数据库进行交互，使得单元测试难于编写， 使用go-sqlmock库可以很好的缓解">
+  <meta itemprop="datePublished" content="2022-08-13T12:35:06+08:00">
+  <meta itemprop="dateModified" content="2022-08-13T12:35:06+08:00">
+  <meta itemprop="wordCount" content="1067">
+  <meta itemprop="keywords" content="Golang"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Go] 使用 go-sqlmock 模拟数据库驱动编写单元测试用例">
+<meta name="twitter:description" content="go-sqlmock 是一个实现 sql/driver 的模拟库 在使用gorm等orm框架时，由于需要和数据库进行交互，使得单元测试难于编写， 使用go-sqlmock库可以很好的缓解">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -143,7 +144,7 @@
         <div class="post-category">
             <a href="/categories/golang/"> golang </a>
             </div>
-          <span class="more-meta"> 1070 words </span>
+          <span class="more-meta"> 1067 words </span>
           <span class="more-meta"> 3 mins read </span>
         
       </div>
@@ -172,17 +173,17 @@
 <h2 id="安装-go-sqlmock">安装 go-sqlmock</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">go get github.com/DATA-DOG/go-sqlmock
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">go get github.com/DATA-DOG/go-sqlmock
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="使用-go-sqlmock">使用 go-sqlmock</h2>
 <p>示例有如下使用<a href="https://github.com/go-sql-driver/mysql">go-mysql-driver</a>的需要测试的内容</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -226,60 +227,58 @@
 </span><span class="lnt">42
 </span><span class="lnt">43
 </span><span class="lnt">44
-</span><span class="lnt">45
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-	<span class="s">&#34;database/sql&#34;</span>
-
-	<span class="nx">_</span> <span class="s">&#34;github.com/go-sql-driver/mysql&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">recordStats</span><span class="p">(</span><span class="nx">db</span> <span class="o">*</span><span class="nx">sql</span><span class="p">.</span><span class="nx">DB</span><span class="p">,</span> <span class="nx">userID</span><span class="p">,</span> <span class="nx">productID</span> <span class="kt">int64</span><span class="p">)</span> <span class="p">(</span><span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-	<span class="nx">tx</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">db</span><span class="p">.</span><span class="nf">Begin</span><span class="p">()</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="k">return</span>
-	<span class="p">}</span>
-
-	<span class="k">defer</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-		<span class="k">switch</span> <span class="nx">err</span> <span class="p">{</span>
-		<span class="k">case</span> <span class="kc">nil</span><span class="p">:</span>
-			<span class="nx">err</span> <span class="p">=</span> <span class="nx">tx</span><span class="p">.</span><span class="nf">Commit</span><span class="p">()</span>
-		<span class="k">default</span><span class="p">:</span>
-			<span class="nx">tx</span><span class="p">.</span><span class="nf">Rollback</span><span class="p">()</span>
-		<span class="p">}</span>
-	<span class="p">}()</span>
-
-	<span class="k">if</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">tx</span><span class="p">.</span><span class="nf">Exec</span><span class="p">(</span><span class="s">&#34;UPDATE products SET views = views + 1&#34;</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="k">return</span>
-	<span class="p">}</span>
-	<span class="k">if</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">tx</span><span class="p">.</span><span class="nf">Exec</span><span class="p">(</span><span class="s">&#34;INSERT INTO product_viewers (user_id, product_id) VALUES (?, ?)&#34;</span><span class="p">,</span> <span class="nx">userID</span><span class="p">,</span> <span class="nx">productID</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="k">return</span>
-	<span class="p">}</span>
-	<span class="k">return</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-	<span class="c1">// @NOTE: the real connection is not required for tests
-</span><span class="c1"></span>	<span class="nx">db</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">sql</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="s">&#34;mysql&#34;</span><span class="p">,</span> <span class="s">&#34;root@/blog&#34;</span><span class="p">)</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-	<span class="p">}</span>
-	<span class="k">defer</span> <span class="nx">db</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
-
-	<span class="k">if</span> <span class="nx">err</span> <span class="p">=</span> <span class="nf">recordStats</span><span class="p">(</span><span class="nx">db</span><span class="p">,</span> <span class="mi">1</span> <span class="cm">/*some user id*/</span><span class="p">,</span> <span class="mi">5</span> <span class="cm">/*some product id*/</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;database/sql&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">_</span> <span class="s">&#34;github.com/go-sql-driver/mysql&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">recordStats</span><span class="p">(</span><span class="nx">db</span> <span class="o">*</span><span class="nx">sql</span><span class="p">.</span><span class="nx">DB</span><span class="p">,</span> <span class="nx">userID</span><span class="p">,</span> <span class="nx">productID</span> <span class="kt">int64</span><span class="p">)</span> <span class="p">(</span><span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">tx</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">db</span><span class="p">.</span><span class="nf">Begin</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">switch</span> <span class="nx">err</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">case</span> <span class="kc">nil</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">err</span> <span class="p">=</span> <span class="nx">tx</span><span class="p">.</span><span class="nf">Commit</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">		<span class="k">default</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">tx</span><span class="p">.</span><span class="nf">Rollback</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">tx</span><span class="p">.</span><span class="nf">Exec</span><span class="p">(</span><span class="s">&#34;UPDATE products SET views = views + 1&#34;</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">tx</span><span class="p">.</span><span class="nf">Exec</span><span class="p">(</span><span class="s">&#34;INSERT INTO product_viewers (user_id, product_id) VALUES (?, ?)&#34;</span><span class="p">,</span> <span class="nx">userID</span><span class="p">,</span> <span class="nx">productID</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// @NOTE: the real connection is not required for tests
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">db</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">sql</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="s">&#34;mysql&#34;</span><span class="p">,</span> <span class="s">&#34;root@/blog&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nx">db</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="p">=</span> <span class="nf">recordStats</span><span class="p">(</span><span class="nx">db</span><span class="p">,</span> <span class="mi">1</span> <span class="cm">/*some user id*/</span><span class="p">,</span> <span class="mi">5</span> <span class="cm">/*some product id*/</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>使用<code>go-sqlmock</code>编写单元测试用例如下：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -338,75 +337,73 @@
 </span><span class="lnt">57
 </span><span class="lnt">58
 </span><span class="lnt">59
-</span><span class="lnt">60
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-	<span class="s">&#34;fmt&#34;</span>
-	<span class="s">&#34;testing&#34;</span>
-
-	<span class="s">&#34;github.com/DATA-DOG/go-sqlmock&#34;</span>
-<span class="p">)</span>
-
-<span class="c1">// go test -mod=mod -v -run=&#34;TestShouldUpdateStats&#34;
-</span><span class="c1">// a successful case
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">TestShouldUpdateStats</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
-	<span class="nx">db</span><span class="p">,</span> <span class="nx">mock</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">sqlmock</span><span class="p">.</span><span class="nf">New</span><span class="p">()</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nx">t</span><span class="p">.</span><span class="nf">Fatalf</span><span class="p">(</span><span class="s">&#34;an error &#39;%s&#39; was not expected when opening a stub database connection&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-	<span class="p">}</span>
-	<span class="k">defer</span> <span class="nx">db</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
-
-	<span class="nx">mock</span><span class="p">.</span><span class="nf">ExpectBegin</span><span class="p">()</span>
-	<span class="nx">mock</span><span class="p">.</span><span class="nf">ExpectExec</span><span class="p">(</span><span class="s">&#34;UPDATE products&#34;</span><span class="p">).</span><span class="nf">WillReturnResult</span><span class="p">(</span><span class="nx">sqlmock</span><span class="p">.</span><span class="nf">NewResult</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-	<span class="nx">mock</span><span class="p">.</span><span class="nf">ExpectExec</span><span class="p">(</span><span class="s">&#34;INSERT INTO product_viewers&#34;</span><span class="p">).</span><span class="nf">WithArgs</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">).</span><span class="nf">WillReturnResult</span><span class="p">(</span><span class="nx">sqlmock</span><span class="p">.</span><span class="nf">NewResult</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-	<span class="nx">mock</span><span class="p">.</span><span class="nf">ExpectCommit</span><span class="p">()</span>
-
-	<span class="c1">// now we execute our method
-</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">err</span> <span class="p">=</span> <span class="nf">recordStats</span><span class="p">(</span><span class="nx">db</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nx">t</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;error was not expected while updating stats: %s&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-	<span class="p">}</span>
-
-	<span class="c1">// we make sure that all expectations were met
-</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">mock</span><span class="p">.</span><span class="nf">ExpectationsWereMet</span><span class="p">();</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nx">t</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;there were unfulfilled expectations: %s&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-
-<span class="c1">// a failing test case
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">TestShouldRollbackStatUpdatesOnFailure</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
-	<span class="nx">db</span><span class="p">,</span> <span class="nx">mock</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">sqlmock</span><span class="p">.</span><span class="nf">New</span><span class="p">()</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nx">t</span><span class="p">.</span><span class="nf">Fatalf</span><span class="p">(</span><span class="s">&#34;an error &#39;%s&#39; was not expected when opening a stub database connection&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-	<span class="p">}</span>
-	<span class="k">defer</span> <span class="nx">db</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
-
-	<span class="nx">mock</span><span class="p">.</span><span class="nf">ExpectBegin</span><span class="p">()</span>
-	<span class="nx">mock</span><span class="p">.</span><span class="nf">ExpectExec</span><span class="p">(</span><span class="s">&#34;UPDATE products&#34;</span><span class="p">).</span><span class="nf">WillReturnResult</span><span class="p">(</span><span class="nx">sqlmock</span><span class="p">.</span><span class="nf">NewResult</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-	<span class="nx">mock</span><span class="p">.</span><span class="nf">ExpectExec</span><span class="p">(</span><span class="s">&#34;INSERT INTO product_viewers&#34;</span><span class="p">).</span>
-		<span class="nf">WithArgs</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">).</span>
-		<span class="nf">WillReturnError</span><span class="p">(</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;some error&#34;</span><span class="p">))</span>
-	<span class="nx">mock</span><span class="p">.</span><span class="nf">ExpectRollback</span><span class="p">()</span>
-
-	<span class="c1">// now we execute our method
-</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">err</span> <span class="p">=</span> <span class="nf">recordStats</span><span class="p">(</span><span class="nx">db</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span> <span class="nx">err</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nx">t</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;was expecting an error, but there was none&#34;</span><span class="p">)</span>
-	<span class="p">}</span>
-
-	<span class="c1">// we make sure that all expectations were met
-</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">mock</span><span class="p">.</span><span class="nf">ExpectationsWereMet</span><span class="p">();</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nx">t</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;there were unfulfilled expectations: %s&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;testing&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/DATA-DOG/go-sqlmock&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// go test -mod=mod -v -run=&#34;TestShouldUpdateStats&#34;
+</span></span></span><span class="line"><span class="cl"><span class="c1">// a successful case
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">TestShouldUpdateStats</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">db</span><span class="p">,</span> <span class="nx">mock</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">sqlmock</span><span class="p">.</span><span class="nf">New</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">t</span><span class="p">.</span><span class="nf">Fatalf</span><span class="p">(</span><span class="s">&#34;an error &#39;%s&#39; was not expected when opening a stub database connection&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nx">db</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">mock</span><span class="p">.</span><span class="nf">ExpectBegin</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">mock</span><span class="p">.</span><span class="nf">ExpectExec</span><span class="p">(</span><span class="s">&#34;UPDATE products&#34;</span><span class="p">).</span><span class="nf">WillReturnResult</span><span class="p">(</span><span class="nx">sqlmock</span><span class="p">.</span><span class="nf">NewResult</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">mock</span><span class="p">.</span><span class="nf">ExpectExec</span><span class="p">(</span><span class="s">&#34;INSERT INTO product_viewers&#34;</span><span class="p">).</span><span class="nf">WithArgs</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">).</span><span class="nf">WillReturnResult</span><span class="p">(</span><span class="nx">sqlmock</span><span class="p">.</span><span class="nf">NewResult</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">mock</span><span class="p">.</span><span class="nf">ExpectCommit</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// now we execute our method
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">if</span> <span class="nx">err</span> <span class="p">=</span> <span class="nf">recordStats</span><span class="p">(</span><span class="nx">db</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">t</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;error was not expected while updating stats: %s&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// we make sure that all expectations were met
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">mock</span><span class="p">.</span><span class="nf">ExpectationsWereMet</span><span class="p">();</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">t</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;there were unfulfilled expectations: %s&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// a failing test case
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">TestShouldRollbackStatUpdatesOnFailure</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">db</span><span class="p">,</span> <span class="nx">mock</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">sqlmock</span><span class="p">.</span><span class="nf">New</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">t</span><span class="p">.</span><span class="nf">Fatalf</span><span class="p">(</span><span class="s">&#34;an error &#39;%s&#39; was not expected when opening a stub database connection&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nx">db</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">mock</span><span class="p">.</span><span class="nf">ExpectBegin</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">mock</span><span class="p">.</span><span class="nf">ExpectExec</span><span class="p">(</span><span class="s">&#34;UPDATE products&#34;</span><span class="p">).</span><span class="nf">WillReturnResult</span><span class="p">(</span><span class="nx">sqlmock</span><span class="p">.</span><span class="nf">NewResult</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">mock</span><span class="p">.</span><span class="nf">ExpectExec</span><span class="p">(</span><span class="s">&#34;INSERT INTO product_viewers&#34;</span><span class="p">).</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">WithArgs</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">).</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">WillReturnError</span><span class="p">(</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;some error&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">mock</span><span class="p">.</span><span class="nf">ExpectRollback</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// now we execute our method
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">if</span> <span class="nx">err</span> <span class="p">=</span> <span class="nf">recordStats</span><span class="p">(</span><span class="nx">db</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span> <span class="nx">err</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">t</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;was expecting an error, but there was none&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// we make sure that all expectations were met
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">mock</span><span class="p">.</span><span class="nf">ExpectationsWereMet</span><span class="p">();</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">t</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;there were unfulfilled expectations: %s&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>运行单元测试结果</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -423,34 +420,32 @@
 </span><span class="lnt">15
 </span><span class="lnt">16
 </span><span class="lnt">17
-</span><span class="lnt">18
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="p">&gt;</span> <span class="k">go</span> <span class="nx">test</span> <span class="o">-</span><span class="nx">mod</span><span class="p">=</span><span class="nx">mod</span> <span class="o">-</span><span class="nx">v</span> <span class="o">-</span><span class="nx">run</span><span class="p">=</span><span class="s">&#34;TestShouldUpdateStats&#34;</span>
-<span class="k">go</span><span class="p">:</span> <span class="nx">finding</span> <span class="nx">module</span> <span class="k">for</span> <span class="kn">package</span> <span class="nx">github</span><span class="p">.</span><span class="nx">com</span><span class="o">/</span><span class="nx">DATA</span><span class="o">-</span><span class="nx">DOG</span><span class="o">/</span><span class="k">go</span><span class="o">-</span><span class="nx">sqlmock</span>
-<span class="k">go</span><span class="p">:</span> <span class="nx">finding</span> <span class="nx">module</span> <span class="k">for</span> <span class="kn">package</span> <span class="nx">github</span><span class="p">.</span><span class="nx">com</span><span class="o">/</span><span class="k">go</span><span class="o">-</span><span class="nx">sql</span><span class="o">-</span><span class="nx">driver</span><span class="o">/</span><span class="nx">mysql</span>
-<span class="k">go</span><span class="p">:</span> <span class="nx">downloading</span> <span class="nx">github</span><span class="p">.</span><span class="nx">com</span><span class="o">/</span><span class="k">go</span><span class="o">-</span><span class="nx">sql</span><span class="o">-</span><span class="nx">driver</span><span class="o">/</span><span class="nx">mysql</span> <span class="nx">v1</span><span class="mf">.6.0</span>
-<span class="k">go</span><span class="p">:</span> <span class="nx">downloading</span> <span class="nx">github</span><span class="p">.</span><span class="nx">com</span><span class="o">/</span><span class="nx">DATA</span><span class="o">-</span><span class="nx">DOG</span><span class="o">/</span><span class="k">go</span><span class="o">-</span><span class="nx">sqlmock</span> <span class="nx">v1</span><span class="mf">.5.0</span>
-<span class="k">go</span><span class="p">:</span> <span class="nx">found</span> <span class="nx">github</span><span class="p">.</span><span class="nx">com</span><span class="o">/</span><span class="k">go</span><span class="o">-</span><span class="nx">sql</span><span class="o">-</span><span class="nx">driver</span><span class="o">/</span><span class="nx">mysql</span> <span class="nx">in</span> <span class="nx">github</span><span class="p">.</span><span class="nx">com</span><span class="o">/</span><span class="k">go</span><span class="o">-</span><span class="nx">sql</span><span class="o">-</span><span class="nx">driver</span><span class="o">/</span><span class="nx">mysql</span> <span class="nx">v1</span><span class="mf">.6.0</span>
-<span class="k">go</span><span class="p">:</span> <span class="nx">found</span> <span class="nx">github</span><span class="p">.</span><span class="nx">com</span><span class="o">/</span><span class="nx">DATA</span><span class="o">-</span><span class="nx">DOG</span><span class="o">/</span><span class="k">go</span><span class="o">-</span><span class="nx">sqlmock</span> <span class="nx">in</span> <span class="nx">github</span><span class="p">.</span><span class="nx">com</span><span class="o">/</span><span class="nx">DATA</span><span class="o">-</span><span class="nx">DOG</span><span class="o">/</span><span class="k">go</span><span class="o">-</span><span class="nx">sqlmock</span> <span class="nx">v1</span><span class="mf">.5.0</span>
-<span class="o">==</span><span class="p">=</span> <span class="nx">RUN</span>   <span class="nx">TestShouldUpdateStats</span>
-<span class="o">---</span> <span class="nx">PASS</span><span class="p">:</span> <span class="nf">TestShouldUpdateStats</span> <span class="p">(</span><span class="mf">0.00</span><span class="nx">s</span><span class="p">)</span>
-<span class="nx">PASS</span>
-<span class="nx">ok</span>      <span class="nx">tools</span><span class="o">/</span><span class="nx">sqlmock</span>   <span class="mf">0.016</span><span class="nx">s</span>
-
-<span class="p">&gt;</span> <span class="k">go</span> <span class="nx">test</span> <span class="o">-</span><span class="nx">mod</span><span class="p">=</span><span class="nx">mod</span> <span class="o">-</span><span class="nx">v</span> <span class="o">-</span><span class="nx">run</span><span class="p">=</span><span class="s">&#34;TestShouldRollbackStatUpdatesOnFailure&#34;</span>
-<span class="o">==</span><span class="p">=</span> <span class="nx">RUN</span>   <span class="nx">TestShouldRollbackStatUpdatesOnFailure</span>
-<span class="o">---</span> <span class="nx">PASS</span><span class="p">:</span> <span class="nf">TestShouldRollbackStatUpdatesOnFailure</span> <span class="p">(</span><span class="mf">0.00</span><span class="nx">s</span><span class="p">)</span>
-<span class="nx">PASS</span>
-<span class="nx">ok</span>      <span class="nx">tools</span><span class="o">/</span><span class="nx">sqlmock</span>   <span class="mf">0.014</span><span class="nx">s</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="o">&gt;</span> <span class="n">go</span> <span class="n">test</span> <span class="o">-</span><span class="n">mod</span><span class="o">=</span><span class="n">mod</span> <span class="o">-</span><span class="n">v</span> <span class="o">-</span><span class="n">run</span><span class="o">=</span><span class="s2">&#34;TestShouldUpdateStats&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">go</span><span class="p">:</span> <span class="n">finding</span> <span class="n">module</span> <span class="k">for</span> <span class="n">package</span> <span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">DATA</span><span class="o">-</span><span class="n">DOG</span><span class="o">/</span><span class="n">go</span><span class="o">-</span><span class="n">sqlmock</span>
+</span></span><span class="line"><span class="cl"><span class="n">go</span><span class="p">:</span> <span class="n">finding</span> <span class="n">module</span> <span class="k">for</span> <span class="n">package</span> <span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">go</span><span class="o">-</span><span class="n">sql</span><span class="o">-</span><span class="n">driver</span><span class="o">/</span><span class="n">mysql</span>
+</span></span><span class="line"><span class="cl"><span class="n">go</span><span class="p">:</span> <span class="n">downloading</span> <span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">go</span><span class="o">-</span><span class="n">sql</span><span class="o">-</span><span class="n">driver</span><span class="o">/</span><span class="n">mysql</span> <span class="n">v1</span><span class="o">.</span><span class="mf">6.0</span>
+</span></span><span class="line"><span class="cl"><span class="n">go</span><span class="p">:</span> <span class="n">downloading</span> <span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">DATA</span><span class="o">-</span><span class="n">DOG</span><span class="o">/</span><span class="n">go</span><span class="o">-</span><span class="n">sqlmock</span> <span class="n">v1</span><span class="o">.</span><span class="mf">5.0</span>
+</span></span><span class="line"><span class="cl"><span class="n">go</span><span class="p">:</span> <span class="n">found</span> <span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">go</span><span class="o">-</span><span class="n">sql</span><span class="o">-</span><span class="n">driver</span><span class="o">/</span><span class="n">mysql</span> <span class="ow">in</span> <span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">go</span><span class="o">-</span><span class="n">sql</span><span class="o">-</span><span class="n">driver</span><span class="o">/</span><span class="n">mysql</span> <span class="n">v1</span><span class="o">.</span><span class="mf">6.0</span>
+</span></span><span class="line"><span class="cl"><span class="n">go</span><span class="p">:</span> <span class="n">found</span> <span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">DATA</span><span class="o">-</span><span class="n">DOG</span><span class="o">/</span><span class="n">go</span><span class="o">-</span><span class="n">sqlmock</span> <span class="ow">in</span> <span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">DATA</span><span class="o">-</span><span class="n">DOG</span><span class="o">/</span><span class="n">go</span><span class="o">-</span><span class="n">sqlmock</span> <span class="n">v1</span><span class="o">.</span><span class="mf">5.0</span>
+</span></span><span class="line"><span class="cl"><span class="o">===</span> <span class="n">RUN</span>   <span class="n">TestShouldUpdateStats</span>
+</span></span><span class="line"><span class="cl"><span class="o">---</span> <span class="n">PASS</span><span class="p">:</span> <span class="n">TestShouldUpdateStats</span> <span class="p">(</span><span class="mf">0.00</span><span class="n">s</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">PASS</span>
+</span></span><span class="line"><span class="cl"><span class="n">ok</span>      <span class="n">tools</span><span class="o">/</span><span class="n">sqlmock</span>   <span class="mf">0.016</span><span class="n">s</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">&gt;</span> <span class="n">go</span> <span class="n">test</span> <span class="o">-</span><span class="n">mod</span><span class="o">=</span><span class="n">mod</span> <span class="o">-</span><span class="n">v</span> <span class="o">-</span><span class="n">run</span><span class="o">=</span><span class="s2">&#34;TestShouldRollbackStatUpdatesOnFailure&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">===</span> <span class="n">RUN</span>   <span class="n">TestShouldRollbackStatUpdatesOnFailure</span>
+</span></span><span class="line"><span class="cl"><span class="o">---</span> <span class="n">PASS</span><span class="p">:</span> <span class="n">TestShouldRollbackStatUpdatesOnFailure</span> <span class="p">(</span><span class="mf">0.00</span><span class="n">s</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">PASS</span>
+</span></span><span class="line"><span class="cl"><span class="n">ok</span>      <span class="n">tools</span><span class="o">/</span><span class="n">sqlmock</span>   <span class="mf">0.014</span><span class="n">s</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="使用-gorm-框架">使用 gorm 框架</h2>
 <p>使用 gorm 框架的数据结构示例：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -478,38 +473,38 @@
 </span><span class="lnt">26
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-	<span class="s">&#34;time&#34;</span>
-
-	<span class="s">&#34;gorm.io/driver/mysql&#34;</span>
-	<span class="s">&#34;gorm.io/gorm&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">type</span> <span class="nx">Product</span> <span class="kd">struct</span> <span class="p">{</span>
-	<span class="nx">ID</span>        <span class="kt">uint</span> <span class="s">`gorm:&#34;primarykey&#34;`</span>
-	<span class="nx">CreatedAt</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Time</span>
-	<span class="nx">UpdatedAt</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Time</span>
-	<span class="nx">Code</span>      <span class="kt">string</span>
-	<span class="nx">Price</span>     <span class="kt">uint</span>
-<span class="p">}</span>
-
-<span class="kd">type</span> <span class="nx">Repository</span> <span class="kd">struct</span> <span class="p">{</span>
-	<span class="nx">db</span> <span class="o">*</span><span class="nx">gorm</span><span class="p">.</span><span class="nx">DB</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Repository</span><span class="p">)</span> <span class="nf">ListAll</span><span class="p">()</span> <span class="p">([]</span><span class="o">*</span><span class="nx">Product</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-	<span class="kd">var</span> <span class="nx">l</span> <span class="p">[]</span><span class="o">*</span><span class="nx">Product</span>
-	<span class="nx">err</span> <span class="o">:=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">db</span><span class="p">.</span><span class="nf">Find</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">l</span><span class="p">).</span><span class="nx">Error</span>
-	<span class="k">return</span> <span class="nx">l</span><span class="p">,</span> <span class="nx">err</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;gorm.io/driver/mysql&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;gorm.io/gorm&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">Product</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">ID</span>        <span class="kt">uint</span> <span class="s">`gorm:&#34;primarykey&#34;`</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">CreatedAt</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Time</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">UpdatedAt</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Time</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Code</span>      <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Price</span>     <span class="kt">uint</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">Repository</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">db</span> <span class="o">*</span><span class="nx">gorm</span><span class="p">.</span><span class="nx">DB</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Repository</span><span class="p">)</span> <span class="nf">ListAll</span><span class="p">()</span> <span class="p">([]</span><span class="o">*</span><span class="nx">Product</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">var</span> <span class="nx">l</span> <span class="p">[]</span><span class="o">*</span><span class="nx">Product</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">err</span> <span class="o">:=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">db</span><span class="p">.</span><span class="nf">Find</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">l</span><span class="p">).</span><span class="nx">Error</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">l</span><span class="p">,</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>使用<code>go-sqlmock</code>编写单元测试用例如下：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -549,62 +544,62 @@
 </span><span class="lnt">38
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">getDBMock</span><span class="p">()</span> <span class="p">(</span><span class="o">*</span><span class="nx">gorm</span><span class="p">.</span><span class="nx">DB</span><span class="p">,</span> <span class="nx">sqlmock</span><span class="p">.</span><span class="nx">Sqlmock</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-	<span class="c1">// mock一个*sql.DB对象，不需要连接真实的数据库
-</span><span class="c1"></span>	<span class="nx">db</span><span class="p">,</span> <span class="nx">mock</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">sqlmock</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">sqlmock</span><span class="p">.</span><span class="nf">QueryMatcherOption</span><span class="p">(</span><span class="nx">sqlmock</span><span class="p">.</span><span class="nx">QueryMatcherEqual</span><span class="p">))</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
-	<span class="p">}</span>
-
-	<span class="c1">//测试时不需要真正连接数据库
-</span><span class="c1"></span>	<span class="nx">gormDB</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">gorm</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="nx">mysql</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">mysql</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
-		<span class="nx">Conn</span><span class="p">:</span>                      <span class="nx">db</span><span class="p">,</span>
-		<span class="nx">SkipInitializeWithVersion</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
-	<span class="p">}),</span> <span class="o">&amp;</span><span class="nx">gorm</span><span class="p">.</span><span class="nx">Config</span><span class="p">{})</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
-	<span class="p">}</span>
-
-	<span class="k">return</span> <span class="nx">gormDB</span><span class="p">,</span> <span class="nx">mock</span><span class="p">,</span> <span class="kc">nil</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">Test_GormListAll</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
-	<span class="nx">db</span><span class="p">,</span> <span class="nx">mock</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">getDBMock</span><span class="p">()</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nx">t</span><span class="p">.</span><span class="nf">Fatalf</span><span class="p">(</span><span class="s">&#34;an error &#39;%s&#39; was not expected when opening a stub database connection&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-	<span class="p">}</span>
-
-	<span class="nx">repository</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">Repository</span><span class="p">{</span><span class="nx">db</span><span class="p">:</span> <span class="nx">db</span><span class="p">}</span>
-
-	<span class="kd">const</span> <span class="nx">sqlSelectAll</span> <span class="p">=</span> <span class="s">&#34;SELECT * FROM `products`&#34;</span>
-
-	<span class="nx">mock</span><span class="p">.</span><span class="nf">ExpectQuery</span><span class="p">(</span><span class="nx">sqlSelectAll</span><span class="p">).</span>
-		<span class="nf">WillReturnRows</span><span class="p">(</span><span class="nx">sqlmock</span><span class="p">.</span><span class="nf">NewRows</span><span class="p">(</span><span class="kc">nil</span><span class="p">))</span>
-
-	<span class="nx">l</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">repository</span><span class="p">.</span><span class="nf">ListAll</span><span class="p">()</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nx">t</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-	<span class="p">}</span>
-	<span class="nx">t</span><span class="p">.</span><span class="nf">Logf</span><span class="p">(</span><span class="s">&#34;%#v&#34;</span><span class="p">,</span> <span class="nx">l</span><span class="p">)</span> <span class="c1">// []*main.Product{}
-</span><span class="c1"></span><span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">getDBMock</span><span class="p">()</span> <span class="p">(</span><span class="o">*</span><span class="nx">gorm</span><span class="p">.</span><span class="nx">DB</span><span class="p">,</span> <span class="nx">sqlmock</span><span class="p">.</span><span class="nx">Sqlmock</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// mock一个*sql.DB对象，不需要连接真实的数据库
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">db</span><span class="p">,</span> <span class="nx">mock</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">sqlmock</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">sqlmock</span><span class="p">.</span><span class="nf">QueryMatcherOption</span><span class="p">(</span><span class="nx">sqlmock</span><span class="p">.</span><span class="nx">QueryMatcherEqual</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">//测试时不需要真正连接数据库
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">gormDB</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">gorm</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="nx">mysql</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">mysql</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Conn</span><span class="p">:</span>                      <span class="nx">db</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">SkipInitializeWithVersion</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}),</span> <span class="o">&amp;</span><span class="nx">gorm</span><span class="p">.</span><span class="nx">Config</span><span class="p">{})</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">gormDB</span><span class="p">,</span> <span class="nx">mock</span><span class="p">,</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">Test_GormListAll</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">db</span><span class="p">,</span> <span class="nx">mock</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">getDBMock</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">t</span><span class="p">.</span><span class="nf">Fatalf</span><span class="p">(</span><span class="s">&#34;an error &#39;%s&#39; was not expected when opening a stub database connection&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">repository</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">Repository</span><span class="p">{</span><span class="nx">db</span><span class="p">:</span> <span class="nx">db</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">const</span> <span class="nx">sqlSelectAll</span> <span class="p">=</span> <span class="s">&#34;SELECT * FROM `products`&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">mock</span><span class="p">.</span><span class="nf">ExpectQuery</span><span class="p">(</span><span class="nx">sqlSelectAll</span><span class="p">).</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">WillReturnRows</span><span class="p">(</span><span class="nx">sqlmock</span><span class="p">.</span><span class="nf">NewRows</span><span class="p">(</span><span class="kc">nil</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">l</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">repository</span><span class="p">.</span><span class="nf">ListAll</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">t</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">t</span><span class="p">.</span><span class="nf">Logf</span><span class="p">(</span><span class="s">&#34;%#v&#34;</span><span class="p">,</span> <span class="nx">l</span><span class="p">)</span> <span class="c1">// []*main.Product{}
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>运行单元测试</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">&gt; go test -mod=mod -v -run=&#34;Test_GormListAll&#34;
-=== RUN   Test_GormListAll
-    gorm_test.go:51: []*main.Product{}
---- PASS: Test_GormListAll (0.00s)
-PASS
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">&gt; go test -mod=mod -v -run=&#34;Test_GormListAll&#34;
+</span></span><span class="line"><span class="cl">=== RUN   Test_GormListAll
+</span></span><span class="line"><span class="cl">    gorm_test.go:51: []*main.Product{}
+</span></span><span class="line"><span class="cl">--- PASS: Test_GormListAll (0.00s)
+</span></span><span class="line"><span class="cl">PASS
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -712,7 +707,7 @@ PASS
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -729,7 +724,7 @@ PASS
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

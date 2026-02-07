@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/docker/20210823-docker-mysql-login/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Docker] 为什么`mysql -h localhost`无法登录了？" />
-<meta property="og:description" content="为什么mysql -h localhost无法登录了？ 在mac上用docker运行了一个mysql,配置如下： docker-compose.yml" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/docker/20210823-docker-mysql-login/" />
-<meta property="article:published_time" content="2021-08-23T22:35:22+08:00" />
-<meta property="article:modified_time" content="2021-08-23T22:35:22+08:00" />
-<meta itemprop="name" content="[Docker] 为什么`mysql -h localhost`无法登录了？">
-<meta itemprop="description" content="为什么mysql -h localhost无法登录了？ 在mac上用docker运行了一个mysql,配置如下： docker-compose.yml">
-<meta itemprop="datePublished" content="2021-08-23T22:35:22&#43;08:00" />
-<meta itemprop="dateModified" content="2021-08-23T22:35:22&#43;08:00" />
-<meta itemprop="wordCount" content="805">
+<meta property="og:url" content="https://piaohua.github.io/post/docker/20210823-docker-mysql-login/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Docker] 为什么`mysql -h localhost`无法登录了？">
+  <meta property="og:description" content="为什么mysql -h localhost无法登录了？ 在mac上用docker运行了一个mysql,配置如下： docker-compose.yml">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2021-08-23T22:35:22+08:00">
+    <meta property="article:modified_time" content="2021-08-23T22:35:22+08:00">
+    <meta property="article:tag" content="Docker">
 
-
-
-<meta itemprop="keywords" content="docker," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Docker] 为什么`mysql -h localhost`无法登录了？"/>
-<meta name="twitter:description" content="为什么mysql -h localhost无法登录了？ 在mac上用docker运行了一个mysql,配置如下： docker-compose.yml"/>
+  <meta itemprop="name" content="[Docker] 为什么`mysql -h localhost`无法登录了？">
+  <meta itemprop="description" content="为什么mysql -h localhost无法登录了？ 在mac上用docker运行了一个mysql,配置如下： docker-compose.yml">
+  <meta itemprop="datePublished" content="2021-08-23T22:35:22+08:00">
+  <meta itemprop="dateModified" content="2021-08-23T22:35:22+08:00">
+  <meta itemprop="wordCount" content="821">
+  <meta itemprop="keywords" content="Docker"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Docker] 为什么`mysql -h localhost`无法登录了？">
+<meta name="twitter:description" content="为什么mysql -h localhost无法登录了？ 在mac上用docker运行了一个mysql,配置如下： docker-compose.yml">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -143,7 +144,7 @@
         <div class="post-category">
             <a href="/categories/docker/"> docker </a>
             </div>
-          <span class="more-meta"> 805 words </span>
+          <span class="more-meta"> 821 words </span>
           <span class="more-meta"> 2 mins read </span>
         
       </div>
@@ -170,7 +171,7 @@
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -187,29 +188,29 @@
 </span><span class="lnt">15
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="k">version</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;3&#39;</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="k">services</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="k">mysql</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="c"># restart: always</span><span class="w">
-</span><span class="w">    </span><span class="k">image</span><span class="p">:</span><span class="w"> </span>mysql<span class="p">:</span><span class="m">5.7.22</span><span class="w">
-</span><span class="w">    </span><span class="k">container_name</span><span class="p">:</span><span class="w"> </span>mysql-dev<span class="w">
-</span><span class="w">    </span><span class="k">volumes</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span>- ./my.cnf<span class="p">:</span>/etc/my.cnf<span class="w">
-</span><span class="w">    </span><span class="k">environment</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span>- <span class="s2">&#34;MYSQL_ROOT_PASSWORD=abc123&#34;</span><span class="w">
-</span><span class="w">      </span>- <span class="s2">&#34;MYSQL_DATABASE=mydb&#34;</span><span class="w">
-</span><span class="w">      </span>- <span class="s2">&#34;TZ=Asia/Shanghai&#34;</span><span class="w">
-</span><span class="w">    </span><span class="k">ports</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span>- <span class="m">3306</span><span class="p">:</span><span class="m">3306</span><span class="w">
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;3&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">services</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">mysql</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c"># restart: always</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">mysql:5.7.22</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l">mysql-dev</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">./my.cnf:/etc/my.cnf</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">environment</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="s2">&#34;MYSQL_ROOT_PASSWORD=abc123&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="s2">&#34;MYSQL_DATABASE=mydb&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="s2">&#34;TZ=Asia/Shanghai&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="m">3306</span><span class="p">:</span><span class="m">3306</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><ul>
 <li><code>my.cnf</code>配置</li>
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -222,23 +223,23 @@
 </span><span class="lnt">11
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">[mysqld]
-user=mysql
-default-storage-engine=INNODB
-character-set-client-handshake=FALSE
-character-set-server=utf8mb4
-collation-server=utf8mb4_unicode_ci
-init_connect=&#39;SET NAMES utf8mb4&#39;
-[client]
-default-character-set=utf8mb4
-[mysql]
-default-character-set=utf8mb4
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">[mysqld]
+</span></span><span class="line"><span class="cl">user=mysql
+</span></span><span class="line"><span class="cl">default-storage-engine=INNODB
+</span></span><span class="line"><span class="cl">character-set-client-handshake=FALSE
+</span></span><span class="line"><span class="cl">character-set-server=utf8mb4
+</span></span><span class="line"><span class="cl">collation-server=utf8mb4_unicode_ci
+</span></span><span class="line"><span class="cl">init_connect=&#39;SET NAMES utf8mb4&#39;
+</span></span><span class="line"><span class="cl">[client]
+</span></span><span class="line"><span class="cl">default-character-set=utf8mb4
+</span></span><span class="line"><span class="cl">[mysql]
+</span></span><span class="line"><span class="cl">default-character-set=utf8mb4
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>启动容器,运行正常</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -251,38 +252,38 @@ default-character-set=utf8mb4
 </span><span class="lnt">11
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; docker-compose -f docker-compose.yml up -d
-Pulling mysql <span class="o">(</span>mysql:5.7.22<span class="o">)</span>...
-5.7.22: Pulling from library/mysql
-Digest: sha256:aaba540cdd9313645d892f4f20573e8b42b30e5be71c054b7befed2f7da5f85b
-Status: Downloaded newer image <span class="k">for</span> mysql:5.7.22
-Creating mysql-dev ... <span class="k">done</span>
-
-&gt; docker-compose -f docker-compose.yml ps
-  Name                Command             State           Ports
-------------------------------------------------------------------------
-mysql-dev   docker-entrypoint.sh mysqld   Up      0.0.0.0:3306-&gt;3306/tcp
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">&gt; docker-compose -f docker-compose.yml up -d
+</span></span><span class="line"><span class="cl">Pulling mysql <span class="o">(</span>mysql:5.7.22<span class="o">)</span>...
+</span></span><span class="line"><span class="cl">5.7.22: Pulling from library/mysql
+</span></span><span class="line"><span class="cl">Digest: sha256:aaba540cdd9313645d892f4f20573e8b42b30e5be71c054b7befed2f7da5f85b
+</span></span><span class="line"><span class="cl">Status: Downloaded newer image <span class="k">for</span> mysql:5.7.22
+</span></span><span class="line"><span class="cl">Creating mysql-dev ... <span class="k">done</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">&gt; docker-compose -f docker-compose.yml ps
+</span></span><span class="line"><span class="cl">  Name                Command             State           Ports
+</span></span><span class="line"><span class="cl">------------------------------------------------------------------------
+</span></span><span class="line"><span class="cl">mysql-dev   docker-entrypoint.sh mysqld   Up      0.0.0.0:3306-&gt;3306/tcp
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>但是在登录时却失败了，报错如下</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; mysql -hlocalhost -P3306 -uroot -p
-Enter password:
-ERROR <span class="m">2002</span> <span class="o">(</span>HY000<span class="o">)</span>: Can<span class="s1">&#39;t connect to local MySQL server through socket &#39;</span>/tmp/mysql.sock<span class="err">&#39;</span> <span class="o">(</span>2<span class="o">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">&gt; mysql -hlocalhost -P3306 -uroot -p
+</span></span><span class="line"><span class="cl">Enter password:
+</span></span><span class="line"><span class="cl">ERROR <span class="m">2002</span> <span class="o">(</span>HY000<span class="o">)</span>: Can<span class="s1">&#39;t connect to local MySQL server through socket &#39;</span>/tmp/mysql.sock<span class="err">&#39;</span> <span class="o">(</span>2<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>登录容器发现/tmp/mysql.sock文件是存在的，网上搜索了一圈，大多都是修改my.cnf配置socket参数路径，试了一遍全部不行</p>
 <p>最后发现了这遍文章<a href="https://www.jianshu.com/p/8f2121bd6b1a">为什么<code>mysql -h localhost</code>无法登录了？</a></p>
 <p>原来把localhost换成127.0.0.1就可以使用，这么简单，浪费不少时间，记录一下</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -297,20 +298,20 @@ ERROR <span class="m">2002</span> <span class="o">(</span>HY000<span class="o">)
 </span><span class="lnt">13
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; mysql -h127.0.0.1 -P3306 -uroot -p
-Enter password:
-Welcome to the MySQL monitor.  Commands end with <span class="p">;</span> or <span class="se">\g</span>.
-Your MySQL connection id is <span class="m">2</span>
-Server version: 5.7.22 MySQL Community Server <span class="o">(</span>GPL<span class="o">)</span>
-
-Copyright <span class="o">(</span>c<span class="o">)</span> 2000, 2017, Oracle and/or its affiliates. All rights reserved.
-
-Oracle is a registered trademark of Oracle Corporation and/or its
-affiliates. Other names may be trademarks of their respective
-owners.
-
-Type <span class="s1">&#39;help;&#39;</span> or <span class="s1">&#39;\h&#39;</span> <span class="k">for</span> help. Type <span class="s1">&#39;\c&#39;</span> to clear the current input statement.
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">&gt; mysql -h127.0.0.1 -P3306 -uroot -p
+</span></span><span class="line"><span class="cl">Enter password:
+</span></span><span class="line"><span class="cl">Welcome to the MySQL monitor.  Commands end with <span class="p">;</span> or <span class="se">\g</span>.
+</span></span><span class="line"><span class="cl">Your MySQL connection id is <span class="m">2</span>
+</span></span><span class="line"><span class="cl">Server version: 5.7.22 MySQL Community Server <span class="o">(</span>GPL<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Copyright <span class="o">(</span>c<span class="o">)</span> 2000, 2017, Oracle and/or its affiliates. All rights reserved.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Oracle is a registered trademark of Oracle Corporation and/or its
+</span></span><span class="line"><span class="cl">affiliates. Other names may be trademarks of their respective
+</span></span><span class="line"><span class="cl">owners.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Type <span class="s1">&#39;help;&#39;</span> or <span class="s1">&#39;\h&#39;</span> <span class="k">for</span> help. Type <span class="s1">&#39;\c&#39;</span> to clear the current input statement.
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="localhost和127001的区别">localhost和127.0.0.1的区别</h2>
 <ul>
@@ -425,7 +426,7 @@ Type <span class="s1">&#39;help;&#39;</span> or <span class="s1">&#39;\h&#39;</s
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -442,7 +443,7 @@ Type <span class="s1">&#39;help;&#39;</span> or <span class="s1">&#39;\h&#39;</s
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

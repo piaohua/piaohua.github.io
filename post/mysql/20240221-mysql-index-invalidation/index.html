@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/mysql/20240221-mysql-index-invalidation/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="MySQL的索引失效场景" />
-<meta property="og:description" content="[一张图搞懂MySQL的索引失效]((https://segmentfault.com/a/1190000021464570) 全值匹配（索引" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/mysql/20240221-mysql-index-invalidation/" />
-<meta property="article:published_time" content="2024-02-21T17:56:12+08:00" />
-<meta property="article:modified_time" content="2024-02-21T17:56:12+08:00" />
-<meta itemprop="name" content="MySQL的索引失效场景">
-<meta itemprop="description" content="[一张图搞懂MySQL的索引失效]((https://segmentfault.com/a/1190000021464570) 全值匹配（索引">
-<meta itemprop="datePublished" content="2024-02-21T17:56:12&#43;08:00" />
-<meta itemprop="dateModified" content="2024-02-21T17:56:12&#43;08:00" />
-<meta itemprop="wordCount" content="1143">
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20240221-mysql-index-invalidation/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="MySQL的索引失效场景">
+  <meta property="og:description" content="[一张图搞懂MySQL的索引失效]((https://segmentfault.com/a/1190000021464570) 全值匹配（索引">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2024-02-21T17:56:12+08:00">
+    <meta property="article:modified_time" content="2024-02-21T17:56:12+08:00">
+    <meta property="article:tag" content="Mysql">
 
-
-
-<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="MySQL的索引失效场景"/>
-<meta name="twitter:description" content="[一张图搞懂MySQL的索引失效]((https://segmentfault.com/a/1190000021464570) 全值匹配（索引"/>
+  <meta itemprop="name" content="MySQL的索引失效场景">
+  <meta itemprop="description" content="[一张图搞懂MySQL的索引失效]((https://segmentfault.com/a/1190000021464570) 全值匹配（索引">
+  <meta itemprop="datePublished" content="2024-02-21T17:56:12+08:00">
+  <meta itemprop="dateModified" content="2024-02-21T17:56:12+08:00">
+  <meta itemprop="wordCount" content="1149">
+  <meta itemprop="keywords" content="Mysql"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="MySQL的索引失效场景">
+<meta name="twitter:description" content="[一张图搞懂MySQL的索引失效]((https://segmentfault.com/a/1190000021464570) 全值匹配（索引">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -143,7 +144,7 @@
         <div class="post-category">
             <a href="/categories/mysql/"> mysql </a>
             </div>
-          <span class="more-meta"> 1143 words </span>
+          <span class="more-meta"> 1149 words </span>
           <span class="more-meta"> 3 mins read </span>
         
       </div>
@@ -166,164 +167,164 @@
 <p>全值匹配（索引最佳）</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">explain</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="k">user</span> <span class="k">where</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;zhangsan&#39;</span> <span class="k">and</span> <span class="n">age</span> <span class="o">=</span> <span class="mi">20</span> <span class="k">and</span> <span class="n">pos</span> <span class="o">=</span> <span class="s1">&#39;cxy&#39;</span> <span class="k">and</span> <span class="n">phone</span> <span class="o">=</span> <span class="s1">&#39;18730658760&#39;</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">explain</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;zhangsan&#39;</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;cxy&#39;</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">phone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;18730658760&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>和索引顺序无关，MySQL底层的优化器会进行优化，调整索引的顺序</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">explain</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="k">user</span> <span class="k">where</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;zhangsan&#39;</span> <span class="k">and</span> <span class="n">age</span> <span class="o">=</span> <span class="mi">20</span> <span class="k">and</span> <span class="n">pos</span> <span class="o">=</span> <span class="s1">&#39;cxy&#39;</span> <span class="k">and</span> <span class="n">phone</span> <span class="o">=</span> <span class="s1">&#39;18730658760&#39;</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">explain</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;zhangsan&#39;</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;cxy&#39;</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">phone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;18730658760&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>1、违反最左前缀法则
 如果索引有多列，要遵守最左前缀法则
 即查询从索引的最左前列开始并且不跳过索引中的列</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">explain</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="k">user</span> <span class="k">where</span> <span class="n">age</span> <span class="o">=</span> <span class="mi">20</span> <span class="k">and</span> <span class="n">phone</span> <span class="o">=</span> <span class="s1">&#39;18730658760&#39;</span> <span class="k">and</span> <span class="n">pos</span> <span class="o">=</span> <span class="s1">&#39;cxy&#39;</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">explain</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">phone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;18730658760&#39;</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;cxy&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>2、在索引列上做任何操作
 如计算、函数、（自动or手动）类型转换等操作，会导致索引失效从而全表扫描</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">explain</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="k">user</span> <span class="k">where</span> <span class="k">left</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span> <span class="o">=</span> <span class="s1">&#39;zhangsan&#39;</span> <span class="k">and</span> <span class="n">age</span> <span class="o">=</span> <span class="mi">20</span> <span class="k">and</span> <span class="n">phone</span> <span class="o">=</span> <span class="s1">&#39;18730658760&#39;</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">explain</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="k">left</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;zhangsan&#39;</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">phone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;18730658760&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>3、索引范围条件右边的列
 索引范围条件右边的索引列会失效</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">explain</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="k">user</span> <span class="k">where</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;zhangsan&#39;</span> <span class="k">and</span> <span class="n">age</span> <span class="o">&gt;</span> <span class="mi">20</span> <span class="k">and</span> <span class="n">pos</span> <span class="o">=</span> <span class="s1">&#39;cxy&#39;</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">explain</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;zhangsan&#39;</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;cxy&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>4、尽量使用覆盖索引
 只访问索引查询（索引列和查询列一致），减少select*</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">explain</span> <span class="k">select</span> <span class="n">name</span><span class="p">,</span><span class="n">age</span><span class="p">,</span><span class="n">pos</span><span class="p">,</span><span class="n">phone</span> <span class="k">from</span> <span class="k">user</span> <span class="k">where</span> <span class="n">age</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">explain</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="n">age</span><span class="p">,</span><span class="n">pos</span><span class="p">,</span><span class="n">phone</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>5、使用不等于（!=、&lt;&gt;）
 mysql在使用不等于（!=、&lt;&gt;）的时候无法使用索引会导致全表扫描（除覆盖索引外）</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">explain</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="k">user</span> <span class="k">where</span> <span class="n">age</span> <span class="o">!=</span> <span class="mi">20</span><span class="p">;</span>
-<span class="k">explain</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="k">user</span> <span class="k">where</span> <span class="n">age</span> <span class="o">&lt;&gt;</span> <span class="mi">20</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">explain</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">explain</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
-</div><p>6、like以通配符开头（'%abc&rsquo;）
+</div><p>6、like以通配符开头（&rsquo;%abc&rsquo;）
 索引失效</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">explain</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="k">user</span> <span class="k">where</span> <span class="n">name</span> <span class="k">like</span> <span class="s1">&#39;%zhangsan&#39;</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">explain</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="k">like</span><span class="w"> </span><span class="s1">&#39;%zhangsan&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>索引生效</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">explain</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="k">user</span> <span class="k">where</span> <span class="n">name</span> <span class="k">like</span> <span class="s1">&#39;zhangsan%&#39;</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">explain</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="k">like</span><span class="w"> </span><span class="s1">&#39;zhangsan%&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>7、字符串不加单引号索引失效</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">explain</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="k">user</span> <span class="k">where</span> <span class="n">name</span> <span class="o">=</span> <span class="mi">2000</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">explain</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2000</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>8、or连接
 少用or</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">explain</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="k">user</span> <span class="k">where</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;2000&#39;</span> <span class="k">or</span> <span class="n">age</span> <span class="o">=</span> <span class="mi">20</span> <span class="k">or</span> <span class="n">pos</span> <span class="o">=</span><span class="s1">&#39;cxy&#39;</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">explain</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;2000&#39;</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="s1">&#39;cxy&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>9、order by
 正常（索引参与了排序）</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">explain</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="k">user</span> <span class="k">where</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;zhangsan&#39;</span> <span class="k">and</span> <span class="n">age</span> <span class="o">=</span> <span class="mi">20</span> <span class="k">order</span> <span class="k">by</span> <span class="n">age</span><span class="p">,</span><span class="n">pos</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">explain</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;zhangsan&#39;</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">age</span><span class="p">,</span><span class="n">pos</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>备注：索引有两个作用：排序和查找</p>
 <p>导致额外的文件排序（会降低性能）</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">explain</span> <span class="k">select</span> <span class="n">name</span><span class="p">,</span><span class="n">age</span> <span class="k">from</span> <span class="k">user</span> <span class="k">where</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;zhangsan&#39;</span> <span class="k">order</span> <span class="k">by</span> <span class="n">pos</span><span class="p">;</span><span class="o">//</span><span class="err">违反最左前缀法则</span>
-<span class="k">explain</span> <span class="k">select</span> <span class="n">name</span><span class="p">,</span><span class="n">age</span> <span class="k">from</span> <span class="k">user</span> <span class="k">where</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;zhangsan&#39;</span> <span class="k">order</span> <span class="k">by</span> <span class="n">pos</span><span class="p">,</span><span class="n">age</span><span class="p">;</span><span class="o">//</span><span class="err">违反最左前缀法则</span>
-<span class="k">explain</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="k">user</span> <span class="k">where</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;zhangsan&#39;</span> <span class="k">and</span> <span class="n">age</span> <span class="o">=</span> <span class="mi">20</span> <span class="k">order</span> <span class="k">by</span> <span class="n">created_time</span><span class="p">,</span><span class="n">age</span><span class="p">;</span><span class="o">//</span><span class="err">含非索引字段</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">explain</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="n">age</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;zhangsan&#39;</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">pos</span><span class="p">;</span><span class="o">//</span><span class="err">违反最左前缀法则</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">explain</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="n">age</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;zhangsan&#39;</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">pos</span><span class="p">,</span><span class="n">age</span><span class="p">;</span><span class="o">//</span><span class="err">违反最左前缀法则</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">explain</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;zhangsan&#39;</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">created_time</span><span class="p">,</span><span class="n">age</span><span class="p">;</span><span class="o">//</span><span class="err">含非索引字段</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>10、group by
 正常（索引参与了排序）</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">explain</span> <span class="k">select</span> <span class="n">name</span><span class="p">,</span><span class="n">age</span> <span class="k">from</span> <span class="k">user</span> <span class="k">where</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;zhangsan&#39;</span> <span class="k">group</span> <span class="k">by</span> <span class="n">age</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">explain</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="n">age</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;zhangsan&#39;</span><span class="w"> </span><span class="k">group</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">age</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>备注：分组之前必排序（排序同order by）</p>
 <p>导致产生临时表（会降低性能）</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">explain</span> <span class="k">select</span> <span class="n">name</span><span class="p">,</span><span class="n">pos</span> <span class="k">from</span> <span class="k">user</span> <span class="k">where</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;zhangsan&#39;</span> <span class="k">group</span> <span class="k">by</span> <span class="n">pos</span><span class="p">;</span><span class="o">//</span><span class="err">违反最左前缀法则</span>
-<span class="k">explain</span> <span class="k">select</span> <span class="n">name</span><span class="p">,</span><span class="n">age</span> <span class="k">from</span> <span class="k">user</span> <span class="k">where</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;zhangsan&#39;</span> <span class="k">group</span> <span class="k">by</span> <span class="n">pos</span><span class="p">,</span><span class="n">age</span><span class="p">;</span><span class="o">//</span><span class="err">违反最左前缀法则</span>
-<span class="k">explain</span> <span class="k">select</span> <span class="n">name</span><span class="p">,</span><span class="n">age</span> <span class="k">from</span> <span class="k">user</span> <span class="k">where</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;zhangsan&#39;</span> <span class="k">group</span> <span class="k">by</span> <span class="n">age</span><span class="p">,</span><span class="n">created_time</span><span class="p">;</span><span class="o">//</span><span class="err">含非索引字段</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">explain</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="n">pos</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;zhangsan&#39;</span><span class="w"> </span><span class="k">group</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">pos</span><span class="p">;</span><span class="o">//</span><span class="err">违反最左前缀法则</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">explain</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="n">age</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;zhangsan&#39;</span><span class="w"> </span><span class="k">group</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">pos</span><span class="p">,</span><span class="n">age</span><span class="p">;</span><span class="o">//</span><span class="err">违反最左前缀法则</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">explain</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="n">age</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;zhangsan&#39;</span><span class="w"> </span><span class="k">group</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">age</span><span class="p">,</span><span class="n">created_time</span><span class="p">;</span><span class="o">//</span><span class="err">含非索引字段</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>使用的示例数据</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -338,20 +339,20 @@ mysql在使用不等于（!=、&lt;&gt;）的时候无法使用索引会导致�
 </span><span class="lnt">13
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="k">create</span> <span class="k">table</span> <span class="k">user</span> <span class="err">\</span><span class="k">G</span>
-<span class="o">******************************************************</span>
-       <span class="k">Table</span><span class="p">:</span> <span class="k">user</span>
-<span class="k">Create</span> <span class="k">Table</span><span class="p">:</span> <span class="k">CREATE</span> <span class="k">TABLE</span> <span class="o">`</span><span class="k">user</span><span class="o">`</span> <span class="p">(</span>
-  <span class="o">`</span><span class="n">id</span><span class="o">`</span> <span class="nb">int</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span>
-  <span class="o">`</span><span class="n">name</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="k">NULL</span><span class="p">,</span>
-  <span class="o">`</span><span class="n">age</span><span class="o">`</span> <span class="nb">int</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
-  <span class="o">`</span><span class="n">pos</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="k">NULL</span><span class="p">,</span>
-  <span class="o">`</span><span class="n">phone</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="k">NULL</span><span class="p">,</span>
-  <span class="o">`</span><span class="n">created_time</span><span class="o">`</span> <span class="n">datetime</span> <span class="k">DEFAULT</span> <span class="k">NULL</span><span class="p">,</span>
-  <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">),</span>
-  <span class="k">KEY</span> <span class="o">`</span><span class="n">idx_name_age_pos_phone</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">name</span><span class="o">`</span><span class="p">,</span><span class="o">`</span><span class="n">age</span><span class="o">`</span><span class="p">,</span><span class="o">`</span><span class="n">pos</span><span class="o">`</span><span class="p">,</span><span class="o">`</span><span class="n">phone</span><span class="o">`</span><span class="p">)</span>
-<span class="p">)</span> <span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span> <span class="k">DEFAULT</span> <span class="n">CHARSET</span><span class="o">=</span><span class="n">utf8mb4</span> <span class="k">COLLATE</span><span class="o">=</span><span class="n">utf8mb4_0900_ai_ci</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">show</span><span class="w"> </span><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="err">\</span><span class="k">G</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">******************************************************</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">       </span><span class="k">Table</span><span class="p">:</span><span class="w"> </span><span class="k">user</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">Create</span><span class="w"> </span><span class="k">Table</span><span class="p">:</span><span class="w"> </span><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="o">`</span><span class="k">user</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">name</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">age</span><span class="o">`</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="s1">&#39;0&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">pos</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">phone</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">created_time</span><span class="o">`</span><span class="w"> </span><span class="n">datetime</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">KEY</span><span class="w"> </span><span class="o">`</span><span class="n">idx_name_age_pos_phone</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">name</span><span class="o">`</span><span class="p">,</span><span class="o">`</span><span class="n">age</span><span class="o">`</span><span class="p">,</span><span class="o">`</span><span class="n">pos</span><span class="o">`</span><span class="p">,</span><span class="o">`</span><span class="n">phone</span><span class="o">`</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w"> </span><span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">CHARSET</span><span class="o">=</span><span class="n">utf8mb4</span><span class="w"> </span><span class="k">COLLATE</span><span class="o">=</span><span class="n">utf8mb4_0900_ai_ci</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -465,7 +466,7 @@ mysql在使用不等于（!=、&lt;&gt;）的时候无法使用索引会导致�
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -482,7 +483,7 @@ mysql在使用不等于（!=、&lt;&gt;）的时候无法使用索引会导致�
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

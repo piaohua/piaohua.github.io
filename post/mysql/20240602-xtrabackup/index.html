@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/mysql/20240602-xtrabackup/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="MySQL备份工具 percona/xtrabackup 原理及使用" />
-<meta property="og:description" content="MariaDB/MySQL备份和恢复(三)：xtrabackup用法和原理详述 Percona-xtrabackup是 Percona公司开发的" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/mysql/20240602-xtrabackup/" />
-<meta property="article:published_time" content="2024-06-02T17:20:59+08:00" />
-<meta property="article:modified_time" content="2024-06-02T17:20:59+08:00" />
-<meta itemprop="name" content="MySQL备份工具 percona/xtrabackup 原理及使用">
-<meta itemprop="description" content="MariaDB/MySQL备份和恢复(三)：xtrabackup用法和原理详述 Percona-xtrabackup是 Percona公司开发的">
-<meta itemprop="datePublished" content="2024-06-02T17:20:59&#43;08:00" />
-<meta itemprop="dateModified" content="2024-06-02T17:20:59&#43;08:00" />
-<meta itemprop="wordCount" content="933">
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20240602-xtrabackup/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="MySQL备份工具 percona/xtrabackup 原理及使用">
+  <meta property="og:description" content="MariaDB/MySQL备份和恢复(三)：xtrabackup用法和原理详述 Percona-xtrabackup是 Percona公司开发的">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2024-06-02T17:20:59+08:00">
+    <meta property="article:modified_time" content="2024-06-02T17:20:59+08:00">
+    <meta property="article:tag" content="Mysql">
 
-
-
-<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="MySQL备份工具 percona/xtrabackup 原理及使用"/>
-<meta name="twitter:description" content="MariaDB/MySQL备份和恢复(三)：xtrabackup用法和原理详述 Percona-xtrabackup是 Percona公司开发的"/>
+  <meta itemprop="name" content="MySQL备份工具 percona/xtrabackup 原理及使用">
+  <meta itemprop="description" content="MariaDB/MySQL备份和恢复(三)：xtrabackup用法和原理详述 Percona-xtrabackup是 Percona公司开发的">
+  <meta itemprop="datePublished" content="2024-06-02T17:20:59+08:00">
+  <meta itemprop="dateModified" content="2024-06-02T17:20:59+08:00">
+  <meta itemprop="wordCount" content="931">
+  <meta itemprop="keywords" content="Mysql"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="MySQL备份工具 percona/xtrabackup 原理及使用">
+<meta name="twitter:description" content="MariaDB/MySQL备份和恢复(三)：xtrabackup用法和原理详述 Percona-xtrabackup是 Percona公司开发的">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -143,7 +144,7 @@
         <div class="post-category">
             <a href="/categories/mysql/"> mysql </a>
             </div>
-          <span class="more-meta"> 933 words </span>
+          <span class="more-meta"> 931 words </span>
           <span class="more-meta"> 2 mins read </span>
         
       </div>
@@ -176,7 +177,7 @@
 <h2 id="安装">安装</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -188,23 +189,21 @@
 </span><span class="lnt">10
 </span><span class="lnt">11
 </span><span class="lnt">12
-</span><span class="lnt">13
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh"><span class="c1"># 先创建一个文件来存放的xtraBackup</span>
-mkdir /xtraBackup
-
-<span class="c1"># 将下好的tar包进行解压到/xtraBackup文件下</span>
-tar -xf Percona-XtraBackup-2.4.20-rc8b4056-el7-x86_64-bundle.tar -C /xtraBackup/
-
-<span class="c1"># 安装</span>
-<span class="nb">cd</span> /xtraBackup
-yum install -y *
-
-<span class="c1"># 查看</span>
-xtrabackup -version
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1"># 先创建一个文件来存放的xtraBackup</span>
+</span></span><span class="line"><span class="cl">mkdir /xtraBackup
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 将下好的tar包进行解压到/xtraBackup文件下</span>
+</span></span><span class="line"><span class="cl">tar -xf Percona-XtraBackup-2.4.20-rc8b4056-el7-x86_64-bundle.tar -C /xtraBackup/
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 安装</span>
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> /xtraBackup
+</span></span><span class="line"><span class="cl">yum install -y *
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 查看</span>
+</span></span><span class="line"><span class="cl">xtrabackup -version
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="备份加锁">备份加锁</h2>
 <p>对于不支持backup lock的版本，只能通过<code>flush tables with read lock</code>来获取全局读锁，但这样也同样会锁住innodb表，杀伤力太大。所以使用xtrabackup备份Oracle的MySQL，实质上只能实现innodb表的部分时间热备、部分时间温备。</p>
@@ -213,39 +212,37 @@ xtrabackup -version
 <p>常用参数：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span><span class="lnt">5
-</span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">--apply-log		    在进行数据库恢复操作之前执行,以确保数据的一致性和完整性
---redo-only     	不回滚未提交事务
---copy-back     	恢复备份目录
---incremental		指定增量备份
---incremental-basedir	指定基于哪个备份做增量备份，最后是增量备份保存的目录。
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">--apply-log		    在进行数据库恢复操作之前执行,以确保数据的一致性和完整性
+</span></span><span class="line"><span class="cl">--redo-only     	不回滚未提交事务
+</span></span><span class="line"><span class="cl">--copy-back     	恢复备份目录
+</span></span><span class="line"><span class="cl">--incremental		指定增量备份
+</span></span><span class="line"><span class="cl">--incremental-basedir	指定基于哪个备份做增量备份，最后是增量备份保存的目录。
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>备份</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">innobackupex --user<span class="o">=</span>root --password<span class="o">=</span><span class="s1">&#39;123456&#39;</span> /xtrabackup/full
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">innobackupex --user<span class="o">=</span>root --password<span class="o">=</span><span class="s1">&#39;123456&#39;</span> /xtrabackup/full
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>恢复</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">innobackupex --defaults-file<span class="o">=</span>/etc/my.cnf --copy-back /xtrabackup/full
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">innobackupex --defaults-file<span class="o">=</span>/etc/my.cnf --copy-back /xtrabackup/full
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -353,7 +350,7 @@ xtrabackup -version
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -370,7 +367,7 @@ xtrabackup -version
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

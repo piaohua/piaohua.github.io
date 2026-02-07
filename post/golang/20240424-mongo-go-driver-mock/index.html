@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20240424-mongo-go-driver-mock/" />
@@ -35,27 +35,29 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Go] examples for the mongo-go-driver mock" />
-<meta property="og:description" content="examples for the mongo-go-driver mock 在使用 mongo-go-driver 时，需要对mongo数据库操作模拟单元测试用例， 使用 testify 或 genmock 中的 mock 都需要实现mock接口。 而 mongo-go-driver 官方有一个 mtest 包，提供更好的实现" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20240424-mongo-go-driver-mock/" />
-<meta property="article:published_time" content="2024-04-24T23:34:48+08:00" />
-<meta property="article:modified_time" content="2024-04-24T23:34:48+08:00" />
-<meta itemprop="name" content="[Go] examples for the mongo-go-driver mock">
-<meta itemprop="description" content="examples for the mongo-go-driver mock 在使用 mongo-go-driver 时，需要对mongo数据库操作模拟单元测试用例， 使用 testify 或 genmock 中的 mock 都需要实现mock接口。 而 mongo-go-driver 官方有一个 mtest 包，提供更好的实现">
-<meta itemprop="datePublished" content="2024-04-24T23:34:48&#43;08:00" />
-<meta itemprop="dateModified" content="2024-04-24T23:34:48&#43;08:00" />
-<meta itemprop="wordCount" content="1404">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20240424-mongo-go-driver-mock/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Go] examples for the mongo-go-driver mock">
+  <meta property="og:description" content="examples for the mongo-go-driver mock 在使用 mongo-go-driver 时，需要对mongo数据库操作模拟单元测试用例， 使用 testify 或 genmock 中的 mock 都需要实现mock接口。 而 mongo-go-driver 官方有一个 mtest 包，提供更好的实现">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2024-04-24T23:34:48+08:00">
+    <meta property="article:modified_time" content="2024-04-24T23:34:48+08:00">
+    <meta property="article:tag" content="Golang">
+    <meta property="article:tag" content="Mongodb">
 
-
-
-<meta itemprop="keywords" content="golang,mongodb," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Go] examples for the mongo-go-driver mock"/>
-<meta name="twitter:description" content="examples for the mongo-go-driver mock 在使用 mongo-go-driver 时，需要对mongo数据库操作模拟单元测试用例， 使用 testify 或 genmock 中的 mock 都需要实现mock接口。 而 mongo-go-driver 官方有一个 mtest 包，提供更好的实现"/>
+  <meta itemprop="name" content="[Go] examples for the mongo-go-driver mock">
+  <meta itemprop="description" content="examples for the mongo-go-driver mock 在使用 mongo-go-driver 时，需要对mongo数据库操作模拟单元测试用例， 使用 testify 或 genmock 中的 mock 都需要实现mock接口。 而 mongo-go-driver 官方有一个 mtest 包，提供更好的实现">
+  <meta itemprop="datePublished" content="2024-04-24T23:34:48+08:00">
+  <meta itemprop="dateModified" content="2024-04-24T23:34:48+08:00">
+  <meta itemprop="wordCount" content="1404">
+  <meta itemprop="keywords" content="Golang,Mongodb"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Go] examples for the mongo-go-driver mock">
+<meta name="twitter:description" content="examples for the mongo-go-driver mock 在使用 mongo-go-driver 时，需要对mongo数据库操作模拟单元测试用例， 使用 testify 或 genmock 中的 mock 都需要实现mock接口。 而 mongo-go-driver 官方有一个 mtest 包，提供更好的实现">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -173,7 +175,7 @@
 <p>MongoDB 查询操作示例</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -191,28 +193,28 @@
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">import</span> <span class="p">(</span>
-	<span class="s">&#34;context&#34;</span>
-
-	<span class="s">&#34;go.mongodb.org/mongo-driver/bson&#34;</span>
-	<span class="s">&#34;go.mongodb.org/mongo-driver/bson/primitive&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">getFromID</span><span class="p">(</span><span class="nx">id</span> <span class="nx">primitive</span><span class="p">.</span><span class="nx">ObjectID</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">user</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-	<span class="nx">filter</span> <span class="o">:=</span> <span class="nx">bson</span><span class="p">.</span><span class="nx">D</span><span class="p">{{</span><span class="nx">Key</span><span class="p">:</span> <span class="s">&#34;id&#34;</span><span class="p">,</span> <span class="nx">Value</span><span class="p">:</span> <span class="nx">id</span><span class="p">}}</span>
-	<span class="kd">var</span> <span class="nx">object</span> <span class="nx">user</span>
-
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">userCollection</span><span class="p">.</span><span class="nf">FindOne</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="nx">filter</span><span class="p">).</span><span class="nf">Decode</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">object</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
-	<span class="p">}</span>
-	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">object</span><span class="p">,</span> <span class="kc">nil</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;context&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;go.mongodb.org/mongo-driver/bson&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;go.mongodb.org/mongo-driver/bson/primitive&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">getFromID</span><span class="p">(</span><span class="nx">id</span> <span class="nx">primitive</span><span class="p">.</span><span class="nx">ObjectID</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">user</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">filter</span> <span class="o">:=</span> <span class="nx">bson</span><span class="p">.</span><span class="nx">D</span><span class="p">{{</span><span class="nx">Key</span><span class="p">:</span> <span class="s">&#34;id&#34;</span><span class="p">,</span> <span class="nx">Value</span><span class="p">:</span> <span class="nx">id</span><span class="p">}}</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">var</span> <span class="nx">object</span> <span class="nx">user</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">userCollection</span><span class="p">.</span><span class="nf">FindOne</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="nx">filter</span><span class="p">).</span><span class="nf">Decode</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">object</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">object</span><span class="p">,</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>为查询操作实现单元测试示例：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -245,53 +247,53 @@
 </span><span class="lnt">31
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">import</span> <span class="p">(</span>
-	<span class="s">&#34;testing&#34;</span>
-
-	<span class="s">&#34;github.com/stretchr/testify/assert&#34;</span>
-	<span class="s">&#34;go.mongodb.org/mongo-driver/bson&#34;</span>
-	<span class="s">&#34;go.mongodb.org/mongo-driver/bson/primitive&#34;</span>
-	<span class="s">&#34;go.mongodb.org/mongo-driver/mongo/integration/mtest&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">TestFindOne</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
-	<span class="nx">mt</span> <span class="o">:=</span> <span class="nx">mtest</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">mtest</span><span class="p">.</span><span class="nf">NewOptions</span><span class="p">().</span><span class="nf">ClientType</span><span class="p">(</span><span class="nx">mtest</span><span class="p">.</span><span class="nx">Mock</span><span class="p">))</span>
-	<span class="k">defer</span> <span class="nx">mt</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
-
-	<span class="nx">mt</span><span class="p">.</span><span class="nf">Run</span><span class="p">(</span><span class="s">&#34;success&#34;</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">mt</span> <span class="o">*</span><span class="nx">mtest</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
-		<span class="nx">userCollection</span> <span class="p">=</span> <span class="nx">mt</span><span class="p">.</span><span class="nx">Coll</span>
-		<span class="nx">expectedUser</span> <span class="o">:=</span> <span class="nx">user</span><span class="p">{</span>
-			<span class="nx">ID</span><span class="p">:</span>    <span class="nx">primitive</span><span class="p">.</span><span class="nf">NewObjectID</span><span class="p">(),</span>
-			<span class="nx">Name</span><span class="p">:</span>  <span class="s">&#34;john&#34;</span><span class="p">,</span>
-			<span class="nx">Email</span><span class="p">:</span> <span class="s">&#34;john.doe@test.com&#34;</span><span class="p">,</span>
-		<span class="p">}</span>
-
-		<span class="nx">mt</span><span class="p">.</span><span class="nf">AddMockResponses</span><span class="p">(</span><span class="nx">mtest</span><span class="p">.</span><span class="nf">CreateCursorResponse</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#34;foo.bar&#34;</span><span class="p">,</span> <span class="nx">mtest</span><span class="p">.</span><span class="nx">FirstBatch</span><span class="p">,</span> <span class="nx">bson</span><span class="p">.</span><span class="nx">D</span><span class="p">{</span>
-			<span class="p">{</span><span class="s">&#34;_id&#34;</span><span class="p">,</span> <span class="nx">expectedUser</span><span class="p">.</span><span class="nx">ID</span><span class="p">},</span>
-			<span class="p">{</span><span class="s">&#34;name&#34;</span><span class="p">,</span> <span class="nx">expectedUser</span><span class="p">.</span><span class="nx">Name</span><span class="p">},</span>
-			<span class="p">{</span><span class="s">&#34;email&#34;</span><span class="p">,</span> <span class="nx">expectedUser</span><span class="p">.</span><span class="nx">Email</span><span class="p">},</span>
-		<span class="p">}))</span>
-		<span class="nx">userResponse</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">getFromID</span><span class="p">(</span><span class="nx">expectedUser</span><span class="p">.</span><span class="nx">ID</span><span class="p">)</span>
-		<span class="nx">assert</span><span class="p">.</span><span class="nf">Nil</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-		<span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">expectedUser</span><span class="p">,</span> <span class="nx">userResponse</span><span class="p">)</span>
-	<span class="p">})</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;testing&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/stretchr/testify/assert&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;go.mongodb.org/mongo-driver/bson&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;go.mongodb.org/mongo-driver/bson/primitive&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;go.mongodb.org/mongo-driver/mongo/integration/mtest&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">TestFindOne</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">mt</span> <span class="o">:=</span> <span class="nx">mtest</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">mtest</span><span class="p">.</span><span class="nf">NewOptions</span><span class="p">().</span><span class="nf">ClientType</span><span class="p">(</span><span class="nx">mtest</span><span class="p">.</span><span class="nx">Mock</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nx">mt</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">mt</span><span class="p">.</span><span class="nf">Run</span><span class="p">(</span><span class="s">&#34;success&#34;</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">mt</span> <span class="o">*</span><span class="nx">mtest</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">userCollection</span> <span class="p">=</span> <span class="nx">mt</span><span class="p">.</span><span class="nx">Coll</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">expectedUser</span> <span class="o">:=</span> <span class="nx">user</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">ID</span><span class="p">:</span>    <span class="nx">primitive</span><span class="p">.</span><span class="nf">NewObjectID</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Name</span><span class="p">:</span>  <span class="s">&#34;john&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Email</span><span class="p">:</span> <span class="s">&#34;john.doe@test.com&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="nx">mt</span><span class="p">.</span><span class="nf">AddMockResponses</span><span class="p">(</span><span class="nx">mtest</span><span class="p">.</span><span class="nf">CreateCursorResponse</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#34;foo.bar&#34;</span><span class="p">,</span> <span class="nx">mtest</span><span class="p">.</span><span class="nx">FirstBatch</span><span class="p">,</span> <span class="nx">bson</span><span class="p">.</span><span class="nx">D</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="p">{</span><span class="s">&#34;_id&#34;</span><span class="p">,</span> <span class="nx">expectedUser</span><span class="p">.</span><span class="nx">ID</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">			<span class="p">{</span><span class="s">&#34;name&#34;</span><span class="p">,</span> <span class="nx">expectedUser</span><span class="p">.</span><span class="nx">Name</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">			<span class="p">{</span><span class="s">&#34;email&#34;</span><span class="p">,</span> <span class="nx">expectedUser</span><span class="p">.</span><span class="nx">Email</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}))</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">userResponse</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">getFromID</span><span class="p">(</span><span class="nx">expectedUser</span><span class="p">.</span><span class="nx">ID</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">assert</span><span class="p">.</span><span class="nf">Nil</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">expectedUser</span><span class="p">,</span> <span class="nx">userResponse</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">})</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>如下创建一个测试实例，测试类型指定为 <code>mtest.Mock</code></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">mt</span> <span class="o">:=</span> <span class="nx">mtest</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">mtest</span><span class="p">.</span><span class="nf">NewOptions</span><span class="p">().</span><span class="nf">ClientType</span><span class="p">(</span><span class="nx">mtest</span><span class="p">.</span><span class="nx">Mock</span><span class="p">))</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="nx">mt</span> <span class="o">:=</span> <span class="nx">mtest</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">mtest</span><span class="p">.</span><span class="nf">NewOptions</span><span class="p">().</span><span class="nf">ClientType</span><span class="p">(</span><span class="nx">mtest</span><span class="p">.</span><span class="nx">Mock</span><span class="p">))</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>指定 mtest.Mock 类型时，不会创建真实数据库连接，对于查询结果需要通过<code>CreateCursorResponse</code>来模拟。</p>
 <p>模拟多行响应结果集：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -308,22 +310,22 @@
 </span><span class="lnt">15
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go">        <span class="nx">id1</span> <span class="o">:=</span> <span class="nx">primitive</span><span class="p">.</span><span class="nf">NewObjectID</span><span class="p">()</span>
-		<span class="nx">id2</span> <span class="o">:=</span> <span class="nx">primitive</span><span class="p">.</span><span class="nf">NewObjectID</span><span class="p">()</span>
-
-		<span class="nx">first</span> <span class="o">:=</span> <span class="nx">mtest</span><span class="p">.</span><span class="nf">CreateCursorResponse</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#34;foo.bar&#34;</span><span class="p">,</span> <span class="nx">mtest</span><span class="p">.</span><span class="nx">FirstBatch</span><span class="p">,</span> <span class="nx">bson</span><span class="p">.</span><span class="nx">D</span><span class="p">{</span>
-			<span class="p">{</span><span class="s">&#34;_id&#34;</span><span class="p">,</span> <span class="nx">id1</span><span class="p">},</span>
-			<span class="p">{</span><span class="s">&#34;name&#34;</span><span class="p">,</span> <span class="s">&#34;john&#34;</span><span class="p">},</span>
-			<span class="p">{</span><span class="s">&#34;email&#34;</span><span class="p">,</span> <span class="s">&#34;john.doe@test.com&#34;</span><span class="p">},</span>
-		<span class="p">})</span>
-		<span class="nx">second</span> <span class="o">:=</span> <span class="nx">mtest</span><span class="p">.</span><span class="nf">CreateCursorResponse</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#34;foo.bar&#34;</span><span class="p">,</span> <span class="nx">mtest</span><span class="p">.</span><span class="nx">NextBatch</span><span class="p">,</span> <span class="nx">bson</span><span class="p">.</span><span class="nx">D</span><span class="p">{</span>
-			<span class="p">{</span><span class="s">&#34;_id&#34;</span><span class="p">,</span> <span class="nx">id2</span><span class="p">},</span>
-			<span class="p">{</span><span class="s">&#34;name&#34;</span><span class="p">,</span> <span class="s">&#34;john&#34;</span><span class="p">},</span>
-			<span class="p">{</span><span class="s">&#34;email&#34;</span><span class="p">,</span> <span class="s">&#34;foo.bar@test.com&#34;</span><span class="p">},</span>
-		<span class="p">})</span>
-		<span class="nx">killCursors</span> <span class="o">:=</span> <span class="nx">mtest</span><span class="p">.</span><span class="nf">CreateCursorResponse</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&#34;foo.bar&#34;</span><span class="p">,</span> <span class="nx">mtest</span><span class="p">.</span><span class="nx">NextBatch</span><span class="p">)</span>
-		<span class="nx">mt</span><span class="p">.</span><span class="nf">AddMockResponses</span><span class="p">(</span><span class="nx">first</span><span class="p">,</span> <span class="nx">second</span><span class="p">,</span> <span class="nx">killCursors</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl">        <span class="nx">id1</span> <span class="o">:=</span> <span class="nx">primitive</span><span class="p">.</span><span class="nf">NewObjectID</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">id2</span> <span class="o">:=</span> <span class="nx">primitive</span><span class="p">.</span><span class="nf">NewObjectID</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="nx">first</span> <span class="o">:=</span> <span class="nx">mtest</span><span class="p">.</span><span class="nf">CreateCursorResponse</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#34;foo.bar&#34;</span><span class="p">,</span> <span class="nx">mtest</span><span class="p">.</span><span class="nx">FirstBatch</span><span class="p">,</span> <span class="nx">bson</span><span class="p">.</span><span class="nx">D</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="p">{</span><span class="s">&#34;_id&#34;</span><span class="p">,</span> <span class="nx">id1</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">			<span class="p">{</span><span class="s">&#34;name&#34;</span><span class="p">,</span> <span class="s">&#34;john&#34;</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">			<span class="p">{</span><span class="s">&#34;email&#34;</span><span class="p">,</span> <span class="s">&#34;john.doe@test.com&#34;</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">		<span class="p">})</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">second</span> <span class="o">:=</span> <span class="nx">mtest</span><span class="p">.</span><span class="nf">CreateCursorResponse</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#34;foo.bar&#34;</span><span class="p">,</span> <span class="nx">mtest</span><span class="p">.</span><span class="nx">NextBatch</span><span class="p">,</span> <span class="nx">bson</span><span class="p">.</span><span class="nx">D</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="p">{</span><span class="s">&#34;_id&#34;</span><span class="p">,</span> <span class="nx">id2</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">			<span class="p">{</span><span class="s">&#34;name&#34;</span><span class="p">,</span> <span class="s">&#34;john&#34;</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">			<span class="p">{</span><span class="s">&#34;email&#34;</span><span class="p">,</span> <span class="s">&#34;foo.bar@test.com&#34;</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">		<span class="p">})</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">killCursors</span> <span class="o">:=</span> <span class="nx">mtest</span><span class="p">.</span><span class="nf">CreateCursorResponse</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&#34;foo.bar&#34;</span><span class="p">,</span> <span class="nx">mtest</span><span class="p">.</span><span class="nx">NextBatch</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">mt</span><span class="p">.</span><span class="nf">AddMockResponses</span><span class="p">(</span><span class="nx">first</span><span class="p">,</span> <span class="nx">second</span><span class="p">,</span> <span class="nx">killCursors</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>更多操作 <a href="https://github.com/victorneuret/mongo-go-driver-mock">mongo-go-driver-mock</a></p>
 <h2 id="非mock单元测试">非mock单元测试</h2>
@@ -331,7 +333,7 @@
 <p>这个时候就需要其他类型来实现：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -345,26 +347,26 @@
 </span><span class="lnt">12
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">const</span> <span class="p">(</span>
-	<span class="c1">// Default specifies a client to the connection string in the MONGODB_URI env variable with command monitoring
-</span><span class="c1"></span>	<span class="c1">// enabled.
-</span><span class="c1"></span>	<span class="nx">Default</span> <span class="nx">ClientType</span> <span class="p">=</span> <span class="kc">iota</span>
-	<span class="c1">// Pinned specifies a client that is pinned to a single mongos in a sharded cluster.
-</span><span class="c1"></span>	<span class="nx">Pinned</span>
-	<span class="c1">// Mock specifies a client that communicates with a mock deployment.
-</span><span class="c1"></span>	<span class="nx">Mock</span>
-	<span class="c1">// Proxy specifies a client that proxies messages to the server and also stores parsed copies. The proxied
-</span><span class="c1"></span>	<span class="c1">// messages can be retrieved via T.GetProxiedMessages or T.GetRawProxiedMessages.
-</span><span class="c1"></span>	<span class="nx">Proxy</span>
-<span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">const</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// Default specifies a client to the connection string in the MONGODB_URI env variable with command monitoring
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// enabled.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">Default</span> <span class="nx">ClientType</span> <span class="p">=</span> <span class="kc">iota</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// Pinned specifies a client that is pinned to a single mongos in a sharded cluster.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">Pinned</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// Mock specifies a client that communicates with a mock deployment.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">Mock</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// Proxy specifies a client that proxies messages to the server and also stores parsed copies. The proxied
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// messages can be retrieved via T.GetProxiedMessages or T.GetRawProxiedMessages.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">Proxy</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>mtest提供4种类型选择，除Mock外的三种类型都是会创建真实连接，</p>
 <p>这种时候在测试前需要编好测试数据，在执行测试方法前写入数据库。</p>
 <p>通过name查询方法find</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -380,26 +382,26 @@
 </span><span class="lnt">14
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">find</span><span class="p">(</span><span class="nx">name</span> <span class="kt">string</span><span class="p">)</span> <span class="p">([]</span><span class="nx">user</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-	<span class="nx">filter</span> <span class="o">:=</span> <span class="nx">bson</span><span class="p">.</span><span class="nx">D</span><span class="p">{{</span><span class="nx">Key</span><span class="p">:</span> <span class="s">&#34;name&#34;</span><span class="p">,</span> <span class="nx">Value</span><span class="p">:</span> <span class="nx">name</span><span class="p">}}</span>
-	<span class="kd">var</span> <span class="nx">users</span> <span class="p">[]</span><span class="nx">user</span>
-
-	<span class="nx">cursor</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">userCollection</span><span class="p">.</span><span class="nf">Find</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="nx">filter</span><span class="p">)</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
-	<span class="p">}</span>
-
-	<span class="k">if</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">cursor</span><span class="p">.</span><span class="nf">All</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="o">&amp;</span><span class="nx">users</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
-	<span class="p">}</span>
-	<span class="k">return</span> <span class="nx">users</span><span class="p">,</span> <span class="kc">nil</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">find</span><span class="p">(</span><span class="nx">name</span> <span class="kt">string</span><span class="p">)</span> <span class="p">([]</span><span class="nx">user</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">filter</span> <span class="o">:=</span> <span class="nx">bson</span><span class="p">.</span><span class="nx">D</span><span class="p">{{</span><span class="nx">Key</span><span class="p">:</span> <span class="s">&#34;name&#34;</span><span class="p">,</span> <span class="nx">Value</span><span class="p">:</span> <span class="nx">name</span><span class="p">}}</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">var</span> <span class="nx">users</span> <span class="p">[]</span><span class="nx">user</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">cursor</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">userCollection</span><span class="p">.</span><span class="nf">Find</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="nx">filter</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">cursor</span><span class="p">.</span><span class="nf">All</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="o">&amp;</span><span class="nx">users</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">users</span><span class="p">,</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>方法find的单元测试示例：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -451,75 +453,75 @@
 </span><span class="lnt">50
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">import</span> <span class="p">(</span>
-	<span class="s">&#34;testing&#34;</span>
-
-	<span class="s">&#34;github.com/stretchr/testify/assert&#34;</span>
-	<span class="s">&#34;go.mongodb.org/mongo-driver/bson&#34;</span>
-	<span class="s">&#34;go.mongodb.org/mongo-driver/bson/primitive&#34;</span>
-	<span class="s">&#34;go.mongodb.org/mongo-driver/mongo/integration/mtest&#34;</span>
-    <span class="p">.</span> <span class="s">&#34;github.com/smartystreets/goconvey/convey&#34;</span>
-    <span class="nx">_</span> <span class="s">&#34;github.com/joho/godotenv/autoload&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">TestFindOne</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nf">Convey</span><span class="p">(</span><span class="s">&#34;Find&#34;</span><span class="p">,</span> <span class="nx">t</span><span class="p">,</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-        <span class="nx">err</span> <span class="o">:=</span> <span class="nx">mtest</span><span class="p">.</span><span class="nf">Setup</span><span class="p">(</span><span class="nx">mtest</span><span class="p">.</span><span class="nf">NewSetupOptions</span><span class="p">().</span><span class="nf">SetURI</span><span class="p">(</span><span class="nx">os</span><span class="p">.</span><span class="nf">Getenv</span><span class="p">(</span><span class="s">&#34;MONGODB_URI&#34;</span><span class="p">)))</span>
-        <span class="nx">assert</span><span class="p">.</span><span class="nf">Nil</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-
-	    <span class="nx">mt</span> <span class="o">:=</span> <span class="nx">mtest</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">mtest</span><span class="p">.</span><span class="nf">NewOptions</span><span class="p">().</span><span class="nf">ClientType</span><span class="p">(</span><span class="nx">mtest</span><span class="p">.</span><span class="nx">Default</span><span class="p">).</span>
-           <span class="nf">DatabaseName</span><span class="p">(</span><span class="s">&#34;test&#34;</span><span class="p">).</span><span class="nf">CollectionName</span><span class="p">(</span><span class="s">&#34;test&#34;</span><span class="p">).</span><span class="nf">AtlasDataLake</span><span class="p">(</span><span class="kc">true</span><span class="p">))</span>
-	    <span class="k">defer</span> <span class="nx">mt</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
-
-        <span class="nx">mt</span><span class="p">.</span><span class="nf">RunOpts</span><span class="p">(</span><span class="s">&#34;Find&#34;</span><span class="p">,</span> <span class="nx">mtest</span><span class="p">.</span><span class="nf">NewOptions</span><span class="p">().</span><span class="nf">ClientType</span><span class="p">(</span><span class="nx">mtest</span><span class="p">.</span><span class="nx">Default</span><span class="p">).</span>
-           <span class="nf">DatabaseName</span><span class="p">(</span><span class="s">&#34;test&#34;</span><span class="p">).</span><span class="nf">CollectionName</span><span class="p">(</span><span class="s">&#34;test&#34;</span><span class="p">).</span><span class="nf">AtlasDataLake</span><span class="p">(</span><span class="kc">true</span><span class="p">),</span> <span class="kd">func</span><span class="p">(</span><span class="nx">mt</span> <span class="o">*</span><span class="nx">mtest</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
-		    <span class="nx">user1</span> <span class="o">:=</span> <span class="nx">user</span><span class="p">{</span>
-		    	<span class="c1">// ID:    primitive.NewObjectID(),
-</span><span class="c1"></span>		    	<span class="nx">Name</span><span class="p">:</span>  <span class="s">&#34;john&#34;</span><span class="p">,</span>
-		    	<span class="nx">Email</span><span class="p">:</span> <span class="s">&#34;john.doe@test.com&#34;</span><span class="p">,</span>
-		    <span class="p">}</span>
-		    <span class="nx">user2</span> <span class="o">:=</span> <span class="nx">user</span><span class="p">{</span>
-		    	<span class="c1">// ID:    primitive.NewObjectID(),
-</span><span class="c1"></span>		    	<span class="nx">Name</span><span class="p">:</span>  <span class="s">&#34;johnx&#34;</span><span class="p">,</span>
-		    	<span class="nx">Email</span><span class="p">:</span> <span class="s">&#34;johnx.doe@test.com&#34;</span><span class="p">,</span>
-		    <span class="p">}</span>
-            <span class="nx">ctx</span> <span class="o">:=</span> <span class="nx">mtest</span><span class="p">.</span><span class="nx">Background</span>
-            <span class="nx">res</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">mt</span><span class="p">.</span><span class="nx">Coll</span><span class="p">.</span><span class="nf">InsertOne</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">user1</span><span class="p">)</span>
-            <span class="nx">assert</span><span class="p">.</span><span class="nf">Nil</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-            <span class="nx">id1</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">res</span><span class="p">.</span><span class="nx">InsertedID</span><span class="p">.(</span><span class="nx">primitive</span><span class="p">.</span><span class="nx">ObjectID</span><span class="p">)</span>
-            <span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">ok</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span>
-            <span class="nx">res</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">mt</span><span class="p">.</span><span class="nx">Coll</span><span class="p">.</span><span class="nf">InsertOne</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">user2</span><span class="p">)</span>
-            <span class="nx">assert</span><span class="p">.</span><span class="nf">Nil</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-            <span class="c1">// id2, ok := res.InsertedID.(primitive.ObjectID)
-</span><span class="c1"></span>            <span class="c1">// assert.Equal(t, ok, true)
-</span><span class="c1"></span>
-		    <span class="nx">userList</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">find</span><span class="p">(</span><span class="nx">user1</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
-		    <span class="nx">assert</span><span class="p">.</span><span class="nf">Nil</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-		    <span class="nx">user1</span><span class="p">.</span><span class="nx">ID</span> <span class="p">=</span> <span class="nx">id1</span>
-		    <span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="nx">userList</span><span class="p">))</span>
-		    <span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="p">[]</span><span class="nx">user</span><span class="p">{</span><span class="nx">user1</span><span class="p">},</span> <span class="nx">userList</span><span class="p">)</span>
-        <span class="p">})</span>
-    <span class="p">})</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;testing&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/stretchr/testify/assert&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;go.mongodb.org/mongo-driver/bson&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;go.mongodb.org/mongo-driver/bson/primitive&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;go.mongodb.org/mongo-driver/mongo/integration/mtest&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">.</span> <span class="s">&#34;github.com/smartystreets/goconvey/convey&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">_</span> <span class="s">&#34;github.com/joho/godotenv/autoload&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">TestFindOne</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">Convey</span><span class="p">(</span><span class="s">&#34;Find&#34;</span><span class="p">,</span> <span class="nx">t</span><span class="p">,</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">err</span> <span class="o">:=</span> <span class="nx">mtest</span><span class="p">.</span><span class="nf">Setup</span><span class="p">(</span><span class="nx">mtest</span><span class="p">.</span><span class="nf">NewSetupOptions</span><span class="p">().</span><span class="nf">SetURI</span><span class="p">(</span><span class="nx">os</span><span class="p">.</span><span class="nf">Getenv</span><span class="p">(</span><span class="s">&#34;MONGODB_URI&#34;</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">assert</span><span class="p">.</span><span class="nf">Nil</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	    <span class="nx">mt</span> <span class="o">:=</span> <span class="nx">mtest</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">mtest</span><span class="p">.</span><span class="nf">NewOptions</span><span class="p">().</span><span class="nf">ClientType</span><span class="p">(</span><span class="nx">mtest</span><span class="p">.</span><span class="nx">Default</span><span class="p">).</span>
+</span></span><span class="line"><span class="cl">           <span class="nf">DatabaseName</span><span class="p">(</span><span class="s">&#34;test&#34;</span><span class="p">).</span><span class="nf">CollectionName</span><span class="p">(</span><span class="s">&#34;test&#34;</span><span class="p">).</span><span class="nf">AtlasDataLake</span><span class="p">(</span><span class="kc">true</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	    <span class="k">defer</span> <span class="nx">mt</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nx">mt</span><span class="p">.</span><span class="nf">RunOpts</span><span class="p">(</span><span class="s">&#34;Find&#34;</span><span class="p">,</span> <span class="nx">mtest</span><span class="p">.</span><span class="nf">NewOptions</span><span class="p">().</span><span class="nf">ClientType</span><span class="p">(</span><span class="nx">mtest</span><span class="p">.</span><span class="nx">Default</span><span class="p">).</span>
+</span></span><span class="line"><span class="cl">           <span class="nf">DatabaseName</span><span class="p">(</span><span class="s">&#34;test&#34;</span><span class="p">).</span><span class="nf">CollectionName</span><span class="p">(</span><span class="s">&#34;test&#34;</span><span class="p">).</span><span class="nf">AtlasDataLake</span><span class="p">(</span><span class="kc">true</span><span class="p">),</span> <span class="kd">func</span><span class="p">(</span><span class="nx">mt</span> <span class="o">*</span><span class="nx">mtest</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		    <span class="nx">user1</span> <span class="o">:=</span> <span class="nx">user</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		    	<span class="c1">// ID:    primitive.NewObjectID(),
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		    	<span class="nx">Name</span><span class="p">:</span>  <span class="s">&#34;john&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		    	<span class="nx">Email</span><span class="p">:</span> <span class="s">&#34;john.doe@test.com&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">		    <span class="nx">user2</span> <span class="o">:=</span> <span class="nx">user</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		    	<span class="c1">// ID:    primitive.NewObjectID(),
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		    	<span class="nx">Name</span><span class="p">:</span>  <span class="s">&#34;johnx&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		    	<span class="nx">Email</span><span class="p">:</span> <span class="s">&#34;johnx.doe@test.com&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">ctx</span> <span class="o">:=</span> <span class="nx">mtest</span><span class="p">.</span><span class="nx">Background</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">res</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">mt</span><span class="p">.</span><span class="nx">Coll</span><span class="p">.</span><span class="nf">InsertOne</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">user1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">assert</span><span class="p">.</span><span class="nf">Nil</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">id1</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">res</span><span class="p">.</span><span class="nx">InsertedID</span><span class="p">.(</span><span class="nx">primitive</span><span class="p">.</span><span class="nx">ObjectID</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">ok</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">res</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">mt</span><span class="p">.</span><span class="nx">Coll</span><span class="p">.</span><span class="nf">InsertOne</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">user2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">assert</span><span class="p">.</span><span class="nf">Nil</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// id2, ok := res.InsertedID.(primitive.ObjectID)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="c1">// assert.Equal(t, ok, true)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">		    <span class="nx">userList</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">find</span><span class="p">(</span><span class="nx">user1</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		    <span class="nx">assert</span><span class="p">.</span><span class="nf">Nil</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		    <span class="nx">user1</span><span class="p">.</span><span class="nx">ID</span> <span class="p">=</span> <span class="nx">id1</span>
+</span></span><span class="line"><span class="cl">		    <span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="nx">userList</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">		    <span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="p">[]</span><span class="nx">user</span><span class="p">{</span><span class="nx">user1</span><span class="p">},</span> <span class="nx">userList</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">})</span>
+</span></span><span class="line"><span class="cl">    <span class="p">})</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>通过当前测试目录<code>.env</code>文件中配置环境变量<code>MONGODB_URI</code>连接数据库。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">MONGODB_URI=mongodb://mongo.example.com:27017
-ATLAS_DATA_LAKE_INTEGRATION_TEST=true
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">MONGODB_URI=mongodb://mongo.example.com:27017
+</span></span><span class="line"><span class="cl">ATLAS_DATA_LAKE_INTEGRATION_TEST=true
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>然后通过<code>mtest.Options</code>指定数据库和集合，然后模拟写入2条name不同的数据，</p>
 <p>调用find方法时，结果集中只会有1条数据返回。</p>
 <p>值得注意的时，在非<code>mtest.Mock</code>下，结束时都会有清理数据库操作，</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -534,58 +536,58 @@ ATLAS_DATA_LAKE_INTEGRATION_TEST=true
 </span><span class="lnt">13
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">T</span><span class="p">)</span> <span class="nf">RunOpts</span><span class="p">(</span><span class="nx">name</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">opts</span> <span class="o">*</span><span class="nx">Options</span><span class="p">,</span> <span class="nx">callback</span> <span class="kd">func</span><span class="p">(</span><span class="nx">mt</span> <span class="o">*</span><span class="nx">T</span><span class="p">))</span> <span class="p">{</span>
-	<span class="nx">t</span><span class="p">.</span><span class="nx">T</span><span class="p">.</span><span class="nf">Run</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">wrapped</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
-		<span class="nx">sub</span> <span class="o">:=</span> <span class="nf">newT</span><span class="p">(</span><span class="nx">wrapped</span><span class="p">,</span> <span class="nx">t</span><span class="p">.</span><span class="nx">baseOpts</span><span class="p">,</span> <span class="nx">opts</span><span class="p">)</span>
-
-        <span class="o">...</span>
-
-		<span class="c1">// defer dropping all collections if the test is using a client
-</span><span class="c1"></span>		<span class="k">defer</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-            <span class="o">...</span>
-			<span class="k">if</span> <span class="nx">sub</span><span class="p">.</span><span class="nx">clientType</span> <span class="o">!=</span> <span class="nx">Mock</span> <span class="p">{</span>
-				<span class="nx">sub</span><span class="p">.</span><span class="nf">ClearFailPoints</span><span class="p">()</span>
-				<span class="nx">sub</span><span class="p">.</span><span class="nf">ClearCollections</span><span class="p">()</span>
-			<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">T</span><span class="p">)</span> <span class="nf">RunOpts</span><span class="p">(</span><span class="nx">name</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">opts</span> <span class="o">*</span><span class="nx">Options</span><span class="p">,</span> <span class="nx">callback</span> <span class="kd">func</span><span class="p">(</span><span class="nx">mt</span> <span class="o">*</span><span class="nx">T</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">t</span><span class="p">.</span><span class="nx">T</span><span class="p">.</span><span class="nf">Run</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">wrapped</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">sub</span> <span class="o">:=</span> <span class="nf">newT</span><span class="p">(</span><span class="nx">wrapped</span><span class="p">,</span> <span class="nx">t</span><span class="p">.</span><span class="nx">baseOpts</span><span class="p">,</span> <span class="nx">opts</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="o">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="c1">// defer dropping all collections if the test is using a client
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="k">defer</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="o">...</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">sub</span><span class="p">.</span><span class="nx">clientType</span> <span class="o">!=</span> <span class="nx">Mock</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">sub</span><span class="p">.</span><span class="nf">ClearFailPoints</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">sub</span><span class="p">.</span><span class="nf">ClearCollections</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>可以看到非 Mock 类型，会调用 <code>ClearCollections</code>, <code>defer mt.Close()</code>操作也一样。</p>
 <p>所以<code>mtest.Options</code>中也可以不指定<code>DatabaseName(&quot;test&quot;).CollectionName(&quot;test&quot;)</code>，不指定时就会使用默认的。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">const</span> <span class="p">(</span>
-	<span class="c1">// TestDb specifies the name of default test database.
-</span><span class="c1"></span>	<span class="nx">TestDb</span> <span class="p">=</span> <span class="s">&#34;test&#34;</span>
-<span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">const</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// TestDb specifies the name of default test database.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">TestDb</span> <span class="p">=</span> <span class="s">&#34;test&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>如果不想清理数据库中的数据怎么办呢，在设置Options时，设置 <code>AtlasDataLake(true)</code> 即可。</p>
 <p><a href="https://github.com/mongodb/mongo-go-driver/blob/v1.15.0/mongo/integration/mtest/mongotest.go#L516">ClearCollections</a></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// ClearCollections drops all collections previously created by this test.
-</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">T</span><span class="p">)</span> <span class="nf">ClearCollections</span><span class="p">()</span> <span class="p">{</span>
-	<span class="c1">// Collections should not be dropped when testing against Atlas Data Lake because the data is pre-inserted.
-</span><span class="c1"></span>	<span class="k">if</span> <span class="p">!</span><span class="nx">testContext</span><span class="p">.</span><span class="nx">dataLake</span> <span class="p">{</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// ClearCollections drops all collections previously created by this test.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">T</span><span class="p">)</span> <span class="nf">ClearCollections</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// Collections should not be dropped when testing against Atlas Data Lake because the data is pre-inserted.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">if</span> <span class="p">!</span><span class="nx">testContext</span><span class="p">.</span><span class="nx">dataLake</span> <span class="p">{</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>这样集合中的数据在测试结束后，就不会被清理。</p>
 <p>也可以通过环境变量 <code>ATLAS_DATA_LAKE_INTEGRATION_TEST</code> 设置</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -594,14 +596,14 @@ ATLAS_DATA_LAKE_INTEGRATION_TEST=true
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Setup initializes the current testing context.
-</span><span class="c1">// This function must only be called one time and must be called before any tests run.
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">Setup</span><span class="p">(</span><span class="nx">setupOpts</span> <span class="o">...*</span><span class="nx">SetupOptions</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
-
-    <span class="o">...</span>
-
-    <span class="nx">testContext</span><span class="p">.</span><span class="nx">dataLake</span> <span class="p">=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Getenv</span><span class="p">(</span><span class="s">&#34;ATLAS_DATA_LAKE_INTEGRATION_TEST&#34;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#34;true&#34;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// Setup initializes the current testing context.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// This function must only be called one time and must be called before any tests run.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">Setup</span><span class="p">(</span><span class="nx">setupOpts</span> <span class="o">...*</span><span class="nx">SetupOptions</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="o">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">testContext</span><span class="p">.</span><span class="nx">dataLake</span> <span class="p">=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Getenv</span><span class="p">(</span><span class="s">&#34;ATLAS_DATA_LAKE_INTEGRATION_TEST&#34;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#34;true&#34;</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -710,7 +712,7 @@ ATLAS_DATA_LAKE_INTEGRATION_TEST=true
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -727,7 +729,7 @@ ATLAS_DATA_LAKE_INTEGRATION_TEST=true
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

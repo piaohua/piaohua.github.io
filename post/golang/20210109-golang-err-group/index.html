@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20210109-golang-err-group/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Go] sync.ErrGroup" />
-<meta property="og:description" content="sync.ErrGroup sync.WaitGroup可以阻塞等待多个goroutine执行完成，但是WaitGroup无法知道goroutine出错的原因，syn" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20210109-golang-err-group/" />
-<meta property="article:published_time" content="2021-01-09T12:42:04+08:00" />
-<meta property="article:modified_time" content="2021-01-09T12:42:04+08:00" />
-<meta itemprop="name" content="[Go] sync.ErrGroup">
-<meta itemprop="description" content="sync.ErrGroup sync.WaitGroup可以阻塞等待多个goroutine执行完成，但是WaitGroup无法知道goroutine出错的原因，syn">
-<meta itemprop="datePublished" content="2021-01-09T12:42:04&#43;08:00" />
-<meta itemprop="dateModified" content="2021-01-09T12:42:04&#43;08:00" />
-<meta itemprop="wordCount" content="846">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20210109-golang-err-group/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Go] sync.ErrGroup">
+  <meta property="og:description" content="sync.ErrGroup sync.WaitGroup可以阻塞等待多个goroutine执行完成，但是WaitGroup无法知道goroutine出错的原因，syn">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2021-01-09T12:42:04+08:00">
+    <meta property="article:modified_time" content="2021-01-09T12:42:04+08:00">
+    <meta property="article:tag" content="Golang">
 
-
-
-<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Go] sync.ErrGroup"/>
-<meta name="twitter:description" content="sync.ErrGroup sync.WaitGroup可以阻塞等待多个goroutine执行完成，但是WaitGroup无法知道goroutine出错的原因，syn"/>
+  <meta itemprop="name" content="[Go] sync.ErrGroup">
+  <meta itemprop="description" content="sync.ErrGroup sync.WaitGroup可以阻塞等待多个goroutine执行完成，但是WaitGroup无法知道goroutine出错的原因，syn">
+  <meta itemprop="datePublished" content="2021-01-09T12:42:04+08:00">
+  <meta itemprop="dateModified" content="2021-01-09T12:42:04+08:00">
+  <meta itemprop="wordCount" content="846">
+  <meta itemprop="keywords" content="Golang"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Go] sync.ErrGroup">
+<meta name="twitter:description" content="sync.ErrGroup sync.WaitGroup可以阻塞等待多个goroutine执行完成，但是WaitGroup无法知道goroutine出错的原因，syn">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -167,7 +168,7 @@
 <p><code>sync.WaitGroup</code>控制多个并发任务例子</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -188,31 +189,31 @@
 </span><span class="lnt">19
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">var</span> <span class="nx">wg</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">WaitGroup</span>
-<span class="kd">var</span> <span class="nx">urls</span> <span class="p">=</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span>
-    <span class="s">&#34;http://www.golang.org/&#34;</span><span class="p">,</span>
-    <span class="s">&#34;http://www.google.com/&#34;</span><span class="p">,</span>
-    <span class="s">&#34;http://www.somestupidname.com/&#34;</span><span class="p">,</span>
-<span class="p">}</span>
-<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">url</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">urls</span> <span class="p">{</span>
-    <span class="c1">// Increment the WaitGroup counter.
-</span><span class="c1"></span>    <span class="nx">wg</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-    <span class="c1">// Launch a goroutine to fetch the URL.
-</span><span class="c1"></span>    <span class="k">go</span> <span class="kd">func</span><span class="p">(</span><span class="nx">url</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
-        <span class="c1">// Decrement the counter when the goroutine completes.
-</span><span class="c1"></span>        <span class="k">defer</span> <span class="nx">wg</span><span class="p">.</span><span class="nf">Done</span><span class="p">()</span>
-        <span class="c1">// Fetch the URL.
-</span><span class="c1"></span>        <span class="nx">http</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span>
-    <span class="p">}(</span><span class="nx">url</span><span class="p">)</span>
-<span class="p">}</span>
-<span class="c1">// Wait for all HTTP fetches to complete.
-</span><span class="c1"></span><span class="nx">wg</span><span class="p">.</span><span class="nf">Wait</span><span class="p">()</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">wg</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">WaitGroup</span>
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">urls</span> <span class="p">=</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;http://www.golang.org/&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;http://www.google.com/&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;http://www.somestupidname.com/&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">url</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">urls</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Increment the WaitGroup counter.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">wg</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Launch a goroutine to fetch the URL.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">go</span> <span class="kd">func</span><span class="p">(</span><span class="nx">url</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// Decrement the counter when the goroutine completes.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">defer</span> <span class="nx">wg</span><span class="p">.</span><span class="nf">Done</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// Fetch the URL.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nx">http</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}(</span><span class="nx">url</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// Wait for all HTTP fetches to complete.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">wg</span><span class="p">.</span><span class="nf">Wait</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p><code>sync.ErrGroup</code>控制多个并发任务例子</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -236,35 +237,35 @@
 </span><span class="lnt">22
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">g</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">errgroup</span><span class="p">.</span><span class="nx">Group</span><span class="p">)</span>
-<span class="kd">var</span> <span class="nx">urls</span> <span class="p">=</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span>
-    <span class="s">&#34;http://www.golang.org/&#34;</span><span class="p">,</span>
-    <span class="s">&#34;http://www.google.com/&#34;</span><span class="p">,</span>
-    <span class="s">&#34;http://www.somestupidname.com/&#34;</span><span class="p">,</span>
-<span class="p">}</span>
-<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">url</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">urls</span> <span class="p">{</span>
-    <span class="c1">// Launch a goroutine to fetch the URL.
-</span><span class="c1"></span>    <span class="nx">url</span> <span class="o">:=</span> <span class="nx">url</span> <span class="c1">// https://golang.org/doc/faq#closures_and_goroutines
-</span><span class="c1"></span>    <span class="nx">g</span><span class="p">.</span><span class="nf">Go</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span> <span class="kt">error</span> <span class="p">{</span>
-        <span class="c1">// Fetch the URL.
-</span><span class="c1"></span>        <span class="nx">resp</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">http</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nx">err</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
-            <span class="nx">resp</span><span class="p">.</span><span class="nx">Body</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
-        <span class="p">}</span>
-        <span class="k">return</span> <span class="nx">err</span>
-    <span class="p">})</span>
-<span class="p">}</span>
-<span class="c1">// Wait for all HTTP fetches to complete.
-</span><span class="c1"></span><span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">g</span><span class="p">.</span><span class="nf">Wait</span><span class="p">();</span> <span class="nx">err</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Successfully fetched all URLs.&#34;</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="nx">g</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">errgroup</span><span class="p">.</span><span class="nx">Group</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">urls</span> <span class="p">=</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;http://www.golang.org/&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;http://www.google.com/&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;http://www.somestupidname.com/&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">url</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">urls</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Launch a goroutine to fetch the URL.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">url</span> <span class="o">:=</span> <span class="nx">url</span> <span class="c1">// https://golang.org/doc/faq#closures_and_goroutines
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">g</span><span class="p">.</span><span class="nf">Go</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span> <span class="kt">error</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// Fetch the URL.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nx">resp</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">http</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">err</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">resp</span><span class="p">.</span><span class="nx">Body</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl">    <span class="p">})</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// Wait for all HTTP fetches to complete.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">g</span><span class="p">.</span><span class="nf">Wait</span><span class="p">();</span> <span class="nx">err</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Successfully fetched all URLs.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p><code>go.Go(func() error)</code>函数传入一个匿名函数，能通过<code>g.Wait()</code>捕获错误信息</p>
 <p><code>gogrep.go</code>递归搜索目录中的go文件,添加超时设置功能,超时取消所有搜索的goroutine任务</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">  1
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
 </span><span class="lnt">  2
 </span><span class="lnt">  3
 </span><span class="lnt">  4
@@ -368,109 +369,109 @@
 </span><span class="lnt">102
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-    <span class="s">&#34;bytes&#34;</span>
-    <span class="s">&#34;flag&#34;</span>
-    <span class="s">&#34;fmt&#34;</span>
-    <span class="s">&#34;io/ioutil&#34;</span>
-    <span class="s">&#34;log&#34;</span>
-    <span class="s">&#34;os&#34;</span>
-    <span class="s">&#34;path/filepath&#34;</span>
-    <span class="s">&#34;strings&#34;</span>
-    <span class="s">&#34;time&#34;</span>
-
-    <span class="s">&#34;golang.org/x/net/context&#34;</span>
-    <span class="s">&#34;golang.org/x/sync/errgroup&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">duration</span> <span class="o">:=</span> <span class="nx">flag</span><span class="p">.</span><span class="nf">Duration</span><span class="p">(</span><span class="s">&#34;timeout&#34;</span><span class="p">,</span> <span class="mi">500</span><span class="o">*</span><span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">,</span> <span class="s">&#34;timeout in milliseconds&#34;</span><span class="p">)</span>
-    <span class="nx">flag</span><span class="p">.</span><span class="nx">Usage</span> <span class="p">=</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s by Brian Ketelsen\n&#34;</span><span class="p">,</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Usage:&#34;</span><span class="p">)</span>
-        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;    gogrep [flags] path pattern \n&#34;</span><span class="p">)</span>
-        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Flags:&#34;</span><span class="p">)</span>
-        <span class="nx">flag</span><span class="p">.</span><span class="nf">PrintDefaults</span><span class="p">()</span>
-    <span class="p">}</span>
-    <span class="nx">flag</span><span class="p">.</span><span class="nf">Parse</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nx">flag</span><span class="p">.</span><span class="nf">NArg</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">2</span> <span class="p">{</span>
-        <span class="nx">flag</span><span class="p">.</span><span class="nf">Usage</span><span class="p">()</span>
-        <span class="nx">os</span><span class="p">.</span><span class="nf">Exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="nx">path</span> <span class="o">:=</span> <span class="nx">flag</span><span class="p">.</span><span class="nf">Arg</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="nx">pattern</span> <span class="o">:=</span> <span class="nx">flag</span><span class="p">.</span><span class="nf">Arg</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-    <span class="nx">ctx</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">WithTimeout</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="o">*</span><span class="nx">duration</span><span class="p">)</span>
-    <span class="nx">m</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">search</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">path</span><span class="p">,</span> <span class="nx">pattern</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">name</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">m</span> <span class="p">{</span>
-        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">m</span><span class="p">),</span> <span class="s">&#34;hits&#34;</span><span class="p">)</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">search</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">root</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">pattern</span> <span class="kt">string</span><span class="p">)</span> <span class="p">([]</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">g</span><span class="p">,</span> <span class="nx">ctx</span> <span class="o">:=</span> <span class="nx">errgroup</span><span class="p">.</span><span class="nf">WithContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span>
-    <span class="nx">paths</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">string</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-    <span class="c1">// get all the paths
-</span><span class="c1"></span>
-    <span class="nx">g</span><span class="p">.</span><span class="nf">Go</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span> <span class="kt">error</span> <span class="p">{</span>
-        <span class="k">defer</span> <span class="nb">close</span><span class="p">(</span><span class="nx">paths</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="nx">filepath</span><span class="p">.</span><span class="nf">Walk</span><span class="p">(</span><span class="nx">root</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">path</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">info</span> <span class="nx">os</span><span class="p">.</span><span class="nx">FileInfo</span><span class="p">,</span> <span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
-            <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-                <span class="k">return</span> <span class="nx">err</span>
-            <span class="p">}</span>
-            <span class="k">if</span> <span class="p">!</span><span class="nx">info</span><span class="p">.</span><span class="nf">Mode</span><span class="p">().</span><span class="nf">IsRegular</span><span class="p">()</span> <span class="p">{</span>
-                <span class="k">return</span> <span class="kc">nil</span>
-            <span class="p">}</span>
-            <span class="k">if</span> <span class="p">!</span><span class="nx">info</span><span class="p">.</span><span class="nf">IsDir</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="p">!</span><span class="nx">strings</span><span class="p">.</span><span class="nf">HasSuffix</span><span class="p">(</span><span class="nx">info</span><span class="p">.</span><span class="nf">Name</span><span class="p">(),</span> <span class="s">&#34;.go&#34;</span><span class="p">)</span> <span class="p">{</span>
-                <span class="k">return</span> <span class="kc">nil</span>
-            <span class="p">}</span>
-
-            <span class="k">select</span> <span class="p">{</span>
-            <span class="k">case</span> <span class="nx">paths</span> <span class="o">&lt;-</span> <span class="nx">path</span><span class="p">:</span>
-            <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">Done</span><span class="p">():</span>
-                <span class="k">return</span> <span class="nx">ctx</span><span class="p">.</span><span class="nf">Err</span><span class="p">()</span>
-            <span class="p">}</span>
-            <span class="k">return</span> <span class="kc">nil</span>
-        <span class="p">})</span>
-    <span class="p">})</span>
-
-    <span class="nx">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">string</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-    <span class="k">for</span> <span class="nx">path</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">paths</span> <span class="p">{</span>
-        <span class="nx">p</span> <span class="o">:=</span> <span class="nx">path</span>
-        <span class="nx">g</span><span class="p">.</span><span class="nf">Go</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span> <span class="kt">error</span> <span class="p">{</span>
-            <span class="nx">data</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">ioutil</span><span class="p">.</span><span class="nf">ReadFile</span><span class="p">(</span><span class="nx">p</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-                <span class="k">return</span> <span class="nx">err</span>
-            <span class="p">}</span>
-            <span class="k">if</span> <span class="p">!</span><span class="nx">bytes</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">pattern</span><span class="p">))</span> <span class="p">{</span>
-                <span class="k">return</span> <span class="kc">nil</span>
-            <span class="p">}</span>
-            <span class="k">select</span> <span class="p">{</span>
-            <span class="k">case</span> <span class="nx">c</span> <span class="o">&lt;-</span> <span class="nx">p</span><span class="p">:</span>
-            <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">Done</span><span class="p">():</span>
-                <span class="k">return</span> <span class="nx">ctx</span><span class="p">.</span><span class="nf">Err</span><span class="p">()</span>
-            <span class="p">}</span>
-            <span class="k">return</span> <span class="kc">nil</span>
-        <span class="p">})</span>
-    <span class="p">}</span>
-    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-        <span class="nx">g</span><span class="p">.</span><span class="nf">Wait</span><span class="p">()</span>
-        <span class="nb">close</span><span class="p">(</span><span class="nx">c</span><span class="p">)</span>
-    <span class="p">}()</span>
-
-    <span class="kd">var</span> <span class="nx">m</span> <span class="p">[]</span><span class="kt">string</span>
-    <span class="k">for</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">c</span> <span class="p">{</span>
-        <span class="nx">m</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">m</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="nx">m</span><span class="p">,</span> <span class="nx">g</span><span class="p">.</span><span class="nf">Wait</span><span class="p">()</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;bytes&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;flag&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;io/ioutil&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;log&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;os&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;path/filepath&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;strings&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;golang.org/x/net/context&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;golang.org/x/sync/errgroup&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">duration</span> <span class="o">:=</span> <span class="nx">flag</span><span class="p">.</span><span class="nf">Duration</span><span class="p">(</span><span class="s">&#34;timeout&#34;</span><span class="p">,</span> <span class="mi">500</span><span class="o">*</span><span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">,</span> <span class="s">&#34;timeout in milliseconds&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">flag</span><span class="p">.</span><span class="nx">Usage</span> <span class="p">=</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s by Brian Ketelsen\n&#34;</span><span class="p">,</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Usage:&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;    gogrep [flags] path pattern \n&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Flags:&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">flag</span><span class="p">.</span><span class="nf">PrintDefaults</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">flag</span><span class="p">.</span><span class="nf">Parse</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">flag</span><span class="p">.</span><span class="nf">NArg</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">2</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">flag</span><span class="p">.</span><span class="nf">Usage</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">os</span><span class="p">.</span><span class="nf">Exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">path</span> <span class="o">:=</span> <span class="nx">flag</span><span class="p">.</span><span class="nf">Arg</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">pattern</span> <span class="o">:=</span> <span class="nx">flag</span><span class="p">.</span><span class="nf">Arg</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">ctx</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">WithTimeout</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="o">*</span><span class="nx">duration</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">m</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">search</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">path</span><span class="p">,</span> <span class="nx">pattern</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">name</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">m</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">m</span><span class="p">),</span> <span class="s">&#34;hits&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">search</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">root</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">pattern</span> <span class="kt">string</span><span class="p">)</span> <span class="p">([]</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">g</span><span class="p">,</span> <span class="nx">ctx</span> <span class="o">:=</span> <span class="nx">errgroup</span><span class="p">.</span><span class="nf">WithContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">paths</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">string</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// get all the paths
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="nx">g</span><span class="p">.</span><span class="nf">Go</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span> <span class="kt">error</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">defer</span> <span class="nb">close</span><span class="p">(</span><span class="nx">paths</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="nx">filepath</span><span class="p">.</span><span class="nf">Walk</span><span class="p">(</span><span class="nx">root</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">path</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">info</span> <span class="nx">os</span><span class="p">.</span><span class="nx">FileInfo</span><span class="p">,</span> <span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">!</span><span class="nx">info</span><span class="p">.</span><span class="nf">Mode</span><span class="p">().</span><span class="nf">IsRegular</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">!</span><span class="nx">info</span><span class="p">.</span><span class="nf">IsDir</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="p">!</span><span class="nx">strings</span><span class="p">.</span><span class="nf">HasSuffix</span><span class="p">(</span><span class="nx">info</span><span class="p">.</span><span class="nf">Name</span><span class="p">(),</span> <span class="s">&#34;.go&#34;</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">case</span> <span class="nx">paths</span> <span class="o">&lt;-</span> <span class="nx">path</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">Done</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="nx">ctx</span><span class="p">.</span><span class="nf">Err</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl">        <span class="p">})</span>
+</span></span><span class="line"><span class="cl">    <span class="p">})</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">string</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">path</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">paths</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">p</span> <span class="o">:=</span> <span class="nx">path</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">g</span><span class="p">.</span><span class="nf">Go</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span> <span class="kt">error</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">data</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">ioutil</span><span class="p">.</span><span class="nf">ReadFile</span><span class="p">(</span><span class="nx">p</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">!</span><span class="nx">bytes</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">pattern</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">case</span> <span class="nx">c</span> <span class="o">&lt;-</span> <span class="nx">p</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">Done</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="nx">ctx</span><span class="p">.</span><span class="nf">Err</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl">        <span class="p">})</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">g</span><span class="p">.</span><span class="nf">Wait</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">close</span><span class="p">(</span><span class="nx">c</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">m</span> <span class="p">[]</span><span class="kt">string</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">c</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">m</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">m</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">m</span><span class="p">,</span> <span class="nx">g</span><span class="p">.</span><span class="nf">Wait</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>使用帮助</p>
 <pre><code>gogrep by Brian Ketelsen
@@ -592,7 +593,7 @@ Go’s new sync.ErrGroup package significantly improves developer productivity w
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -609,7 +610,7 @@ Go’s new sync.ErrGroup package significantly improves developer productivity w
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

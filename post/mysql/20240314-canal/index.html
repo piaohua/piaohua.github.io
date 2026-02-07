@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/mysql/20240314-canal/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="阿里巴巴 MySQL binlog 增量订阅&amp;消费组件Canal介绍和使用指南" />
-<meta property="og:description" content="来源 Canal介绍和使用指南 Canal 是阿里开源的一款 MySQL 数据库增量日志解析工具，提供增量数据订阅和消费。使用Canal能够实现异步更新数据，配合MQ" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/mysql/20240314-canal/" />
-<meta property="article:published_time" content="2024-03-14T13:14:39+08:00" />
-<meta property="article:modified_time" content="2024-03-14T13:14:39+08:00" />
-<meta itemprop="name" content="阿里巴巴 MySQL binlog 增量订阅&amp;消费组件Canal介绍和使用指南">
-<meta itemprop="description" content="来源 Canal介绍和使用指南 Canal 是阿里开源的一款 MySQL 数据库增量日志解析工具，提供增量数据订阅和消费。使用Canal能够实现异步更新数据，配合MQ">
-<meta itemprop="datePublished" content="2024-03-14T13:14:39&#43;08:00" />
-<meta itemprop="dateModified" content="2024-03-14T13:14:39&#43;08:00" />
-<meta itemprop="wordCount" content="3487">
+<meta property="og:url" content="https://piaohua.github.io/post/mysql/20240314-canal/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="阿里巴巴 MySQL binlog 增量订阅&amp;消费组件Canal介绍和使用指南">
+  <meta property="og:description" content="来源 Canal介绍和使用指南 Canal 是阿里开源的一款 MySQL 数据库增量日志解析工具，提供增量数据订阅和消费。使用Canal能够实现异步更新数据，配合MQ">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2024-03-14T13:14:39+08:00">
+    <meta property="article:modified_time" content="2024-03-14T13:14:39+08:00">
+    <meta property="article:tag" content="Mysql">
 
-
-
-<meta itemprop="keywords" content="mysql," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="阿里巴巴 MySQL binlog 增量订阅&amp;消费组件Canal介绍和使用指南"/>
-<meta name="twitter:description" content="来源 Canal介绍和使用指南 Canal 是阿里开源的一款 MySQL 数据库增量日志解析工具，提供增量数据订阅和消费。使用Canal能够实现异步更新数据，配合MQ"/>
+  <meta itemprop="name" content="阿里巴巴 MySQL binlog 增量订阅&amp;消费组件Canal介绍和使用指南">
+  <meta itemprop="description" content="来源 Canal介绍和使用指南 Canal 是阿里开源的一款 MySQL 数据库增量日志解析工具，提供增量数据订阅和消费。使用Canal能够实现异步更新数据，配合MQ">
+  <meta itemprop="datePublished" content="2024-03-14T13:14:39+08:00">
+  <meta itemprop="dateModified" content="2024-03-14T13:14:39+08:00">
+  <meta itemprop="wordCount" content="3487">
+  <meta itemprop="keywords" content="Mysql"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="阿里巴巴 MySQL binlog 增量订阅&amp;消费组件Canal介绍和使用指南">
+<meta name="twitter:description" content="来源 Canal介绍和使用指南 Canal 是阿里开源的一款 MySQL 数据库增量日志解析工具，提供增量数据订阅和消费。使用Canal能够实现异步更新数据，配合MQ">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -211,23 +212,23 @@
 <p>需要先开启MySQL的 Binlog 写入功能，配置 binlog-format 为 ROW 模式，具体my.cnf 中配置如下：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">[mysqld]
-log-bin=mysql-bin # 开启 binlog
-binlog-format=ROW # 选择 ROW 模式
-server_id=1 # 配置 MySQL replaction 需要定义，不要和 canal 的 slaveId 重复
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">[mysqld]
+</span></span><span class="line"><span class="cl">log-bin=mysql-bin # 开启 binlog
+</span></span><span class="line"><span class="cl">binlog-format=ROW # 选择 ROW 模式
+</span></span><span class="line"><span class="cl">server_id=1 # 配置 MySQL replaction 需要定义，不要和 canal 的 slaveId 重复
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>修改配置文件之后，重启MySQL。</p>
 <p>使用命令查看是否打开binlog模式，如输出以下内容则说明binlog已开启。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -235,18 +236,18 @@ server_id=1 # 配置 MySQL replaction 需要定义，不要和 canal 的 slaveId
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="n">variables</span> <span class="k">like</span> <span class="s1">&#39;log_bin&#39;</span><span class="p">;</span>
-<span class="o">+</span><span class="c1">---------------+-------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">Variable_name</span> <span class="o">|</span> <span class="n">Value</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">---------------+-------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">log_bin</span>       <span class="o">|</span> <span class="k">ON</span>    <span class="o">|</span>
-<span class="o">+</span><span class="c1">---------------+-------+
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">show</span><span class="w"> </span><span class="n">variables</span><span class="w"> </span><span class="k">like</span><span class="w"> </span><span class="s1">&#39;log_bin&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">---------------+-------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">Variable_name</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Value</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">---------------+-------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">log_bin</span><span class="w">       </span><span class="o">|</span><span class="w"> </span><span class="k">ON</span><span class="w">    </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">---------------+-------+
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>查看binlog_format配置是否正确。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -254,20 +255,20 @@ server_id=1 # 配置 MySQL replaction 需要定义，不要和 canal 的 slaveId
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="n">variables</span> <span class="k">like</span> <span class="s1">&#39;binlog_format&#39;</span><span class="p">;</span>
-<span class="o">+</span><span class="c1">---------------+-------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">Variable_name</span> <span class="o">|</span> <span class="n">Value</span> <span class="o">|</span>
-<span class="o">+</span><span class="c1">---------------+-------+
-</span><span class="c1"></span><span class="o">|</span> <span class="n">binlog_format</span> <span class="o">|</span> <span class="k">ROW</span>   <span class="o">|</span>
-<span class="o">+</span><span class="c1">---------------+-------+
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">show</span><span class="w"> </span><span class="n">variables</span><span class="w"> </span><span class="k">like</span><span class="w"> </span><span class="s1">&#39;binlog_format&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">---------------+-------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">Variable_name</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Value</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">---------------+-------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">binlog_format</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">ROW</span><span class="w">   </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">---------------+-------+
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="添加授权">添加授权</h3>
 <p>Canal的原理是模拟自己为MySQL slave，所以一定要为账号授予做为MySQL slave的相关权限。
 下面的命令是先创建一个名为canal的账号，再对其进行授权，如果已有账户可直接 grant。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -275,30 +276,30 @@ server_id=1 # 配置 MySQL replaction 需要定义，不要和 canal 的 slaveId
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">USER</span> <span class="n">canal</span> <span class="n">IDENTIFIED</span> <span class="k">BY</span> <span class="s1">&#39;canal&#39;</span><span class="p">;</span>  
-
-<span class="k">GRANT</span> <span class="k">SELECT</span><span class="p">,</span> <span class="n">REPLICATION</span> <span class="n">SLAVE</span><span class="p">,</span> <span class="n">REPLICATION</span> <span class="n">CLIENT</span> <span class="k">ON</span> <span class="o">*</span><span class="p">.</span><span class="o">*</span> <span class="k">TO</span> <span class="s1">&#39;canal&#39;</span><span class="o">@</span><span class="s1">&#39;%&#39;</span><span class="p">;</span>
-<span class="c1">-- GRANT ALL PRIVILEGES ON *.* TO &#39;canal&#39;@&#39;%&#39; ;
-</span><span class="c1"></span>
-<span class="n">FLUSH</span> <span class="k">PRIVILEGES</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="n">canal</span><span class="w"> </span><span class="n">IDENTIFIED</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="s1">&#39;canal&#39;</span><span class="p">;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">GRANT</span><span class="w"> </span><span class="k">SELECT</span><span class="p">,</span><span class="w"> </span><span class="n">REPLICATION</span><span class="w"> </span><span class="n">SLAVE</span><span class="p">,</span><span class="w"> </span><span class="n">REPLICATION</span><span class="w"> </span><span class="n">CLIENT</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="o">*</span><span class="p">.</span><span class="o">*</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="s1">&#39;canal&#39;</span><span class="o">@</span><span class="s1">&#39;%&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- GRANT ALL PRIVILEGES ON *.* TO &#39;canal&#39;@&#39;%&#39; ;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">FLUSH</span><span class="w"> </span><span class="k">PRIVILEGES</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="安装canal">安装Canal</h2>
 <p>打开官方<a href="https://github.com/alibaba/canal/releases">release</a>页面，根据需要选择对应的软件包下载即可。</p>
 <p>将下载后的软件包解压，可看到以下目录。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">bin
-conf
-lib
-logs
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">bin
+</span></span><span class="line"><span class="cl">conf
+</span></span><span class="line"><span class="cl">lib
+</span></span><span class="line"><span class="cl">logs
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>修改配置文件：<code>canal-server/conf/example/instance.properties</code>。</p>
 <p>将<code>canal.instance.master.address</code>修改为你的MySQL地址。</p>
@@ -307,7 +308,7 @@ logs
 <p>配置示例如下：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -333,79 +334,79 @@ logs
 </span><span class="lnt">24
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">#################################################
-## mysql serverId , v1.0.26+ will autoGen
-# canal.instance.mysql.slaveId=0
-
-# enable gtid use true/false
-canal.instance.gtidon=false
-
-# position info
-canal.instance.master.address=127.0.0.1:3306
-canal.instance.master.journal.name=
-canal.instance.master.position=
-canal.instance.master.timestamp=
-canal.instance.master.gtid=
-
-# rds oss binlog
-canal.instance.rds.accesskey=
-canal.instance.rds.secretkey=
-canal.instance.rds.instanceId=
-
-# table meta tsdb info
-canal.instance.tsdb.enable=true
-#canal.instance.tsdb.url=jdbc:mysql://127.0.0.1:3306/canal_tsdb
-canal.instance.tsdb.dbUsername=canal
-canal.instance.tsdb.dbPassword=canal
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">#################################################
+</span></span><span class="line"><span class="cl">## mysql serverId , v1.0.26+ will autoGen
+</span></span><span class="line"><span class="cl"># canal.instance.mysql.slaveId=0
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"># enable gtid use true/false
+</span></span><span class="line"><span class="cl">canal.instance.gtidon=false
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"># position info
+</span></span><span class="line"><span class="cl">canal.instance.master.address=127.0.0.1:3306
+</span></span><span class="line"><span class="cl">canal.instance.master.journal.name=
+</span></span><span class="line"><span class="cl">canal.instance.master.position=
+</span></span><span class="line"><span class="cl">canal.instance.master.timestamp=
+</span></span><span class="line"><span class="cl">canal.instance.master.gtid=
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"># rds oss binlog
+</span></span><span class="line"><span class="cl">canal.instance.rds.accesskey=
+</span></span><span class="line"><span class="cl">canal.instance.rds.secretkey=
+</span></span><span class="line"><span class="cl">canal.instance.rds.instanceId=
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"># table meta tsdb info
+</span></span><span class="line"><span class="cl">canal.instance.tsdb.enable=true
+</span></span><span class="line"><span class="cl">#canal.instance.tsdb.url=jdbc:mysql://127.0.0.1:3306/canal_tsdb
+</span></span><span class="line"><span class="cl">canal.instance.tsdb.dbUsername=canal
+</span></span><span class="line"><span class="cl">canal.instance.tsdb.dbPassword=canal
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>当然我还是推荐开发和测试阶段使用Docker搭建环境。</p>
 <p>执行以下命令，拉取canal-server最新镜像。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">docker pull canal/canal-server:latest
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">docker pull canal/canal-server:latest
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>如果因网络问题无法直接拉取Docker镜像，也可以选择clone代码到本地编译。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">git clone git@github.com:alibaba/canal.git
-<span class="nb">cd</span> canal/docker <span class="o">&amp;&amp;</span> sh build.sh
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">git clone git@github.com:alibaba/canal.git
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> canal/docker <span class="o">&amp;&amp;</span> sh build.sh
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>启动容器。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">docker run -d --name canal-server -p 11111:11111 canal/canal-server
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">docker run -d --name canal-server -p 11111:11111 canal/canal-server
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>进入容器。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">docker <span class="nb">exec</span> -it canal-server /bin/bash
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">docker <span class="nb">exec</span> -it canal-server /bin/bash
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>修改配置。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">vi canal-server/conf/example/instance.properties
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">vi canal-server/conf/example/instance.properties
+</span></span></code></pre></td></tr></table>
 </div>
 </div><pre><code>注意：如果是macOS平台容器内使用host.docker.internal表示localhost。
 即：canal.instance.master.address=host.docker.internal:3306
@@ -413,18 +414,18 @@ canal.instance.tsdb.dbPassword=canal
 <p>修改完配置后重启容器。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">docker container restart canal-server
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">docker container restart canal-server
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="canal-client">Canal Client</h2>
 <p>Canal 特别设计了 Client-Server 模式，交互协议使用 protobuf v3 , Client 端可采用不同语言实现不同的消费逻辑。
 启动Canal Server之后，我们可以使用Canal客户端连接Canal进行消费，本文以Go客户端canal-go为例，演示如何从canal-server消费数据。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -525,106 +526,106 @@ canal.instance.tsdb.dbPassword=canal
 </span><span class="lnt">99
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
- <span class="s">&#34;fmt&#34;</span>
- <span class="s">&#34;time&#34;</span>
-
- <span class="nx">pbe</span> <span class="s">&#34;github.com/withlin/canal-go/protocol/entry&#34;</span>
-
- <span class="s">&#34;github.com/golang/protobuf/proto&#34;</span>
- <span class="s">&#34;github.com/withlin/canal-go/client&#34;</span>
-<span class="p">)</span>
-
-<span class="c1">// canal-go client demo
-</span><span class="c1"></span>
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
- <span class="c1">// 连接canal-server
-</span><span class="c1"></span> <span class="nx">connector</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">NewSimpleCanalConnector</span><span class="p">(</span>
-  <span class="s">&#34;127.0.0.1&#34;</span><span class="p">,</span> <span class="mi">11111</span><span class="p">,</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="s">&#34;example&#34;</span><span class="p">,</span> <span class="mi">60000</span><span class="p">,</span> <span class="mi">60</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span>
- <span class="nx">err</span> <span class="o">:=</span> <span class="nx">connector</span><span class="p">.</span><span class="nf">Connect</span><span class="p">()</span>
- <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-  <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
- <span class="p">}</span>
-
- <span class="c1">// mysql 数据解析关注的表，Perl正则表达式.
-</span><span class="c1"></span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">connector</span><span class="p">.</span><span class="nf">Subscribe</span><span class="p">(</span><span class="s">&#34;.*\\..*&#34;</span><span class="p">)</span>
- <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;connector.Subscribe failed, err:%v\n&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-  <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
- <span class="p">}</span>
-
- <span class="c1">// 消费消息
-</span><span class="c1"></span> <span class="k">for</span> <span class="p">{</span>
-  <span class="nx">message</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">connector</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
-  <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-   <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;connector.Get failed, err:%v\n&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-   <span class="k">continue</span>
-  <span class="p">}</span>
-  <span class="nx">batchId</span> <span class="o">:=</span> <span class="nx">message</span><span class="p">.</span><span class="nx">Id</span>
-  <span class="k">if</span> <span class="nx">batchId</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="o">||</span> <span class="nb">len</span><span class="p">(</span><span class="nx">message</span><span class="p">.</span><span class="nx">Entries</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="p">{</span>
-   <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
-   <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;===暂无数据===&#34;</span><span class="p">)</span>
-   <span class="k">continue</span>
-  <span class="p">}</span>
-  <span class="nf">printEntry</span><span class="p">(</span><span class="nx">message</span><span class="p">.</span><span class="nx">Entries</span><span class="p">)</span>
- <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">printEntry</span><span class="p">(</span><span class="nx">entries</span> <span class="p">[]</span><span class="nx">pbe</span><span class="p">.</span><span class="nx">Entry</span><span class="p">)</span> <span class="p">{</span>
- <span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">entry</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">entries</span> <span class="p">{</span>
-  <span class="c1">// 忽略事务开启和事务关闭类型
-</span><span class="c1"></span>  <span class="k">if</span> <span class="nx">entry</span><span class="p">.</span><span class="nf">GetEntryType</span><span class="p">()</span> <span class="o">==</span> <span class="nx">pbe</span><span class="p">.</span><span class="nx">EntryType_TRANSACTIONBEGIN</span> <span class="o">||</span> <span class="nx">entry</span><span class="p">.</span><span class="nf">GetEntryType</span><span class="p">()</span> <span class="o">==</span> <span class="nx">pbe</span><span class="p">.</span><span class="nx">EntryType_TRANSACTIONEND</span> <span class="p">{</span>
-   <span class="k">continue</span>
-  <span class="p">}</span>
-  <span class="c1">// RowChange对象，包含了一行数据变化的所有特征
-</span><span class="c1"></span>  <span class="nx">rowChange</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">pbe</span><span class="p">.</span><span class="nx">RowChange</span><span class="p">)</span>
-  <span class="c1">// protobuf解析
-</span><span class="c1"></span>  <span class="nx">err</span> <span class="o">:=</span> <span class="nx">proto</span><span class="p">.</span><span class="nf">Unmarshal</span><span class="p">(</span><span class="nx">entry</span><span class="p">.</span><span class="nf">GetStoreValue</span><span class="p">(),</span> <span class="nx">rowChange</span><span class="p">)</span>
-  <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-   <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;proto.Unmarshal failed, err:%v\n&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-  <span class="p">}</span>
-  <span class="k">if</span> <span class="nx">rowChange</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
-   <span class="k">continue</span>
-  <span class="p">}</span>
-  <span class="c1">// 获取并打印Header信息
-</span><span class="c1"></span>  <span class="nx">header</span> <span class="o">:=</span> <span class="nx">entry</span><span class="p">.</span><span class="nf">GetHeader</span><span class="p">()</span>
-  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;binlog[%s : %d],name[%s,%s], eventType: %s\n&#34;</span><span class="p">,</span>
-   <span class="nx">header</span><span class="p">.</span><span class="nf">GetLogfileName</span><span class="p">(),</span>
-   <span class="nx">header</span><span class="p">.</span><span class="nf">GetLogfileOffset</span><span class="p">(),</span>
-   <span class="nx">header</span><span class="p">.</span><span class="nf">GetSchemaName</span><span class="p">(),</span>
-   <span class="nx">header</span><span class="p">.</span><span class="nf">GetTableName</span><span class="p">(),</span>
-   <span class="nx">header</span><span class="p">.</span><span class="nf">GetEventType</span><span class="p">(),</span>
-  <span class="p">)</span>
-  <span class="c1">//判断是否为DDL语句
-</span><span class="c1"></span>  <span class="k">if</span> <span class="nx">rowChange</span><span class="p">.</span><span class="nf">GetIsDdl</span><span class="p">()</span> <span class="p">{</span>
-   <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;isDdl:true, sql:%v\n&#34;</span><span class="p">,</span> <span class="nx">rowChange</span><span class="p">.</span><span class="nf">GetSql</span><span class="p">())</span>
-  <span class="p">}</span>
-
-  <span class="c1">// 获取操作类型：insert/update/delete等
-</span><span class="c1"></span>  <span class="nx">eventType</span> <span class="o">:=</span> <span class="nx">rowChange</span><span class="p">.</span><span class="nf">GetEventType</span><span class="p">()</span>
-  <span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">rowData</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">rowChange</span><span class="p">.</span><span class="nf">GetRowDatas</span><span class="p">()</span> <span class="p">{</span>
-   <span class="k">if</span> <span class="nx">eventType</span> <span class="o">==</span> <span class="nx">pbe</span><span class="p">.</span><span class="nx">EventType_DELETE</span> <span class="p">{</span>
-    <span class="nf">printColumn</span><span class="p">(</span><span class="nx">rowData</span><span class="p">.</span><span class="nf">GetBeforeColumns</span><span class="p">())</span>
-   <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="nx">eventType</span> <span class="o">==</span> <span class="nx">pbe</span><span class="p">.</span><span class="nx">EventType_INSERT</span> <span class="o">||</span> <span class="nx">eventType</span> <span class="o">==</span> <span class="nx">pbe</span><span class="p">.</span><span class="nx">EventType_UPDATE</span> <span class="p">{</span>
-    <span class="nf">printColumn</span><span class="p">(</span><span class="nx">rowData</span><span class="p">.</span><span class="nf">GetAfterColumns</span><span class="p">())</span>
-   <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;---before---&#34;</span><span class="p">)</span>
-    <span class="nf">printColumn</span><span class="p">(</span><span class="nx">rowData</span><span class="p">.</span><span class="nf">GetBeforeColumns</span><span class="p">())</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;---after---&#34;</span><span class="p">)</span>
-    <span class="nf">printColumn</span><span class="p">(</span><span class="nx">rowData</span><span class="p">.</span><span class="nf">GetAfterColumns</span><span class="p">())</span>
-   <span class="p">}</span>
-  <span class="p">}</span>
- <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">printColumn</span><span class="p">(</span><span class="nx">columns</span> <span class="p">[]</span><span class="o">*</span><span class="nx">pbe</span><span class="p">.</span><span class="nx">Column</span><span class="p">)</span> <span class="p">{</span>
- <span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">col</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">columns</span> <span class="p">{</span>
-  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s:%s  update=%v\n&#34;</span><span class="p">,</span> <span class="nx">col</span><span class="p">.</span><span class="nf">GetName</span><span class="p">(),</span> <span class="nx">col</span><span class="p">.</span><span class="nf">GetValue</span><span class="p">(),</span> <span class="nx">col</span><span class="p">.</span><span class="nf">GetUpdated</span><span class="p">())</span>
- <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl"> <span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl"> <span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"> <span class="nx">pbe</span> <span class="s">&#34;github.com/withlin/canal-go/protocol/entry&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"> <span class="s">&#34;github.com/golang/protobuf/proto&#34;</span>
+</span></span><span class="line"><span class="cl"> <span class="s">&#34;github.com/withlin/canal-go/client&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// canal-go client demo
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"> <span class="c1">// 连接canal-server
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span> <span class="nx">connector</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">NewSimpleCanalConnector</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="s">&#34;127.0.0.1&#34;</span><span class="p">,</span> <span class="mi">11111</span><span class="p">,</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="s">&#34;example&#34;</span><span class="p">,</span> <span class="mi">60000</span><span class="p">,</span> <span class="mi">60</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">connector</span><span class="p">.</span><span class="nf">Connect</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"> <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"> <span class="c1">// mysql 数据解析关注的表，Perl正则表达式.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">connector</span><span class="p">.</span><span class="nf">Subscribe</span><span class="p">(</span><span class="s">&#34;.*\\..*&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"> <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;connector.Subscribe failed, err:%v\n&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"> <span class="c1">// 消费消息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span> <span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">message</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">connector</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;connector.Get failed, err:%v\n&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">   <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">batchId</span> <span class="o">:=</span> <span class="nx">message</span><span class="p">.</span><span class="nx">Id</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="nx">batchId</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="o">||</span> <span class="nb">len</span><span class="p">(</span><span class="nx">message</span><span class="p">.</span><span class="nx">Entries</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">   <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;===暂无数据===&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">   <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="nf">printEntry</span><span class="p">(</span><span class="nx">message</span><span class="p">.</span><span class="nx">Entries</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"> <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">printEntry</span><span class="p">(</span><span class="nx">entries</span> <span class="p">[]</span><span class="nx">pbe</span><span class="p">.</span><span class="nx">Entry</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"> <span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">entry</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">entries</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// 忽略事务开启和事务关闭类型
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">if</span> <span class="nx">entry</span><span class="p">.</span><span class="nf">GetEntryType</span><span class="p">()</span> <span class="o">==</span> <span class="nx">pbe</span><span class="p">.</span><span class="nx">EntryType_TRANSACTIONBEGIN</span> <span class="o">||</span> <span class="nx">entry</span><span class="p">.</span><span class="nf">GetEntryType</span><span class="p">()</span> <span class="o">==</span> <span class="nx">pbe</span><span class="p">.</span><span class="nx">EntryType_TRANSACTIONEND</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// RowChange对象，包含了一行数据变化的所有特征
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nx">rowChange</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">pbe</span><span class="p">.</span><span class="nx">RowChange</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// protobuf解析
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nx">err</span> <span class="o">:=</span> <span class="nx">proto</span><span class="p">.</span><span class="nf">Unmarshal</span><span class="p">(</span><span class="nx">entry</span><span class="p">.</span><span class="nf">GetStoreValue</span><span class="p">(),</span> <span class="nx">rowChange</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;proto.Unmarshal failed, err:%v\n&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="nx">rowChange</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// 获取并打印Header信息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nx">header</span> <span class="o">:=</span> <span class="nx">entry</span><span class="p">.</span><span class="nf">GetHeader</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;binlog[%s : %d],name[%s,%s], eventType: %s\n&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">   <span class="nx">header</span><span class="p">.</span><span class="nf">GetLogfileName</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">   <span class="nx">header</span><span class="p">.</span><span class="nf">GetLogfileOffset</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">   <span class="nx">header</span><span class="p">.</span><span class="nf">GetSchemaName</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">   <span class="nx">header</span><span class="p">.</span><span class="nf">GetTableName</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">   <span class="nx">header</span><span class="p">.</span><span class="nf">GetEventType</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">  <span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">//判断是否为DDL语句
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">if</span> <span class="nx">rowChange</span><span class="p">.</span><span class="nf">GetIsDdl</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;isDdl:true, sql:%v\n&#34;</span><span class="p">,</span> <span class="nx">rowChange</span><span class="p">.</span><span class="nf">GetSql</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// 获取操作类型：insert/update/delete等
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nx">eventType</span> <span class="o">:=</span> <span class="nx">rowChange</span><span class="p">.</span><span class="nf">GetEventType</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">rowData</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">rowChange</span><span class="p">.</span><span class="nf">GetRowDatas</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="k">if</span> <span class="nx">eventType</span> <span class="o">==</span> <span class="nx">pbe</span><span class="p">.</span><span class="nx">EventType_DELETE</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printColumn</span><span class="p">(</span><span class="nx">rowData</span><span class="p">.</span><span class="nf">GetBeforeColumns</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">   <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="nx">eventType</span> <span class="o">==</span> <span class="nx">pbe</span><span class="p">.</span><span class="nx">EventType_INSERT</span> <span class="o">||</span> <span class="nx">eventType</span> <span class="o">==</span> <span class="nx">pbe</span><span class="p">.</span><span class="nx">EventType_UPDATE</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printColumn</span><span class="p">(</span><span class="nx">rowData</span><span class="p">.</span><span class="nf">GetAfterColumns</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">   <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;---before---&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printColumn</span><span class="p">(</span><span class="nx">rowData</span><span class="p">.</span><span class="nf">GetBeforeColumns</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;---after---&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printColumn</span><span class="p">(</span><span class="nx">rowData</span><span class="p">.</span><span class="nf">GetAfterColumns</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">   <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"> <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">printColumn</span><span class="p">(</span><span class="nx">columns</span> <span class="p">[]</span><span class="o">*</span><span class="nx">pbe</span><span class="p">.</span><span class="nx">Column</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"> <span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">col</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">columns</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s:%s  update=%v\n&#34;</span><span class="p">,</span> <span class="nx">col</span><span class="p">.</span><span class="nf">GetName</span><span class="p">(),</span> <span class="nx">col</span><span class="p">.</span><span class="nf">GetValue</span><span class="p">(),</span> <span class="nx">col</span><span class="p">.</span><span class="nf">GetUpdated</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl"> <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="canal-kafkaroctetmq">Canal Kafka/RoctetMQ</h2>
 <p>Canal 1.1.1版本之后，默认支持将Canal Server接收到的binlog数据直接投递到MQ，目前默认支持的MQ系统有Kafka、RocketMQ、RabbitMQ、PulsarMQ。
@@ -635,7 +636,7 @@ canal.instance.tsdb.dbPassword=canal
 <p>在<code>instance.properties</code>配置文件中设置MQ相关配置。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -657,27 +658,27 @@ canal.instance.tsdb.dbPassword=canal
 </span><span class="lnt">20
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">#  按需修改成自己的数据库信息
-#################################################
-...
-canal.instance.master.address=127.0.0.1:3306
-# username/password,数据库的用户名和密码
-...
-canal.instance.dbUsername = canal
-canal.instance.dbPassword = canal
-...
-# mq config
-# 设置默认的topic
-canal.mq.topic=example
-# 针对库名或者表名发送动态topic
-#canal.mq.dynamicTopic=mytest,.*,mytest.user,mytest\\..*,.*\\..*
-canal.mq.partition=0
-# hash partition config
-#canal.mq.partitionsNum=3
-#库名.表名: 唯一主键，多个表之间用逗号分隔
-#canal.mq.partitionHash=mytest.person:id,mytest.role:id
-#################################################
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">#  按需修改成自己的数据库信息
+</span></span><span class="line"><span class="cl">#################################################
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">canal.instance.master.address=127.0.0.1:3306
+</span></span><span class="line"><span class="cl"># username/password,数据库的用户名和密码
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">canal.instance.dbUsername = canal
+</span></span><span class="line"><span class="cl">canal.instance.dbPassword = canal
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl"># mq config
+</span></span><span class="line"><span class="cl"># 设置默认的topic
+</span></span><span class="line"><span class="cl">canal.mq.topic=example
+</span></span><span class="line"><span class="cl"># 针对库名或者表名发送动态topic
+</span></span><span class="line"><span class="cl">#canal.mq.dynamicTopic=mytest,.*,mytest.user,mytest\\..*,.*\\..*
+</span></span><span class="line"><span class="cl">canal.mq.partition=0
+</span></span><span class="line"><span class="cl"># hash partition config
+</span></span><span class="line"><span class="cl">#canal.mq.partitionsNum=3
+</span></span><span class="line"><span class="cl">#库名.表名: 唯一主键，多个表之间用逗号分隔
+</span></span><span class="line"><span class="cl">#canal.mq.partitionHash=mytest.person:id,mytest.role:id
+</span></span><span class="line"><span class="cl">#################################################
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>其中，<code>canal.mq.dynamicTopic</code>配置说明。</p>
 <p>Canal 1.1.3版本之后, 支持配置格式为：schema 或 schema.table，多个配置之间使用逗号或分号分隔。</p>
@@ -700,7 +701,7 @@ canal.mq.partition=0
 <p>默认配置文件路径为<code>/usr/local/canal/conf/canal.properties</code></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -739,44 +740,44 @@ canal.mq.partition=0
 </span><span class="lnt">37
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback"># ...
-# 可选项: tcp(默认), kafka,RocketMQ,rabbitmq,pulsarmq
-canal.serverMode = kafka
-# ...
-
-# 是否为flat json格式对象
-canal.mq.flatMessage = true
-# Canal的batch size, 默认50K, 由于kafka最大消息体限制请勿超过1M(900K以下)
-canal.mq.canalBatchSize = 50
-# Canal get数据的超时时间, 单位: 毫秒, 空为不限超时
-canal.mq.canalGetTimeout = 100
-canal.mq.accessChannel = local
-
-...
-
-##################################################
-#########                    Kafka                   #############
-##################################################
-# 此处配置修改为你的Kafka环境地址
-kafka.bootstrap.servers = 127.0.0.1:9092
-kafka.acks = all
-kafka.compression.type = none
-kafka.batch.size = 16384
-kafka.linger.ms = 1
-kafka.max.request.size = 1048576
-kafka.buffer.memory = 33554432
-kafka.max.in.flight.requests.per.connection = 1
-kafka.retries = 0
-
-kafka.kerberos.enable = false
-kafka.kerberos.krb5.file = ../conf/kerberos/krb5.conf
-kafka.kerberos.jaas.file = ../conf/kerberos/jaas.conf
-
-# sasl demo
-# kafka.sasl.jaas.config = org.apache.kafka.common.security.scram.ScramLoginModule required \\n username=\&#34;alice\&#34; \\npassword=&#34;alice-secret\&#34;;
-# kafka.sasl.mechanism = SCRAM-SHA-512
-# kafka.security.protocol = SASL_PLAINTEXT
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># ...
+</span></span><span class="line"><span class="cl"># 可选项: tcp(默认), kafka,RocketMQ,rabbitmq,pulsarmq
+</span></span><span class="line"><span class="cl">canal.serverMode = kafka
+</span></span><span class="line"><span class="cl"># ...
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"># 是否为flat json格式对象
+</span></span><span class="line"><span class="cl">canal.mq.flatMessage = true
+</span></span><span class="line"><span class="cl"># Canal的batch size, 默认50K, 由于kafka最大消息体限制请勿超过1M(900K以下)
+</span></span><span class="line"><span class="cl">canal.mq.canalBatchSize = 50
+</span></span><span class="line"><span class="cl"># Canal get数据的超时时间, 单位: 毫秒, 空为不限超时
+</span></span><span class="line"><span class="cl">canal.mq.canalGetTimeout = 100
+</span></span><span class="line"><span class="cl">canal.mq.accessChannel = local
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">##################################################
+</span></span><span class="line"><span class="cl">#########                    Kafka                   #############
+</span></span><span class="line"><span class="cl">##################################################
+</span></span><span class="line"><span class="cl"># 此处配置修改为你的Kafka环境地址
+</span></span><span class="line"><span class="cl">kafka.bootstrap.servers = 127.0.0.1:9092
+</span></span><span class="line"><span class="cl">kafka.acks = all
+</span></span><span class="line"><span class="cl">kafka.compression.type = none
+</span></span><span class="line"><span class="cl">kafka.batch.size = 16384
+</span></span><span class="line"><span class="cl">kafka.linger.ms = 1
+</span></span><span class="line"><span class="cl">kafka.max.request.size = 1048576
+</span></span><span class="line"><span class="cl">kafka.buffer.memory = 33554432
+</span></span><span class="line"><span class="cl">kafka.max.in.flight.requests.per.connection = 1
+</span></span><span class="line"><span class="cl">kafka.retries = 0
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">kafka.kerberos.enable = false
+</span></span><span class="line"><span class="cl">kafka.kerberos.krb5.file = ../conf/kerberos/krb5.conf
+</span></span><span class="line"><span class="cl">kafka.kerberos.jaas.file = ../conf/kerberos/jaas.conf
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"># sasl demo
+</span></span><span class="line"><span class="cl"># kafka.sasl.jaas.config = org.apache.kafka.common.security.scram.ScramLoginModule required \\n username=\&#34;alice\&#34; \\npassword=&#34;alice-secret\&#34;;
+</span></span><span class="line"><span class="cl"># kafka.sasl.mechanism = SCRAM-SHA-512
+</span></span><span class="line"><span class="cl"># kafka.security.protocol = SASL_PLAINTEXT
+</span></span></code></pre></td></tr></table>
 </div>
 </div><pre><code>更多详细内容请查看Canal-Kafka-RocketMQ-QuickStart。
 </code></pre>
@@ -888,7 +889,7 @@ kafka.kerberos.jaas.file = ../conf/kerberos/jaas.conf
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -905,7 +906,7 @@ kafka.kerberos.jaas.file = ../conf/kerberos/jaas.conf
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

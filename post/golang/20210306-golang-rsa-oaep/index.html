@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20210306-golang-rsa-oaep/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Go] rsa OAEP 加密、解密在go中使用及mysql中的应用" />
-<meta property="og:description" content="rsa OAEP 加密、解密 OAEP全称为Optimal Asymmetric Encryption Padding.是一种非对称加密填充场景. 生成RSA证书 use the openssl command to set up the RSA key files. create 2,048-bit keys. 1 2 openssl genrsa -out" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20210306-golang-rsa-oaep/" />
-<meta property="article:published_time" content="2021-03-06T11:55:40+08:00" />
-<meta property="article:modified_time" content="2021-03-06T11:55:40+08:00" />
-<meta itemprop="name" content="[Go] rsa OAEP 加密、解密在go中使用及mysql中的应用">
-<meta itemprop="description" content="rsa OAEP 加密、解密 OAEP全称为Optimal Asymmetric Encryption Padding.是一种非对称加密填充场景. 生成RSA证书 use the openssl command to set up the RSA key files. create 2,048-bit keys. 1 2 openssl genrsa -out">
-<meta itemprop="datePublished" content="2021-03-06T11:55:40&#43;08:00" />
-<meta itemprop="dateModified" content="2021-03-06T11:55:40&#43;08:00" />
-<meta itemprop="wordCount" content="1301">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20210306-golang-rsa-oaep/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Go] rsa OAEP 加密、解密在go中使用及mysql中的应用">
+  <meta property="og:description" content="rsa OAEP 加密、解密 OAEP全称为Optimal Asymmetric Encryption Padding.是一种非对称加密填充场景. 生成RSA证书 use the openssl command to set up the RSA key files. create 2,048-bit keys. 1 2 openssl genrsa -out">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2021-03-06T11:55:40+08:00">
+    <meta property="article:modified_time" content="2021-03-06T11:55:40+08:00">
+    <meta property="article:tag" content="Golang">
 
-
-
-<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Go] rsa OAEP 加密、解密在go中使用及mysql中的应用"/>
-<meta name="twitter:description" content="rsa OAEP 加密、解密 OAEP全称为Optimal Asymmetric Encryption Padding.是一种非对称加密填充场景. 生成RSA证书 use the openssl command to set up the RSA key files. create 2,048-bit keys. 1 2 openssl genrsa -out"/>
+  <meta itemprop="name" content="[Go] rsa OAEP 加密、解密在go中使用及mysql中的应用">
+  <meta itemprop="description" content="rsa OAEP 加密、解密 OAEP全称为Optimal Asymmetric Encryption Padding.是一种非对称加密填充场景. 生成RSA证书 use the openssl command to set up the RSA key files. create 2,048-bit keys. 1 2 openssl genrsa -out">
+  <meta itemprop="datePublished" content="2021-03-06T11:55:40+08:00">
+  <meta itemprop="dateModified" content="2021-03-06T11:55:40+08:00">
+  <meta itemprop="wordCount" content="1301">
+  <meta itemprop="keywords" content="Golang"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Go] rsa OAEP 加密、解密在go中使用及mysql中的应用">
+<meta name="twitter:description" content="rsa OAEP 加密、解密 OAEP全称为Optimal Asymmetric Encryption Padding.是一种非对称加密填充场景. 生成RSA证书 use the openssl command to set up the RSA key files. create 2,048-bit keys. 1 2 openssl genrsa -out">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -173,29 +174,29 @@
 create 2,048-bit keys.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">openssl genrsa -out private_key.pem <span class="m">2048</span>
-openssl rsa -in private_key.pem -pubout -out public_key.pem
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">openssl genrsa -out private_key.pem <span class="m">2048</span>
+</span></span><span class="line"><span class="cl">openssl rsa -in private_key.pem -pubout -out public_key.pem
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>set the access modes for the key files. The private key should be readable only by the server</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">chmod <span class="m">400</span> private_key.pem
-chmod <span class="m">444</span> public_key.pem
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">chmod <span class="m">400</span> private_key.pem
+</span></span><span class="line"><span class="cl">chmod <span class="m">444</span> public_key.pem
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="用go生成rsa证书">用go生成RSA证书</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -280,95 +281,95 @@ chmod <span class="m">444</span> public_key.pem
 </span><span class="lnt">83
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-    <span class="s">&#34;bytes&#34;</span>
-    <span class="s">&#34;crypto/rand&#34;</span>
-    <span class="s">&#34;crypto/rsa&#34;</span>
-    <span class="s">&#34;crypto/x509&#34;</span>
-    <span class="s">&#34;encoding/pem&#34;</span>
-    <span class="s">&#34;fmt&#34;</span>
-    <span class="s">&#34;io&#34;</span>
-    <span class="s">&#34;io/ioutil&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">generateRSAKey2File</span><span class="p">(</span><span class="nx">bits</span> <span class="kt">int</span><span class="p">,</span> <span class="nx">publicKeyName</span><span class="p">,</span> <span class="nx">privateKeyName</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">publicKeyWriter</span> <span class="o">:=</span> <span class="nx">bytes</span><span class="p">.</span><span class="nf">NewBuffer</span><span class="p">([]</span><span class="kt">byte</span><span class="p">{})</span>
-    <span class="nx">privateKeyWriter</span> <span class="o">:=</span> <span class="nx">bytes</span><span class="p">.</span><span class="nf">NewBuffer</span><span class="p">([]</span><span class="kt">byte</span><span class="p">{})</span>
-
-    <span class="nx">err</span> <span class="p">=</span> <span class="nf">generateRSAKey</span><span class="p">(</span><span class="nx">bits</span><span class="p">,</span> <span class="nx">publicKeyWriter</span><span class="p">,</span> <span class="nx">privateKeyWriter</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="k">return</span>
-    <span class="p">}</span>
-
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">publicKeyWriter</span><span class="p">.</span><span class="nf">Bytes</span><span class="p">()))</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">privateKeyWriter</span><span class="p">.</span><span class="nf">Bytes</span><span class="p">()))</span>
-
-    <span class="nx">err</span> <span class="p">=</span> <span class="nx">ioutil</span><span class="p">.</span><span class="nf">WriteFile</span><span class="p">(</span><span class="nx">publicKeyName</span><span class="p">,</span> <span class="nx">publicKeyWriter</span><span class="p">.</span><span class="nf">Bytes</span><span class="p">(),</span> <span class="mo">0444</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="k">return</span>
-    <span class="p">}</span>
-
-    <span class="nx">err</span> <span class="p">=</span> <span class="nx">ioutil</span><span class="p">.</span><span class="nf">WriteFile</span><span class="p">(</span><span class="nx">privateKeyName</span><span class="p">,</span> <span class="nx">privateKeyWriter</span><span class="p">.</span><span class="nf">Bytes</span><span class="p">(),</span> <span class="mo">0400</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="k">return</span>
-    <span class="p">}</span>
-
-    <span class="k">return</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">generateRSAKey</span><span class="p">(</span><span class="nx">bits</span> <span class="kt">int</span><span class="p">,</span> <span class="nx">publicKeyWriter</span><span class="p">,</span> <span class="nx">privateKeyWriter</span> <span class="nx">io</span><span class="p">.</span><span class="nx">Writer</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
-    <span class="c1">// generate private key
-</span><span class="c1"></span>    <span class="nx">privateKey</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">rsa</span><span class="p">.</span><span class="nf">GenerateKey</span><span class="p">(</span><span class="nx">rand</span><span class="p">.</span><span class="nx">Reader</span><span class="p">,</span> <span class="nx">bits</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nx">err</span>
-    <span class="p">}</span>
-    <span class="nx">x509PrivateKey</span> <span class="o">:=</span> <span class="nx">x509</span><span class="p">.</span><span class="nf">MarshalPKCS1PrivateKey</span><span class="p">(</span><span class="nx">privateKey</span><span class="p">)</span>
-
-    <span class="nx">privateBlock</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">pem</span><span class="p">.</span><span class="nx">Block</span><span class="p">{</span>
-        <span class="nx">Type</span><span class="p">:</span>  <span class="s">&#34;RSA PRIVATE KEY&#34;</span><span class="p">,</span>
-        <span class="nx">Bytes</span><span class="p">:</span> <span class="nx">x509PrivateKey</span><span class="p">,</span>
-    <span class="p">}</span>
-    <span class="nx">err</span> <span class="p">=</span> <span class="nx">pem</span><span class="p">.</span><span class="nf">Encode</span><span class="p">(</span><span class="nx">privateKeyWriter</span><span class="p">,</span> <span class="nx">privateBlock</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nx">err</span>
-    <span class="p">}</span>
-
-    <span class="c1">// generate public key
-</span><span class="c1"></span>    <span class="nx">publicKey</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">privateKey</span><span class="p">.</span><span class="nx">PublicKey</span>
-    <span class="nx">x509PublicKey</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">x509</span><span class="p">.</span><span class="nf">MarshalPKIXPublicKey</span><span class="p">(</span><span class="nx">publicKey</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nx">err</span>
-    <span class="p">}</span>
-
-    <span class="nx">publicBlock</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">pem</span><span class="p">.</span><span class="nx">Block</span><span class="p">{</span>
-        <span class="nx">Type</span><span class="p">:</span>  <span class="s">&#34;RSA PUBLIC KEY&#34;</span><span class="p">,</span>
-        <span class="nx">Bytes</span><span class="p">:</span> <span class="nx">x509PublicKey</span><span class="p">,</span>
-    <span class="p">}</span>
-
-    <span class="nx">err</span> <span class="p">=</span> <span class="nx">pem</span><span class="p">.</span><span class="nf">Encode</span><span class="p">(</span><span class="nx">publicKeyWriter</span><span class="p">,</span> <span class="nx">publicBlock</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nx">err</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="kc">nil</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">publicKeyName</span> <span class="o">:=</span> <span class="s">&#34;public.pem&#34;</span>
-    <span class="nx">privateKeyName</span> <span class="o">:=</span> <span class="s">&#34;private.pem&#34;</span>
-    <span class="nx">bits</span> <span class="o">:=</span> <span class="mi">4096</span>
-    <span class="nx">err</span> <span class="o">:=</span> <span class="nf">generateRSAKey2File</span><span class="p">(</span><span class="nx">bits</span><span class="p">,</span> <span class="nx">publicKeyName</span><span class="p">,</span> <span class="nx">privateKeyName</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;bytes&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;crypto/rand&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;crypto/rsa&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;crypto/x509&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;encoding/pem&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;io&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;io/ioutil&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">generateRSAKey2File</span><span class="p">(</span><span class="nx">bits</span> <span class="kt">int</span><span class="p">,</span> <span class="nx">publicKeyName</span><span class="p">,</span> <span class="nx">privateKeyName</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">publicKeyWriter</span> <span class="o">:=</span> <span class="nx">bytes</span><span class="p">.</span><span class="nf">NewBuffer</span><span class="p">([]</span><span class="kt">byte</span><span class="p">{})</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">privateKeyWriter</span> <span class="o">:=</span> <span class="nx">bytes</span><span class="p">.</span><span class="nf">NewBuffer</span><span class="p">([]</span><span class="kt">byte</span><span class="p">{})</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">err</span> <span class="p">=</span> <span class="nf">generateRSAKey</span><span class="p">(</span><span class="nx">bits</span><span class="p">,</span> <span class="nx">publicKeyWriter</span><span class="p">,</span> <span class="nx">privateKeyWriter</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">publicKeyWriter</span><span class="p">.</span><span class="nf">Bytes</span><span class="p">()))</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">privateKeyWriter</span><span class="p">.</span><span class="nf">Bytes</span><span class="p">()))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">err</span> <span class="p">=</span> <span class="nx">ioutil</span><span class="p">.</span><span class="nf">WriteFile</span><span class="p">(</span><span class="nx">publicKeyName</span><span class="p">,</span> <span class="nx">publicKeyWriter</span><span class="p">.</span><span class="nf">Bytes</span><span class="p">(),</span> <span class="mo">0444</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">err</span> <span class="p">=</span> <span class="nx">ioutil</span><span class="p">.</span><span class="nf">WriteFile</span><span class="p">(</span><span class="nx">privateKeyName</span><span class="p">,</span> <span class="nx">privateKeyWriter</span><span class="p">.</span><span class="nf">Bytes</span><span class="p">(),</span> <span class="mo">0400</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">generateRSAKey</span><span class="p">(</span><span class="nx">bits</span> <span class="kt">int</span><span class="p">,</span> <span class="nx">publicKeyWriter</span><span class="p">,</span> <span class="nx">privateKeyWriter</span> <span class="nx">io</span><span class="p">.</span><span class="nx">Writer</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// generate private key
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">privateKey</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">rsa</span><span class="p">.</span><span class="nf">GenerateKey</span><span class="p">(</span><span class="nx">rand</span><span class="p">.</span><span class="nx">Reader</span><span class="p">,</span> <span class="nx">bits</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">x509PrivateKey</span> <span class="o">:=</span> <span class="nx">x509</span><span class="p">.</span><span class="nf">MarshalPKCS1PrivateKey</span><span class="p">(</span><span class="nx">privateKey</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">privateBlock</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">pem</span><span class="p">.</span><span class="nx">Block</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Type</span><span class="p">:</span>  <span class="s">&#34;RSA PRIVATE KEY&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Bytes</span><span class="p">:</span> <span class="nx">x509PrivateKey</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">err</span> <span class="p">=</span> <span class="nx">pem</span><span class="p">.</span><span class="nf">Encode</span><span class="p">(</span><span class="nx">privateKeyWriter</span><span class="p">,</span> <span class="nx">privateBlock</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// generate public key
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">publicKey</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">privateKey</span><span class="p">.</span><span class="nx">PublicKey</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">x509PublicKey</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">x509</span><span class="p">.</span><span class="nf">MarshalPKIXPublicKey</span><span class="p">(</span><span class="nx">publicKey</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">publicBlock</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">pem</span><span class="p">.</span><span class="nx">Block</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Type</span><span class="p">:</span>  <span class="s">&#34;RSA PUBLIC KEY&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Bytes</span><span class="p">:</span> <span class="nx">x509PublicKey</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">err</span> <span class="p">=</span> <span class="nx">pem</span><span class="p">.</span><span class="nf">Encode</span><span class="p">(</span><span class="nx">publicKeyWriter</span><span class="p">,</span> <span class="nx">publicBlock</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">publicKeyName</span> <span class="o">:=</span> <span class="s">&#34;public.pem&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">privateKeyName</span> <span class="o">:=</span> <span class="s">&#34;private.pem&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">bits</span> <span class="o">:=</span> <span class="mi">4096</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">err</span> <span class="o">:=</span> <span class="nf">generateRSAKey2File</span><span class="p">(</span><span class="nx">bits</span><span class="p">,</span> <span class="nx">publicKeyName</span><span class="p">,</span> <span class="nx">privateKeyName</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>执行输出到文件</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -437,79 +438,79 @@ chmod <span class="m">444</span> public_key.pem
 </span><span class="lnt">67
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; go run main.go
------BEGIN RSA PUBLIC KEY-----
-MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAw5b5cKSASrqA4ILeJsWP
-Z672st+jHEbG6uiNZfQ1kV1y7BJz+m9NDYIeLUGguz9tDmSGkq+maftv2oZEbNTI
-EKxIvoD1UZVtWLZqtoJ1+EvOmO4bJ3EZJ7a+807LamLTftuylTd4SUml4Czcrl6h
-/3gQSq5mNZFUay96p5hyDr3yhwPAxqbnyCf3j/PXFthoSqIoYICkgHrB2xc+NsX7
-7z6oV8VBtIVKigJI+2PI9tLdHsOs3/8ZdoNgPYDGu71SPk/3s1UJ8YlC8u3HcB+T
-kyiJRK659COLwVqkXqW8rnQoe2RlWPu1maSJC+BtZXUrL/rmko37R8EdgyKH85YK
-jefjLavDMEON+4HdDu6AALQhre++lOwDimaPTjSOLQUR24wFixgPTZQFE3cudUtk
-VJJ+53MVZsevVG9jTHKrrECMKplb/7FgwPI5GwkF5HXu5Y7VQHuXR+QkHXqw0sPS
-5t79CWVHA2ZXLJMJ5gSaqgLYKTpun8185DMe7hxyFOxjqpiY7ttm50ylHs0kiMAd
-WpWQwV2Nm3b2VyvaGkyGCEH0vmdb3+3CJ3W2GWXWUUFLkWG+qrADWLRNx22GCjqT
-0CR2K7IvEZnwRWJd0zKnTFsdlLSoMapSVOs5rrkpOfRYmuQHrfqZ8UXqFZmRZYWx
-<span class="nv">DVQl3YJ0pBh96Ti6yrQXcNMCAwEAAQ</span><span class="o">==</span>
------END RSA PUBLIC KEY-----
-
------BEGIN RSA PRIVATE KEY-----
-MIIJKQIBAAKCAgEAw5b5cKSASrqA4ILeJsWPZ672st+jHEbG6uiNZfQ1kV1y7BJz
-+m9NDYIeLUGguz9tDmSGkq+maftv2oZEbNTIEKxIvoD1UZVtWLZqtoJ1+EvOmO4b
-J3EZJ7a+807LamLTftuylTd4SUml4Czcrl6h/3gQSq5mNZFUay96p5hyDr3yhwPA
-xqbnyCf3j/PXFthoSqIoYICkgHrB2xc+NsX77z6oV8VBtIVKigJI+2PI9tLdHsOs
-3/8ZdoNgPYDGu71SPk/3s1UJ8YlC8u3HcB+TkyiJRK659COLwVqkXqW8rnQoe2Rl
-WPu1maSJC+BtZXUrL/rmko37R8EdgyKH85YKjefjLavDMEON+4HdDu6AALQhre++
-lOwDimaPTjSOLQUR24wFixgPTZQFE3cudUtkVJJ+53MVZsevVG9jTHKrrECMKplb
-/7FgwPI5GwkF5HXu5Y7VQHuXR+QkHXqw0sPS5t79CWVHA2ZXLJMJ5gSaqgLYKTpu
-n8185DMe7hxyFOxjqpiY7ttm50ylHs0kiMAdWpWQwV2Nm3b2VyvaGkyGCEH0vmdb
-3+3CJ3W2GWXWUUFLkWG+qrADWLRNx22GCjqT0CR2K7IvEZnwRWJd0zKnTFsdlLSo
-MapSVOs5rrkpOfRYmuQHrfqZ8UXqFZmRZYWxDVQl3YJ0pBh96Ti6yrQXcNMCAwEA
-AQKCAgEAtl5oGLqZkJQTpMMBRl+BFikSh7h0SuJHiTLq3Lx20iKzDCEsmL78tnKz
-lnkR2GYMVpYu0EkNPtad9cCpvlwsazdo4JA3rSlJ+qSkHabJPonYicnB8eXHkbsY
-kp7OllStZSSOgAlnk9Yi30KVRdSg8iZN8oRoctwePY7Yq7o95zb/ExrRvahUh9GU
-SFoRHJENtUE7qrdoKw/K/3DNpp62CN6Acs5PNHXwCXyV9iiVcmcsnAnRgE5IvLNE
-ojQXmWeubsF7cXACRH86uG4zPn2CyXzLeQn+AwC9x7yvdDzPEE7ojB0RToXsTuUW
-j8dj2W0FpsgoA1B1kvMihGpHHz2wefzCMm0WJsRthx+sKkWCocGFJK0v8vsENbX2
-xBhZESJ72sGSzujT+N70GIi9ywOf1+gkhoLpWQh6gr5XNk9hiVDe1UVwnsov3mYN
-JZxuc6WEs1sRUCGN05ZUF3AxAbE7iNUP5CKi8jJzmuOHJcdpVCr0ZAhV9ra7P3QY
-M98WfxdPGPIhzAHSgEglfaCvPlJxXa81uevr63oUL3TCx0EvUPh1q4lZjLEyEuAD
-BpeUR4Bxe6GPqMUpT2ut8IOWUPg/W5iXguBa7oiTbP1TpVm0ixQQSjnx36Uovsls
-n+uroSA9kFIezGrk9fKmvKAAq5fiUXIUknjbDOdFrntomx0/CYkCggEBANemlMfN
-wXXkokxcJeW+xElzzIUqR7dhEAAYQFwFt0M+xNPx/mOHNmJO9+ThurXdrl5hWBTl
-hrS5WrFFibTJdxgZIvmHxJat0peJgdLNAtPzrkwQdprz3pRT0DAv8adTVx1b/2gt
-Wvru5f1shruzU1SYf2kosUOv4c+CVPJks7vV1k040VzNHmZnuuBb3Qq+f2DMGCXW
-0nqLWE9LX8UqGNFxT0Nl3lfFfMq3bWlMxli7OLmUXddQOb7ye9XwOfz9JPz3/R3F
-0CY2gJ2odRAqXhAAEKDQ5yQZWNjWcXNr+u4GmglPE1etl88j3Zd1BN0R02MxTCt4
-o+b+AEAZG1Rz+TcCggEBAOgvfwyaAj3hiciwBSAT1SKuW3fXGbXBKYg1XU4gyJde
-mAbEZdVimeYTmZJdiaI6j0M7rLiU6jEvVNH6buW3gbNI1og47PkqGXnNY/mbG/lc
-noraOYqlvogGGlJqUNyhXpiEBcjWY8vElk2u3I6oAWNWD05hY4Pl7UxiEZc78ZtF
-98gaP5si+DLpFITSKN4HmopuR5+cceFtX3TF8cp5hAzQ9E3FQiuaYBR6vNEcW9zq
-3rZjDnE9FTn/e/+FIyzb6DB/5ctMA6pBNFlkDafIH2LZyhBuL4chS0I2ORxzXyQW
-TWuxoGGfNP9ByqMriEAHzNGoDg486GAbsE9ALNqzY0UCggEBAJwRvP9VU7vEugjV
-b7/z7g7StaNyU/DNWE0ZQArZQCZ0mPJi4p6ZTqybRiDplLzmMLmxbZPCAVluA8rj
-7qNeYsiX+I3qykXaityM8d3j7TYD15LJH21JLT7f4X3eVN+qGxPubsuwd3W/y8c6
-8c+KGrbQnvU2NAQumBgb1OqQItvACJZelna5JFUsoTyaf0C1WW5uhtNrw2xYyJKq
-lCcXLlr1zE2UvfN7w7LaSV6555pz9LuqOrgHIaOlziWo8+66Lji+KPuRG/Fr5G01
-a3NFlkmyIlagmYewqHJV0EmeTj5RnM07413DDmklJcvlLp3ntrrFBME5UDVugjPh
-d7wJKsUCggEAUEikELJsFgOXhfo/O3FAIGbTn+OTs0IgX0W8hphVY+nEfYqJf7hB
-aMncLz0Cq0K+aMwIlCaBuBIarSSAFhRW16xW6fFtF1bUSkaXzCYzDQ1WkMKWZPec
-oyIhFeBHJ5Lwx6HW8jQXe8z0/9V31CgJmtSWJE8OfvwRCnlahcWnbD5MSDezSKxV
-0BzCCI82rFdKu5UYVPtecUlFWXZcfdt4qonR/9Y2ZCdUE6DBCzlYFlJsQfqMcuFh
-JpXNxXO+zvMXHTYMOjiFh+hV9pbfFeXf3GlcMkQ3UO1VPYbMRqcp/atsh9F6mGbZ
-h22zaKpTyXgo/VGz0n6DB0BrvWt+VvzyVQKCAQALkad8IY1nAl9H47uvy+TYMxMp
-xAO3xMVGviMQXYwxX/BtWdWRb2KgHDBDqKi+7YkbIObjzwe/HbtadzBw/G1dPR3B
-ECxmi99HhEItdv+VZxU9Ms3YpcKkNR2+kDnKtbh17BZ4WSij44BoE2Ed38dxNNF3
-1Q0tzSSQeef0JLGCNiKmSTwUAtcjhxW59TgEdbD1lHX35N1QZqN+Dm/iPmc4Y8Ho
-9+8Tua8CxWu/rHoHOAP57p+fvT5PPRGwkuIyhBis+u20vDM/xuLHEmFXlbJ8V90g
-0VXUa2ha8O8/StoTDlnL61PVwMPgZurxcZ56tiRoImUQZjDoHyNBLPkSIThz
------END RSA PRIVATE KEY-----
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">&gt; go run main.go
+</span></span><span class="line"><span class="cl">-----BEGIN RSA PUBLIC KEY-----
+</span></span><span class="line"><span class="cl">MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAw5b5cKSASrqA4ILeJsWP
+</span></span><span class="line"><span class="cl">Z672st+jHEbG6uiNZfQ1kV1y7BJz+m9NDYIeLUGguz9tDmSGkq+maftv2oZEbNTI
+</span></span><span class="line"><span class="cl">EKxIvoD1UZVtWLZqtoJ1+EvOmO4bJ3EZJ7a+807LamLTftuylTd4SUml4Czcrl6h
+</span></span><span class="line"><span class="cl">/3gQSq5mNZFUay96p5hyDr3yhwPAxqbnyCf3j/PXFthoSqIoYICkgHrB2xc+NsX7
+</span></span><span class="line"><span class="cl">7z6oV8VBtIVKigJI+2PI9tLdHsOs3/8ZdoNgPYDGu71SPk/3s1UJ8YlC8u3HcB+T
+</span></span><span class="line"><span class="cl">kyiJRK659COLwVqkXqW8rnQoe2RlWPu1maSJC+BtZXUrL/rmko37R8EdgyKH85YK
+</span></span><span class="line"><span class="cl">jefjLavDMEON+4HdDu6AALQhre++lOwDimaPTjSOLQUR24wFixgPTZQFE3cudUtk
+</span></span><span class="line"><span class="cl">VJJ+53MVZsevVG9jTHKrrECMKplb/7FgwPI5GwkF5HXu5Y7VQHuXR+QkHXqw0sPS
+</span></span><span class="line"><span class="cl">5t79CWVHA2ZXLJMJ5gSaqgLYKTpun8185DMe7hxyFOxjqpiY7ttm50ylHs0kiMAd
+</span></span><span class="line"><span class="cl">WpWQwV2Nm3b2VyvaGkyGCEH0vmdb3+3CJ3W2GWXWUUFLkWG+qrADWLRNx22GCjqT
+</span></span><span class="line"><span class="cl">0CR2K7IvEZnwRWJd0zKnTFsdlLSoMapSVOs5rrkpOfRYmuQHrfqZ8UXqFZmRZYWx
+</span></span><span class="line"><span class="cl"><span class="nv">DVQl3YJ0pBh96Ti6yrQXcNMCAwEAAQ</span><span class="o">==</span>
+</span></span><span class="line"><span class="cl">-----END RSA PUBLIC KEY-----
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">-----BEGIN RSA PRIVATE KEY-----
+</span></span><span class="line"><span class="cl">MIIJKQIBAAKCAgEAw5b5cKSASrqA4ILeJsWPZ672st+jHEbG6uiNZfQ1kV1y7BJz
+</span></span><span class="line"><span class="cl">+m9NDYIeLUGguz9tDmSGkq+maftv2oZEbNTIEKxIvoD1UZVtWLZqtoJ1+EvOmO4b
+</span></span><span class="line"><span class="cl">J3EZJ7a+807LamLTftuylTd4SUml4Czcrl6h/3gQSq5mNZFUay96p5hyDr3yhwPA
+</span></span><span class="line"><span class="cl">xqbnyCf3j/PXFthoSqIoYICkgHrB2xc+NsX77z6oV8VBtIVKigJI+2PI9tLdHsOs
+</span></span><span class="line"><span class="cl">3/8ZdoNgPYDGu71SPk/3s1UJ8YlC8u3HcB+TkyiJRK659COLwVqkXqW8rnQoe2Rl
+</span></span><span class="line"><span class="cl">WPu1maSJC+BtZXUrL/rmko37R8EdgyKH85YKjefjLavDMEON+4HdDu6AALQhre++
+</span></span><span class="line"><span class="cl">lOwDimaPTjSOLQUR24wFixgPTZQFE3cudUtkVJJ+53MVZsevVG9jTHKrrECMKplb
+</span></span><span class="line"><span class="cl">/7FgwPI5GwkF5HXu5Y7VQHuXR+QkHXqw0sPS5t79CWVHA2ZXLJMJ5gSaqgLYKTpu
+</span></span><span class="line"><span class="cl">n8185DMe7hxyFOxjqpiY7ttm50ylHs0kiMAdWpWQwV2Nm3b2VyvaGkyGCEH0vmdb
+</span></span><span class="line"><span class="cl">3+3CJ3W2GWXWUUFLkWG+qrADWLRNx22GCjqT0CR2K7IvEZnwRWJd0zKnTFsdlLSo
+</span></span><span class="line"><span class="cl">MapSVOs5rrkpOfRYmuQHrfqZ8UXqFZmRZYWxDVQl3YJ0pBh96Ti6yrQXcNMCAwEA
+</span></span><span class="line"><span class="cl">AQKCAgEAtl5oGLqZkJQTpMMBRl+BFikSh7h0SuJHiTLq3Lx20iKzDCEsmL78tnKz
+</span></span><span class="line"><span class="cl">lnkR2GYMVpYu0EkNPtad9cCpvlwsazdo4JA3rSlJ+qSkHabJPonYicnB8eXHkbsY
+</span></span><span class="line"><span class="cl">kp7OllStZSSOgAlnk9Yi30KVRdSg8iZN8oRoctwePY7Yq7o95zb/ExrRvahUh9GU
+</span></span><span class="line"><span class="cl">SFoRHJENtUE7qrdoKw/K/3DNpp62CN6Acs5PNHXwCXyV9iiVcmcsnAnRgE5IvLNE
+</span></span><span class="line"><span class="cl">ojQXmWeubsF7cXACRH86uG4zPn2CyXzLeQn+AwC9x7yvdDzPEE7ojB0RToXsTuUW
+</span></span><span class="line"><span class="cl">j8dj2W0FpsgoA1B1kvMihGpHHz2wefzCMm0WJsRthx+sKkWCocGFJK0v8vsENbX2
+</span></span><span class="line"><span class="cl">xBhZESJ72sGSzujT+N70GIi9ywOf1+gkhoLpWQh6gr5XNk9hiVDe1UVwnsov3mYN
+</span></span><span class="line"><span class="cl">JZxuc6WEs1sRUCGN05ZUF3AxAbE7iNUP5CKi8jJzmuOHJcdpVCr0ZAhV9ra7P3QY
+</span></span><span class="line"><span class="cl">M98WfxdPGPIhzAHSgEglfaCvPlJxXa81uevr63oUL3TCx0EvUPh1q4lZjLEyEuAD
+</span></span><span class="line"><span class="cl">BpeUR4Bxe6GPqMUpT2ut8IOWUPg/W5iXguBa7oiTbP1TpVm0ixQQSjnx36Uovsls
+</span></span><span class="line"><span class="cl">n+uroSA9kFIezGrk9fKmvKAAq5fiUXIUknjbDOdFrntomx0/CYkCggEBANemlMfN
+</span></span><span class="line"><span class="cl">wXXkokxcJeW+xElzzIUqR7dhEAAYQFwFt0M+xNPx/mOHNmJO9+ThurXdrl5hWBTl
+</span></span><span class="line"><span class="cl">hrS5WrFFibTJdxgZIvmHxJat0peJgdLNAtPzrkwQdprz3pRT0DAv8adTVx1b/2gt
+</span></span><span class="line"><span class="cl">Wvru5f1shruzU1SYf2kosUOv4c+CVPJks7vV1k040VzNHmZnuuBb3Qq+f2DMGCXW
+</span></span><span class="line"><span class="cl">0nqLWE9LX8UqGNFxT0Nl3lfFfMq3bWlMxli7OLmUXddQOb7ye9XwOfz9JPz3/R3F
+</span></span><span class="line"><span class="cl">0CY2gJ2odRAqXhAAEKDQ5yQZWNjWcXNr+u4GmglPE1etl88j3Zd1BN0R02MxTCt4
+</span></span><span class="line"><span class="cl">o+b+AEAZG1Rz+TcCggEBAOgvfwyaAj3hiciwBSAT1SKuW3fXGbXBKYg1XU4gyJde
+</span></span><span class="line"><span class="cl">mAbEZdVimeYTmZJdiaI6j0M7rLiU6jEvVNH6buW3gbNI1og47PkqGXnNY/mbG/lc
+</span></span><span class="line"><span class="cl">noraOYqlvogGGlJqUNyhXpiEBcjWY8vElk2u3I6oAWNWD05hY4Pl7UxiEZc78ZtF
+</span></span><span class="line"><span class="cl">98gaP5si+DLpFITSKN4HmopuR5+cceFtX3TF8cp5hAzQ9E3FQiuaYBR6vNEcW9zq
+</span></span><span class="line"><span class="cl">3rZjDnE9FTn/e/+FIyzb6DB/5ctMA6pBNFlkDafIH2LZyhBuL4chS0I2ORxzXyQW
+</span></span><span class="line"><span class="cl">TWuxoGGfNP9ByqMriEAHzNGoDg486GAbsE9ALNqzY0UCggEBAJwRvP9VU7vEugjV
+</span></span><span class="line"><span class="cl">b7/z7g7StaNyU/DNWE0ZQArZQCZ0mPJi4p6ZTqybRiDplLzmMLmxbZPCAVluA8rj
+</span></span><span class="line"><span class="cl">7qNeYsiX+I3qykXaityM8d3j7TYD15LJH21JLT7f4X3eVN+qGxPubsuwd3W/y8c6
+</span></span><span class="line"><span class="cl">8c+KGrbQnvU2NAQumBgb1OqQItvACJZelna5JFUsoTyaf0C1WW5uhtNrw2xYyJKq
+</span></span><span class="line"><span class="cl">lCcXLlr1zE2UvfN7w7LaSV6555pz9LuqOrgHIaOlziWo8+66Lji+KPuRG/Fr5G01
+</span></span><span class="line"><span class="cl">a3NFlkmyIlagmYewqHJV0EmeTj5RnM07413DDmklJcvlLp3ntrrFBME5UDVugjPh
+</span></span><span class="line"><span class="cl">d7wJKsUCggEAUEikELJsFgOXhfo/O3FAIGbTn+OTs0IgX0W8hphVY+nEfYqJf7hB
+</span></span><span class="line"><span class="cl">aMncLz0Cq0K+aMwIlCaBuBIarSSAFhRW16xW6fFtF1bUSkaXzCYzDQ1WkMKWZPec
+</span></span><span class="line"><span class="cl">oyIhFeBHJ5Lwx6HW8jQXe8z0/9V31CgJmtSWJE8OfvwRCnlahcWnbD5MSDezSKxV
+</span></span><span class="line"><span class="cl">0BzCCI82rFdKu5UYVPtecUlFWXZcfdt4qonR/9Y2ZCdUE6DBCzlYFlJsQfqMcuFh
+</span></span><span class="line"><span class="cl">JpXNxXO+zvMXHTYMOjiFh+hV9pbfFeXf3GlcMkQ3UO1VPYbMRqcp/atsh9F6mGbZ
+</span></span><span class="line"><span class="cl">h22zaKpTyXgo/VGz0n6DB0BrvWt+VvzyVQKCAQALkad8IY1nAl9H47uvy+TYMxMp
+</span></span><span class="line"><span class="cl">xAO3xMVGviMQXYwxX/BtWdWRb2KgHDBDqKi+7YkbIObjzwe/HbtadzBw/G1dPR3B
+</span></span><span class="line"><span class="cl">ECxmi99HhEItdv+VZxU9Ms3YpcKkNR2+kDnKtbh17BZ4WSij44BoE2Ed38dxNNF3
+</span></span><span class="line"><span class="cl">1Q0tzSSQeef0JLGCNiKmSTwUAtcjhxW59TgEdbD1lHX35N1QZqN+Dm/iPmc4Y8Ho
+</span></span><span class="line"><span class="cl">9+8Tua8CxWu/rHoHOAP57p+fvT5PPRGwkuIyhBis+u20vDM/xuLHEmFXlbJ8V90g
+</span></span><span class="line"><span class="cl">0VXUa2ha8O8/StoTDlnL61PVwMPgZurxcZ56tiRoImUQZjDoHyNBLPkSIThz
+</span></span><span class="line"><span class="cl">-----END RSA PRIVATE KEY-----
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="用生成的证书加密解密">用生成的证书加密、解密</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -572,81 +573,81 @@ ECxmi99HhEItdv+VZxU9Ms3YpcKkNR2+kDnKtbh17BZ4WSij44BoE2Ed38dxNNF3
 </span><span class="lnt">61
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">publicKeyName</span> <span class="o">:=</span> <span class="s">&#34;public.pem&#34;</span>
-    <span class="nx">privateKeyName</span> <span class="o">:=</span> <span class="s">&#34;private.pem&#34;</span>
-
-    <span class="nx">publicKey</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">ioutil</span><span class="p">.</span><span class="nf">ReadFile</span><span class="p">(</span><span class="nx">publicKeyName</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="nx">privateKey</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">ioutil</span><span class="p">.</span><span class="nf">ReadFile</span><span class="p">(</span><span class="nx">privateKeyName</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-    <span class="p">}</span>
-
-    <span class="nx">password</span> <span class="o">:=</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;123456&#34;</span><span class="p">)</span>
-    <span class="nx">cipherdata</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">encryptOAEP</span><span class="p">(</span><span class="nx">publicKey</span><span class="p">,</span> <span class="nx">password</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="nx">ciphertext</span> <span class="o">:=</span> <span class="nx">base64</span><span class="p">.</span><span class="nx">StdEncoding</span><span class="p">.</span><span class="nf">EncodeToString</span><span class="p">(</span><span class="nx">cipherdata</span><span class="p">)</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">ciphertext</span><span class="p">)</span>
-
-    <span class="nx">cipherdata</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">base64</span><span class="p">.</span><span class="nx">StdEncoding</span><span class="p">.</span><span class="nf">DecodeString</span><span class="p">(</span><span class="nx">ciphertext</span><span class="p">)</span>
-    <span class="nx">password</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nf">decryptOAEP</span><span class="p">(</span><span class="nx">privateKey</span><span class="p">,</span> <span class="nx">cipherdata</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">password</span><span class="p">))</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">encryptOAEP</span><span class="p">(</span><span class="nx">publicKey</span><span class="p">,</span> <span class="nx">password</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">block</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">pem</span><span class="p">.</span><span class="nf">Decode</span><span class="p">(</span><span class="nx">publicKey</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">block</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="nx">err</span> <span class="o">:=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;failed to parse certificate PEM&#34;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
-    <span class="p">}</span>
-
-    <span class="nx">pub</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">x509</span><span class="p">.</span><span class="nf">ParsePKIXPublicKey</span><span class="p">(</span><span class="nx">block</span><span class="p">.</span><span class="nx">Bytes</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
-    <span class="p">}</span>
-    <span class="nx">rsaPublicKey</span> <span class="o">:=</span> <span class="nx">pub</span><span class="p">.(</span><span class="o">*</span><span class="nx">rsa</span><span class="p">.</span><span class="nx">PublicKey</span><span class="p">)</span>
-
-    <span class="nx">h</span> <span class="o">:=</span> <span class="nx">sha256</span><span class="p">.</span><span class="nf">New</span><span class="p">()</span> <span class="c1">// sha1.New() or md5.New()
-</span><span class="c1"></span>    <span class="k">return</span> <span class="nx">rsa</span><span class="p">.</span><span class="nf">EncryptOAEP</span><span class="p">(</span><span class="nx">h</span><span class="p">,</span> <span class="nx">rand</span><span class="p">.</span><span class="nx">Reader</span><span class="p">,</span> <span class="nx">rsaPublicKey</span><span class="p">,</span> <span class="nx">password</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">decryptOAEP</span><span class="p">(</span><span class="nx">privateKey</span><span class="p">,</span> <span class="nx">cipherdata</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">block</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">pem</span><span class="p">.</span><span class="nf">Decode</span><span class="p">(</span><span class="nx">privateKey</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">block</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="nx">err</span> <span class="o">:=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;failed to parse certificate PEM&#34;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
-    <span class="p">}</span>
-
-    <span class="nx">priv</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">x509</span><span class="p">.</span><span class="nf">ParsePKCS1PrivateKey</span><span class="p">(</span><span class="nx">block</span><span class="p">.</span><span class="nx">Bytes</span><span class="p">)</span> <span class="c1">// ASN.1 PKCS#1 DER encoded form.
-</span><span class="c1"></span>    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
-    <span class="p">}</span>
-
-    <span class="nx">h</span> <span class="o">:=</span> <span class="nx">sha256</span><span class="p">.</span><span class="nf">New</span><span class="p">()</span>
-    <span class="k">return</span> <span class="nx">rsa</span><span class="p">.</span><span class="nf">DecryptOAEP</span><span class="p">(</span><span class="nx">h</span><span class="p">,</span> <span class="nx">rand</span><span class="p">.</span><span class="nx">Reader</span><span class="p">,</span> <span class="nx">priv</span><span class="p">,</span> <span class="nx">cipherdata</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">publicKeyName</span> <span class="o">:=</span> <span class="s">&#34;public.pem&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">privateKeyName</span> <span class="o">:=</span> <span class="s">&#34;private.pem&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">publicKey</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">ioutil</span><span class="p">.</span><span class="nf">ReadFile</span><span class="p">(</span><span class="nx">publicKeyName</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">privateKey</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">ioutil</span><span class="p">.</span><span class="nf">ReadFile</span><span class="p">(</span><span class="nx">privateKeyName</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">password</span> <span class="o">:=</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;123456&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">cipherdata</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">encryptOAEP</span><span class="p">(</span><span class="nx">publicKey</span><span class="p">,</span> <span class="nx">password</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">ciphertext</span> <span class="o">:=</span> <span class="nx">base64</span><span class="p">.</span><span class="nx">StdEncoding</span><span class="p">.</span><span class="nf">EncodeToString</span><span class="p">(</span><span class="nx">cipherdata</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">ciphertext</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">cipherdata</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">base64</span><span class="p">.</span><span class="nx">StdEncoding</span><span class="p">.</span><span class="nf">DecodeString</span><span class="p">(</span><span class="nx">ciphertext</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">password</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nf">decryptOAEP</span><span class="p">(</span><span class="nx">privateKey</span><span class="p">,</span> <span class="nx">cipherdata</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">password</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">encryptOAEP</span><span class="p">(</span><span class="nx">publicKey</span><span class="p">,</span> <span class="nx">password</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">block</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">pem</span><span class="p">.</span><span class="nf">Decode</span><span class="p">(</span><span class="nx">publicKey</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">block</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">err</span> <span class="o">:=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;failed to parse certificate PEM&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">pub</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">x509</span><span class="p">.</span><span class="nf">ParsePKIXPublicKey</span><span class="p">(</span><span class="nx">block</span><span class="p">.</span><span class="nx">Bytes</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">rsaPublicKey</span> <span class="o">:=</span> <span class="nx">pub</span><span class="p">.(</span><span class="o">*</span><span class="nx">rsa</span><span class="p">.</span><span class="nx">PublicKey</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">h</span> <span class="o">:=</span> <span class="nx">sha256</span><span class="p">.</span><span class="nf">New</span><span class="p">()</span> <span class="c1">// sha1.New() or md5.New()
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">return</span> <span class="nx">rsa</span><span class="p">.</span><span class="nf">EncryptOAEP</span><span class="p">(</span><span class="nx">h</span><span class="p">,</span> <span class="nx">rand</span><span class="p">.</span><span class="nx">Reader</span><span class="p">,</span> <span class="nx">rsaPublicKey</span><span class="p">,</span> <span class="nx">password</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">decryptOAEP</span><span class="p">(</span><span class="nx">privateKey</span><span class="p">,</span> <span class="nx">cipherdata</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">block</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">pem</span><span class="p">.</span><span class="nf">Decode</span><span class="p">(</span><span class="nx">privateKey</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">block</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">err</span> <span class="o">:=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;failed to parse certificate PEM&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">priv</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">x509</span><span class="p">.</span><span class="nf">ParsePKCS1PrivateKey</span><span class="p">(</span><span class="nx">block</span><span class="p">.</span><span class="nx">Bytes</span><span class="p">)</span> <span class="c1">// ASN.1 PKCS#1 DER encoded form.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">h</span> <span class="o">:=</span> <span class="nx">sha256</span><span class="p">.</span><span class="nf">New</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">rsa</span><span class="p">.</span><span class="nf">DecryptOAEP</span><span class="p">(</span><span class="nx">h</span><span class="p">,</span> <span class="nx">rand</span><span class="p">.</span><span class="nx">Reader</span><span class="p">,</span> <span class="nx">priv</span><span class="p">,</span> <span class="nx">cipherdata</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>执行输出密文和原文</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-sh" data-lang="sh">&gt; go run main.go
-YBFO/X38/MwQF4+wpjZZOujFxExMnM1a8sZ7F8+5Qt+A2QDL5CNWEV7KTRxYoNwymlOvl+MYnDPAzsofHuynszOASidBZNkJ74M0TgNdnIgOcAl8NPgXTRupP3kkAZe5vlc11ndT/+yWGnzgslNc9jh46sMhNkvpJhOIJjpD+jPZh83/P+ayOG2CqRJDovMf7++aNDeoME/yLdOG8sXWEBFRU4cGiqXdd7ZG1i4RuSPyMVliACCEA/p9+Ck0JauTh4EzNL1ioOj7Z6htllaqCbt8Z8a5Puo8JnOisD54nyTGh9m/KgJOERv2JWGCySUnjjK0uJaCYYxgEuUUtAniV7/hYfCOnaeh2BMserfN3+He7WgKJkbwWAH0h8RHC6chwbLDT2QNTKByfi1PABJYaugb263YqVJR5A9kkQoVDfnBD7lpZxdQDSlg8Cl2+hFDzq8x0L9BpbDuP1QOtw/5In8zHLvynlVBkSOJf1VSiVxlaU+T55Xw1XwAwBs0X4UfDVfbXtmxg6lulDsPmBe5Psjr26IIyCZPKkL3Fe+MUA5gyi2eXZn9w/Er1n3DkVq/SVKq2zrXiDijLgcqnsnQURh9FNKjoxPLAOABBswHOwwZgbWOxmqtFd4RM9rpFtpdvpi5VzdwYHCBxoZG43Ej6CZcJ4jwT09OdO7OcDbZODQ<span class="o">=</span>
-<span class="m">123456</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">&gt; go run main.go
+</span></span><span class="line"><span class="cl">YBFO/X38/MwQF4+wpjZZOujFxExMnM1a8sZ7F8+5Qt+A2QDL5CNWEV7KTRxYoNwymlOvl+MYnDPAzsofHuynszOASidBZNkJ74M0TgNdnIgOcAl8NPgXTRupP3kkAZe5vlc11ndT/+yWGnzgslNc9jh46sMhNkvpJhOIJjpD+jPZh83/P+ayOG2CqRJDovMf7++aNDeoME/yLdOG8sXWEBFRU4cGiqXdd7ZG1i4RuSPyMVliACCEA/p9+Ck0JauTh4EzNL1ioOj7Z6htllaqCbt8Z8a5Puo8JnOisD54nyTGh9m/KgJOERv2JWGCySUnjjK0uJaCYYxgEuUUtAniV7/hYfCOnaeh2BMserfN3+He7WgKJkbwWAH0h8RHC6chwbLDT2QNTKByfi1PABJYaugb263YqVJR5A9kkQoVDfnBD7lpZxdQDSlg8Cl2+hFDzq8x0L9BpbDuP1QOtw/5In8zHLvynlVBkSOJf1VSiVxlaU+T55Xw1XwAwBs0X4UfDVfbXtmxg6lulDsPmBe5Psjr26IIyCZPKkL3Fe+MUA5gyi2eXZn9w/Er1n3DkVq/SVKq2zrXiDijLgcqnsnQURh9FNKjoxPLAOABBswHOwwZgbWOxmqtFd4RM9rpFtpdvpi5VzdwYHCBxoZG43Ej6CZcJ4jwT09OdO7OcDbZODQ<span class="o">=</span>
+</span></span><span class="line"><span class="cl"><span class="m">123456</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="mysql-auth-method-switch-密码加密传输处理逻辑">mysql Auth Method Switch 密码加密传输处理逻辑</h2>
 <p>从 MySQL 5.6 开始支持 sha256_password 认证插件。它使用加盐密码（salted password）进行多轮 SHA256 哈希，确保哈希值转换更安全。并且需要在安全连接(ssl)或密码使用 RSA 秘钥对加密传输</p>
@@ -656,7 +657,7 @@ YBFO/X38/MwQF4+wpjZZOujFxExMnM1a8sZ7F8+5Qt+A2QDL5CNWEV7KTRxYoNwymlOvl+MYnDPAzsof
 <p>mysql 客户端<code>authMoreRequest</code>处理</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -685,40 +686,40 @@ YBFO/X38/MwQF4+wpjZZOujFxExMnM1a8sZ7F8+5Qt+A2QDL5CNWEV7KTRxYoNwymlOvl+MYnDPAzsof
 </span><span class="lnt">27
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 1、接收 public key
-</span><span class="c1"></span><span class="nx">publicKeyData</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nf">ReadPacket</span><span class="p">()</span>
-<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">Wrap</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="s">&#34;ReadPacket failed&#34;</span><span class="p">)</span>
-<span class="p">}</span>
-
-<span class="c1">// 2、用 public key 和 authData 对密码加密
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">encryptPassword</span><span class="p">(</span><span class="nx">password</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">authData</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">pub</span> <span class="o">*</span><span class="nx">rsa</span><span class="p">.</span><span class="nx">PublicKey</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">plain</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="nx">password</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-    <span class="nb">copy</span><span class="p">(</span><span class="nx">plain</span><span class="p">,</span> <span class="nx">password</span><span class="p">)</span>
-    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">plain</span> <span class="p">{</span>
-        <span class="nx">j</span> <span class="o">:=</span> <span class="nx">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="nx">authData</span><span class="p">)</span>
-        <span class="nx">plain</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">^=</span> <span class="nx">authData</span><span class="p">[</span><span class="nx">j</span><span class="p">]</span>
-    <span class="p">}</span>
-    <span class="nx">sha1</span> <span class="o">:=</span> <span class="nx">sha1</span><span class="p">.</span><span class="nf">New</span><span class="p">()</span>
-    <span class="k">return</span> <span class="nx">rsa</span><span class="p">.</span><span class="nf">EncryptOAEP</span><span class="p">(</span><span class="nx">sha1</span><span class="p">,</span> <span class="nx">rand</span><span class="p">.</span><span class="nx">Reader</span><span class="p">,</span> <span class="nx">pub</span><span class="p">,</span> <span class="nx">plain</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
-<span class="p">}</span>
-
-<span class="nx">block</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">pem</span><span class="p">.</span><span class="nf">Decode</span><span class="p">(</span><span class="nx">publicKeyData</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
-<span class="nx">pub</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">x509</span><span class="p">.</span><span class="nf">ParsePKIXPublicKey</span><span class="p">(</span><span class="nx">block</span><span class="p">.</span><span class="nx">Bytes</span><span class="p">)</span>
-<span class="nx">rsaPublicKey</span> <span class="o">:=</span> <span class="nx">pub</span><span class="p">.(</span><span class="o">*</span><span class="nx">rsa</span><span class="p">.</span><span class="nx">PublicKey</span><span class="p">)</span>
-<span class="nx">enc</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">encryptPassword</span><span class="p">(</span><span class="nx">password</span><span class="p">,</span> <span class="nx">authData</span><span class="p">,</span> <span class="nx">rsaPublicKey</span><span class="p">)</span>
-
-<span class="c1">// 2、密码后发送密文
-</span><span class="c1"></span><span class="nx">data</span> <span class="p">=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="mi">4</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="nx">enc</span><span class="p">))</span>
-<span class="nb">copy</span><span class="p">(</span><span class="nx">data</span><span class="p">[</span><span class="mi">4</span><span class="p">:],</span> <span class="nx">enc</span><span class="p">)</span>
-<span class="nf">writeAuthSwitchPacket</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// 1、接收 public key
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">publicKeyData</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nf">ReadPacket</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">Wrap</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="s">&#34;ReadPacket failed&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 2、用 public key 和 authData 对密码加密
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">encryptPassword</span><span class="p">(</span><span class="nx">password</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">authData</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">pub</span> <span class="o">*</span><span class="nx">rsa</span><span class="p">.</span><span class="nx">PublicKey</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">plain</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="nx">password</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">copy</span><span class="p">(</span><span class="nx">plain</span><span class="p">,</span> <span class="nx">password</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">plain</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">j</span> <span class="o">:=</span> <span class="nx">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="nx">authData</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">plain</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">^=</span> <span class="nx">authData</span><span class="p">[</span><span class="nx">j</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">sha1</span> <span class="o">:=</span> <span class="nx">sha1</span><span class="p">.</span><span class="nf">New</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">rsa</span><span class="p">.</span><span class="nf">EncryptOAEP</span><span class="p">(</span><span class="nx">sha1</span><span class="p">,</span> <span class="nx">rand</span><span class="p">.</span><span class="nx">Reader</span><span class="p">,</span> <span class="nx">pub</span><span class="p">,</span> <span class="nx">plain</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nx">block</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">pem</span><span class="p">.</span><span class="nf">Decode</span><span class="p">(</span><span class="nx">publicKeyData</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+</span></span><span class="line"><span class="cl"><span class="nx">pub</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">x509</span><span class="p">.</span><span class="nf">ParsePKIXPublicKey</span><span class="p">(</span><span class="nx">block</span><span class="p">.</span><span class="nx">Bytes</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nx">rsaPublicKey</span> <span class="o">:=</span> <span class="nx">pub</span><span class="p">.(</span><span class="o">*</span><span class="nx">rsa</span><span class="p">.</span><span class="nx">PublicKey</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nx">enc</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">encryptPassword</span><span class="p">(</span><span class="nx">password</span><span class="p">,</span> <span class="nx">authData</span><span class="p">,</span> <span class="nx">rsaPublicKey</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 2、密码后发送密文
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">data</span> <span class="p">=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="mi">4</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="nx">enc</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="nb">copy</span><span class="p">(</span><span class="nx">data</span><span class="p">[</span><span class="mi">4</span><span class="p">:],</span> <span class="nx">enc</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nf">writeAuthSwitchPacket</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>mysql 服务端<code>authMoreRequest</code>处理
 发送public key协议包，接收密文，然后解密出密码原文并验证</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -746,33 +747,33 @@ YBFO/X38/MwQF4+wpjZZOujFxExMnM1a8sZ7F8+5Qt+A2QDL5CNWEV7KTRxYoNwymlOvl+MYnDPAzsof
 </span><span class="lnt">26
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 1. send the public key
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">writeAuthMoreDataPubkey</span><span class="p">()</span> <span class="kt">error</span> <span class="p">{</span>
-    <span class="nx">length</span> <span class="o">:=</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="nx">pubKey</span><span class="p">)</span>
-    <span class="nx">data</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">length</span><span class="p">)</span>
-    <span class="nx">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">=</span> <span class="mh">0x01</span> <span class="c1">// iAuthMoreData
-</span><span class="c1"></span>    <span class="nx">data</span> <span class="p">=</span> <span class="nb">copy</span><span class="p">(</span><span class="nx">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="nx">pubKey</span><span class="o">...</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nf">WritePacket</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
-<span class="p">}</span>
-
-<span class="c1">// 2. read the encrypted password
-</span><span class="c1"></span><span class="nx">authData</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nf">readAuthSwitchRequestResponse</span><span class="p">()</span>
-
-<span class="c1">// 3. decrypt the encrypted password
-</span><span class="c1"></span><span class="nx">dbytes</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">rsa</span><span class="p">.</span><span class="nf">DecryptOAEP</span><span class="p">(</span><span class="nx">sha1</span><span class="p">.</span><span class="nf">New</span><span class="p">(),</span> <span class="nx">rand</span><span class="p">.</span><span class="nx">Reader</span><span class="p">,</span> <span class="p">(</span><span class="nx">privateKey</span><span class="p">).(</span><span class="o">*</span><span class="nx">rsa</span><span class="p">.</span><span class="nx">PrivateKey</span><span class="p">),</span> <span class="nx">authData</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
-<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">err</span>
-<span class="p">}</span>
-<span class="nx">plain</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="nx">password</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-<span class="nb">copy</span><span class="p">(</span><span class="nx">plain</span><span class="p">,</span> <span class="nx">password</span><span class="p">)</span>
-<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">plain</span> <span class="p">{</span>
-    <span class="nx">j</span> <span class="o">:=</span> <span class="nx">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="nx">salt</span><span class="p">)</span>
-    <span class="nx">plain</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">^=</span> <span class="nx">salt</span><span class="p">[</span><span class="nx">j</span><span class="p">]</span>
-<span class="p">}</span>
-<span class="k">if</span> <span class="nx">bytes</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">plain</span><span class="p">,</span> <span class="nx">dbytes</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="kc">nil</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// 1. send the public key
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">writeAuthMoreDataPubkey</span><span class="p">()</span> <span class="kt">error</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">length</span> <span class="o">:=</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="nx">pubKey</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">data</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">length</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">=</span> <span class="mh">0x01</span> <span class="c1">// iAuthMoreData
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">data</span> <span class="p">=</span> <span class="nb">copy</span><span class="p">(</span><span class="nx">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="nx">pubKey</span><span class="o">...</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nf">WritePacket</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 2. read the encrypted password
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">authData</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nf">readAuthSwitchRequestResponse</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 3. decrypt the encrypted password
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">dbytes</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">rsa</span><span class="p">.</span><span class="nf">DecryptOAEP</span><span class="p">(</span><span class="nx">sha1</span><span class="p">.</span><span class="nf">New</span><span class="p">(),</span> <span class="nx">rand</span><span class="p">.</span><span class="nx">Reader</span><span class="p">,</span> <span class="p">(</span><span class="nx">privateKey</span><span class="p">).(</span><span class="o">*</span><span class="nx">rsa</span><span class="p">.</span><span class="nx">PrivateKey</span><span class="p">),</span> <span class="nx">authData</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="nx">plain</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="nx">password</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">copy</span><span class="p">(</span><span class="nx">plain</span><span class="p">,</span> <span class="nx">password</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">plain</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">j</span> <span class="o">:=</span> <span class="nx">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="nx">salt</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">plain</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">^=</span> <span class="nx">salt</span><span class="p">[</span><span class="nx">j</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="nx">bytes</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">plain</span><span class="p">,</span> <span class="nx">dbytes</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -883,7 +884,7 @@ YBFO/X38/MwQF4+wpjZZOujFxExMnM1a8sZ7F8+5Qt+A2QDL5CNWEV7KTRxYoNwymlOvl+MYnDPAzsof
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -900,7 +901,7 @@ YBFO/X38/MwQF4+wpjZZOujFxExMnM1a8sZ7F8+5Qt+A2QDL5CNWEV7KTRxYoNwymlOvl+MYnDPAzsof
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

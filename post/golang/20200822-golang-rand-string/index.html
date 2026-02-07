@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20200822-golang-rand-string/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Go] 如何一步步提升Go生成随机字符串的效率" />
-<meta property="og:description" content="逐步优化实现一个高效的随机字符串算法 来自stackoverflow上的一个问题:How to generate a random string of a fixed length in Go? 问题描述是：我想要一个随机的字符" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20200822-golang-rand-string/" />
-<meta property="article:published_time" content="2020-08-22T17:58:18+08:00" />
-<meta property="article:modified_time" content="2020-08-22T17:58:18+08:00" />
-<meta itemprop="name" content="[Go] 如何一步步提升Go生成随机字符串的效率">
-<meta itemprop="description" content="逐步优化实现一个高效的随机字符串算法 来自stackoverflow上的一个问题:How to generate a random string of a fixed length in Go? 问题描述是：我想要一个随机的字符">
-<meta itemprop="datePublished" content="2020-08-22T17:58:18&#43;08:00" />
-<meta itemprop="dateModified" content="2020-08-22T17:58:18&#43;08:00" />
-<meta itemprop="wordCount" content="2025">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20200822-golang-rand-string/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Go] 如何一步步提升Go生成随机字符串的效率">
+  <meta property="og:description" content="逐步优化实现一个高效的随机字符串算法 来自stackoverflow上的一个问题:How to generate a random string of a fixed length in Go? 问题描述是：我想要一个随机的字符">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2020-08-22T17:58:18+08:00">
+    <meta property="article:modified_time" content="2020-08-22T17:58:18+08:00">
+    <meta property="article:tag" content="Golang">
 
-
-
-<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Go] 如何一步步提升Go生成随机字符串的效率"/>
-<meta name="twitter:description" content="逐步优化实现一个高效的随机字符串算法 来自stackoverflow上的一个问题:How to generate a random string of a fixed length in Go? 问题描述是：我想要一个随机的字符"/>
+  <meta itemprop="name" content="[Go] 如何一步步提升Go生成随机字符串的效率">
+  <meta itemprop="description" content="逐步优化实现一个高效的随机字符串算法 来自stackoverflow上的一个问题:How to generate a random string of a fixed length in Go? 问题描述是：我想要一个随机的字符">
+  <meta itemprop="datePublished" content="2020-08-22T17:58:18+08:00">
+  <meta itemprop="dateModified" content="2020-08-22T17:58:18+08:00">
+  <meta itemprop="wordCount" content="2025">
+  <meta itemprop="keywords" content="Golang"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Go] 如何一步步提升Go生成随机字符串的效率">
+<meta name="twitter:description" content="逐步优化实现一个高效的随机字符串算法 来自stackoverflow上的一个问题:How to generate a random string of a fixed length in Go? 问题描述是：我想要一个随机的字符">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -179,7 +180,7 @@
 <p>随机获取字符串</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -194,27 +195,27 @@
 </span><span class="lnt">13
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">init</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">rand</span><span class="p">.</span><span class="nf">Seed</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">UnixNano</span><span class="p">())</span>
-<span class="p">}</span>
-
-<span class="kd">var</span> <span class="nx">letterRunes</span> <span class="p">=</span> <span class="p">[]</span><span class="nb">rune</span><span class="p">(</span><span class="s">&#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span><span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">RandStringRunes</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
-    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">rune</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
-    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">b</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterRunes</span><span class="p">[</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Intn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">letterRunes</span><span class="p">))]</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">init</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">rand</span><span class="p">.</span><span class="nf">Seed</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">UnixNano</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">letterRunes</span> <span class="p">=</span> <span class="p">[]</span><span class="nb">rune</span><span class="p">(</span><span class="s">&#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">RandStringRunes</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">rune</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">b</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterRunes</span><span class="p">[</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Intn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">letterRunes</span><span class="p">))]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="bytes改进">Bytes改进</h2>
 <p>因为随机字符串只包含大小写字母, 在<code>Golang UTF-8</code>编码中,英文字母和<code>byte</code>字节是一对一的。
 <code>byte</code>的本质是<code>uint8</code>类型,<code>rune</code>本质是<code>int32</code>类型,没有必要使用<code>rune</code>类型存储。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -225,23 +226,23 @@
 </span><span class="lnt">9
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">const</span> <span class="nx">letterBytes</span> <span class="p">=</span> <span class="s">&#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span>
-
-<span class="kd">func</span> <span class="nf">RandStringBytes</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
-    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
-    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">b</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Intn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">))]</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">const</span> <span class="nx">letterBytes</span> <span class="p">=</span> <span class="s">&#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">RandStringBytes</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">b</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Intn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">))]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="余数改进">余数改进</h2>
 <p><code>rand.Intn()</code>相比直接调用<code>rand.Int63()</code>要慢很多,
 把<code>rand.Intn()</code>换成<code>rand.Int63()</code>来提高效率。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -250,21 +251,21 @@
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">RandStringBytesRmndr</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
-    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
-    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">b</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">()</span> <span class="o">%</span> <span class="nb">int64</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">))]</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">RandStringBytesRmndr</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">b</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">()</span> <span class="o">%</span> <span class="nb">int64</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">))]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="masking-掩码">Masking 掩码</h2>
 <p>使用随机数的最低位保证字母的均等分配，也就是掩码的方式。现有52个字母，52用二进制表示就是<code>52==110100b</code>，
 所以我们可以只使用<code>rand.Int63()</code>返回最低的6位数就可以。为了保证平均分配，如果返回的值大于<code>len(letterBytes)-1</code>，则舍弃不用</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -282,29 +283,29 @@
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">const</span> <span class="nx">letterBytes</span> <span class="p">=</span> <span class="s">&#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span>
-<span class="kd">const</span> <span class="p">(</span>
-    <span class="nx">letterIdxBits</span> <span class="p">=</span> <span class="mi">6</span>                    <span class="c1">// 6 bits to represent a letter index
-</span><span class="c1"></span>    <span class="nx">letterIdxMask</span> <span class="p">=</span> <span class="mi">1</span><span class="o">&lt;&lt;</span><span class="nx">letterIdxBits</span> <span class="o">-</span> <span class="mi">1</span> <span class="c1">// All 1-bits, as many as letterIdxBits
-</span><span class="c1"></span><span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">RandStringBytesMask</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
-    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
-    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">n</span><span class="p">;</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">()</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span>
-            <span class="nx">i</span><span class="o">++</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">const</span> <span class="nx">letterBytes</span> <span class="p">=</span> <span class="s">&#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="kd">const</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">letterIdxBits</span> <span class="p">=</span> <span class="mi">6</span>                    <span class="c1">// 6 bits to represent a letter index
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">letterIdxMask</span> <span class="p">=</span> <span class="mi">1</span><span class="o">&lt;&lt;</span><span class="nx">letterIdxBits</span> <span class="o">-</span> <span class="mi">1</span> <span class="c1">// All 1-bits, as many as letterIdxBits
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">RandStringBytesMask</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">n</span><span class="p">;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">()</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">i</span><span class="o">++</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="masking-掩码改进">Masking 掩码改进</h2>
 <p>使用<code>rand.Int63()</code>可以生成63个随机位的数，把63分为10份(63/6=10)充分利用，<code>rand.Int63()</code>次数将大大降低，进而提升效率。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -330,38 +331,38 @@
 </span><span class="lnt">24
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">const</span> <span class="nx">letterBytes</span> <span class="p">=</span> <span class="s">&#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span>
-<span class="kd">const</span> <span class="p">(</span>
-    <span class="nx">letterIdxBits</span> <span class="p">=</span> <span class="mi">6</span>                    <span class="c1">// 6 bits to represent a letter index
-</span><span class="c1"></span>    <span class="nx">letterIdxMask</span> <span class="p">=</span> <span class="mi">1</span><span class="o">&lt;&lt;</span><span class="nx">letterIdxBits</span> <span class="o">-</span> <span class="mi">1</span> <span class="c1">// All 1-bits, as many as letterIdxBits
-</span><span class="c1"></span>    <span class="nx">letterIdxMax</span>  <span class="p">=</span> <span class="mi">63</span> <span class="o">/</span> <span class="nx">letterIdxBits</span>   <span class="c1">// # of letter indices fitting in 63 bits
-</span><span class="c1"></span><span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">RandStringBytesMaskImpr</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
-    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
-    <span class="c1">// A rand.Int63() generates 63 random bits, enough for letterIdxMax letters!
-</span><span class="c1"></span>    <span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="o">:=</span> <span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="nx">remain</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
-            <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="p">=</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span>
-        <span class="p">}</span>
-        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">cache</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span>
-            <span class="nx">i</span><span class="o">--</span>
-        <span class="p">}</span>
-        <span class="nx">cache</span> <span class="o">&gt;&gt;=</span> <span class="nx">letterIdxBits</span>
-        <span class="nx">remain</span><span class="o">--</span>
-    <span class="p">}</span>
-
-    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">const</span> <span class="nx">letterBytes</span> <span class="p">=</span> <span class="s">&#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="kd">const</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">letterIdxBits</span> <span class="p">=</span> <span class="mi">6</span>                    <span class="c1">// 6 bits to represent a letter index
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">letterIdxMask</span> <span class="p">=</span> <span class="mi">1</span><span class="o">&lt;&lt;</span><span class="nx">letterIdxBits</span> <span class="o">-</span> <span class="mi">1</span> <span class="c1">// All 1-bits, as many as letterIdxBits
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">letterIdxMax</span>  <span class="p">=</span> <span class="mi">63</span> <span class="o">/</span> <span class="nx">letterIdxBits</span>   <span class="c1">// # of letter indices fitting in 63 bits
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">RandStringBytesMaskImpr</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// A rand.Int63() generates 63 random bits, enough for letterIdxMax letters!
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="o">:=</span> <span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">remain</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="p">=</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">cache</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">i</span><span class="o">--</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">cache</span> <span class="o">&gt;&gt;=</span> <span class="nx">letterIdxBits</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">remain</span><span class="o">--</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="rand-source-优化">rand Source 优化</h2>
 <p>原来的<code>rand.Int63()</code>是整个<code>rand</code>包全局的，而且支持安全高并发，所以速度比较慢。
 使用<code>rand.Source</code>替换全局rand来提高效率。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -382,32 +383,32 @@
 </span><span class="lnt">19
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">var</span> <span class="nx">src</span> <span class="p">=</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">NewSource</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">UnixNano</span><span class="p">())</span>
-
-<span class="kd">func</span> <span class="nf">RandStringBytesMaskImprSrc</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
-    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
-    <span class="c1">// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
-</span><span class="c1"></span>    <span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="o">:=</span> <span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="nx">remain</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
-            <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="p">=</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span>
-        <span class="p">}</span>
-        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">cache</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span>
-            <span class="nx">i</span><span class="o">--</span>
-        <span class="p">}</span>
-        <span class="nx">cache</span> <span class="o">&gt;&gt;=</span> <span class="nx">letterIdxBits</span>
-        <span class="nx">remain</span><span class="o">--</span>
-    <span class="p">}</span>
-
-    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">src</span> <span class="p">=</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">NewSource</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">UnixNano</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">RandStringBytesMaskImprSrc</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="o">:=</span> <span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">remain</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="p">=</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">cache</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">i</span><span class="o">--</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">cache</span> <span class="o">&gt;&gt;=</span> <span class="nx">letterIdxBits</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">remain</span><span class="o">--</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="stringsbuilder-改进">strings.Builder 改进</h2>
 <p>使用<code>G0 1.10</code>新增的功能<code>strings.Builder</code>，提升字符串拼接的效率。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -427,46 +428,46 @@
 </span><span class="lnt">18
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">RandStringBytesMaskImprSrcSB</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
-    <span class="nx">sb</span> <span class="o">:=</span> <span class="nx">strings</span><span class="p">.</span><span class="nx">Builder</span><span class="p">{}</span>
-    <span class="nx">sb</span><span class="p">.</span><span class="nf">Grow</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
-    <span class="c1">// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
-</span><span class="c1"></span>    <span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="o">:=</span> <span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="nx">remain</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
-            <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="p">=</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span>
-        <span class="p">}</span>
-        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">cache</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">sb</span><span class="p">.</span><span class="nf">WriteByte</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">])</span>
-            <span class="nx">i</span><span class="o">--</span>
-        <span class="p">}</span>
-        <span class="nx">cache</span> <span class="o">&gt;&gt;=</span> <span class="nx">letterIdxBits</span>
-        <span class="nx">remain</span><span class="o">--</span>
-    <span class="p">}</span>
-
-    <span class="k">return</span> <span class="nx">sb</span><span class="p">.</span><span class="nf">String</span><span class="p">()</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">RandStringBytesMaskImprSrcSB</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">sb</span> <span class="o">:=</span> <span class="nx">strings</span><span class="p">.</span><span class="nx">Builder</span><span class="p">{}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">sb</span><span class="p">.</span><span class="nf">Grow</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="o">:=</span> <span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">remain</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="p">=</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">cache</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">sb</span><span class="p">.</span><span class="nf">WriteByte</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">i</span><span class="o">--</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">cache</span> <span class="o">&gt;&gt;=</span> <span class="nx">letterIdxBits</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">remain</span><span class="o">--</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">sb</span><span class="p">.</span><span class="nf">String</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="使用unsafe包模拟-stringsbuilder">使用unsafe包模拟 strings.Builder</h2>
 <p><code>strings.Builder</code>内置了一个<code>[]byte</code>存储字符，最终转换为<code>string</code>的时候为了避免拷贝，使用了<code>unsafe</code>包。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// String returns the accumulated string.
-</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">Builder</span><span class="p">)</span> <span class="nf">String</span><span class="p">()</span> <span class="kt">string</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="kt">string</span><span class="p">)(</span><span class="nx">unsafe</span><span class="p">.</span><span class="nf">Pointer</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">b</span><span class="p">.</span><span class="nx">buf</span><span class="p">))</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// String returns the accumulated string.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">Builder</span><span class="p">)</span> <span class="nf">String</span><span class="p">()</span> <span class="kt">string</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="kt">string</span><span class="p">)(</span><span class="nx">unsafe</span><span class="p">.</span><span class="nf">Pointer</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">b</span><span class="p">.</span><span class="nx">buf</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>直接替换<code>strings.Builder()</code>更简洁</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -485,30 +486,30 @@
 </span><span class="lnt">17
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">RandStringBytesMaskImprSrcUnsafe</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
-    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
-    <span class="c1">// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
-</span><span class="c1"></span>    <span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="o">:=</span> <span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="nx">remain</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
-            <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="p">=</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span>
-        <span class="p">}</span>
-        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">cache</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span>
-            <span class="nx">i</span><span class="o">--</span>
-        <span class="p">}</span>
-        <span class="nx">cache</span> <span class="o">&gt;&gt;=</span> <span class="nx">letterIdxBits</span>
-        <span class="nx">remain</span><span class="o">--</span>
-    <span class="p">}</span>
-
-    <span class="k">return</span> <span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="kt">string</span><span class="p">)(</span><span class="nx">unsafe</span><span class="p">.</span><span class="nf">Pointer</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">b</span><span class="p">))</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">RandStringBytesMaskImprSrcUnsafe</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="o">:=</span> <span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">remain</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="p">=</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">cache</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">i</span><span class="o">--</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">cache</span> <span class="o">&gt;&gt;=</span> <span class="nx">letterIdxBits</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">remain</span><span class="o">--</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="kt">string</span><span class="p">)(</span><span class="nx">unsafe</span><span class="p">.</span><span class="nf">Pointer</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">b</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="benchmark-性能测试">Benchmark 性能测试</h2>
 <p>Benchmark测试这些方法的效果:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -518,20 +519,20 @@
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">BenchmarkRunes-4                     2000000    723 ns/op   96 B/op   2 allocs/op
-BenchmarkBytes-4                     3000000    550 ns/op   32 B/op   2 allocs/op
-BenchmarkBytesRmndr-4                3000000    438 ns/op   32 B/op   2 allocs/op
-BenchmarkBytesMask-4                 3000000    534 ns/op   32 B/op   2 allocs/op
-BenchmarkBytesMaskImpr-4            10000000    176 ns/op   32 B/op   2 allocs/op
-BenchmarkBytesMaskImprSrc-4         10000000    139 ns/op   32 B/op   2 allocs/op
-BenchmarkBytesMaskImprSrcSB-4       10000000    134 ns/op   16 B/op   1 allocs/op
-BenchmarkBytesMaskImprSrcUnsafe-4   10000000    115 ns/op   16 B/op   1 allocs/op
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">BenchmarkRunes-4                     2000000    723 ns/op   96 B/op   2 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkBytes-4                     3000000    550 ns/op   32 B/op   2 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkBytesRmndr-4                3000000    438 ns/op   32 B/op   2 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkBytesMask-4                 3000000    534 ns/op   32 B/op   2 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkBytesMaskImpr-4            10000000    176 ns/op   32 B/op   2 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkBytesMaskImprSrc-4         10000000    139 ns/op   32 B/op   2 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkBytesMaskImprSrcSB-4       10000000    134 ns/op   16 B/op   1 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkBytesMaskImprSrcUnsafe-4   10000000    115 ns/op   16 B/op   1 allocs/op
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Benchmark代码</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">  1
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
 </span><span class="lnt">  2
 </span><span class="lnt">  3
 </span><span class="lnt">  4
@@ -646,120 +647,120 @@ BenchmarkBytesMaskImprSrcUnsafe-4   10000000    115 ns/op   16 B/op   1 allocs/o
 </span><span class="lnt">113
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-<span class="kn">import</span> <span class="p">(</span>
-    <span class="s">&#34;math/rand&#34;</span>
-    <span class="s">&#34;testing&#34;</span>
-    <span class="s">&#34;time&#34;</span>
-<span class="p">)</span>
-<span class="c1">// Implementations
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">init</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">rand</span><span class="p">.</span><span class="nf">Seed</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">UnixNano</span><span class="p">())</span>
-<span class="p">}</span>
-<span class="kd">var</span> <span class="nx">letterRunes</span> <span class="p">=</span> <span class="p">[]</span><span class="nb">rune</span><span class="p">(</span><span class="s">&#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span><span class="p">)</span>
-<span class="kd">func</span> <span class="nf">RandStringRunes</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
-    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">rune</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
-    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">b</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterRunes</span><span class="p">[</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Intn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">letterRunes</span><span class="p">))]</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
-<span class="p">}</span>
-<span class="kd">const</span> <span class="nx">letterBytes</span> <span class="p">=</span> <span class="s">&#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span>
-<span class="kd">const</span> <span class="p">(</span>
-    <span class="nx">letterIdxBits</span> <span class="p">=</span> <span class="mi">6</span>                    <span class="c1">// 6 bits to represent a letter index
-</span><span class="c1"></span>    <span class="nx">letterIdxMask</span> <span class="p">=</span> <span class="mi">1</span><span class="o">&lt;&lt;</span><span class="nx">letterIdxBits</span> <span class="o">-</span> <span class="mi">1</span> <span class="c1">// All 1-bits, as many as letterIdxBits
-</span><span class="c1"></span>    <span class="nx">letterIdxMax</span>  <span class="p">=</span> <span class="mi">63</span> <span class="o">/</span> <span class="nx">letterIdxBits</span>   <span class="c1">// # of letter indices fitting in 63 bits
-</span><span class="c1"></span><span class="p">)</span>
-<span class="kd">func</span> <span class="nf">RandStringBytes</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
-    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
-    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">b</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Intn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">))]</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
-<span class="p">}</span>
-<span class="kd">func</span> <span class="nf">RandStringBytesRmndr</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
-    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
-    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">b</span> <span class="p">{</span>
-        <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">()</span><span class="o">%</span><span class="nb">int64</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">))]</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
-<span class="p">}</span>
-<span class="kd">func</span> <span class="nf">RandStringBytesMask</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
-    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
-    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">n</span><span class="p">;</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">()</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span>
-            <span class="nx">i</span><span class="o">++</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
-<span class="p">}</span>
-<span class="kd">func</span> <span class="nf">RandStringBytesMaskImpr</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
-    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
-    <span class="c1">// A rand.Int63() generates 63 random bits, enough for letterIdxMax letters!
-</span><span class="c1"></span>    <span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="o">:=</span> <span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="nx">remain</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
-            <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="p">=</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span>
-        <span class="p">}</span>
-        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">cache</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span>
-            <span class="nx">i</span><span class="o">--</span>
-        <span class="p">}</span>
-        <span class="nx">cache</span> <span class="o">&gt;&gt;=</span> <span class="nx">letterIdxBits</span>
-        <span class="nx">remain</span><span class="o">--</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
-<span class="p">}</span>
-<span class="kd">var</span> <span class="nx">src</span> <span class="p">=</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">NewSource</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">UnixNano</span><span class="p">())</span>
-<span class="kd">func</span> <span class="nf">RandStringBytesMaskImprSrc</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
-    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
-    <span class="c1">// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
-</span><span class="c1"></span>    <span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="o">:=</span> <span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="nx">remain</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
-            <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="p">=</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span>
-        <span class="p">}</span>
-        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">cache</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span>
-            <span class="nx">i</span><span class="o">--</span>
-        <span class="p">}</span>
-        <span class="nx">cache</span> <span class="o">&gt;&gt;=</span> <span class="nx">letterIdxBits</span>
-        <span class="nx">remain</span><span class="o">--</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
-<span class="p">}</span>
-<span class="c1">// Benchmark functions
-</span><span class="c1"></span><span class="kd">const</span> <span class="nx">n</span> <span class="p">=</span> <span class="mi">16</span>
-<span class="kd">func</span> <span class="nf">BenchmarkRunes</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-        <span class="nf">RandStringRunes</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-<span class="kd">func</span> <span class="nf">BenchmarkBytes</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-        <span class="nf">RandStringBytes</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-<span class="kd">func</span> <span class="nf">BenchmarkBytesRmndr</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-        <span class="nf">RandStringBytesRmndr</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-<span class="kd">func</span> <span class="nf">BenchmarkBytesMask</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-        <span class="nf">RandStringBytesMask</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-<span class="kd">func</span> <span class="nf">BenchmarkBytesMaskImpr</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-        <span class="nf">RandStringBytesMaskImpr</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-<span class="kd">func</span> <span class="nf">BenchmarkBytesMaskImprSrc</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-        <span class="nf">RandStringBytesMaskImprSrc</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;math/rand&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;testing&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// Implementations
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">init</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">rand</span><span class="p">.</span><span class="nf">Seed</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">UnixNano</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">letterRunes</span> <span class="p">=</span> <span class="p">[]</span><span class="nb">rune</span><span class="p">(</span><span class="s">&#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">RandStringRunes</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">rune</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">b</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterRunes</span><span class="p">[</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Intn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">letterRunes</span><span class="p">))]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kd">const</span> <span class="nx">letterBytes</span> <span class="p">=</span> <span class="s">&#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="kd">const</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">letterIdxBits</span> <span class="p">=</span> <span class="mi">6</span>                    <span class="c1">// 6 bits to represent a letter index
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">letterIdxMask</span> <span class="p">=</span> <span class="mi">1</span><span class="o">&lt;&lt;</span><span class="nx">letterIdxBits</span> <span class="o">-</span> <span class="mi">1</span> <span class="c1">// All 1-bits, as many as letterIdxBits
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">letterIdxMax</span>  <span class="p">=</span> <span class="mi">63</span> <span class="o">/</span> <span class="nx">letterIdxBits</span>   <span class="c1">// # of letter indices fitting in 63 bits
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">RandStringBytes</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">b</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Intn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">))]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">RandStringBytesRmndr</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">b</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">()</span><span class="o">%</span><span class="nb">int64</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">))]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">RandStringBytesMask</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">n</span><span class="p">;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">()</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">i</span><span class="o">++</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">RandStringBytesMaskImpr</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// A rand.Int63() generates 63 random bits, enough for letterIdxMax letters!
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="o">:=</span> <span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">remain</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="p">=</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">cache</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">i</span><span class="o">--</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">cache</span> <span class="o">&gt;&gt;=</span> <span class="nx">letterIdxBits</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">remain</span><span class="o">--</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">src</span> <span class="p">=</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">NewSource</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">UnixNano</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">RandStringBytesMaskImprSrc</span><span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="o">:=</span> <span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">remain</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">cache</span><span class="p">,</span> <span class="nx">remain</span> <span class="p">=</span> <span class="nx">src</span><span class="p">.</span><span class="nf">Int63</span><span class="p">(),</span> <span class="nx">letterIdxMax</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">idx</span> <span class="o">:=</span> <span class="nb">int</span><span class="p">(</span><span class="nx">cache</span> <span class="o">&amp;</span> <span class="nx">letterIdxMask</span><span class="p">);</span> <span class="nx">idx</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">letterBytes</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">letterBytes</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">i</span><span class="o">--</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">cache</span> <span class="o">&gt;&gt;=</span> <span class="nx">letterIdxBits</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">remain</span><span class="o">--</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">string</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// Benchmark functions
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">const</span> <span class="nx">n</span> <span class="p">=</span> <span class="mi">16</span>
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkRunes</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">RandStringRunes</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkBytes</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">RandStringBytes</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkBytesRmndr</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">RandStringBytesRmndr</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkBytesMask</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">RandStringBytesMask</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkBytesMaskImpr</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">RandStringBytesMaskImpr</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkBytesMaskImprSrc</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">RandStringBytesMaskImprSrc</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -867,7 +868,7 @@ BenchmarkBytesMaskImprSrcUnsafe-4   10000000    115 ns/op   16 B/op   1 allocs/o
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -884,7 +885,7 @@ BenchmarkBytesMaskImprSrcUnsafe-4   10000000    115 ns/op   16 B/op   1 allocs/o
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20210123-golang-cgroups-memory-limit/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Go] 使用 CGroup 实现进程内存控制" />
-<meta property="og:description" content="使用 CGroup 实现进程内存控制 参考原文 背景 从 Linux 内核 2.6.25 开始，CGroup 支持对进程内存的隔离和限制，这也是 Docker 等容器技术的底层支撑。 使用 CGroup 有如下好处 在共" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20210123-golang-cgroups-memory-limit/" />
-<meta property="article:published_time" content="2021-01-23T10:16:51+08:00" />
-<meta property="article:modified_time" content="2021-01-23T10:16:51+08:00" />
-<meta itemprop="name" content="[Go] 使用 CGroup 实现进程内存控制">
-<meta itemprop="description" content="使用 CGroup 实现进程内存控制 参考原文 背景 从 Linux 内核 2.6.25 开始，CGroup 支持对进程内存的隔离和限制，这也是 Docker 等容器技术的底层支撑。 使用 CGroup 有如下好处 在共">
-<meta itemprop="datePublished" content="2021-01-23T10:16:51&#43;08:00" />
-<meta itemprop="dateModified" content="2021-01-23T10:16:51&#43;08:00" />
-<meta itemprop="wordCount" content="1351">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20210123-golang-cgroups-memory-limit/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Go] 使用 CGroup 实现进程内存控制">
+  <meta property="og:description" content="使用 CGroup 实现进程内存控制 参考原文 背景 从 Linux 内核 2.6.25 开始，CGroup 支持对进程内存的隔离和限制，这也是 Docker 等容器技术的底层支撑。 使用 CGroup 有如下好处 在共">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2021-01-23T10:16:51+08:00">
+    <meta property="article:modified_time" content="2021-01-23T10:16:51+08:00">
+    <meta property="article:tag" content="Golang">
 
-
-
-<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Go] 使用 CGroup 实现进程内存控制"/>
-<meta name="twitter:description" content="使用 CGroup 实现进程内存控制 参考原文 背景 从 Linux 内核 2.6.25 开始，CGroup 支持对进程内存的隔离和限制，这也是 Docker 等容器技术的底层支撑。 使用 CGroup 有如下好处 在共"/>
+  <meta itemprop="name" content="[Go] 使用 CGroup 实现进程内存控制">
+  <meta itemprop="description" content="使用 CGroup 实现进程内存控制 参考原文 背景 从 Linux 内核 2.6.25 开始，CGroup 支持对进程内存的隔离和限制，这也是 Docker 等容器技术的底层支撑。 使用 CGroup 有如下好处 在共">
+  <meta itemprop="datePublished" content="2021-01-23T10:16:51+08:00">
+  <meta itemprop="dateModified" content="2021-01-23T10:16:51+08:00">
+  <meta itemprop="wordCount" content="1351">
+  <meta itemprop="keywords" content="Golang"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Go] 使用 CGroup 实现进程内存控制">
+<meta name="twitter:description" content="使用 CGroup 实现进程内存控制 参考原文 背景 从 Linux 内核 2.6.25 开始，CGroup 支持对进程内存的隔离和限制，这也是 Docker 等容器技术的底层支撑。 使用 CGroup 有如下好处 在共">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -232,7 +233,7 @@ memory.kmem.failcnt    memory.kmem.tcp.max_usage_in_bytes  memory.memsw.limit_in
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -267,40 +268,40 @@ memory.kmem.failcnt    memory.kmem.tcp.max_usage_in_bytes  memory.memsw.limit_in
 </span><span class="lnt">33
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-    <span class="s">&#34;fmt&#34;</span>
-    <span class="s">&#34;os&#34;</span>
-    <span class="s">&#34;runtime&#34;</span>
-    <span class="s">&#34;time&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">const</span> <span class="p">(</span>
-    <span class="nx">MB</span> <span class="p">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">blocks</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([][</span><span class="nx">MB</span><span class="p">]</span><span class="kt">byte</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Child pid is&#34;</span><span class="p">,</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Getpid</span><span class="p">())</span>
-
-    <span class="k">for</span> <span class="k">range</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Tick</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nx">blocks</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">blocks</span><span class="p">,</span> <span class="p">[</span><span class="nx">MB</span><span class="p">]</span><span class="kt">byte</span><span class="p">{})</span>
-        <span class="nf">printMemUsage</span><span class="p">()</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">printMemUsage</span><span class="p">()</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">m</span> <span class="nx">runtime</span><span class="p">.</span><span class="nx">MemStats</span>
-    <span class="nx">runtime</span><span class="p">.</span><span class="nf">ReadMemStats</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">m</span><span class="p">)</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Alloc = %v MiB&#34;</span><span class="p">,</span> <span class="nf">bToMb</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">Alloc</span><span class="p">))</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;\tSys = %v MiB \n&#34;</span><span class="p">,</span> <span class="nf">bToMb</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">Sys</span><span class="p">))</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">bToMb</span><span class="p">(</span><span class="nx">b</span> <span class="kt">uint64</span><span class="p">)</span> <span class="kt">uint64</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">b</span> <span class="o">/</span> <span class="nx">MB</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;os&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;runtime&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">const</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">MB</span> <span class="p">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">blocks</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([][</span><span class="nx">MB</span><span class="p">]</span><span class="kt">byte</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Child pid is&#34;</span><span class="p">,</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Getpid</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="k">range</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Tick</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">blocks</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">blocks</span><span class="p">,</span> <span class="p">[</span><span class="nx">MB</span><span class="p">]</span><span class="kt">byte</span><span class="p">{})</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">printMemUsage</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">printMemUsage</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">m</span> <span class="nx">runtime</span><span class="p">.</span><span class="nx">MemStats</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">runtime</span><span class="p">.</span><span class="nf">ReadMemStats</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">m</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Alloc = %v MiB&#34;</span><span class="p">,</span> <span class="nf">bToMb</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">Alloc</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;\tSys = %v MiB \n&#34;</span><span class="p">,</span> <span class="nf">bToMb</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">Sys</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">bToMb</span><span class="p">(</span><span class="nx">b</span> <span class="kt">uint64</span><span class="p">)</span> <span class="kt">uint64</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">b</span> <span class="o">/</span> <span class="nx">MB</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>通过 GOOS=linux GOARCH=amd64 go build -o simpleapp example/simple_app.go 命令，编译一个 Linux 版本的可执行程序 simpleapp。</p>
 <ul>
@@ -309,7 +310,7 @@ memory.kmem.failcnt    memory.kmem.tcp.max_usage_in_bytes  memory.memsw.limit_in
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">  1
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
 </span><span class="lnt">  2
 </span><span class="lnt">  3
 </span><span class="lnt">  4
@@ -436,132 +437,132 @@ memory.kmem.failcnt    memory.kmem.tcp.max_usage_in_bytes  memory.memsw.limit_in
 </span><span class="lnt">125
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-    <span class="s">&#34;flag&#34;</span>
-    <span class="s">&#34;fmt&#34;</span>
-    <span class="s">&#34;io/ioutil&#34;</span>
-    <span class="s">&#34;log&#34;</span>
-    <span class="s">&#34;os&#34;</span>
-    <span class="s">&#34;os/exec&#34;</span>
-    <span class="s">&#34;os/signal&#34;</span>
-    <span class="s">&#34;path/filepath&#34;</span>
-    <span class="s">&#34;syscall&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">var</span> <span class="p">(</span>
-    <span class="nx">rssLimit</span>   <span class="kt">int</span>
-    <span class="nx">cgroupRoot</span> <span class="kt">string</span>
-<span class="p">)</span>
-
-<span class="kd">const</span> <span class="p">(</span>
-    <span class="nx">procsFile</span>       <span class="p">=</span> <span class="s">&#34;cgroup.procs&#34;</span>
-    <span class="nx">memoryLimitFile</span> <span class="p">=</span> <span class="s">&#34;memory.limit_in_bytes&#34;</span>
-    <span class="nx">swapLimitFile</span>   <span class="p">=</span> <span class="s">&#34;memory.swappiness&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">init</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">flag</span><span class="p">.</span><span class="nf">IntVar</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">rssLimit</span><span class="p">,</span> <span class="s">&#34;memory&#34;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="s">&#34;memory limit with MB.&#34;</span><span class="p">)</span>
-    <span class="nx">flag</span><span class="p">.</span><span class="nf">StringVar</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">cgroupRoot</span><span class="p">,</span> <span class="s">&#34;root&#34;</span><span class="p">,</span> <span class="s">&#34;/sys/fs/cgroup/memory/climits&#34;</span><span class="p">,</span> <span class="s">&#34;cgroup root path&#34;</span><span class="p">)</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">flag</span><span class="p">.</span><span class="nf">Parse</span><span class="p">()</span>
-
-    <span class="c1">// set memory limit
-</span><span class="c1"></span>    <span class="nx">mPath</span> <span class="o">:=</span> <span class="nx">filepath</span><span class="p">.</span><span class="nf">Join</span><span class="p">(</span><span class="nx">cgroupRoot</span><span class="p">,</span> <span class="nx">memoryLimitFile</span><span class="p">)</span>
-    <span class="c1">// 修改 memory.limit_in_bytes 限制内存使用量,默认10MB
-</span><span class="c1"></span>    <span class="nf">whiteFile</span><span class="p">(</span><span class="nx">mPath</span><span class="p">,</span> <span class="nx">rssLimit</span><span class="o">*</span><span class="mi">1024</span><span class="o">*</span><span class="mi">1024</span><span class="p">)</span>
-
-    <span class="c1">// set swap memory limit to zero
-</span><span class="c1"></span>    <span class="nx">sPath</span> <span class="o">:=</span> <span class="nx">filepath</span><span class="p">.</span><span class="nf">Join</span><span class="p">(</span><span class="nx">cgroupRoot</span><span class="p">,</span> <span class="nx">swapLimitFile</span><span class="p">)</span>
-    <span class="c1">// 修改 memory.swappiness 限制交换分区大小，默认0
-</span><span class="c1"></span>    <span class="nf">whiteFile</span><span class="p">(</span><span class="nx">sPath</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-
-    <span class="k">go</span> <span class="nf">startCmd</span><span class="p">(</span><span class="s">&#34;./simpleapp&#34;</span><span class="p">)</span>
-
-    <span class="nx">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Signal</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="nx">signal</span><span class="p">.</span><span class="nf">Notify</span><span class="p">(</span><span class="nx">c</span><span class="p">,</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Interrupt</span><span class="p">)</span>
-    <span class="nx">s</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">c</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Got signal:&#34;</span><span class="p">,</span> <span class="nx">s</span><span class="p">)</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">whiteFile</span><span class="p">(</span><span class="nx">path</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">value</span> <span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">ioutil</span><span class="p">.</span><span class="nf">WriteFile</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;%d&#34;</span><span class="p">,</span> <span class="nx">value</span><span class="p">)),</span> <span class="mo">0755</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="nx">log</span><span class="p">.</span><span class="nf">Panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">type</span> <span class="nx">ExitStatus</span> <span class="kd">struct</span> <span class="p">{</span>
-    <span class="nx">Signal</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Signal</span>
-    <span class="nx">Code</span>   <span class="kt">int</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">startCmd</span><span class="p">(</span><span class="nx">command</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">restart</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="nx">ExitStatus</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-
-    <span class="nx">runner</span> <span class="o">:=</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-        <span class="nx">cmd</span> <span class="o">:=</span> <span class="nx">exec</span><span class="p">.</span><span class="nx">Cmd</span><span class="p">{</span>
-            <span class="nx">Path</span><span class="p">:</span> <span class="nx">command</span><span class="p">,</span>
-        <span class="p">}</span>
-
-        <span class="nx">cmd</span><span class="p">.</span><span class="nx">Stdout</span> <span class="p">=</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Stdout</span>
-
-        <span class="c1">// start app 启动一个进程
-</span><span class="c1"></span>        <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">cmd</span><span class="p">.</span><span class="nf">Start</span><span class="p">();</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-            <span class="nx">log</span><span class="p">.</span><span class="nf">Panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-        <span class="p">}</span>
-
-        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;add pid&#34;</span><span class="p">,</span> <span class="nx">cmd</span><span class="p">.</span><span class="nx">Process</span><span class="p">.</span><span class="nx">Pid</span><span class="p">,</span> <span class="s">&#34;to file cgroup.procs&#34;</span><span class="p">)</span>
-
-        <span class="c1">// set cgroup procs id
-</span><span class="c1"></span>        <span class="nx">pPath</span> <span class="o">:=</span> <span class="nx">filepath</span><span class="p">.</span><span class="nf">Join</span><span class="p">(</span><span class="nx">cgroupRoot</span><span class="p">,</span> <span class="nx">procsFile</span><span class="p">)</span>
-        <span class="c1">// 修改 cgroup.procs
-</span><span class="c1"></span>        <span class="c1">// 将新生成的进程号 cmd.Process.Pid 写到 cgroup.procs
-</span><span class="c1"></span>        <span class="nf">whiteFile</span><span class="p">(</span><span class="nx">pPath</span><span class="p">,</span> <span class="nx">cmd</span><span class="p">.</span><span class="nx">Process</span><span class="p">.</span><span class="nx">Pid</span><span class="p">)</span>
-
-        <span class="c1">// 通过 cmd.Wait() 接收命令输出结果
-</span><span class="c1"></span>        <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">cmd</span><span class="p">.</span><span class="nf">Wait</span><span class="p">();</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-            <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;cmd return with error:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-        <span class="p">}</span>
-
-        <span class="c1">// 接收状态
-</span><span class="c1"></span>        <span class="nx">status</span> <span class="o">:=</span> <span class="nx">cmd</span><span class="p">.</span><span class="nx">ProcessState</span><span class="p">.</span><span class="nf">Sys</span><span class="p">().(</span><span class="nx">syscall</span><span class="p">.</span><span class="nx">WaitStatus</span><span class="p">)</span>
-
-        <span class="nx">options</span> <span class="o">:=</span> <span class="nx">ExitStatus</span><span class="p">{</span>
-            <span class="nx">Code</span><span class="p">:</span> <span class="nx">status</span><span class="p">.</span><span class="nf">ExitStatus</span><span class="p">(),</span>
-        <span class="p">}</span>
-
-        <span class="k">if</span> <span class="nx">status</span><span class="p">.</span><span class="nf">Signaled</span><span class="p">()</span> <span class="p">{</span>
-            <span class="nx">options</span><span class="p">.</span><span class="nx">Signal</span> <span class="p">=</span> <span class="nx">status</span><span class="p">.</span><span class="nf">Signal</span><span class="p">()</span>
-        <span class="p">}</span>
-
-        <span class="nx">cmd</span><span class="p">.</span><span class="nx">Process</span><span class="p">.</span><span class="nf">Kill</span><span class="p">()</span>
-
-        <span class="nx">restart</span> <span class="o">&lt;-</span> <span class="nx">options</span>
-    <span class="p">}</span>
-
-    <span class="k">go</span> <span class="nf">runner</span><span class="p">()</span>
-
-    <span class="k">for</span> <span class="p">{</span>
-        <span class="nx">status</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">restart</span>
-
-        <span class="c1">// 结果为 Kill 信号的时候，能够重启任务
-</span><span class="c1"></span>        <span class="k">switch</span> <span class="nx">status</span><span class="p">.</span><span class="nx">Signal</span> <span class="p">{</span>
-        <span class="k">case</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Kill</span><span class="p">:</span>
-            <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;app is killed by system&#34;</span><span class="p">)</span>
-        <span class="k">default</span><span class="p">:</span>
-            <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;app exit with code:&#34;</span><span class="p">,</span> <span class="nx">status</span><span class="p">.</span><span class="nx">Code</span><span class="p">)</span>
-        <span class="p">}</span>
-
-        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;restart app..&#34;</span><span class="p">)</span>
-
-        <span class="c1">// 重新启动一个进程
-</span><span class="c1"></span>        <span class="k">go</span> <span class="nf">runner</span><span class="p">()</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;flag&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;io/ioutil&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;log&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;os&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;os/exec&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;os/signal&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;path/filepath&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;syscall&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">rssLimit</span>   <span class="kt">int</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">cgroupRoot</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">const</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">procsFile</span>       <span class="p">=</span> <span class="s">&#34;cgroup.procs&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">memoryLimitFile</span> <span class="p">=</span> <span class="s">&#34;memory.limit_in_bytes&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">swapLimitFile</span>   <span class="p">=</span> <span class="s">&#34;memory.swappiness&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">init</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">flag</span><span class="p">.</span><span class="nf">IntVar</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">rssLimit</span><span class="p">,</span> <span class="s">&#34;memory&#34;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="s">&#34;memory limit with MB.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">flag</span><span class="p">.</span><span class="nf">StringVar</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">cgroupRoot</span><span class="p">,</span> <span class="s">&#34;root&#34;</span><span class="p">,</span> <span class="s">&#34;/sys/fs/cgroup/memory/climits&#34;</span><span class="p">,</span> <span class="s">&#34;cgroup root path&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">flag</span><span class="p">.</span><span class="nf">Parse</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// set memory limit
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">mPath</span> <span class="o">:=</span> <span class="nx">filepath</span><span class="p">.</span><span class="nf">Join</span><span class="p">(</span><span class="nx">cgroupRoot</span><span class="p">,</span> <span class="nx">memoryLimitFile</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 修改 memory.limit_in_bytes 限制内存使用量,默认10MB
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">whiteFile</span><span class="p">(</span><span class="nx">mPath</span><span class="p">,</span> <span class="nx">rssLimit</span><span class="o">*</span><span class="mi">1024</span><span class="o">*</span><span class="mi">1024</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// set swap memory limit to zero
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">sPath</span> <span class="o">:=</span> <span class="nx">filepath</span><span class="p">.</span><span class="nf">Join</span><span class="p">(</span><span class="nx">cgroupRoot</span><span class="p">,</span> <span class="nx">swapLimitFile</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 修改 memory.swappiness 限制交换分区大小，默认0
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">whiteFile</span><span class="p">(</span><span class="nx">sPath</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">go</span> <span class="nf">startCmd</span><span class="p">(</span><span class="s">&#34;./simpleapp&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Signal</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">signal</span><span class="p">.</span><span class="nf">Notify</span><span class="p">(</span><span class="nx">c</span><span class="p">,</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Interrupt</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">s</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">c</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Got signal:&#34;</span><span class="p">,</span> <span class="nx">s</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">whiteFile</span><span class="p">(</span><span class="nx">path</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">value</span> <span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">ioutil</span><span class="p">.</span><span class="nf">WriteFile</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;%d&#34;</span><span class="p">,</span> <span class="nx">value</span><span class="p">)),</span> <span class="mo">0755</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">log</span><span class="p">.</span><span class="nf">Panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">ExitStatus</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">Signal</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Signal</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">Code</span>   <span class="kt">int</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">startCmd</span><span class="p">(</span><span class="nx">command</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">restart</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="nx">ExitStatus</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">runner</span> <span class="o">:=</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">cmd</span> <span class="o">:=</span> <span class="nx">exec</span><span class="p">.</span><span class="nx">Cmd</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">Path</span><span class="p">:</span> <span class="nx">command</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nx">cmd</span><span class="p">.</span><span class="nx">Stdout</span> <span class="p">=</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Stdout</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// start app 启动一个进程
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">cmd</span><span class="p">.</span><span class="nf">Start</span><span class="p">();</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">log</span><span class="p">.</span><span class="nf">Panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;add pid&#34;</span><span class="p">,</span> <span class="nx">cmd</span><span class="p">.</span><span class="nx">Process</span><span class="p">.</span><span class="nx">Pid</span><span class="p">,</span> <span class="s">&#34;to file cgroup.procs&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// set cgroup procs id
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nx">pPath</span> <span class="o">:=</span> <span class="nx">filepath</span><span class="p">.</span><span class="nf">Join</span><span class="p">(</span><span class="nx">cgroupRoot</span><span class="p">,</span> <span class="nx">procsFile</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 修改 cgroup.procs
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="c1">// 将新生成的进程号 cmd.Process.Pid 写到 cgroup.procs
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nf">whiteFile</span><span class="p">(</span><span class="nx">pPath</span><span class="p">,</span> <span class="nx">cmd</span><span class="p">.</span><span class="nx">Process</span><span class="p">.</span><span class="nx">Pid</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 通过 cmd.Wait() 接收命令输出结果
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">cmd</span><span class="p">.</span><span class="nf">Wait</span><span class="p">();</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;cmd return with error:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 接收状态
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nx">status</span> <span class="o">:=</span> <span class="nx">cmd</span><span class="p">.</span><span class="nx">ProcessState</span><span class="p">.</span><span class="nf">Sys</span><span class="p">().(</span><span class="nx">syscall</span><span class="p">.</span><span class="nx">WaitStatus</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nx">options</span> <span class="o">:=</span> <span class="nx">ExitStatus</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">Code</span><span class="p">:</span> <span class="nx">status</span><span class="p">.</span><span class="nf">ExitStatus</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">status</span><span class="p">.</span><span class="nf">Signaled</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">options</span><span class="p">.</span><span class="nx">Signal</span> <span class="p">=</span> <span class="nx">status</span><span class="p">.</span><span class="nf">Signal</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nx">cmd</span><span class="p">.</span><span class="nx">Process</span><span class="p">.</span><span class="nf">Kill</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nx">restart</span> <span class="o">&lt;-</span> <span class="nx">options</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">go</span> <span class="nf">runner</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">status</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">restart</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 结果为 Kill 信号的时候，能够重启任务
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">switch</span> <span class="nx">status</span><span class="p">.</span><span class="nx">Signal</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Kill</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;app is killed by system&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">default</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;app exit with code:&#34;</span><span class="p">,</span> <span class="nx">status</span><span class="p">.</span><span class="nx">Code</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;restart app..&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 重新启动一个进程
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">go</span> <span class="nf">runner</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -672,7 +673,7 @@ memory.kmem.failcnt    memory.kmem.tcp.max_usage_in_bytes  memory.memsw.limit_in
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -689,7 +690,7 @@ memory.kmem.failcnt    memory.kmem.tcp.max_usage_in_bytes  memory.memsw.limit_in
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

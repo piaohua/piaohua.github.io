@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20210518-golang-unicode/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Go] Golang Unicode" />
-<meta property="og:description" content="unicode包提供数据和函数来测试Unicode代码点的一些属性。 unicode 包 [原文] (https://www.cnblogs.com/golove/p/3273585.html) 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20210518-golang-unicode/" />
-<meta property="article:published_time" content="2021-05-18T21:14:40+08:00" />
-<meta property="article:modified_time" content="2021-05-18T21:14:40+08:00" />
-<meta itemprop="name" content="[Go] Golang Unicode">
-<meta itemprop="description" content="unicode包提供数据和函数来测试Unicode代码点的一些属性。 unicode 包 [原文] (https://www.cnblogs.com/golove/p/3273585.html) 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29">
-<meta itemprop="datePublished" content="2021-05-18T21:14:40&#43;08:00" />
-<meta itemprop="dateModified" content="2021-05-18T21:14:40&#43;08:00" />
-<meta itemprop="wordCount" content="3244">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20210518-golang-unicode/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Go] Golang Unicode">
+  <meta property="og:description" content="unicode包提供数据和函数来测试Unicode代码点的一些属性。 unicode 包 [原文] (https://www.cnblogs.com/golove/p/3273585.html) 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2021-05-18T21:14:40+08:00">
+    <meta property="article:modified_time" content="2021-05-18T21:14:40+08:00">
+    <meta property="article:tag" content="Golang">
 
-
-
-<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Go] Golang Unicode"/>
-<meta name="twitter:description" content="unicode包提供数据和函数来测试Unicode代码点的一些属性。 unicode 包 [原文] (https://www.cnblogs.com/golove/p/3273585.html) 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29"/>
+  <meta itemprop="name" content="[Go] Golang Unicode">
+  <meta itemprop="description" content="unicode包提供数据和函数来测试Unicode代码点的一些属性。 unicode 包 [原文] (https://www.cnblogs.com/golove/p/3273585.html) 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29">
+  <meta itemprop="datePublished" content="2021-05-18T21:14:40+08:00">
+  <meta itemprop="dateModified" content="2021-05-18T21:14:40+08:00">
+  <meta itemprop="wordCount" content="3244">
+  <meta itemprop="keywords" content="Golang"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Go] Golang Unicode">
+<meta name="twitter:description" content="unicode包提供数据和函数来测试Unicode代码点的一些属性。 unicode 包 [原文] (https://www.cnblogs.com/golove/p/3273585.html) 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -170,7 +171,7 @@
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">  1
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
 </span><span class="lnt">  2
 </span><span class="lnt">  3
 </span><span class="lnt">  4
@@ -574,409 +575,409 @@
 </span><span class="lnt">402
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">//------------------------------------------------------------
-</span><span class="c1"></span>
-<span class="kd">const</span> <span class="p">(</span>
-	<span class="nx">MaxRune</span>         <span class="p">=</span> <span class="sc">&#39;\U0010FFFF&#39;</span> <span class="c1">// Unicode 码点的最大值
-</span><span class="c1"></span>	<span class="nx">ReplacementChar</span> <span class="p">=</span> <span class="sc">&#39;\uFFFD&#39;</span>     <span class="c1">// 表示无效的码点
-</span><span class="c1"></span>	<span class="nx">MaxASCII</span>        <span class="p">=</span> <span class="sc">&#39;\u007F&#39;</span>     <span class="c1">// 最大 ASCII 值
-</span><span class="c1"></span>	<span class="nx">MaxLatin1</span>       <span class="p">=</span> <span class="sc">&#39;\u00FF&#39;</span>     <span class="c1">// 最大 Latin-1 值
-</span><span class="c1"></span><span class="p">)</span>
-
-<span class="c1">//------------------------------------------------------------
-</span><span class="c1"></span>
-<span class="c1">// 判断字符 r 是否在 rangtab 范围内。
-</span><span class="c1">// 可用的 RangeTable 参见 go/src/unicode/tables.go。
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">Is</span><span class="p">(</span><span class="nx">rangeTab</span> <span class="o">*</span><span class="nx">RangeTable</span><span class="p">,</span> <span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
-
-<span class="c1">// RangeTable 定义一个 Unicode 码点集合，包含 16 位和 32 位两个范围列表。
-</span><span class="c1">// 这两个列表必须经过排序而且不能重叠。R32 中只能包含大于 16 位的值。
-</span><span class="c1"></span><span class="kd">type</span> <span class="nx">RangeTable</span> <span class="kd">struct</span> <span class="p">{</span>
-	<span class="nx">R16</span>         <span class="p">[]</span><span class="nx">Range16</span>
-	<span class="nx">R32</span>         <span class="p">[]</span><span class="nx">Range32</span>
-	<span class="nx">LatinOffset</span> <span class="kt">int</span> <span class="c1">// R16 中 Hi &lt;= MaxLatin1 的条目数。
-</span><span class="c1"></span><span class="p">}</span>
-
-<span class="c1">// Range16 表示一个 16 位的 Unicode 码点范围。范围从 Lo 到 Hi，具有指定的步长。
-</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Range16</span> <span class="kd">struct</span> <span class="p">{</span>
-	<span class="nx">Lo</span>     <span class="kt">uint16</span>
-	<span class="nx">Hi</span>     <span class="kt">uint16</span>
-	<span class="nx">Stride</span> <span class="kt">uint16</span> <span class="c1">// 步长
-</span><span class="c1"></span><span class="p">}</span>
-
-<span class="c1">// Range32 表示一个 32 位的 Unicode 码点范围。范围从 Lo 到 Hi，具有指定的步长。
-</span><span class="c1">// Lo 和 Hi 必须都大于 16 位。
-</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Range32</span> <span class="kd">struct</span> <span class="p">{</span>
-	<span class="nx">Lo</span>     <span class="kt">uint32</span>
-	<span class="nx">Hi</span>     <span class="kt">uint32</span>
-	<span class="nx">Stride</span> <span class="kt">uint32</span> <span class="c1">// 步长
-</span><span class="c1"></span><span class="p">}</span>
-
-<span class="c1">//------------------------------
-</span><span class="c1"></span>
-<span class="c1">// 判断字符 r 是否为大写格式
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">IsUpper</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
-
-<span class="c1">// 判断字符 r 是否为小写格式
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">IsLower</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
-
-<span class="c1">// 判断字符 r 是否为 Unicode 规定的 Title 字符
-</span><span class="c1">// 大部分字符的 Title 格式就是其大写格式
-</span><span class="c1">// 只有少数字符的 Title 格式是特殊字符
-</span><span class="c1">// 这里判断的就是特殊字符
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">IsTitle</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
-
-<span class="c1">// ToUpper 将字符 r 转换为大写格式
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">ToUpper</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">rune</span>
-
-<span class="c1">// ToLower 将字符 r 转换为小写格式
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">ToLower</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">rune</span>
-
-<span class="c1">// ToTitle 将字符 r 转换为 Title 格式
-</span><span class="c1">// 大部分字符的 Title 格式就是其大写格式
-</span><span class="c1">// 只有少数字符的 Title 格式是特殊字符
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">ToTitle</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">rune</span>
-
-<span class="c1">// To 将字符 r 转换为指定的格式
-</span><span class="c1">// _case 取值：UpperCase、LowerCase、TitleCase
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">To</span><span class="p">(</span><span class="nx">_case</span> <span class="kt">int</span><span class="p">,</span> <span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">rune</span>
-
-<span class="c1">//------------------------------
-</span><span class="c1"></span>
-<span class="c1">// 示例：判断汉字
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello 世界！&#34;</span> <span class="p">{</span>
-		<span class="c1">// 判断字符是否为汉字
-</span><span class="c1"></span>		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">Is</span><span class="p">(</span><span class="nx">unicode</span><span class="p">.</span><span class="nx">Scripts</span><span class="p">[</span><span class="s">&#34;Han&#34;</span><span class="p">],</span> <span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span> <span class="c1">// 世界
-</span><span class="c1"></span>		<span class="p">}</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-
-<span class="c1">// 更多 unicode.Scripts 取值请参考：http://www.cnblogs.com/golove/p/3269099.html
-</span><span class="c1"></span>
-<span class="c1">//------------------------------
-</span><span class="c1"></span>
-<span class="c1">// 示例：判断大小写
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello ＡＢＣ！&#34;</span> <span class="p">{</span>
-		<span class="c1">// 判断字符是否为大写
-</span><span class="c1"></span>		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsUpper</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span> <span class="c1">// HＡＢＣ
-</span><span class="c1"></span>		<span class="p">}</span>
-	<span class="p">}</span>
-	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello ａｂｃ！&#34;</span> <span class="p">{</span>
-		<span class="c1">// 判断字符是否为小写
-</span><span class="c1"></span>		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsLower</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span> <span class="c1">// elloａｂｃ
-</span><span class="c1"></span>		<span class="p">}</span>
-	<span class="p">}</span>
-	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello ᾏᾟᾯ！&#34;</span> <span class="p">{</span>
-		<span class="c1">// 判断字符是否为标题
-</span><span class="c1"></span>		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsTitle</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span> <span class="c1">// ᾏᾟᾯ
-</span><span class="c1"></span>		<span class="p">}</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-
-<span class="c1">//------------------------------
-</span><span class="c1"></span>
-<span class="c1">// 示例：输出 Unicode 规定的标题字符
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">cr</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">unicode</span><span class="p">.</span><span class="nx">Lt</span><span class="p">.</span><span class="nx">R16</span> <span class="p">{</span>
-		<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="nx">cr</span><span class="p">.</span><span class="nx">Lo</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;=</span> <span class="nx">cr</span><span class="p">.</span><span class="nx">Hi</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="nx">cr</span><span class="p">.</span><span class="nx">Stride</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">i</span><span class="p">)</span>
-		<span class="p">}</span>
-	<span class="p">}</span> <span class="c1">// ǅǈǋǲᾈᾉᾊᾋᾌᾍᾎᾏᾘᾙᾚᾛᾜᾝᾞᾟᾨᾩᾪᾫᾬᾭᾮᾯᾼῌῼ
-</span><span class="c1"></span><span class="p">}</span>
-
-<span class="c1">//------------------------------
-</span><span class="c1"></span>
-<span class="c1">// 示例：转换大小写
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-	<span class="nx">s</span> <span class="o">:=</span> <span class="s">&#34;Hello 世界！&#34;</span>
-
-	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">ToUpper</span><span class="p">(</span><span class="nx">r</span><span class="p">))</span>
-	<span class="p">}</span> <span class="c1">// HELLO 世界！
-</span><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">ToLower</span><span class="p">(</span><span class="nx">r</span><span class="p">))</span>
-	<span class="p">}</span> <span class="c1">// hello 世界！
-</span><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">ToTitle</span><span class="p">(</span><span class="nx">r</span><span class="p">))</span>
-	<span class="p">}</span> <span class="c1">// HELLO 世界！
-</span><span class="c1"></span>
-	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">To</span><span class="p">(</span><span class="nx">unicode</span><span class="p">.</span><span class="nx">UpperCase</span><span class="p">,</span> <span class="nx">r</span><span class="p">))</span>
-	<span class="p">}</span> <span class="c1">// HELLO 世界！
-</span><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">To</span><span class="p">(</span><span class="nx">unicode</span><span class="p">.</span><span class="nx">LowerCase</span><span class="p">,</span> <span class="nx">r</span><span class="p">))</span>
-	<span class="p">}</span> <span class="c1">// hello 世界！
-</span><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">To</span><span class="p">(</span><span class="nx">unicode</span><span class="p">.</span><span class="nx">TitleCase</span><span class="p">,</span> <span class="nx">r</span><span class="p">))</span>
-	<span class="p">}</span> <span class="c1">// HELLO 世界！
-</span><span class="c1"></span><span class="p">}</span>
-
-<span class="c1">//------------------------------------------------------------
-</span><span class="c1"></span>
-<span class="c1">// ToUpper 将 r 转换为大写格式
-</span><span class="c1">// 优先使用指定的映射表 special
-</span><span class="c1">// 可用的 SpecialCase 参见 go/src/unicode/casetables.go。
-</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">special</span> <span class="nx">SpecialCase</span><span class="p">)</span> <span class="nf">ToUpper</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">rune</span>
-
-<span class="c1">// ToLower 将 r 转换为小写格式
-</span><span class="c1">// 优先使用指定的映射表 special
-</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">special</span> <span class="nx">SpecialCase</span><span class="p">)</span> <span class="nf">ToLower</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">rune</span>
-
-<span class="c1">// ToTitle 将 r 转换为 Title 格式
-</span><span class="c1">// 优先使用指定的映射表 special
-</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">special</span> <span class="nx">SpecialCase</span><span class="p">)</span> <span class="nf">ToTitle</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">rune</span>
-
-<span class="c1">// SpecialCase 表示特定语言的大小写映射，比如土耳其语。
-</span><span class="c1">// SpecialCase 的方法可以自定义标准映射（通过重写）。
-</span><span class="c1"></span><span class="kd">type</span> <span class="nx">SpecialCase</span> <span class="p">[]</span><span class="nx">CaseRange</span>
-
-<span class="c1">// CaseRange 表示一个简单的 Unicode 码点范围，用于大小写转换。
-</span><span class="c1">// 在 Lo 和 Hi 范围内的码点，如果要转换成大写，只需要加上 d[0] 即可
-</span><span class="c1">// 如果要转换为小写，只需要加上 d[1] 即可，如果要转换为 Title 格式，
-</span><span class="c1">// 只需要加上 d[2] 即可。
-</span><span class="c1"></span><span class="kd">type</span> <span class="nx">CaseRange</span> <span class="kd">struct</span> <span class="p">{</span>
-	<span class="nx">Lo</span>    <span class="kt">uint32</span>
-	<span class="nx">Hi</span>    <span class="kt">uint32</span>
-	<span class="nx">Delta</span> <span class="nx">d</span> <span class="c1">// [3]rune
-</span><span class="c1"></span><span class="p">}</span>
-
-<span class="c1">// CaseRanges 中 Delta 数组的索引。
-</span><span class="c1"></span><span class="kd">const</span> <span class="p">(</span>
-	<span class="nx">UpperCase</span> <span class="p">=</span> <span class="kc">iota</span>
-	<span class="nx">LowerCase</span>
-	<span class="nx">TitleCase</span>
-	<span class="nx">MaxCase</span>
-<span class="p">)</span>
-
-<span class="c1">// 如果一个 CaseRange 中的 Delta 元素是 UpperLower，则表示这个 CaseRange 是
-</span><span class="c1">// 一个有着连续的大写小写大写小写的范围。也就是说，Lo 是大写，Lo+1 是小写，
-</span><span class="c1">// Lo+2 是大写，Lo+3 是小写 ... 一直到 Hi 为止。
-</span><span class="c1"></span><span class="kd">const</span> <span class="p">(</span>
-	<span class="nx">UpperLower</span> <span class="p">=</span> <span class="nx">MaxRune</span> <span class="o">+</span> <span class="mi">1</span> <span class="c1">// 不是一个有效的 Delta 元素
-</span><span class="c1"></span><span class="p">)</span>
-
-<span class="c1">//------------------------------
-</span><span class="c1"></span>
-<span class="c1">// 示例
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-	<span class="nx">s</span> <span class="o">:=</span> <span class="s">&#34;Hello 世界！&#34;</span>
-	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">SpecialCase</span><span class="p">(</span><span class="nx">unicode</span><span class="p">.</span><span class="nx">CaseRanges</span><span class="p">).</span><span class="nf">ToUpper</span><span class="p">(</span><span class="nx">r</span><span class="p">))</span>
-	<span class="p">}</span> <span class="c1">// HELLO 世界！
-</span><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">SpecialCase</span><span class="p">(</span><span class="nx">unicode</span><span class="p">.</span><span class="nx">CaseRanges</span><span class="p">).</span><span class="nf">ToLower</span><span class="p">(</span><span class="nx">r</span><span class="p">))</span>
-	<span class="p">}</span> <span class="c1">// hello 世界！
-</span><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">SpecialCase</span><span class="p">(</span><span class="nx">unicode</span><span class="p">.</span><span class="nx">CaseRanges</span><span class="p">).</span><span class="nf">ToTitle</span><span class="p">(</span><span class="nx">r</span><span class="p">))</span>
-	<span class="p">}</span> <span class="c1">// HELLO 世界！
-</span><span class="c1"></span><span class="p">}</span>
-
-<span class="c1">//------------------------------------------------------------
-</span><span class="c1"></span>
-<span class="c1">// SimpleFold 在 Unicode 字符表中从字符 r 开始环绕查找（到尾部后再从头开始）
-</span><span class="c1">// 下一个与 r 大小写相匹配的字符（一个字符的大写、小写、标题三者视为大小写相
-</span><span class="c1">// 匹配），这个函数遵循 Unicode 定义的大小写环绕匹配表。
-</span><span class="c1">//
-</span><span class="c1">// 例如：
-</span><span class="c1">// SimpleFold(&#39;A&#39;) = &#39;a&#39;
-</span><span class="c1">// SimpleFold(&#39;a&#39;) = &#39;A&#39;
-</span><span class="c1">//
-</span><span class="c1">// SimpleFold(&#39;K&#39;) = &#39;k&#39;
-</span><span class="c1">// SimpleFold(&#39;k&#39;) = &#39;K&#39; (开尔文符号)
-</span><span class="c1">// SimpleFold(&#39;K&#39;) = &#39;K&#39;
-</span><span class="c1">//
-</span><span class="c1">// SimpleFold(&#39;1&#39;) = &#39;1&#39;
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">SimpleFold</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">rune</span>
-
-<span class="c1">//------------------------------
-</span><span class="c1"></span>
-<span class="c1">// 示例：SimpleFold
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-	<span class="nx">s</span> <span class="o">:=</span> <span class="s">&#34;ΦφϕkKK&#34;</span>
-	<span class="c1">// 看看 s 里面是什么
-</span><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">c</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%x  &#34;</span><span class="p">,</span> <span class="nx">c</span><span class="p">)</span>
-	<span class="p">}</span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span>
-	<span class="c1">// 大写，小写，标题 | 当前字符 -&gt; 下一个匹配字符
-</span><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">v</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c, %c, %c | %c -&gt; %c\n&#34;</span><span class="p">,</span>
-			<span class="nx">unicode</span><span class="p">.</span><span class="nf">ToUpper</span><span class="p">(</span><span class="nx">v</span><span class="p">),</span>
-			<span class="nx">unicode</span><span class="p">.</span><span class="nf">ToLower</span><span class="p">(</span><span class="nx">v</span><span class="p">),</span>
-			<span class="nx">unicode</span><span class="p">.</span><span class="nf">ToTitle</span><span class="p">(</span><span class="nx">v</span><span class="p">),</span>
-			<span class="nx">v</span><span class="p">,</span>
-			<span class="nx">unicode</span><span class="p">.</span><span class="nf">SimpleFold</span><span class="p">(</span><span class="nx">v</span><span class="p">),</span>
-		<span class="p">)</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-
-<span class="c1">// 输出结果：
-</span><span class="c1">// 3a6  3c6  3d5  6b  4b  212a
-</span><span class="c1">// Φ, φ, Φ | Φ -&gt; φ
-</span><span class="c1">// Φ, φ, Φ | φ -&gt; ϕ
-</span><span class="c1">// Φ, ϕ, Φ | ϕ -&gt; Φ
-</span><span class="c1">// K, k, K | k -&gt; K
-</span><span class="c1">// K, k, K | K -&gt; k
-</span><span class="c1">// K, k, K | K -&gt; K
-</span><span class="c1"></span>
-<span class="c1">//------------------------------------------------------------
-</span><span class="c1"></span>
-<span class="c1">// IsDigit 判断 r 是否为一个十进制的数字字符
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">IsDigit</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
-
-<span class="c1">// IsNumber 判断 r 是否为一个数字字符 (类别 N)
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">IsNumber</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
-
-<span class="c1">// IsLetter 判断 r 是否为一个字母字符 (类别 L)
-</span><span class="c1">// 汉字也是一个字母字符
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">IsLetter</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
-
-<span class="c1">// IsSpace 判断 r 是否为一个空白字符
-</span><span class="c1">// 在 Latin-1 字符集中，空白字符为：\t, \n, \v, \f, \r,
-</span><span class="c1">// 空格, U+0085 (NEL), U+00A0 (NBSP)
-</span><span class="c1">// 其它空白字符的定义有“类别 Z”和“Pattern_White_Space 属性”
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">IsSpace</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
-
-<span class="c1">// IsControl 判断 r 是否为一个控制字符
-</span><span class="c1">// Unicode 类别 C 包含更多字符，比如代理字符
-</span><span class="c1">// 使用 Is(C, r) 来测试它们
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">IsControl</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
-
-<span class="c1">// IsGraphic 判断字符 r 是否为一个“图形字符”
-</span><span class="c1">// “图形字符”包括字母、标记、数字、标点、符号、空格
-</span><span class="c1">// 他们分别对应于 L、M、N、P、S、Zs 类别
-</span><span class="c1">// 这些类别是 RangeTable 类型，存储了相应类别的字符范围
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">IsGraphic</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
-
-<span class="c1">// IsPrint 判断字符 r 是否为 Go 所定义的“可打印字符”
-</span><span class="c1">// “可打印字符”包括字母、标记、数字、标点、符号和 ASCII 空格
-</span><span class="c1">// 他们分别对应于 L, M, N, P, S 类别和 ASCII 空格
-</span><span class="c1">// “可打印字符”和“图形字符”基本是相同的，不同之处在于
-</span><span class="c1">// “可打印字符”只包含 Zs 类别中的 ASCII 空格（U+0020）
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">IsPrint</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
-
-<span class="c1">// IsPunct 判断 r 是否为一个标点字符 (类别 P)
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">IsPunct</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
-
-<span class="c1">// IsSymbol 判断 r 是否为一个符号字符
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">IsSymbol</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
-
-<span class="c1">// IsMark 判断 r 是否为一个 mark 字符 (类别 M)
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">IsMark</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
-
-<span class="c1">// IsOneOf 判断 r 是否在 set 范围内
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">IsOneOf</span><span class="p">(</span><span class="nx">set</span> <span class="p">[]</span><span class="o">*</span><span class="nx">RangeTable</span><span class="p">,</span> <span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
-
-<span class="c1">//------------------------------
-</span><span class="c1"></span>
-<span class="c1">// 示例
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span> <span class="c1">// 数字
-</span><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello 123１２３一二三！&#34;</span> <span class="p">{</span>
-		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsDigit</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
-		<span class="p">}</span>
-	<span class="p">}</span> <span class="c1">// 123１２３
-</span><span class="c1"></span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span> <span class="c1">// 数字
-</span><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello 123１２３一二三！&#34;</span> <span class="p">{</span>
-		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsNumber</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
-		<span class="p">}</span>
-	<span class="p">}</span> <span class="c1">// 123１２３
-</span><span class="c1"></span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span> <span class="c1">// 字母
-</span><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello\n\t世界！&#34;</span> <span class="p">{</span>
-		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsLetter</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
-		<span class="p">}</span>
-	<span class="p">}</span> <span class="c1">// Hello世界
-</span><span class="c1"></span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span> <span class="c1">// 空白
-</span><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello \t世　界！\n&#34;</span> <span class="p">{</span>
-		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsSpace</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%q&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
-		<span class="p">}</span>
-	<span class="p">}</span> <span class="c1">// &#39; &#39;&#39;\t&#39;&#39;\u3000&#39;&#39;\n&#39;
-</span><span class="c1"></span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span> <span class="c1">// 控制字符
-</span><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello\n\t世界！&#34;</span> <span class="p">{</span>
-		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsControl</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%#q&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
-		<span class="p">}</span>
-	<span class="p">}</span> <span class="c1">// &#39;\n&#39;&#39;\t&#39;
-</span><span class="c1"></span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span> <span class="c1">// 可打印
-</span><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello　世界！\t&#34;</span> <span class="p">{</span>
-		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsPrint</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
-		<span class="p">}</span>
-	<span class="p">}</span> <span class="c1">// Hello世界！
-</span><span class="c1"></span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span> <span class="c1">// 图形
-</span><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello　世界！\t&#34;</span> <span class="p">{</span>
-		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsGraphic</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
-		<span class="p">}</span>
-	<span class="p">}</span> <span class="c1">// Hello　世界！
-</span><span class="c1"></span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span> <span class="c1">// 掩码
-</span><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello ៉៊់៌៍！&#34;</span> <span class="p">{</span>
-		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsMark</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
-		<span class="p">}</span>
-	<span class="p">}</span> <span class="c1">// ៉៊់៌៍
-</span><span class="c1"></span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span> <span class="c1">// 标点
-</span><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello 世界！&#34;</span> <span class="p">{</span>
-		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsPunct</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
-		<span class="p">}</span>
-	<span class="p">}</span> <span class="c1">// ！
-</span><span class="c1"></span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span> <span class="c1">// 符号
-</span><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello (&lt;世=界&gt;)&#34;</span> <span class="p">{</span>
-		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsSymbol</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
-		<span class="p">}</span>
-	<span class="p">}</span> <span class="c1">// &lt;=&gt;
-</span><span class="c1"></span><span class="p">}</span>
-
-<span class="c1">//------------------------------
-</span><span class="c1"></span>
-<span class="c1">// 示例：判断汉字和标点
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-	<span class="c1">// 将 set 设置为“汉字、标点符号”
-</span><span class="c1"></span>	<span class="nx">set</span> <span class="o">:=</span> <span class="p">[]</span><span class="o">*</span><span class="nx">unicode</span><span class="p">.</span><span class="nx">RangeTable</span><span class="p">{</span><span class="nx">unicode</span><span class="p">.</span><span class="nx">Han</span><span class="p">,</span> <span class="nx">unicode</span><span class="p">.</span><span class="nx">P</span><span class="p">}</span>
-	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello 世界！&#34;</span> <span class="p">{</span>
-		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsOneOf</span><span class="p">(</span><span class="nx">set</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
-		<span class="p">}</span>
-	<span class="p">}</span> <span class="c1">// 世界！
-</span><span class="c1"></span><span class="p">}</span>
-
-<span class="c1">//------------------------------
-</span><span class="c1"></span>
-<span class="c1">// 示例：输出所有 mark 字符
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">cr</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">unicode</span><span class="p">.</span><span class="nx">M</span><span class="p">.</span><span class="nx">R16</span> <span class="p">{</span>
-		<span class="nx">Lo</span><span class="p">,</span> <span class="nx">Hi</span><span class="p">,</span> <span class="nx">Stride</span> <span class="o">:=</span> <span class="nb">rune</span><span class="p">(</span><span class="nx">cr</span><span class="p">.</span><span class="nx">Lo</span><span class="p">),</span> <span class="nb">rune</span><span class="p">(</span><span class="nx">cr</span><span class="p">.</span><span class="nx">Hi</span><span class="p">),</span> <span class="nb">rune</span><span class="p">(</span><span class="nx">cr</span><span class="p">.</span><span class="nx">Stride</span><span class="p">)</span>
-		<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="nx">Lo</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="nx">Lo</span> <span class="o">&amp;&amp;</span> <span class="nx">i</span> <span class="o">&lt;=</span> <span class="nx">Hi</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="nx">Stride</span> <span class="p">{</span>
-			<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsMark</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span> <span class="p">{</span>
-				<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">i</span><span class="p">)</span>
-			<span class="p">}</span>
-		<span class="p">}</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-
-<span class="c1">//------------------------------------------------------------
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">//------------------------------------------------------------
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="kd">const</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">MaxRune</span>         <span class="p">=</span> <span class="sc">&#39;\U0010FFFF&#39;</span> <span class="c1">// Unicode 码点的最大值
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">ReplacementChar</span> <span class="p">=</span> <span class="sc">&#39;\uFFFD&#39;</span>     <span class="c1">// 表示无效的码点
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">MaxASCII</span>        <span class="p">=</span> <span class="sc">&#39;\u007F&#39;</span>     <span class="c1">// 最大 ASCII 值
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">MaxLatin1</span>       <span class="p">=</span> <span class="sc">&#39;\u00FF&#39;</span>     <span class="c1">// 最大 Latin-1 值
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//------------------------------------------------------------
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 判断字符 r 是否在 rangtab 范围内。
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 可用的 RangeTable 参见 go/src/unicode/tables.go。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">Is</span><span class="p">(</span><span class="nx">rangeTab</span> <span class="o">*</span><span class="nx">RangeTable</span><span class="p">,</span> <span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// RangeTable 定义一个 Unicode 码点集合，包含 16 位和 32 位两个范围列表。
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 这两个列表必须经过排序而且不能重叠。R32 中只能包含大于 16 位的值。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">type</span> <span class="nx">RangeTable</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">R16</span>         <span class="p">[]</span><span class="nx">Range16</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">R32</span>         <span class="p">[]</span><span class="nx">Range32</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">LatinOffset</span> <span class="kt">int</span> <span class="c1">// R16 中 Hi &lt;= MaxLatin1 的条目数。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Range16 表示一个 16 位的 Unicode 码点范围。范围从 Lo 到 Hi，具有指定的步长。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">type</span> <span class="nx">Range16</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Lo</span>     <span class="kt">uint16</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Hi</span>     <span class="kt">uint16</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Stride</span> <span class="kt">uint16</span> <span class="c1">// 步长
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Range32 表示一个 32 位的 Unicode 码点范围。范围从 Lo 到 Hi，具有指定的步长。
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Lo 和 Hi 必须都大于 16 位。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">type</span> <span class="nx">Range32</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Lo</span>     <span class="kt">uint32</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Hi</span>     <span class="kt">uint32</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Stride</span> <span class="kt">uint32</span> <span class="c1">// 步长
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//------------------------------
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 判断字符 r 是否为大写格式
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">IsUpper</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 判断字符 r 是否为小写格式
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">IsLower</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 判断字符 r 是否为 Unicode 规定的 Title 字符
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 大部分字符的 Title 格式就是其大写格式
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 只有少数字符的 Title 格式是特殊字符
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 这里判断的就是特殊字符
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">IsTitle</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// ToUpper 将字符 r 转换为大写格式
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">ToUpper</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">rune</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// ToLower 将字符 r 转换为小写格式
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">ToLower</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">rune</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// ToTitle 将字符 r 转换为 Title 格式
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 大部分字符的 Title 格式就是其大写格式
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 只有少数字符的 Title 格式是特殊字符
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">ToTitle</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">rune</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// To 将字符 r 转换为指定的格式
+</span></span></span><span class="line"><span class="cl"><span class="c1">// _case 取值：UpperCase、LowerCase、TitleCase
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">To</span><span class="p">(</span><span class="nx">_case</span> <span class="kt">int</span><span class="p">,</span> <span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">rune</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//------------------------------
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 示例：判断汉字
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello 世界！&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">// 判断字符是否为汉字
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">Is</span><span class="p">(</span><span class="nx">unicode</span><span class="p">.</span><span class="nx">Scripts</span><span class="p">[</span><span class="s">&#34;Han&#34;</span><span class="p">],</span> <span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span> <span class="c1">// 世界
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 更多 unicode.Scripts 取值请参考：http://www.cnblogs.com/golove/p/3269099.html
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">//------------------------------
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 示例：判断大小写
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello ＡＢＣ！&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">// 判断字符是否为大写
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsUpper</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span> <span class="c1">// HＡＢＣ
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello ａｂｃ！&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">// 判断字符是否为小写
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsLower</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span> <span class="c1">// elloａｂｃ
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello ᾏᾟᾯ！&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">// 判断字符是否为标题
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsTitle</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span> <span class="c1">// ᾏᾟᾯ
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//------------------------------
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 示例：输出 Unicode 规定的标题字符
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">cr</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">unicode</span><span class="p">.</span><span class="nx">Lt</span><span class="p">.</span><span class="nx">R16</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="nx">cr</span><span class="p">.</span><span class="nx">Lo</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;=</span> <span class="nx">cr</span><span class="p">.</span><span class="nx">Hi</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="nx">cr</span><span class="p">.</span><span class="nx">Stride</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">i</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="c1">// ǅǈǋǲᾈᾉᾊᾋᾌᾍᾎᾏᾘᾙᾚᾛᾜᾝᾞᾟᾨᾩᾪᾫᾬᾭᾮᾯᾼῌῼ
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//------------------------------
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 示例：转换大小写
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">s</span> <span class="o">:=</span> <span class="s">&#34;Hello 世界！&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">ToUpper</span><span class="p">(</span><span class="nx">r</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="c1">// HELLO 世界！
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">ToLower</span><span class="p">(</span><span class="nx">r</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="c1">// hello 世界！
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">ToTitle</span><span class="p">(</span><span class="nx">r</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="c1">// HELLO 世界！
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">To</span><span class="p">(</span><span class="nx">unicode</span><span class="p">.</span><span class="nx">UpperCase</span><span class="p">,</span> <span class="nx">r</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="c1">// HELLO 世界！
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">To</span><span class="p">(</span><span class="nx">unicode</span><span class="p">.</span><span class="nx">LowerCase</span><span class="p">,</span> <span class="nx">r</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="c1">// hello 世界！
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">To</span><span class="p">(</span><span class="nx">unicode</span><span class="p">.</span><span class="nx">TitleCase</span><span class="p">,</span> <span class="nx">r</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="c1">// HELLO 世界！
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//------------------------------------------------------------
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// ToUpper 将 r 转换为大写格式
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 优先使用指定的映射表 special
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 可用的 SpecialCase 参见 go/src/unicode/casetables.go。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">special</span> <span class="nx">SpecialCase</span><span class="p">)</span> <span class="nf">ToUpper</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">rune</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// ToLower 将 r 转换为小写格式
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 优先使用指定的映射表 special
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">special</span> <span class="nx">SpecialCase</span><span class="p">)</span> <span class="nf">ToLower</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">rune</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// ToTitle 将 r 转换为 Title 格式
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 优先使用指定的映射表 special
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">special</span> <span class="nx">SpecialCase</span><span class="p">)</span> <span class="nf">ToTitle</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">rune</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// SpecialCase 表示特定语言的大小写映射，比如土耳其语。
+</span></span></span><span class="line"><span class="cl"><span class="c1">// SpecialCase 的方法可以自定义标准映射（通过重写）。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">type</span> <span class="nx">SpecialCase</span> <span class="p">[]</span><span class="nx">CaseRange</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// CaseRange 表示一个简单的 Unicode 码点范围，用于大小写转换。
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 在 Lo 和 Hi 范围内的码点，如果要转换成大写，只需要加上 d[0] 即可
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 如果要转换为小写，只需要加上 d[1] 即可，如果要转换为 Title 格式，
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 只需要加上 d[2] 即可。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">type</span> <span class="nx">CaseRange</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Lo</span>    <span class="kt">uint32</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Hi</span>    <span class="kt">uint32</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Delta</span> <span class="nx">d</span> <span class="c1">// [3]rune
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// CaseRanges 中 Delta 数组的索引。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">const</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">UpperCase</span> <span class="p">=</span> <span class="kc">iota</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">LowerCase</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">TitleCase</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">MaxCase</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 如果一个 CaseRange 中的 Delta 元素是 UpperLower，则表示这个 CaseRange 是
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 一个有着连续的大写小写大写小写的范围。也就是说，Lo 是大写，Lo+1 是小写，
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Lo+2 是大写，Lo+3 是小写 ... 一直到 Hi 为止。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">const</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">UpperLower</span> <span class="p">=</span> <span class="nx">MaxRune</span> <span class="o">+</span> <span class="mi">1</span> <span class="c1">// 不是一个有效的 Delta 元素
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//------------------------------
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 示例
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">s</span> <span class="o">:=</span> <span class="s">&#34;Hello 世界！&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">SpecialCase</span><span class="p">(</span><span class="nx">unicode</span><span class="p">.</span><span class="nx">CaseRanges</span><span class="p">).</span><span class="nf">ToUpper</span><span class="p">(</span><span class="nx">r</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="c1">// HELLO 世界！
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">SpecialCase</span><span class="p">(</span><span class="nx">unicode</span><span class="p">.</span><span class="nx">CaseRanges</span><span class="p">).</span><span class="nf">ToLower</span><span class="p">(</span><span class="nx">r</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="c1">// hello 世界！
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">SpecialCase</span><span class="p">(</span><span class="nx">unicode</span><span class="p">.</span><span class="nx">CaseRanges</span><span class="p">).</span><span class="nf">ToTitle</span><span class="p">(</span><span class="nx">r</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="c1">// HELLO 世界！
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//------------------------------------------------------------
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// SimpleFold 在 Unicode 字符表中从字符 r 开始环绕查找（到尾部后再从头开始）
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 下一个与 r 大小写相匹配的字符（一个字符的大写、小写、标题三者视为大小写相
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 匹配），这个函数遵循 Unicode 定义的大小写环绕匹配表。
+</span></span></span><span class="line"><span class="cl"><span class="c1">//
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 例如：
+</span></span></span><span class="line"><span class="cl"><span class="c1">// SimpleFold(&#39;A&#39;) = &#39;a&#39;
+</span></span></span><span class="line"><span class="cl"><span class="c1">// SimpleFold(&#39;a&#39;) = &#39;A&#39;
+</span></span></span><span class="line"><span class="cl"><span class="c1">//
+</span></span></span><span class="line"><span class="cl"><span class="c1">// SimpleFold(&#39;K&#39;) = &#39;k&#39;
+</span></span></span><span class="line"><span class="cl"><span class="c1">// SimpleFold(&#39;k&#39;) = &#39;K&#39; (开尔文符号)
+</span></span></span><span class="line"><span class="cl"><span class="c1">// SimpleFold(&#39;K&#39;) = &#39;K&#39;
+</span></span></span><span class="line"><span class="cl"><span class="c1">//
+</span></span></span><span class="line"><span class="cl"><span class="c1">// SimpleFold(&#39;1&#39;) = &#39;1&#39;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">SimpleFold</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">rune</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//------------------------------
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 示例：SimpleFold
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">s</span> <span class="o">:=</span> <span class="s">&#34;ΦφϕkKK&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 看看 s 里面是什么
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">c</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%x  &#34;</span><span class="p">,</span> <span class="nx">c</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 大写，小写，标题 | 当前字符 -&gt; 下一个匹配字符
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">v</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c, %c, %c | %c -&gt; %c\n&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">unicode</span><span class="p">.</span><span class="nf">ToUpper</span><span class="p">(</span><span class="nx">v</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">unicode</span><span class="p">.</span><span class="nf">ToLower</span><span class="p">(</span><span class="nx">v</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">unicode</span><span class="p">.</span><span class="nf">ToTitle</span><span class="p">(</span><span class="nx">v</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">v</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">unicode</span><span class="p">.</span><span class="nf">SimpleFold</span><span class="p">(</span><span class="nx">v</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">		<span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 输出结果：
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 3a6  3c6  3d5  6b  4b  212a
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Φ, φ, Φ | Φ -&gt; φ
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Φ, φ, Φ | φ -&gt; ϕ
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Φ, ϕ, Φ | ϕ -&gt; Φ
+</span></span></span><span class="line"><span class="cl"><span class="c1">// K, k, K | k -&gt; K
+</span></span></span><span class="line"><span class="cl"><span class="c1">// K, k, K | K -&gt; k
+</span></span></span><span class="line"><span class="cl"><span class="c1">// K, k, K | K -&gt; K
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">//------------------------------------------------------------
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// IsDigit 判断 r 是否为一个十进制的数字字符
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">IsDigit</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// IsNumber 判断 r 是否为一个数字字符 (类别 N)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">IsNumber</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// IsLetter 判断 r 是否为一个字母字符 (类别 L)
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 汉字也是一个字母字符
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">IsLetter</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// IsSpace 判断 r 是否为一个空白字符
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 在 Latin-1 字符集中，空白字符为：\t, \n, \v, \f, \r,
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 空格, U+0085 (NEL), U+00A0 (NBSP)
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 其它空白字符的定义有“类别 Z”和“Pattern_White_Space 属性”
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">IsSpace</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// IsControl 判断 r 是否为一个控制字符
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Unicode 类别 C 包含更多字符，比如代理字符
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 使用 Is(C, r) 来测试它们
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">IsControl</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// IsGraphic 判断字符 r 是否为一个“图形字符”
+</span></span></span><span class="line"><span class="cl"><span class="c1">// “图形字符”包括字母、标记、数字、标点、符号、空格
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 他们分别对应于 L、M、N、P、S、Zs 类别
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 这些类别是 RangeTable 类型，存储了相应类别的字符范围
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">IsGraphic</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// IsPrint 判断字符 r 是否为 Go 所定义的“可打印字符”
+</span></span></span><span class="line"><span class="cl"><span class="c1">// “可打印字符”包括字母、标记、数字、标点、符号和 ASCII 空格
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 他们分别对应于 L, M, N, P, S 类别和 ASCII 空格
+</span></span></span><span class="line"><span class="cl"><span class="c1">// “可打印字符”和“图形字符”基本是相同的，不同之处在于
+</span></span></span><span class="line"><span class="cl"><span class="c1">// “可打印字符”只包含 Zs 类别中的 ASCII 空格（U+0020）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">IsPrint</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// IsPunct 判断 r 是否为一个标点字符 (类别 P)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">IsPunct</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// IsSymbol 判断 r 是否为一个符号字符
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">IsSymbol</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// IsMark 判断 r 是否为一个 mark 字符 (类别 M)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">IsMark</span><span class="p">(</span><span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// IsOneOf 判断 r 是否在 set 范围内
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">IsOneOf</span><span class="p">(</span><span class="nx">set</span> <span class="p">[]</span><span class="o">*</span><span class="nx">RangeTable</span><span class="p">,</span> <span class="nx">r</span> <span class="kt">rune</span><span class="p">)</span> <span class="kt">bool</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//------------------------------
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 示例
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span> <span class="c1">// 数字
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello 123１２３一二三！&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsDigit</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="c1">// 123１２３
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span> <span class="c1">// 数字
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello 123１２３一二三！&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsNumber</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="c1">// 123１２３
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span> <span class="c1">// 字母
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello\n\t世界！&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsLetter</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="c1">// Hello世界
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span> <span class="c1">// 空白
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello \t世　界！\n&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsSpace</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%q&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="c1">// &#39; &#39;&#39;\t&#39;&#39;\u3000&#39;&#39;\n&#39;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span> <span class="c1">// 控制字符
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello\n\t世界！&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsControl</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%#q&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="c1">// &#39;\n&#39;&#39;\t&#39;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span> <span class="c1">// 可打印
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello　世界！\t&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsPrint</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="c1">// Hello世界！
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span> <span class="c1">// 图形
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello　世界！\t&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsGraphic</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="c1">// Hello　世界！
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span> <span class="c1">// 掩码
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello ៉៊់៌៍！&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsMark</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="c1">// ៉៊់៌៍
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span> <span class="c1">// 标点
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello 世界！&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsPunct</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="c1">// ！
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span> <span class="c1">// 符号
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello (&lt;世=界&gt;)&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsSymbol</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="c1">// &lt;=&gt;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//------------------------------
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 示例：判断汉字和标点
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 将 set 设置为“汉字、标点符号”
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">set</span> <span class="o">:=</span> <span class="p">[]</span><span class="o">*</span><span class="nx">unicode</span><span class="p">.</span><span class="nx">RangeTable</span><span class="p">{</span><span class="nx">unicode</span><span class="p">.</span><span class="nx">Han</span><span class="p">,</span> <span class="nx">unicode</span><span class="p">.</span><span class="nx">P</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">&#34;Hello 世界！&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsOneOf</span><span class="p">(</span><span class="nx">set</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="c1">// 世界！
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//------------------------------
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 示例：输出所有 mark 字符
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">cr</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">unicode</span><span class="p">.</span><span class="nx">M</span><span class="p">.</span><span class="nx">R16</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Lo</span><span class="p">,</span> <span class="nx">Hi</span><span class="p">,</span> <span class="nx">Stride</span> <span class="o">:=</span> <span class="nb">rune</span><span class="p">(</span><span class="nx">cr</span><span class="p">.</span><span class="nx">Lo</span><span class="p">),</span> <span class="nb">rune</span><span class="p">(</span><span class="nx">cr</span><span class="p">.</span><span class="nx">Hi</span><span class="p">),</span> <span class="nb">rune</span><span class="p">(</span><span class="nx">cr</span><span class="p">.</span><span class="nx">Stride</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="nx">Lo</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="nx">Lo</span> <span class="o">&amp;&amp;</span> <span class="nx">i</span> <span class="o">&lt;=</span> <span class="nx">Hi</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="nx">Stride</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">unicode</span><span class="p">.</span><span class="nf">IsMark</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="nx">i</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//------------------------------------------------------------
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -1086,7 +1087,7 @@
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -1103,7 +1104,7 @@
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {

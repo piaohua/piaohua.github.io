@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.67.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.5 with theme even" />
 
 
 <link rel="canonical" href="https://piaohua.github.io/post/golang/20200809-golang-crc32-packet/" />
@@ -35,27 +35,28 @@
 
 
 
-<link href="/sass/main.min.2e81bbed97b8b282c1aeb57488cc71c8d8c8ec559f3931531bd396bf31e0d4dd.css" rel="stylesheet">
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="[Go] Golang Crc32 Packet" />
-<meta property="og:description" content="打包解包协议中应用crc32校验和 crc32 介绍 crc32包实现了32位循环冗余校验（CRC-32）的校验和算法; CRC全称为Cyclic Redundancy Chec" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://piaohua.github.io/post/golang/20200809-golang-crc32-packet/" />
-<meta property="article:published_time" content="2020-08-09T12:47:32+08:00" />
-<meta property="article:modified_time" content="2020-08-09T12:47:32+08:00" />
-<meta itemprop="name" content="[Go] Golang Crc32 Packet">
-<meta itemprop="description" content="打包解包协议中应用crc32校验和 crc32 介绍 crc32包实现了32位循环冗余校验（CRC-32）的校验和算法; CRC全称为Cyclic Redundancy Chec">
-<meta itemprop="datePublished" content="2020-08-09T12:47:32&#43;08:00" />
-<meta itemprop="dateModified" content="2020-08-09T12:47:32&#43;08:00" />
-<meta itemprop="wordCount" content="666">
+<meta property="og:url" content="https://piaohua.github.io/post/golang/20200809-golang-crc32-packet/">
+  <meta property="og:site_name" content="piaohua&#39;s blog">
+  <meta property="og:title" content="[Go] Golang Crc32 Packet">
+  <meta property="og:description" content="打包解包协议中应用crc32校验和 crc32 介绍 crc32包实现了32位循环冗余校验（CRC-32）的校验和算法; CRC全称为Cyclic Redundancy Chec">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2020-08-09T12:47:32+08:00">
+    <meta property="article:modified_time" content="2020-08-09T12:47:32+08:00">
+    <meta property="article:tag" content="Golang">
 
-
-
-<meta itemprop="keywords" content="golang," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="[Go] Golang Crc32 Packet"/>
-<meta name="twitter:description" content="打包解包协议中应用crc32校验和 crc32 介绍 crc32包实现了32位循环冗余校验（CRC-32）的校验和算法; CRC全称为Cyclic Redundancy Chec"/>
+  <meta itemprop="name" content="[Go] Golang Crc32 Packet">
+  <meta itemprop="description" content="打包解包协议中应用crc32校验和 crc32 介绍 crc32包实现了32位循环冗余校验（CRC-32）的校验和算法; CRC全称为Cyclic Redundancy Chec">
+  <meta itemprop="datePublished" content="2020-08-09T12:47:32+08:00">
+  <meta itemprop="dateModified" content="2020-08-09T12:47:32+08:00">
+  <meta itemprop="wordCount" content="666">
+  <meta itemprop="keywords" content="Golang"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="[Go] Golang Crc32 Packet">
+<meta name="twitter:description" content="打包解包协议中应用crc32校验和 crc32 介绍 crc32包实现了32位循环冗余校验（CRC-32）的校验和算法; CRC全称为Cyclic Redundancy Chec">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -175,7 +176,7 @@ HASH具有单向性，不可逆性），主要用来检测或校验数据传输�
 <h2 id="crc32-应用打包解包协议">crc32 应用打包解包协议</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -262,92 +263,92 @@ HASH具有单向性，不可逆性），主要用来检测或校验数据传输�
 </span><span class="lnt">85
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-    <span class="s">&#34;bytes&#34;</span>
-    <span class="s">&#34;encoding/binary&#34;</span>
-    <span class="s">&#34;fmt&#34;</span>
-    <span class="s">&#34;hash/crc32&#34;</span>
-<span class="p">)</span>
-
-<span class="c1">// Packet packet message
-</span><span class="c1">// | 32 bit length | 16 bit version | 32 bit crc | length - 80 bit info |
-</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Packet</span> <span class="kd">struct</span> <span class="p">{</span>
-    <span class="nx">length</span>  <span class="kt">uint32</span>
-    <span class="nx">version</span> <span class="kt">uint16</span>
-    <span class="nx">crc32</span>   <span class="kt">uint32</span>
-    <span class="nx">info</span>    <span class="p">[]</span><span class="kt">byte</span>
-<span class="p">}</span>
-
-<span class="c1">// Encode encode message
-</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="nx">Packet</span><span class="p">)</span> <span class="nf">Encode</span><span class="p">()</span> <span class="p">(</span><span class="nx">data</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">buf</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">bytes</span><span class="p">.</span><span class="nx">Buffer</span><span class="p">)</span>
-    <span class="nx">p</span><span class="p">.</span><span class="nx">length</span> <span class="p">=</span> <span class="nb">uint32</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">info</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span>
-
-    <span class="nx">err</span> <span class="p">=</span> <span class="nx">binary</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">LittleEndian</span><span class="p">,</span> <span class="p">(</span><span class="kt">uint32</span><span class="p">)(</span><span class="nx">p</span><span class="p">.</span><span class="nx">length</span><span class="p">))</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="k">return</span>
-    <span class="p">}</span>
-
-    <span class="nx">err</span> <span class="p">=</span> <span class="nx">binary</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">LittleEndian</span><span class="p">,</span> <span class="p">(</span><span class="kt">uint16</span><span class="p">)(</span><span class="nx">p</span><span class="p">.</span><span class="nx">version</span><span class="p">))</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="k">return</span>
-    <span class="p">}</span>
-
-    <span class="c1">// 返回使用IEEE多项式计算出的CRC-32校验和
-</span><span class="c1"></span>    <span class="nx">p</span><span class="p">.</span><span class="nx">crc32</span> <span class="p">=</span> <span class="nx">crc32</span><span class="p">.</span><span class="nf">ChecksumIEEE</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">info</span><span class="p">)</span>
-    <span class="nx">err</span> <span class="p">=</span> <span class="nx">binary</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">LittleEndian</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">crc32</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="k">return</span>
-    <span class="p">}</span>
-
-    <span class="nx">err</span> <span class="p">=</span> <span class="nx">binary</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">LittleEndian</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">info</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="k">return</span>
-    <span class="p">}</span>
-
-    <span class="k">return</span> <span class="nx">buf</span><span class="p">.</span><span class="nf">Bytes</span><span class="p">(),</span> <span class="kc">nil</span>
-<span class="p">}</span>
-
-<span class="c1">// DecodeLength decode message length
-</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Packet</span><span class="p">)</span> <span class="nf">DecodeLength</span><span class="p">(</span><span class="nx">data</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="p">(</span><span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-    <span class="c1">//p.length = binary.LittleEndian.Uint32(data)
-</span><span class="c1"></span>    <span class="nx">buf</span> <span class="o">:=</span> <span class="nx">bytes</span><span class="p">.</span><span class="nf">NewBuffer</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
-
-    <span class="nx">err</span> <span class="p">=</span> <span class="nx">binary</span><span class="p">.</span><span class="nf">Read</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">LittleEndian</span><span class="p">,</span> <span class="o">&amp;</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">length</span><span class="p">))</span>
-    <span class="k">return</span>
-<span class="p">}</span>
-
-<span class="c1">// Decode decode message
-</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Packet</span><span class="p">)</span> <span class="nf">Decode</span><span class="p">(</span><span class="nx">data</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="p">(</span><span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">buf</span> <span class="o">:=</span> <span class="nx">bytes</span><span class="p">.</span><span class="nf">NewBuffer</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
-
-    <span class="nx">err</span> <span class="p">=</span> <span class="nx">binary</span><span class="p">.</span><span class="nf">Read</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">LittleEndian</span><span class="p">,</span> <span class="o">&amp;</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">length</span><span class="p">))</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="k">return</span>
-    <span class="p">}</span>
-
-    <span class="nx">err</span> <span class="p">=</span> <span class="nx">binary</span><span class="p">.</span><span class="nf">Read</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">LittleEndian</span><span class="p">,</span> <span class="o">&amp;</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">version</span><span class="p">))</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="k">return</span>
-    <span class="p">}</span>
-
-    <span class="nx">err</span> <span class="p">=</span> <span class="nx">binary</span><span class="p">.</span><span class="nf">Read</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">LittleEndian</span><span class="p">,</span> <span class="o">&amp;</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">crc32</span><span class="p">))</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-        <span class="k">return</span>
-    <span class="p">}</span>
-
-    <span class="nx">p</span><span class="p">.</span><span class="nx">info</span> <span class="p">=</span> <span class="nx">buf</span><span class="p">.</span><span class="nf">Bytes</span><span class="p">()</span>
-
-    <span class="nx">crc</span> <span class="o">:=</span> <span class="nx">crc32</span><span class="p">.</span><span class="nf">ChecksumIEEE</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">info</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">crc</span> <span class="o">!=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">crc32</span> <span class="p">{</span>
-        <span class="nx">err</span> <span class="p">=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;checksum of data failed&#34;</span><span class="p">)</span>
-    <span class="p">}</span>
-
-    <span class="k">return</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;bytes&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;encoding/binary&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;hash/crc32&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Packet packet message
+</span></span></span><span class="line"><span class="cl"><span class="c1">// | 32 bit length | 16 bit version | 32 bit crc | length - 80 bit info |
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">type</span> <span class="nx">Packet</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">length</span>  <span class="kt">uint32</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">version</span> <span class="kt">uint16</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">crc32</span>   <span class="kt">uint32</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">info</span>    <span class="p">[]</span><span class="kt">byte</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Encode encode message
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="nx">Packet</span><span class="p">)</span> <span class="nf">Encode</span><span class="p">()</span> <span class="p">(</span><span class="nx">data</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">buf</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">bytes</span><span class="p">.</span><span class="nx">Buffer</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">p</span><span class="p">.</span><span class="nx">length</span> <span class="p">=</span> <span class="nb">uint32</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">info</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">err</span> <span class="p">=</span> <span class="nx">binary</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">LittleEndian</span><span class="p">,</span> <span class="p">(</span><span class="kt">uint32</span><span class="p">)(</span><span class="nx">p</span><span class="p">.</span><span class="nx">length</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">err</span> <span class="p">=</span> <span class="nx">binary</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">LittleEndian</span><span class="p">,</span> <span class="p">(</span><span class="kt">uint16</span><span class="p">)(</span><span class="nx">p</span><span class="p">.</span><span class="nx">version</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// 返回使用IEEE多项式计算出的CRC-32校验和
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">p</span><span class="p">.</span><span class="nx">crc32</span> <span class="p">=</span> <span class="nx">crc32</span><span class="p">.</span><span class="nf">ChecksumIEEE</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">info</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">err</span> <span class="p">=</span> <span class="nx">binary</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">LittleEndian</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">crc32</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">err</span> <span class="p">=</span> <span class="nx">binary</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">LittleEndian</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">info</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">buf</span><span class="p">.</span><span class="nf">Bytes</span><span class="p">(),</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// DecodeLength decode message length
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Packet</span><span class="p">)</span> <span class="nf">DecodeLength</span><span class="p">(</span><span class="nx">data</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="p">(</span><span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//p.length = binary.LittleEndian.Uint32(data)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">buf</span> <span class="o">:=</span> <span class="nx">bytes</span><span class="p">.</span><span class="nf">NewBuffer</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">err</span> <span class="p">=</span> <span class="nx">binary</span><span class="p">.</span><span class="nf">Read</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">LittleEndian</span><span class="p">,</span> <span class="o">&amp;</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">length</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Decode decode message
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Packet</span><span class="p">)</span> <span class="nf">Decode</span><span class="p">(</span><span class="nx">data</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="p">(</span><span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">buf</span> <span class="o">:=</span> <span class="nx">bytes</span><span class="p">.</span><span class="nf">NewBuffer</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">err</span> <span class="p">=</span> <span class="nx">binary</span><span class="p">.</span><span class="nf">Read</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">LittleEndian</span><span class="p">,</span> <span class="o">&amp;</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">length</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">err</span> <span class="p">=</span> <span class="nx">binary</span><span class="p">.</span><span class="nf">Read</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">LittleEndian</span><span class="p">,</span> <span class="o">&amp;</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">version</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">err</span> <span class="p">=</span> <span class="nx">binary</span><span class="p">.</span><span class="nf">Read</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">LittleEndian</span><span class="p">,</span> <span class="o">&amp;</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">crc32</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">p</span><span class="p">.</span><span class="nx">info</span> <span class="p">=</span> <span class="nx">buf</span><span class="p">.</span><span class="nf">Bytes</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">crc</span> <span class="o">:=</span> <span class="nx">crc32</span><span class="p">.</span><span class="nf">ChecksumIEEE</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">info</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">crc</span> <span class="o">!=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">crc32</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">err</span> <span class="p">=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;checksum of data failed&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="参考">参考</h2>
 <ul>
@@ -454,7 +455,7 @@ HASH具有单向性，不可逆性），主要用来检测或校验数据传输�
   <span class="copyright-year">
     &copy; 
     2020 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span><a href="https://piaohua.github.io/" class="theme-link">piaohua</a></span>
   </span>
 </div>
 
@@ -471,7 +472,7 @@ HASH具有单向性，不可逆性），主要用来检测或校验数据传输�
 
 
 
-<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
   <script type="text/javascript">
     window.MathJax = {
       tex: {
